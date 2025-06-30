@@ -4,11 +4,12 @@ import {j4care} from '../j4care.service';
 import {TableSchemaElement} from '../../models/dicom-table-schema-element';
 import {PermissionService} from '../permissions/permission.service';
 import {TableAction} from '../dicom-studies-table/dicom-studies-table.interfaces';
-import {DatePipe, NgClass, NgStyle} from '@angular/common';
+import {CommonModule, DatePipe, NgClass, NgStyle} from '@angular/common';
 import {AppModule} from '../../app.module';
 import {TooltipDirective} from '../tooltip/tooltip.directive';
 import {AttributeListComponent} from '../attribute-list/attribute-list.component';
 import {StackedProgressComponent} from '../stacked-progress/stacked-progress.component';
+import {SearchPipe} from '../../pipes/search.pipe';
 
 @Component({
     selector: 'table-generator',
@@ -20,7 +21,9 @@ import {StackedProgressComponent} from '../stacked-progress/stacked-progress.com
         TooltipDirective,
         AttributeListComponent,
         DatePipe,
-        StackedProgressComponent
+        StackedProgressComponent,
+        CommonModule,
+        SearchPipe
     ],
     standalone: true
 })

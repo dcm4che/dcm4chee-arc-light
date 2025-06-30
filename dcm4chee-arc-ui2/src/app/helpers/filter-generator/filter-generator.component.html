@@ -30,7 +30,7 @@
     <ng-container *ngFor="let filter of schema;trackBy:trackByFn">
         <div class="filter_block {{cssBlockClass}} height_{{filterTreeHeight}}" (click)="inFilterClicked()">
             <div *ngFor="let line of filter;trackBy:trackByFn" [ngClass]="{'line':((line && line[0] && (!line[0].showIf || line[0].showIf(model)) && ((line[0].dependingOn && model[line[0].dependingOn]) || !line[0].dependingOn))||(line && line[1] && (!line[1].showIf || line[1].showIf(model)) && ((line[1].dependingOn && model[line[1].dependingOn]) || !line[1].dependingOn)))}" [ngSwitch]="filter.type">
-              <ng-container *ngFor="let index of [0,1]">
+              <ng-container *ngFor="let index of dualIndex">
                 <ng-container *ngIf="line && line[index] && (!line[index].showIf || line[index].showIf(model)) && ((line[index].dependingOn && model[line[index].dependingOn]) || !line[index].dependingOn)" [ngSwitch]="line[index].tag">
                     <div class="input_group_dropdown" *ngSwitchCase="'combined'">
                         <input type="{{line[index].firstField.type}}" min="{{line[index].firstField.min}}" [(ngModel)]="model[line[index].firstField.filterKey]" placeholder="{{line[index].firstField.placeholder}}"/>
@@ -190,41 +190,6 @@
                     <mat-radio-group [disabled]="line[index].disabled" [ngStyle]="line[index].style" (ngModelChange)="model[line[index].filterKey] = $event;filterChange($event)" [(ngModel)]="model[line[index].filterKey]" *ngSwitchCase="'radio'">
                         <mat-radio-button *ngFor="let option of line[index].options" [value]="option.value" title="{{option.description}}">{{option.text}}</mat-radio-button>
                     </mat-radio-group>
-<!--                    <p-calendar
-                            [disabled]="line[index].disabled"
-                            [ngStyle]="line[index].style"
-                            (ngModelChange)="model[line[index].filterKey] = $event.value.format('YYYYMMDD');filterChange($event)"
-                            [(ngModel)]="model[line[index].filterKey]"
-                            *ngSwitchCase="'p-calendar'"
-                            dataType="string"
-                            dateFormat="yymmdd"
-                            monthNavigator="true"
-                            yearNavigator="true"
-                            yearRange="1800:2100"
-                            placeholder="{{line[index].description || line[index].placeholder}}"
-                            title="{{line[index]?.description}}"
-                    ></p-calendar>-->
-<!--                      <mat-form-field
-                              class="material_calendar"
-                              *ngSwitchCase="'p-calendar'"
-                              [floatLabel]="'never'"
-                              [ngStyle]="line[index].style"
-
-                      >
-                          <input matInput
-                                 [disabled]="line[index].disabled"
-                                 [matDatepicker]="picker"
-                                 placeholder="{{line[index].description || line[index].placeholder}}"
-                                 title="{{line[index]?.description}}"
-                                 [(ngModel)]="model[line[index].filterKey]"
-                          >
-                          <mat-datepicker-toggle matSuffix [for]="picker">
-                              <mat-icon matDatepickerToggleIcon>
-                                  <span class="glyphicon glyphicon-calendar"></span>
-                              </mat-icon>
-                          </mat-datepicker-toggle>
-                          <mat-datepicker #picker></mat-datepicker>
-                      </mat-form-field>-->
                       <range-picker
                               [ngStyle]="line[index].style"
                               *ngSwitchCase="'p-calendar'"

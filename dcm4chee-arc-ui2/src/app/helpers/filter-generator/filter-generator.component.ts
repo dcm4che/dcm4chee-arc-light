@@ -95,6 +95,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     hoverActive = false;
     noFilterFound = false;
     Array = Array;
+    readonly dualIndex = [0, 1];
     dynamicAttributeConfig = {
         iods: [],
         dynamicAttributes: null,

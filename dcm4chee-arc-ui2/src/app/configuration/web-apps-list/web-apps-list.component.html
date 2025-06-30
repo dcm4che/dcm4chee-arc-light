@@ -17,6 +17,8 @@
                 </div>
             </div>
         </div>
-        <table-generator *ngIf="tableConfig && webApps && webApps.length && webApps.length > 0" [config]="tableConfig" [models]="webApps|search:search"></table-generator>
+        @if ( tableConfig && webApps && webApps.length && webApps.length > 0){
+            <table-generator [config]="tableConfig" [models]="webApps|search:search"></table-generator>
+        }
     </div>
 </div>

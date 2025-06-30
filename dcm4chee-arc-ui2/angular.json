@@ -404,7 +404,7 @@
           },
           "configurations": {
             "production": {
-              "verbose": true,
+              "verbose": false,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
