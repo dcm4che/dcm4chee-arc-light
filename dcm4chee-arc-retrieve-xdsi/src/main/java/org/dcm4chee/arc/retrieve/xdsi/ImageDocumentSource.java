@@ -182,6 +182,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     public RetrieveRenderedImagingDocumentSetResponseType imagingDocumentSourceRetrieveRenderedImagingDocumentSet(
             RetrieveRenderedImagingDocumentSetRequestType req) {
         log(req);
+        ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
         RetrieveRenderedImagingDocumentSetResponseType rsp = new RetrieveRenderedImagingDocumentSetResponseType();
         RegistryResponseType regRsp = new RegistryResponseType();
         rsp.setRegistryResponse(regRsp);
@@ -670,8 +671,12 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     }
 
     private String getLocalAET() {
-        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         return arcDev.getXDSiImagingDocumentSourceAETitle();
+    }
+
+    private ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return device.getDeviceExtension(ArchiveDeviceExtension.class);
     }
 
     private DocumentResponse createDocumentResponse(DocumentRequest docReq, DataHandler dh) {

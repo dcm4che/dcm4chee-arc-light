@@ -266,6 +266,14 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 null);
         writer.writeNotNullOrDef("dcmXDSiImagingDocumentSourceAETitle", arcDev.getXDSiImagingDocumentSourceAETitle(),
                 null);
+        writer.writeNotNullOrDef("dcmXDSiFallbackCFindSCP", arcDev.getXDSiFallbackCFindSCP(), null);
+        writer.writeNotNullOrDef("dcmXDSiFallbackCFindSCPCallingAET",
+                arcDev.getXDSiFallbackCFindSCPCallingAET(), null);
+        writer.writeNotNullOrDef("dcmXDSiFallbackCMoveSCP", arcDev.getXDSiFallbackCMoveSCP(), null);
+        writer.writeNotNullOrDef("dcmXDSiFallbackCMoveSCPCallingAET",
+                arcDev.getXDSiFallbackCMoveSCPCallingAET(), null);
+        writer.writeNotNullOrDef("dcmXDSiFallbackCMoveSCPDestination",
+                arcDev.getXDSiFallbackCMoveSCPDestination(), null);
         writer.writeNotNullOrDef("dcmRemapRetrieveURL", arcDev.getRemapRetrieveURL(), null);
         writer.writeNotDef("dcmValidateCallingAEHostname", arcDev.isValidateCallingAEHostname(), false);
         writer.writeNotNullOrDef("hl7PSUSendingApplication", arcDev.getHL7PSUSendingApplication(), null);
@@ -1880,6 +1888,21 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmXDSiImagingDocumentSourceAETitle":
                     arcDev.setXDSiImagingDocumentSourceAETitle(reader.stringValue());
+                    break;
+                case "dcmXDSiFallbackCFindSCP":
+                    arcDev.setXDSiFallbackCFindSCP(reader.stringValue());
+                    break;
+                case "dcmXDSiFallbackCFindSCPCallingAET":
+                    arcDev.setXDSiFallbackCFindSCPCallingAET(reader.stringValue());
+                    break;
+                case "dcmXDSiFallbackCMoveSCP":
+                    arcDev.setXDSiFallbackCMoveSCP(reader.stringValue());
+                    break;
+                case "dcmXDSiFallbackCMoveSCPCallingAET":
+                    arcDev.setXDSiFallbackCMoveSCPCallingAET(reader.stringValue());
+                    break;
+                case "dcmXDSiFallbackCMoveSCPDestination":
+                    arcDev.setXDSiFallbackCMoveSCPDestination(reader.stringValue());
                     break;
                 case "dcmRemapRetrieveURL":
                     arcDev.setRemapRetrieveURL(reader.stringValue());

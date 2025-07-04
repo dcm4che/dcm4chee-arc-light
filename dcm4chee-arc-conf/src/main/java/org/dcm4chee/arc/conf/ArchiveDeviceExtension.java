@@ -157,6 +157,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean externalWadoRSRedirectOnNotFound;
     private volatile String externalRetrieveAEDestination;
     private volatile String xdsiImagingDocumentSourceAETitle;
+    private volatile String xdsiFallbackCFindSCP;
+    private volatile String xdsiFallbackCFindSCPCallingAET;
+    private volatile String xdsiFallbackCMoveSCP;
+    private volatile String xdsiFallbackCMoveSCPCallingAET;
+    private volatile String xdsiFallbackCMoveSCPDestination;
     private volatile String alternativeCMoveSCP;
     private volatile boolean retrieveTaskWarningOnNoMatch;
     private volatile boolean retrieveTaskWarningOnWarnings;
@@ -1107,6 +1112,54 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setXDSiImagingDocumentSourceAETitle(String xdsiImagingDocumentSourceAETitle) {
         this.xdsiImagingDocumentSourceAETitle = xdsiImagingDocumentSourceAETitle;
+    }
+
+    public String getXDSiFallbackCFindSCP() {
+        return xdsiFallbackCFindSCP;
+    }
+
+    public void setXDSiFallbackCFindSCP(String xdsiFallbackCFindSCP) {
+        this.xdsiFallbackCFindSCP = xdsiFallbackCFindSCP;
+    }
+
+    public String getXDSiFallbackCFindSCPCallingAET() {
+        return xdsiFallbackCFindSCPCallingAET;
+    }
+
+    public void setXDSiFallbackCFindSCPCallingAET(String xdsiFallbackCFindSCPCallingAET) {
+        this.xdsiFallbackCFindSCPCallingAET = xdsiFallbackCFindSCPCallingAET;
+    }
+
+    public String getXDSiFallbackCMoveSCP() {
+        return xdsiFallbackCMoveSCP;
+    }
+
+    public void setXDSiFallbackCMoveSCP(String xdsiFallbackCMoveSCP) {
+        this.xdsiFallbackCMoveSCP = xdsiFallbackCMoveSCP;
+    }
+
+    public void setXDSiFallbackCMoveSCPCallingAET(String xdsiFallbackCMoveSCPCallingAET) {
+        this.xdsiFallbackCMoveSCPCallingAET = xdsiFallbackCMoveSCPCallingAET;
+    }
+
+    public String getXDSiFallbackCMoveSCPCallingAET() {
+        return xdsiFallbackCMoveSCPCallingAET;
+    }
+
+    public String getXDSiFallbackCMoveSCPDestination() {
+        return xdsiFallbackCMoveSCPDestination;
+    }
+
+    public void setXDSiFallbackCMoveSCPDestination(String xdsiFallbackCMoveSCPDestination) {
+        this.xdsiFallbackCMoveSCPDestination = xdsiFallbackCMoveSCPDestination;
+    }
+
+    public boolean isXDSiFallback() {
+        return xdsiFallbackCFindSCP != null
+                && xdsiFallbackCFindSCPCallingAET != null
+                && xdsiFallbackCMoveSCP != null
+                && xdsiFallbackCMoveSCPCallingAET != null
+                && xdsiFallbackCMoveSCPDestination != null;
     }
 
     public String getAlternativeCMoveSCP() {
@@ -3812,6 +3865,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         externalWadoRSRedirectOnNotFound = arcdev.externalWadoRSRedirectOnNotFound;
         externalRetrieveAEDestination = arcdev.externalRetrieveAEDestination;
         xdsiImagingDocumentSourceAETitle = arcdev.xdsiImagingDocumentSourceAETitle;
+        xdsiFallbackCFindSCP = arcdev.xdsiFallbackCFindSCP;
+        xdsiFallbackCFindSCPCallingAET = arcdev.xdsiFallbackCFindSCPCallingAET;
+        xdsiFallbackCMoveSCP = arcdev.xdsiFallbackCMoveSCP;
+        xdsiFallbackCMoveSCPCallingAET = arcdev.xdsiFallbackCMoveSCPCallingAET;
+        xdsiFallbackCMoveSCPDestination = arcdev.xdsiFallbackCMoveSCPDestination;
         alternativeCMoveSCP = arcdev.alternativeCMoveSCP;
         retrieveTaskWarningOnNoMatch = arcdev.retrieveTaskWarningOnNoMatch;
         retrieveTaskWarningOnWarnings = arcdev.retrieveTaskWarningOnWarnings;

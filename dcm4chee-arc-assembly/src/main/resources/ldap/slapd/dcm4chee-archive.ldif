@@ -2436,6 +2436,31 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.500 NAME 'hl7PSUAction'
   DESC 'Specifies HL7 Procedure Status Update action: SEND_NOTIFICATION (= send HL7 Procedure Status Update Notification message to configured HL7 Procedure Status Update Receiving Applications), UPDATE_MWL_STATUS (= set Scheduled Procedure Step Status of MWL Items associated to STUDY to COMPLETED)'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.501 NAME 'dcmXDSiFallbackCFindSCP'
+  DESC 'AE Title of external C-FIND SCP to query for requested Entities not managed by this XDS-I Imaging Document Source.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.502 NAME 'dcmXDSiFallbackCFindSCPCallingAET'
+  DESC 'Calling AE Title used in A-ASSOCIATE-RQ to configured XDSi Fallback C-FIND SCP.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.503 NAME 'dcmXDSiFallbackCMoveSCP'
+  DESC 'AE Title of external C-MOVE SCP to invoke C-MOVE RQs if the requested Entities are not managed by this XDS-I Imaging Document Source.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.504 NAME 'dcmXDSiFallbackCMoveSCPCallingAET'
+  DESC 'Calling AE Title used in A-ASSOCIATE-RQ to configured XDSi Fallback C-MOVE SCP.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.505 NAME 'dcmXDSiFallbackCMoveSCPDestination'
+  DESC 'AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs invoked to configured XDSi Fallback C-MOVE SCP.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2553,6 +2578,11 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmExternalWadoRSRedirectOnNotFound $
     dcmExternalRetrieveAEDestination $
     dcmXDSiImagingDocumentSourceAETitle $
+    dcmXDSiFallbackCFindSCP $
+    dcmXDSiFallbackCFindSCPCallingAET $
+    dcmXDSiFallbackCMoveSCP $
+    dcmXDSiFallbackCMoveSCPCallingAET $
+    dcmXDSiFallbackCMoveSCPDestination $
     dcmAltCMoveSCP $
     dcmCStoreSCUOfCMoveSCP $
     dcmDiffStudiesIncludefieldAll $
