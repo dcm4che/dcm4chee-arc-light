@@ -53,6 +53,8 @@ import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4che3.xdsi.RetrieveRenderedImagingDocumentSetRequestType.StudyRequest.SeriesRequest.RenderedDocumentRequest;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.*;
 import javax.imageio.stream.ImageOutputStream;
@@ -68,6 +70,7 @@ import java.io.OutputStream;
  * @since Feb 2017
  */
 public class RenderedImageDataHandler extends DataHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(RenderedImageDataHandler.class);
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
     private final RenderedDocumentRequest docReq;
@@ -91,6 +94,7 @@ public class RenderedImageDataHandler extends DataHandler {
 
     @Override
     public void writeTo(OutputStream out) throws IOException {
+        LOG.debug("Start writing rendered {}", inst);
         try (DicomInputStream dis = ctx.getRetrieveService().openDicomInputStream(ctx, inst)) {
             imageReader.setInput(dis);
             ImageOutputStream imageOut = new MemoryCacheImageOutputStream(out);
@@ -99,6 +103,7 @@ public class RenderedImageDataHandler extends DataHandler {
             imageWriter.write(null, new IIOImage(adjust(bi), null, null), writeParam());
             imageOut.close();   // does not close out,
                                 // marks imageOut as closed to prevent finalizer thread to invoke out.flush()
+            LOG.debug("Finished writing rendered {}", inst);
         }
         if (retrieveEnd != null) {
             imageWriter.dispose();

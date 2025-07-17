@@ -48,6 +48,8 @@ import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
 import org.dcm4chee.arc.retrieve.RetrieveContext;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -59,6 +61,7 @@ import java.util.List;
  * @since Feb 2017
  */
 public class DicomDataHandler extends DataHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(DicomDataHandler.class);
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
     private final Collection<String> tsuids;
@@ -92,6 +95,7 @@ public class DicomDataHandler extends DataHandler {
                         coercions, ArchiveAttributeCoercion2.NULLIFY_PIXEL_DATA));
                 coerce = service.getAttributesCoercion(ctx, inst, coercions);
             }
+            LOG.debug("Start writing {}", inst);
             transcoder.transcode((transcoder1, dataset) -> {
                 try {
                     coerce.coerce(dataset, null);
@@ -103,6 +107,7 @@ public class DicomDataHandler extends DataHandler {
                 return os;
             });
         }
+        LOG.debug("Finished writing {}", inst);
         if (retrieveEnd != null) {
             ctx.getRetrieveService().updateLocations(ctx);
             retrieveEnd.fire(ctx);

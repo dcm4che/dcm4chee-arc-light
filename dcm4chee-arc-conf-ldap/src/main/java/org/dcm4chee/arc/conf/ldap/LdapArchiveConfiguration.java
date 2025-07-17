@@ -341,10 +341,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getExternalRetrieveAEDestination(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmXDSiImagingDocumentSourceAETitle",
                 ext.getXDSiImagingDocumentSourceAETitle(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmXDSiFallbackCFindSCP",
-                ext.getXDSiFallbackCFindSCP(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmXDSiFallbackCFindSCPCallingAET",
-                ext.getXDSiFallbackCFindSCPCallingAET(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmXDSiFallbackCMoveSCP",
                 ext.getXDSiFallbackCMoveSCP(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmXDSiFallbackCMoveSCPCallingAET",
@@ -783,8 +779,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setMultipleStoreAssociations(LdapUtils.stringArray(attrs.get("dcmMultipleStoreAssociations")));
         ext.setExternalRetrieveAEDestination(LdapUtils.stringValue(attrs.get("dcmExternalRetrieveAEDestination"), null));
         ext.setXDSiImagingDocumentSourceAETitle(LdapUtils.stringValue(attrs.get("dcmXDSiImagingDocumentSourceAETitle"), null));
-        ext.setXDSiFallbackCFindSCP(LdapUtils.stringValue(attrs.get("dcmXDSiFallbackCFindSCP"), null));
-        ext.setXDSiFallbackCFindSCPCallingAET(LdapUtils.stringValue(attrs.get("dcmXDSiFallbackCFindSCPCallingAET"), null));
         ext.setXDSiFallbackCMoveSCP(LdapUtils.stringValue(attrs.get("dcmXDSiFallbackCMoveSCP"), null));
         ext.setXDSiFallbackCMoveSCPCallingAET(LdapUtils.stringValue(attrs.get("dcmXDSiFallbackCMoveSCPCallingAET"), null));
         ext.setXDSiFallbackCMoveSCPDestination(LdapUtils.stringValue(attrs.get("dcmXDSiFallbackCMoveSCPDestination"), null));
@@ -1338,10 +1332,6 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getExternalRetrieveAEDestination(), bb.getExternalRetrieveAEDestination(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmXDSiImagingDocumentSourceAETitle",
                 aa.getXDSiImagingDocumentSourceAETitle(), bb.getXDSiImagingDocumentSourceAETitle(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmXDSiFallbackCFindSCP",
-                aa.getXDSiFallbackCFindSCP(), bb.getXDSiFallbackCFindSCP(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmXDSiFallbackCFindSCPCallingAET",
-                aa.getXDSiFallbackCFindSCPCallingAET(), bb.getXDSiFallbackCFindSCPCallingAET(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmXDSiFallbackCMoveSCP",
                 aa.getXDSiFallbackCMoveSCP(), bb.getXDSiFallbackCMoveSCP(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmXDSiFallbackCMoveSCPCallingAET",
@@ -5561,8 +5551,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         try {
             return config.loadDevice(scheduledStationDeviceRef);
         } catch (ConfigurationException e) {
-            LOG.info("Failed to load Scheduled Station device "
-                    + scheduledStationDeviceRef + " referenced by HL7 Order Scheduled Station", e);
+            LOG.info("Failed to load Scheduled Station device {} referenced by HL7 Order Scheduled Station", scheduledStationDeviceRef, e);
             return null;
         }
     }

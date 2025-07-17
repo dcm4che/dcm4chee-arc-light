@@ -40,20 +40,23 @@
 
 package org.dcm4chee.arc.retrieve.xdsi;
 
-import jakarta.activation.DataHandler;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.event.Event;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.jws.WebService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.MultivaluedHashMap;
 import jakarta.xml.ws.BindingType;
 import jakarta.xml.ws.soap.Addressing;
 import jakarta.xml.ws.soap.MTOM;
 import jakarta.xml.ws.soap.SOAPBinding;
+import org.dcm4che3.conf.api.IApplicationEntityCache;
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
-import org.dcm4che3.net.Device;
+import org.dcm4che3.data.VR;
+import org.dcm4che3.net.*;
+import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
@@ -70,14 +73,17 @@ import org.dcm4chee.arc.retrieve.RetrieveEnd;
 import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.retrieve.RetrieveStart;
 import org.dcm4chee.arc.store.InstanceLocations;
+import org.dcm4chee.arc.store.StoreContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.IntPredicate;
+import java.util.stream.Collectors;
 
 import static org.dcm4che3.xdsi.XDSConstants.*;
 
@@ -122,12 +128,16 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     public static final String OUT_OF_RANGE_FRAME_NUMBER = "Out of range Frame number";
     public static final String WC_REQUIRED_IF_WW = "WindowCenter is required if WindowWidth is present";
     public static final String WW_REQUIRED_IF_WC = "WindowWidth is required if WindowCenter is present";
+    static final Map<Integer, CMoveRSPHandler> cMoveRSPHandlers = new HashMap<>();
 
     @Inject
     private RetrieveService retrieveService;
 
     @Inject
     private Device device;
+
+    @Inject
+    private IApplicationEntityCache aeCache;
 
     @Inject
     private HttpServletRequest request;
@@ -138,6 +148,13 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     @Inject @RetrieveEnd
     private Event<RetrieveContext> retrieveEnd;
 
+    private ArchiveDeviceExtension arcDev;
+
+    @PostConstruct
+    private void initArcDev() {
+        arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+    }
+
     @Override
     public RetrieveDocumentSetResponseType imagingDocumentSourceRetrieveImagingDocumentSet(
             RetrieveImagingDocumentSetRequestType req) {
@@ -145,27 +162,28 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         RetrieveDocumentSetResponseType rsp = new RetrieveDocumentSetResponseType();
         RegistryResponseType regRsp = new RegistryResponseType();
         rsp.setRegistryResponse(regRsp);
-        MultivaluedHashMap<String, DocumentRequest> map = new MultivaluedHashMap<>();
-        RetrieveContext ctx = newRetrieveContextXDSI(req, map);
+        Map<String, Map<String, Map<String, DocumentRequest>>> studyRequest = studyRequest(req);
+        RetrieveContext ctx = newRetrieveContextXDSI(studyRequest);
         List<String> tsuids = req.getTransferSyntaxUIDList().getTransferSyntaxUID();
-        if (calculateMatches(ctx, regRsp, map.keySet(), tsuids)) {
+        if (calculateMatches(ctx, regRsp, studyRequest, tsuids)) {
             retrieveStart.fire(ctx);
             DicomDataHandler dh = null;
             for (InstanceLocations match : ctx.getMatches()) {
                 if (!ctx.copyToRetrieveCache(match)) {
-                    dh = new DicomDataHandler(ctx, match, tsuids);
-                    for (DocumentRequest docReq
-                            : map.get(match.getSopInstanceUID())) {
-                            rsp.getDocumentResponse().add(createDocumentResponse(docReq, dh));
+                    Optional<DocumentRequest> docReq = findDocumentRequest(match, studyRequest);
+                    if (docReq.isPresent()) {
+                        dh = new DicomDataHandler(ctx, match, tsuids);
+                        rsp.getDocumentResponse().add(createDocumentResponse(docReq.get(), dh));
                     }
                 }
             }
             ctx.copyToRetrieveCache(null);
             InstanceLocations match;
             while ((match = ctx.copiedToRetrieveCache()) != null) {
-                dh = new DicomDataHandler(ctx, match, tsuids);
-                for (DocumentRequest docReq : map.get(match.getSopInstanceUID())) {
-                    rsp.getDocumentResponse().add(createDocumentResponse(docReq, dh));
+                Optional<DocumentRequest> docReq = findDocumentRequest(match, studyRequest);
+                if (docReq.isPresent()) {
+                    dh = new DicomDataHandler(ctx, match, tsuids);
+                    rsp.getDocumentResponse().add(createDocumentResponse(docReq.get(), dh));
                 }
             }
             if (dh != null)
@@ -182,31 +200,32 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     public RetrieveRenderedImagingDocumentSetResponseType imagingDocumentSourceRetrieveRenderedImagingDocumentSet(
             RetrieveRenderedImagingDocumentSetRequestType req) {
         log(req);
-        ArchiveDeviceExtension arcdev = getArchiveDeviceExtension();
         RetrieveRenderedImagingDocumentSetResponseType rsp = new RetrieveRenderedImagingDocumentSetResponseType();
         RegistryResponseType regRsp = new RegistryResponseType();
         rsp.setRegistryResponse(regRsp);
-        MultivaluedHashMap<String, RenderedDocumentRequest> map = new MultivaluedHashMap<>();
-        RetrieveContext ctx = newRetrieveContextXDSI(req, map);
-        if (calculateMatches(ctx, regRsp, map)) {
+        Map<String, Map<String, Map<String, RenderedDocumentRequest>>> studyRequest = studyRequest(req);
+        RetrieveContext ctx = newRetrieveContextXDSI(studyRequest);
+        if (calculateRenderedMatches(ctx, regRsp, studyRequest)) {
             retrieveStart.fire(ctx);
             RenderedImageDataHandler dh = null;
             ImageReader imageReader = getDicomImageReader();
-            ImageWriter imageWriter = getImageWriter(MediaTypes.IMAGE_JPEG_TYPE);
+            ImageWriter imageWriter = getImageWriter();
             for (InstanceLocations match : ctx.getMatches()) {
                 if (!ctx.copyToRetrieveCache(match)) {
-                    for (RenderedDocumentRequest docReq : map.get(match.getSopInstanceUID())) {
-                        dh = new RenderedImageDataHandler(ctx, match, docReq, imageReader, imageWriter);
-                        rsp.getRenderedDocumentResponse().add(createRenderedDocumentResponse(docReq, dh));
+                    Optional<RenderedDocumentRequest> docReq = findDocumentRequest(match, studyRequest);
+                    if (docReq.isPresent()) {
+                        dh = new RenderedImageDataHandler(ctx, match, docReq.get(), imageReader, imageWriter);
+                        rsp.getRenderedDocumentResponse().add(createRenderedDocumentResponse(docReq.get(), dh));
                     }
                 }
             }
             ctx.copyToRetrieveCache(null);
             InstanceLocations match;
             while ((match = ctx.copiedToRetrieveCache()) != null) {
-                for (RenderedDocumentRequest docReq : map.get(match.getSopInstanceUID())) {
-                    dh = new RenderedImageDataHandler(ctx, match, docReq, imageReader, imageWriter);
-                    rsp.getRenderedDocumentResponse().add(createRenderedDocumentResponse(docReq, dh));
+                Optional<RenderedDocumentRequest> docReq = findDocumentRequest(match, studyRequest);
+                if (docReq.isPresent()) {
+                    dh = new RenderedImageDataHandler(ctx, match, docReq.get(), imageReader, imageWriter);
+                    rsp.getRenderedDocumentResponse().add(createRenderedDocumentResponse(docReq.get(), dh));
                 }
             }
             if (dh != null)
@@ -217,6 +236,56 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
                 : XDS_STATUS_PARTIAL_SUCCESS);
         log(rsp);
         return rsp;
+    }
+
+    private static Map<String, Map<String, Map<String, DocumentRequest>>> studyRequest(
+            RetrieveImagingDocumentSetRequestType req) {
+        Map<String, Map<String, Map<String, DocumentRequest>>> studyMap = new HashMap<>();
+        for (RetrieveImagingDocumentSetRequestType.StudyRequest studyRequest : req.getStudyRequest()) {
+            Map<String, Map<String, DocumentRequest>> seriesMap = new HashMap<>();
+            for (RetrieveImagingDocumentSetRequestType.StudyRequest.SeriesRequest seriesRequest : studyRequest.getSeriesRequest()) {
+                Map<String, DocumentRequest> documentMap = new HashMap<>();
+                for (DocumentRequest documentRequest : seriesRequest.getDocumentRequest()) {
+                    documentMap.put(documentRequest.getDocumentUniqueId(), documentRequest);
+                }
+                seriesMap.put(seriesRequest.getSeriesInstanceUID(), documentMap);
+            }
+            studyMap.put(studyRequest.getStudyInstanceUID(), seriesMap);
+        }
+        return studyMap;
+    }
+
+    private static Map<String, Map<String, Map<String, RenderedDocumentRequest>>> studyRequest(
+            RetrieveRenderedImagingDocumentSetRequestType req) {
+        Map<String, Map<String, Map<String, RenderedDocumentRequest>>> studyMap = new HashMap<>();
+        for (RetrieveRenderedImagingDocumentSetRequestType.StudyRequest studyRequest : req.getStudyRequest()) {
+            Map<String, Map<String, RenderedDocumentRequest>> seriesMap = new HashMap<>();
+            for (RetrieveRenderedImagingDocumentSetRequestType.StudyRequest.SeriesRequest seriesRequest : studyRequest.getSeriesRequest()) {
+                Map<String, RenderedDocumentRequest> documentMap = new HashMap<>();
+                for (RenderedDocumentRequest documentRequest : seriesRequest.getRenderedDocumentRequest()) {
+                    documentMap.put(documentRequest.getDocumentUniqueId(), documentRequest);
+                }
+                seriesMap.put(seriesRequest.getSeriesInstanceUID(), documentMap);
+            }
+            studyMap.put(studyRequest.getStudyInstanceUID(), seriesMap);
+        }
+        return studyMap;
+    }
+
+    public void onStore(@Observes StoreContext storeContext) {
+        if (storeContext.getStoredInstance() == null
+                || storeContext.getException() != null
+                || !fromFallbackCMoveSCP(storeContext.getStoreSession().getAssociation()))
+            return;
+        CMoveRSPHandler cMoveRSPHandler = cMoveRSPHandlers.get(storeContext.getMoveOriginatorMessageID());
+        if (cMoveRSPHandler != null) {
+            cMoveRSPHandler.onStore(storeContext);
+        }
+    }
+
+    private boolean fromFallbackCMoveSCP(Association storeas) {
+        return storeas.getRemoteAET().equals(getXDSiFallbackCMoveSCP()) &&
+                storeas.getLocalAET().equals(getXDSiFallbackCMoveSCPDestination());
     }
 
     private void log(RetrieveImagingDocumentSetRequestType req) {
@@ -353,113 +422,131 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         return readers.next();
     }
 
-    private static ImageWriter getImageWriter(MediaType mimeType) {
-        String formatName = mimeType.getSubtype();
-        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(formatName);
+    private static ImageWriter getImageWriter() {
+        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpeg");
         if (!writers.hasNext())
-            throw new RuntimeException(formatName + " Image Writer not registered");
+            throw new RuntimeException("JPEG Image Writer not registered");
 
         return writers.next();
     }
 
-    private RetrieveContext newRetrieveContextXDSI(
-            RetrieveImagingDocumentSetRequestType req,
-            MultivaluedHashMap<String, DocumentRequest> map) {
-        List<RetrieveImagingDocumentSetRequestType.StudyRequest> studyRequest = req.getStudyRequest();
-        String[] studyUIDs = new String[studyRequest.size()];
-        String[] seriesUIDs = studyUIDs.length == 1
-                ? new String[studyRequest.get(0).getSeriesRequest().size()]
-                : null;
-
-        int i = 0;
-        for (RetrieveImagingDocumentSetRequestType.StudyRequest studyRequest1 : studyRequest) {
-            studyUIDs[i++] = studyRequest1.getStudyInstanceUID();
-            int j = 0;
-            for (RetrieveImagingDocumentSetRequestType.StudyRequest.SeriesRequest seriesRequest :
-                    studyRequest1.getSeriesRequest()) {
-                if (seriesUIDs != null)
-                    seriesUIDs[j++] = seriesRequest.getSeriesInstanceUID();
-                for (DocumentRequest documentRequest
-                        : seriesRequest.getDocumentRequest()) {
-                    map.computeIfAbsent(documentRequest.getDocumentUniqueId(), key -> new ArrayList<>())
-                            .add(documentRequest);
-                }
+    private <T> RetrieveContext newRetrieveContextXDSI(Map<String, Map<String, Map<String, T>>> studyRequest) {
+        String[] studyUIDs = studyRequest.keySet().toArray(new String[0]);
+        String[] seriesUIDs = null;
+        String[] objectUIDs = null;
+        if (studyUIDs.length == 1) {
+            Map<String, Map<String, T>> seriesMap = studyRequest.values().iterator().next();
+            seriesUIDs = seriesMap.keySet().toArray(new String[0]);
+            if (seriesUIDs.length == 1) {
+                objectUIDs = seriesMap.values().iterator().next().keySet().toArray(new String[0]);
             }
         }
-        String[] objectUIDs = seriesUIDs != null && seriesUIDs.length == 1
-                ? map.keySet().toArray(StringUtils.EMPTY_STRING)
-                : null;
         return retrieveService.newRetrieveContextXDSI(request, getLocalAET(), studyUIDs, seriesUIDs, objectUIDs);
     }
 
-    private RetrieveContext newRetrieveContextXDSI(
-            RetrieveRenderedImagingDocumentSetRequestType req,
-            MultivaluedHashMap<String, RenderedDocumentRequest> map) {
-        List<RetrieveRenderedImagingDocumentSetRequestType.StudyRequest> studyRequest = req.getStudyRequest();
-        String[] studyUIDs = new String[studyRequest.size()];
-        String[] seriesUIDs = studyUIDs.length == 1
-                ? new String[studyRequest.get(0).getSeriesRequest().size()]
-                : null;
-
-        int i = 0;
-        for (RetrieveRenderedImagingDocumentSetRequestType.StudyRequest studyRequest1 : studyRequest) {
-            studyUIDs[i++] = studyRequest1.getStudyInstanceUID();
-            int j = 0;
-            for (RetrieveRenderedImagingDocumentSetRequestType.StudyRequest.SeriesRequest seriesRequest :
-                    studyRequest1.getSeriesRequest()) {
-                if (seriesUIDs != null)
-                    seriesUIDs[j++] = seriesRequest.getSeriesInstanceUID();
-                for (RenderedDocumentRequest documentRequest
-                        : seriesRequest.getRenderedDocumentRequest()) {
-                    map.computeIfAbsent(documentRequest.getDocumentUniqueId(), key -> new ArrayList<>())
-                            .add(documentRequest);
-                }
-            }
-        }
-        String[] objectUIDs = seriesUIDs != null && seriesUIDs.length == 1
-                ? map.keySet().toArray(StringUtils.EMPTY_STRING)
-                : null;
-        return retrieveService.newRetrieveContextXDSI(request, getLocalAET(), studyUIDs, seriesUIDs, objectUIDs);
-    }
-
-    private boolean calculateMatches(RetrieveContext ctx, RegistryResponseType regRsp, Set<String> iuids, 
-                                     List<String> tsuids) {
-        if (!calculateMatches(ctx, regRsp, iuids))
+    private boolean calculateMatches(
+            RetrieveContext ctx,
+            RegistryResponseType regRsp,
+            Map<String, Map<String, Map<String, DocumentRequest>>> studyRequest,
+            List<String> tsuids) {
+        if (!calculateMatches(ctx, regRsp, studyRequest))
             return false;
 
         ctx.getMatches().removeIf(match -> !validateTransferSyntax(tsuids, regRsp, match));
         return !ctx.getMatches().isEmpty();
     }
 
-    private boolean calculateMatches(RetrieveContext ctx, RegistryResponseType regRsp, MultivaluedHashMap<String, 
-            RenderedDocumentRequest> map) {
-        if (!calculateMatches(ctx, regRsp, map.keySet()))
+    private boolean calculateRenderedMatches(
+            RetrieveContext ctx,
+            RegistryResponseType regRsp,
+            Map<String, Map<String, Map<String, RenderedDocumentRequest>>> studyRequest) {
+        if (!calculateMatches(ctx, regRsp, studyRequest))
             return false;
 
-        ctx.getMatches().removeIf(match -> map.get(match.getSopInstanceUID())
+        ctx.getMatches().removeIf(match -> findDocumentRequest(match, studyRequest)
                 .stream().anyMatch(reqDoc -> !validateRenderedDocumentRequest(reqDoc, regRsp, match)));
 
         return !ctx.getMatches().isEmpty();
     }
 
-    private boolean calculateMatches(RetrieveContext ctx, RegistryResponseType regRsp, Set<String> iuids) {
+    private <T> boolean calculateMatches(
+            RetrieveContext ctx,
+            RegistryResponseType regRsp,
+            Map<String, Map<String, Map<String, T>>> studyRequest) {
         try {
             retrieveService.calculateMatches(ctx);
         } catch (DicomServiceException e) {
-            addRegisterErrors(regRsp, iuids, PROCESSING_FAILURE_ERR_CODE, e.getMessage());
+            addRegisterErrors(regRsp, iuids(studyRequest), PROCESSING_FAILURE_ERR_CODE, e.getMessage());
             return false;
         }
 
         List<InstanceLocations> matches = ctx.getMatches();
-        Set<String> missing = new HashSet<>(iuids);
+        Set<String> missing = new HashSet<>(iuids(studyRequest));
         matches.removeIf(match -> !missing.remove(match.getSopInstanceUID()));
+        if (!missing.isEmpty() && arcDev.getXDSiFallbackCMoveSCP() != null) {
+            retrieveFromFallbackCMoveSCP(ctx, studyRequest, missing);
+        }
         for (String iuid : missing) {
             errors(regRsp).add(createRegistryError(
                     XDS_ERR_MISSING_DOCUMENT, DICOM_OBJECT_NOT_FOUND, XDS_ERR_SEVERITY_ERROR,
                     iuid));
         }
         ctx.setNumberOfMatches(matches.size());
-        return !matches.isEmpty();
+        return !ctx.getMatches().isEmpty();
+    }
+
+    private <T> void retrieveFromFallbackCMoveSCP(
+            RetrieveContext ctx,
+            Map<String, Map<String, Map<String, T>>> studyRequest,
+            Set<String> missing) {
+        int retrieveFromFallback = missing.size();
+        LOG.info("Retrieving {} missing objects from {}", retrieveFromFallback, arcDev.getXDSiFallbackCMoveSCP());
+        List<CMoveRSPHandler> rspHandlers = new ArrayList<>();
+        try {
+            for (Map.Entry<String, Map<String,  Map<String, T>>> study : studyRequest.entrySet()) {
+                for (Map.Entry<String,  Map<String, T>> series : study.getValue().entrySet()) {
+                    Set<String> moveFromFallback = new HashSet<>(series.getValue().keySet());
+                    moveFromFallback.retainAll(missing);
+                    if (!moveFromFallback.isEmpty()) {
+                        Association as = openAssociation2CMoveSCP();
+                        CMoveRSPHandler rspHandler = new CMoveRSPHandler(ctx, missing, as);
+                        rspHandlers.add(rspHandler);
+                        cMoveRSPHandlers.put(rspHandler.getMessageID(), rspHandler);
+                        Attributes keys = new Attributes(4);
+                        keys.setString(Tag.QueryRetrieveLevel, VR.CS, "IMAGE");
+                        keys.setString(Tag.SOPInstanceUID, VR.UI, moveFromFallback.toArray(new String[0]));
+                        keys.setString(Tag.StudyInstanceUID, VR.UI, study.getKey());
+                        keys.setString(Tag.SeriesInstanceUID, VR.UI, series.getKey());
+                        as.cmove(
+                                UID.StudyRootQueryRetrieveInformationModelMove,
+                                Priority.NORMAL,
+                                keys,
+                                UID.ImplicitVRLittleEndian,
+                                getXDSiFallbackCMoveSCPDestination(),
+                                rspHandler);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.info("Failed to retrieve missing objects from {}", getXDSiFallbackCMoveSCP(), e);
+        } finally {
+            for (CMoveRSPHandler rspHandler : rspHandlers) {
+                LOG.debug("Wait for final C-MOVE RSP at {}", rspHandler.as);
+                try {
+                    rspHandler.as.waitForOutstandingRSP();
+                } catch (InterruptedException e) {
+                    LOG.warn("Failed to wait for final C-MOVE RSP at {}", rspHandler.as, e);
+                }
+                try {
+                    rspHandler.as.release();
+                } catch (IOException e) {
+                    LOG.warn("Failed to release{}", rspHandler.as, e);
+                    rspHandler.as.abort();
+                }
+                cMoveRSPHandlers.remove(rspHandler.getMessageID());
+            }
+        }
+        LOG.info("Retrieved {} objects from {}", retrieveFromFallback - missing.size(), arcDev.getXDSiFallbackCMoveSCP());
     }
 
     private boolean validateTransferSyntax(List<String> tsuids, RegistryResponseType regRsp, InstanceLocations match) {
@@ -476,8 +563,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         return false;
     }
 
-    private boolean validateRenderedDocumentRequest(RetrieveRenderedImagingDocumentSetRequestType.StudyRequest
-                                                            .SeriesRequest.RenderedDocumentRequest reqDoc, 
+    private boolean validateRenderedDocumentRequest(RenderedDocumentRequest reqDoc,
                                                     RegistryResponseType regRsp, InstanceLocations match) {
         RegistryError registryError = validateRenderedDocumentRequest(reqDoc, match);
         if (registryError == null) {
@@ -671,15 +757,52 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     }
 
     private String getLocalAET() {
-        ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         return arcDev.getXDSiImagingDocumentSourceAETitle();
     }
 
-    private ArchiveDeviceExtension getArchiveDeviceExtension() {
-        return device.getDeviceExtension(ArchiveDeviceExtension.class);
+    private String getXDSiFallbackCMoveSCP() {
+        return arcDev.getXDSiFallbackCMoveSCP();
     }
 
-    private DocumentResponse createDocumentResponse(DocumentRequest docReq, DataHandler dh) {
+    private String getXDSiFallbackCMoveSCPCallingAET() {
+        String aet = arcDev.getXDSiFallbackCMoveSCPCallingAET();
+        return aet != null ? aet : getLocalAET();
+    }
+
+    private String getXDSiFallbackCMoveSCPDestination() {
+        String aet = arcDev.getXDSiFallbackCMoveSCPDestination();
+        return aet != null ? aet : getLocalAET();
+    }
+
+    private Association openAssociation2CMoveSCP() throws Exception {
+        String callingAET = getXDSiFallbackCMoveSCPCallingAET();
+        String calledAET = getXDSiFallbackCMoveSCP();
+        ApplicationEntity ae = device.getApplicationEntity(callingAET);
+        AAssociateRQ aarq = new AAssociateRQ();
+        aarq.setCallingAET(callingAET);
+        aarq.setCalledAET(calledAET);
+        aarq.addPresentationContextFor(UID.StudyRootQueryRetrieveInformationModelMove, UID.ImplicitVRLittleEndian);
+        return ae.connect(aeCache.findApplicationEntity(calledAET), aarq);
+    }
+
+    private static <T> Optional<T> findDocumentRequest(
+            InstanceLocations match, Map<String, Map<String, Map<String, T>>> studyRequest) {
+        return studyRequest.values().stream()
+                    .flatMap(studyEntry -> studyEntry.values().stream())
+                    .map(seriesEntry -> seriesEntry.get(match.getSopInstanceUID()))
+                    .filter(Objects::nonNull)
+                    .findFirst();
+    }
+
+    private static <T> List<String> iuids(Map<String, Map<String, Map<String, T>>> studyRequest) {
+       return studyRequest.values().stream()
+                .flatMap(studyEntry -> studyEntry.values().stream())
+                .flatMap(seriesEntry -> seriesEntry.keySet().stream())
+                .collect(Collectors.toList());
+    }
+
+    private static DocumentResponse createDocumentResponse(
+           DocumentRequest docReq, DicomDataHandler dh) {
         DocumentResponse docRsp = new DocumentResponse();
         docRsp.setDocument(dh);
         docRsp.setDocumentUniqueId(docReq.getDocumentUniqueId());
@@ -689,7 +812,8 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         return docRsp;
     }
 
-    private RenderedDocumentResponse createRenderedDocumentResponse(RenderedDocumentRequest docReq, DataHandler dh) {
+    private static RenderedDocumentResponse createRenderedDocumentResponse(
+            RenderedDocumentRequest docReq, RenderedImageDataHandler dh) {
         RenderedDocumentResponse docRsp = new RenderedDocumentResponse();
         docRsp.setDocument(dh);
         docRsp.setSourceDocumentUniqueId(docReq.getDocumentUniqueId());
@@ -709,5 +833,4 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
         docRsp.setFrameNumber(docReq.getFrameNumber());
         return docRsp;
     }
-
 }

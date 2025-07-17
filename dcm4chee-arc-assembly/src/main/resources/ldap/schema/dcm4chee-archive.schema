@@ -2927,31 +2927,19 @@ attributetype ( 1.2.40.0.13.1.15.110.3.500 NAME 'hl7PSUAction'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.501 NAME 'dcmXDSiFallbackCFindSCP'
-  DESC 'AE Title of external C-FIND SCP to query for requested Entities not managed by this XDS-I Imaging Document Source.'
-  EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
-
-attributetype ( 1.2.40.0.13.1.15.110.3.502 NAME 'dcmXDSiFallbackCFindSCPCallingAET'
-  DESC 'Calling AE Title used in A-ASSOCIATE-RQ to configured XDSi Fallback C-FIND SCP.'
-  EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
-
-attributetype ( 1.2.40.0.13.1.15.110.3.503 NAME 'dcmXDSiFallbackCMoveSCP'
+attributetype ( 1.2.40.0.13.1.15.110.3.501 NAME 'dcmXDSiFallbackCMoveSCP'
   DESC 'AE Title of external C-MOVE SCP to invoke C-MOVE RQs if the requested Entities are not managed by this XDS-I Imaging Document Source.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.504 NAME 'dcmXDSiFallbackCMoveSCPCallingAET'
+attributetype ( 1.2.40.0.13.1.15.110.3.502 NAME 'dcmXDSiFallbackCMoveSCPCallingAET'
   DESC 'Calling AE Title used in A-ASSOCIATE-RQ to configured XDSi Fallback C-MOVE SCP.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
-attributetype ( 1.2.40.0.13.1.15.110.3.505 NAME 'dcmXDSiFallbackCMoveSCPDestination'
+attributetype ( 1.2.40.0.13.1.15.110.3.503 NAME 'dcmXDSiFallbackCMoveSCPDestination'
   DESC 'AE Title of local C-STORE-SCP to be set as Move Destination in C-MOVE RQs invoked to configured XDSi Fallback C-MOVE SCP.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
@@ -3074,8 +3062,6 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmExternalWadoRSRedirectOnNotFound $
     dcmExternalRetrieveAEDestination $
     dcmXDSiImagingDocumentSourceAETitle $
-    dcmXDSiFallbackCFindSCP $
-    dcmXDSiFallbackCFindSCPCallingAET $
     dcmXDSiFallbackCMoveSCP $
     dcmXDSiFallbackCMoveSCPCallingAET $
     dcmXDSiFallbackCMoveSCPDestination $
