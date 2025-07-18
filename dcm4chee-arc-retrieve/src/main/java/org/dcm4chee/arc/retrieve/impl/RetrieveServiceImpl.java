@@ -247,6 +247,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                 ctx.setSopInstanceUIDs(objectUIDs);
             }
         }
+        ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.IMAGE);
         return ctx;
     }
 
