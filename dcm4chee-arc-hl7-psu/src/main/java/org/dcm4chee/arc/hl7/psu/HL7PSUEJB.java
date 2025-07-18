@@ -347,16 +347,6 @@ public class HL7PSUEJB {
         return null;
     }
 
-    private void updateStudyMWLStatus(HL7PSUTask task, List<MWLItem> mwlItems) {
-        if (mwlItems.size() > 0) {
-            procedureService.updateMWLStatus(mwlItems, SPSStatus.COMPLETED);
-            LOG.info("{} MWL Items status updated to {} by {}.", mwlItems.size(), SPSStatus.COMPLETED, task);
-            return;
-        }
-
-        LOG.info("Study referenced in the {} does not have any associated MWL items.", task);
-    }
-
     private Attributes attrsForHL7PSUNotification(
             ArchiveAEExtension arcAE, Series series, List<MWLItem> mwlItems) {
         if (!mwlItems.isEmpty()) return mwlAttrs(mwlItems.get(0));
