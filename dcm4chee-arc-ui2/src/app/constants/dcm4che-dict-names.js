@@ -3009,6 +3009,7 @@ DCM4CHE.elementName = (function (dictionary) {
 "00440108":"Referenced Assertion UID",
 "00440109":"Approval Subject Sequence",
 "0044010A":"Organizational Role Code Sequence",
+"00440110":"RT Assertions Sequence",
 "00460012":"Lens Description",
 "00460014":"Right Lens Sequence",
 "00460015":"Left Lens Sequence",
