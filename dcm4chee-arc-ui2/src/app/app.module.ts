@@ -1,7 +1,7 @@
 import { BrowserModule, Title, provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import {LOCALE_ID, NgModule} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {NoPreloading, RouterModule} from '@angular/router';
+import {NavigationError, NoPreloading, Router, RouterModule} from '@angular/router';
 import {AppComponent} from './app.component';
 import { MatNativeDateModule, MAT_DATE_FORMATS, DateAdapter, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -334,4 +334,19 @@ import { MatFormFieldModule} from '@angular/material/form-field';
         provideHttpClient(withInterceptorsFromDi()),
         provideClientHydration(withEventReplay()),
     ] })
-export class AppModule { }
+export class AppModule {
+    constructor(private router: Router) {
+        this.router.events.subscribe(event => {
+            // After activating the lazy-loaded approach, if the KeyCloak-ideal time is passed,
+            // fetching the chunks triggers a redirect error instead of retrieving the chunks.
+            // So we need a page reload to get out from the error and ui blockade.
+
+            if (event instanceof NavigationError) {
+                console.warn('NavigationError:', event);
+                if (event.error && event.error.message?.includes('dynamically imported module')) {
+                    window.location.reload();
+                }
+            }
+        });
+    }
+}

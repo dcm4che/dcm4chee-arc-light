@@ -14,7 +14,7 @@
     "lint": "ng lint",
     "extract_local": "ng extract-i18n --output-path src/assets/locale --format=json",
     "prod_old": "ng build --aot --configuration production",
-    "prod": "ng build --localize --configuration production --aot && yarn run addversion",
+    "prod": "ng build --localize --configuration production --optimization true --aot true && yarn run addversion",
     "dev": "ng build --localize && yarn run addversion",
     "e2e": "ng e2e",
     "addversion": "node add_version_to_scripts.js",
@@ -63,8 +63,8 @@
     "@types/express": "^5.0.1",
     "@types/jasmine": "^3.6.0",
     "@types/jasminewd2": "^2.0.3",
-    "@types/node": "^20.17.19",
-    "codelyzer": "^6.0.0",
+    "@types/node": "^22.15.21",
+    "codelyzer": "^6.0.2",
     "jasmine-core": "^3.6.0",
     "jasmine-spec-reporter": "^5.0.0",
     "karma": "^6.4.2",
@@ -75,6 +75,7 @@
     "karma-jasmine-html-reporter": "^1.5.0",
     "protractor": "^7.0.0",
     "ts-node": "^7.0.0",
-    "tslint": "^6.1.0"
+    "tslint": "^6.1.0",
+    "typescript": "5.8.3"
   }
 }
