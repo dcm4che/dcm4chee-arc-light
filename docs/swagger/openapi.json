@@ -172,6 +172,9 @@
     "/aets/{aet}/rs/patients/{patientID}": {
       "$ref": "paths/pam.json#/patient"
     },
+    "/aets/{aet}/rs/patients/id/{pk}": {
+      "$ref": "paths/pam.json#/patientPk"
+    },
     "/aets/{aet}/rs/patients/{patientID}/merge": {
       "$ref": "paths/pam.json#/patients.merge"
     },
@@ -189,6 +192,9 @@
     },
     "/aets/{aet}/rs/patients/{patientID}/unmerge": {
       "$ref": "paths/pam.json#/patient.unmerge"
+    },
+    "/aets/{aet}/rs/patients/id/{pk}/unmerge": {
+      "$ref": "paths/pam.json#/patient.unmergeByPk"
     },
     "/aets/{aet}/rs/studies": {
       "$ref": "paths/qido.json#/studies"

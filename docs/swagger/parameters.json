@@ -161,6 +161,15 @@
       "type": "string"
     }
   },
+  "patientPkPathParam": {
+    "name": "pk",
+    "in": "path",
+    "description": "Patient record primary key",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "issuerPathParam": {
     "name": "issuer",
     "in": "path",

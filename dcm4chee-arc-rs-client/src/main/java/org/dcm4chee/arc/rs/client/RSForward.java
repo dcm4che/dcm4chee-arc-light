@@ -74,7 +74,7 @@ public class RSForward {
         forward(rsOp,
                 arcAE,
                 toContent(attrs, arcAE),
-                requiresPIDInURL(rsOp) ? IDWithIssuer.pidOf(attrs).toString() : null,
+                requiresPIDInURL(rsOp) ? IDWithIssuer.pidsOf(attrs).toString() : null,
                 request);
     }
 
@@ -82,6 +82,7 @@ public class RSForward {
         switch (rsOp) {
             case CreatePatient:
             case DeletePatientByPID:
+            case UnmergePatientByPID:
                 return true;
             default:
                 return false;

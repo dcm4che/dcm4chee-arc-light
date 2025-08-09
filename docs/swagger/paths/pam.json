@@ -211,7 +211,82 @@
           "description": "No such Application Entity or Patient."
         },
         "409": {
-          "description": "Non Unique Patients found for patient identifiers in request payload"
+          "description": "Non Unique Patients found for patient identifiers in request payload or Attempt to delete patient while its study deletion is in progress"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "patientPk": {
+    "put": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Update, Create, Merge or Change Patient ID of patient with Primary Key",
+      "operationId": "UpdatePatientWithPk",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPkPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/merge"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/patientAttributes"
+      },
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "Missing Patient ID in request body or Circular Merge of Patients not allowed or Missing (prior) patient identifier with trusted assigning authority in specified / sent patient identifiers in request URL / payload."
+        },
+        "403": {
+          "description": "Update, Create, Merge or Change Patient ID of already merged patient forbidden"
+        },
+        "404": {
+          "description": "There is no Archive AE with the specified Title."
+        },
+        "409": {
+          "description": "Patient Tracking Not Allowed or Circular Patient Merge exception or Non Unique Patients found for patient identifiers in request payload"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    },
+    "delete": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Delete Patient with Primary Key Permanently",
+      "operationId": "DeletePatient",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPkPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "403": {
+          "description": "Patient Deletion never allowed as per configuration or Patient has non empty studies or Attempt to delete already merged patient"
+        },
+        "404": {
+          "description": "No such Application Entity or Patient."
+        },
+        "409": {
+          "description": "Attempt to delete patient while its study deletion is in progress"
         },
         "500": {
           "description": "Internal Server Error."
@@ -332,6 +407,37 @@
         },
         "409": {
           "description": "Non unique Patient ID or Patient is not merged"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "patient.unmergeByPk": {
+    "post": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Unmerge Patient with Primary Key",
+      "operationId": "UnmergePatientWithPk",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPkPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "404": {
+          "description": "No such Application Entity or Patient."
+        },
+        "409": {
+          "description": "Patient is not merged"
         },
         "500": {
           "description": "Internal Server Error."

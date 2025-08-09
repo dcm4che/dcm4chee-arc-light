@@ -122,6 +122,7 @@ public class PamRS {
     private static final String PIDS_REQ_URL_NOT_FOUND = "Patient record for identifiers {0} not found";
     private static final String PRIOR_PIDS_REQ_URL_NOT_TRUSTED = "Prior patient identifiers {0} in request URL are not with trusted assigning authority";
     private static final String PRIOR_PIDS_REQ_PAYLOAD_NOT_TRUSTED = "Prior patient identifiers {0} in request payload are not with trusted assigning authority";
+    private static final String PAT_PK_REQ_URL_NOT_FOUND = "Patient record with primary key {0} not found";
     private static final String CIRCULAR_MERGE_NOT_ALLOWED = "Circular merge of patients is not allowed";
     private static final String MISSING_PRIOR_PIDS_IN_REQ_PAYLOAD = "Patients to be merged not sent in the request payload.";
     private static final String MERGE_PRIOR_PAT_TO_TARGET_PAT_FAILED = "Failed to merge prior patient {0} to target patient {1}";
@@ -576,13 +577,13 @@ public class PamRS {
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
             validateWebAppServiceClass();
 
-        try {
-            Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
-            if (trustedPriorPatientIDs.isEmpty())
-                return errResponse(
-                        MessageFormat.format(PRIOR_PIDS_REQ_URL_NOT_TRUSTED, multiplePriorPatientIDs),
-                        Response.Status.BAD_REQUEST);
+        Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
+        if (trustedPriorPatientIDs.isEmpty())
+            return errResponse(
+                    MessageFormat.format(PRIOR_PIDS_REQ_URL_NOT_TRUSTED, multiplePriorPatientIDs),
+                    Response.Status.BAD_REQUEST);
 
+        try {
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             patMgtCtx.setArchiveAEExtension(arcAE);
             patMgtCtx.setPatientIDs(trustedPriorPatientIDs);
@@ -594,6 +595,34 @@ public class PamRS {
             rsForward.forward(RSOperation.UnmergePatient, arcAE, null, request);
             return Response.noContent().build();
         } catch (NonUniquePatientException | PatientUnmergedException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @POST
+    @Path("/patients/id/{pk}/unmerge")
+    public Response unmergePatient(@PathParam("pk") long pk) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
+        try {
+            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            patMgtCtx.setArchiveAEExtension(arcAE);
+            if (!patientService.unmergePatient(patMgtCtx, pk))
+                return errResponse(
+                        MessageFormat.format(PAT_PK_REQ_URL_NOT_FOUND, pk),
+                        Response.Status.NOT_FOUND);
+
+            rsForward.forward(RSOperation.UnmergePatientByPID, arcAE, patMgtCtx.getAttributes(), request);
+            return Response.noContent().build();
+        } catch (PatientUnmergedException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);

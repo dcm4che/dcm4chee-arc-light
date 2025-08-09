@@ -211,15 +211,25 @@ public class PatientServiceEJB {
         if (list.size() > 1)
             throw new NonUniquePatientException("Multiple Patients with ID : " + pids);
 
-        Patient pat = list.iterator().next();
-        Patient mergedWith = pat.getMergedWith();
-        if (mergedWith == null)
-            throw new PatientUnmergedException("Patient is not merged : " + pids);
+        return unmergePatient(ctx, list.iterator().next());
+    }
+
+    private boolean unmergePatient(PatientMgtContext ctx, Patient pat) {
+        if (pat.getMergedWith() == null)
+            throw new PatientUnmergedException("Patient is not merged : " + pat);
 
         ctx.setAttributes(pat.getAttributes());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Create);
         pat.setMergedWith(null);
         return true;
+    }
+
+    public boolean unmergePatient(PatientMgtContext ctx, long pk)
+            throws PatientUnmergedException {
+        Patient patient = em.createNamedQuery(Patient.FIND_PATIENT_BY_PK, Patient.class)
+                            .setParameter(1, pk)
+                            .getSingleResult();
+        return unmergePatient(ctx, patient);
     }
 
     private void updatePatient(Patient pat, PatientMgtContext ctx) {

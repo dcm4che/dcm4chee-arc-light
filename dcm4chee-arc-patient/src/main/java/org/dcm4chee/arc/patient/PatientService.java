@@ -107,8 +107,9 @@ public interface PatientService {
     Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientTrackingNotAllowedException;
 
-    boolean unmergePatient(PatientMgtContext ctx)
-            throws NonUniquePatientException, PatientUnmergedException;
+    boolean unmergePatient(PatientMgtContext ctx) throws NonUniquePatientException, PatientUnmergedException;
+
+    boolean unmergePatient(PatientMgtContext ctx, long pk) throws PatientUnmergedException;
 
     Patient findPatient(PatientMgtContext ctx);
 
