@@ -74,6 +74,8 @@ import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.delete.DeletionService;
+import org.dcm4chee.arc.delete.StudyDeletionInProgressException;
+import org.dcm4chee.arc.delete.StudyNotEmptyException;
 import org.dcm4chee.arc.entity.AttributesBlob;
 import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.entity.PatientID;
@@ -96,6 +98,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import java.io.*;
 import java.net.ConnectException;
 import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -110,6 +113,22 @@ import java.util.stream.Collectors;
 public class PamRS {
     private static final Logger LOG = LoggerFactory.getLogger(PamRS.class);
     private static final String SUPER_USER_ROLE = "super-user-role";
+    private static final String INVALID_AE = "No such Application Entity: {0}";
+    private static final String PATIENT_DELETE_NEVER = "Patient deletion as per configuration is never allowed.";
+    private static final String PATIENT_PK_WITHOUT_STUDIES = "Patient with primary key {0} has non empty studies.";
+    private static final String PATIENT_PID_WITHOUT_STUDIES = "Patient with patient identifiers {0} has non empty studies.";
+    private static final String PIDS_REQ_PAYLOAD_NOT_TRUSTED = "Patient identifiers {0} in request payload are not with trusted assigning authority";
+    private static final String PIDS_REQ_URL_NOT_TRUSTED = "Patient identifiers {0} in request URL are not with trusted assigning authority";
+    private static final String PIDS_REQ_URL_NOT_FOUND = "Patient record for identifiers {0} not found";
+    private static final String PRIOR_PIDS_REQ_URL_NOT_TRUSTED = "Prior patient identifiers {0} in request URL are not with trusted assigning authority";
+    private static final String PRIOR_PIDS_REQ_PAYLOAD_NOT_TRUSTED = "Prior patient identifiers {0} in request payload are not with trusted assigning authority";
+    private static final String CIRCULAR_MERGE_NOT_ALLOWED = "Circular merge of patients is not allowed";
+    private static final String MISSING_PRIOR_PIDS_IN_REQ_PAYLOAD = "Patients to be merged not sent in the request payload.";
+    private static final String MERGE_PRIOR_PAT_TO_TARGET_PAT_FAILED = "Failed to merge prior patient {0} to target patient {1}";
+    private static final String CREATE_PATIENT_MSG_TYPE = "ADT^A28^ADT_A05";
+    private static final String UPDATE_PATIENT_MSG_TYPE = "ADT^A31^ADT_A05";
+    private static final String CHANGE_PATIENT_ID_MSG_TYPE = "ADT^A47^ADT_A30";
+    private static final String MERGE_PATIENT_MSG_TYPE = "ADT^A40^ADT_A39";
 
     @Inject
     private Device device;
@@ -178,41 +197,24 @@ public class PamRS {
     public Response deletePatient(@PathParam("PatientID") String multiplePatientIDs) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
             validateWebAppServiceClass();
 
-        try {
-            Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
-            if (trustedPatientIDs.isEmpty())
-                return errResponse("Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
-                        Response.Status.BAD_REQUEST);
+        Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
+        if (trustedPatientIDs.isEmpty())
+            return errResponse("Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                    Response.Status.BAD_REQUEST);
 
+        try {
             Patient patient = patientService.findPatient(trustedPatientIDs);
             if (patient == null)
                 return errResponse("Patient with patient identifiers " + trustedPatientIDs + " not found.",
                         Response.Status.NOT_FOUND);
 
-            AllowDeletePatient allowDeletePatient = arcAE.allowDeletePatient();
-            String patientDeleteForbidden = allowDeletePatient == AllowDeletePatient.NEVER
-                    ? "Patient deletion as per configuration is never allowed."
-                    : allowDeletePatient == AllowDeletePatient.WITHOUT_STUDIES && patient.getNumberOfStudies() > 0
-                    ? "Patient with patient identifiers " + trustedPatientIDs + " has non empty studies."
-                    : null;
-            if (patientDeleteForbidden != null)
-                return errResponse(patientDeleteForbidden, Response.Status.FORBIDDEN);
-
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
-            ctx.setArchiveAEExtension(arcAE);
-            ctx.setPatientIDs(trustedPatientIDs);
-            ctx.setAttributes(patient.getAttributes());
-            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
-            ctx.setPatient(patient);
-            deletionService.deletePatient(ctx, arcAE);
-            rsForward.forward(RSOperation.DeletePatient, arcAE, null, request);
-            return Response.noContent().build();
+            return deletePatient(arcAE, patient, false);
         } catch (NonUniquePatientException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
@@ -222,6 +224,73 @@ public class PamRS {
         }
     }
 
+    @DELETE
+    @Path("/patients/id/{pk}")
+    public Response deletePatient(@PathParam("pk") long pk) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
+        try {
+            Patient patient = patientService.findPatient(pk);
+            if (patient == null)
+                return errResponse("Patient with primary key " + pk + " not found.",
+                        Response.Status.NOT_FOUND);
+
+            return deletePatient(arcAE, patient, true);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Response deletePatient(ArchiveAEExtension arcAE, Patient patient, boolean isPk) {
+        String patDeleteForbiddenMsg;
+        if ((patDeleteForbiddenMsg = patientDeleteForbidden(arcAE, patient, isPk)) != null)
+            return errResponse(patDeleteForbiddenMsg, Response.Status.FORBIDDEN);
+
+        try {
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            ctx.setArchiveAEExtension(arcAE);
+            ctx.setPatientIDs(IDWithIssuer.pidsOf(patient.getAttributes()));
+            ctx.setAttributes(patient.getAttributes());
+            ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
+            ctx.setPatient(patient);
+            deletionService.deletePatient(ctx, arcAE);
+            if (isPk)
+                rsForward.forward(RSOperation.DeletePatientByPID, arcAE, patient.getAttributes(), request);
+            else
+                rsForward.forward(RSOperation.DeletePatient, arcAE, null, request);
+            return Response.noContent().build();
+        } catch (StudyNotEmptyException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (StudyDeletionInProgressException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private String patientDeleteForbidden(ArchiveAEExtension arcAE, Patient patient, boolean isPk) {
+        AllowDeletePatient allowDeletePatient = arcAE.allowDeletePatient();
+        if (allowDeletePatient == AllowDeletePatient.ALWAYS
+                || allowDeletePatient == AllowDeletePatient.WITHOUT_STUDIES
+                    && patient.getNumberOfStudies() == 0)
+            return null;
+
+        if (allowDeletePatient == AllowDeletePatient.NEVER)
+            return PATIENT_DELETE_NEVER;
+
+        return isPk
+                ? MessageFormat.format(PATIENT_PK_WITHOUT_STUDIES, patient.getPk())
+                : MessageFormat.format(PATIENT_PID_WITHOUT_STUDIES, IDWithIssuer.pidsOf(patient.getAttributes()));
+    }
+
     @POST
     @Path("/patients")
     @Consumes({"application/dicom+json,application/json"})
@@ -229,7 +298,7 @@ public class PamRS {
     public Response createPatient(InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
@@ -246,7 +315,7 @@ public class PamRS {
             ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(patientIDs));
             if (ctx.getPatientIDs().isEmpty())
                 return errResponse(
-                        "Missing patient identifier with trusted assigning authority in request payload " + patientIDs,
+                        MessageFormat.format(PIDS_REQ_PAYLOAD_NOT_TRUSTED, ctx.getPatientIDs()),
                         Response.Status.BAD_REQUEST);
 
             patientService.updatePatient(ctx);
@@ -297,7 +366,7 @@ public class PamRS {
             InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
@@ -305,7 +374,8 @@ public class PamRS {
 
         Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
         if (trustedPriorPatientIDs.isEmpty())
-            return errResponse("Missing patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+            return errResponse(
+                    MessageFormat.format(PRIOR_PIDS_REQ_URL_NOT_TRUSTED, multiplePriorPatientIDs),
                     Response.Status.BAD_REQUEST);
 
         PatientMgtContext ctx = patientMgtCtx(in);
@@ -315,31 +385,31 @@ public class PamRS {
         ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
         if (ctx.getPatientIDs().isEmpty())
             return errResponse(
-                    "Missing patient identifier with trusted assigning authority in request payload " + ctx.getPatientIDs(),
+                    MessageFormat.format(PIDS_REQ_PAYLOAD_NOT_TRUSTED, ctx.getPatientIDs()),
                     Response.Status.BAD_REQUEST);
 
         boolean mergePatients = Boolean.parseBoolean(merge);
         boolean patientMatch = isPatientMatch(ctx.getPatientIDs(), trustedPriorPatientIDs);
         if (patientMatch && mergePatients)
-            return errResponse("Circular Merge of Patients not allowed.", Response.Status.BAD_REQUEST);
+            return errResponse(CIRCULAR_MERGE_NOT_ALLOWED, Response.Status.BAD_REQUEST);
 
         RSOperation rsOp = RSOperation.CreatePatient;
-        String msgType = "ADT^A28^ADT_A05";
+        String msgType = CREATE_PATIENT_MSG_TYPE;
         try {
             if (patientMatch) {
                 patientService.updatePatient(ctx);
                 if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)) {
                     rsOp = RSOperation.UpdatePatient;
-                    msgType = "ADT^A31^ADT_A05";
+                    msgType = UPDATE_PATIENT_MSG_TYPE;
                 }
             } else {
                 ctx.setPreviousPatientIDs(trustedPriorPatientIDs);
                 if (mergePatients) {
-                    msgType = "ADT^A40^ADT_A39";
+                    msgType = MERGE_PATIENT_MSG_TYPE;
                     rsOp = RSOperation.MergePatient2;
                     patientService.mergePatient(ctx);
                 } else {
-                    msgType = "ADT^A47^ADT_A30";
+                    msgType = CHANGE_PATIENT_ID_MSG_TYPE;
                     rsOp = RSOperation.ChangePatientID2;
                     patientService.changePatientID(ctx);
                 }
@@ -357,7 +427,36 @@ public class PamRS {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
             return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
-        } catch(Exception e) {
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PUT
+    @Path("/patients/id/{priorPatientPK}")
+    @Consumes("application/dicom+json,application/json")
+    public Response updatePatient(
+            @PathParam("priorPatientPK") int priorPatientPK,
+            @QueryParam("merge") @Pattern(regexp = "true|false") @DefaultValue("false") String merge,
+            InputStream in) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
+        try {
+
+            //RS Forwarding can't be done as pk on 2nd site can be different
+            return Response.noContent().build();
+        } catch (PatientAlreadyExistsException | NonUniquePatientException | PatientTrackingNotAllowedException
+                 | CircularPatientMergeException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -368,7 +467,7 @@ public class PamRS {
     public Response mergePatients(@PathParam("patientID") String multiplePatientIDs, InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
@@ -377,7 +476,7 @@ public class PamRS {
         Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
         if (trustedPatientIDs.isEmpty())
             return errResponse(
-                    "Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                    MessageFormat.format(PIDS_REQ_URL_NOT_TRUSTED, multiplePatientIDs),
                     Response.Status.BAD_REQUEST);
 
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
@@ -389,24 +488,23 @@ public class PamRS {
             InputStream is1 = new ByteArrayInputStream(baos.toByteArray());
             List<Set<IDWithIssuer>> priorPatientIdentifiers = priorPatientIdentifiers(is1);
             if (priorPatientIdentifiers.isEmpty())
-                return errResponse("Patients to be merged not sent in the request payload.",
-                                Response.Status.BAD_REQUEST);
+                return errResponse(MISSING_PRIOR_PIDS_IN_REQ_PAYLOAD, Response.Status.BAD_REQUEST);
 
             boolean merged = false;
             for (Set<IDWithIssuer> priorPatientIdentifier : priorPatientIdentifiers) {
                 Collection<IDWithIssuer> trustedPriorPatientIDs = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                                                                         .retainTrustedPatientIDs(priorPatientIdentifier);
                 if (trustedPriorPatientIDs.isEmpty()) {
-                    LOG.warn("Missing prior patient identifier with trusted assigning authority in {}",
-                            trustedPriorPatientIDs);
+                    LOG.warn(MessageFormat.format(PRIOR_PIDS_REQ_PAYLOAD_NOT_TRUSTED, trustedPriorPatientIDs));
                     continue;
                 }
 
                 try {
                     merged = mergePatient(trustedPatientIDs, trustedPriorPatientIDs, arcAE);
                 } catch (Exception e) {
-                    LOG.info("Failed to merge prior patient {} to target patient {}",
-                            priorPatientIdentifier, trustedPatientIDs);
+                    LOG.info(MessageFormat.format(MERGE_PRIOR_PAT_TO_TARGET_PAT_FAILED,
+                                                priorPatientIdentifier,
+                                                trustedPatientIDs));
                 }
             }
             if (merged) //forward RS only if at least one set of trusted prior patient identifiers in req payload was merged
@@ -430,7 +528,7 @@ public class PamRS {
                              @QueryParam("verify") String findSCP) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
@@ -440,13 +538,13 @@ public class PamRS {
             Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
             if (trustedPriorPatientIDs.isEmpty())
                 return errResponse(
-                        "Missing prior patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                        MessageFormat.format(PRIOR_PIDS_REQ_URL_NOT_TRUSTED, multiplePriorPatientIDs),
                         Response.Status.BAD_REQUEST);
 
             Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
             if (trustedPatientIDs.isEmpty())
                 return errResponse(
-                        "Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                        MessageFormat.format(PIDS_REQ_URL_NOT_TRUSTED, multiplePatientIDs),
                         Response.Status.BAD_REQUEST);
 
 
@@ -472,7 +570,7 @@ public class PamRS {
     public Response unmergePatient(@PathParam("PatientID") String multiplePriorPatientIDs) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
@@ -482,15 +580,16 @@ public class PamRS {
             Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
             if (trustedPriorPatientIDs.isEmpty())
                 return errResponse(
-                        "Missing patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                        MessageFormat.format(PRIOR_PIDS_REQ_URL_NOT_TRUSTED, multiplePriorPatientIDs),
                         Response.Status.BAD_REQUEST);
 
             PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
             patMgtCtx.setArchiveAEExtension(arcAE);
             patMgtCtx.setPatientIDs(trustedPriorPatientIDs);
             if (!patientService.unmergePatient(patMgtCtx))
-                return errResponse("Patient with patient identifiers " + trustedPriorPatientIDs + " not found.",
-                                    Response.Status.NOT_FOUND);
+                return errResponse(
+                        MessageFormat.format(PIDS_REQ_URL_NOT_FOUND, multiplePriorPatientIDs),
+                        Response.Status.NOT_FOUND);
 
             rsForward.forward(RSOperation.UnmergePatient, arcAE, null, request);
             return Response.noContent().build();
@@ -508,7 +607,7 @@ public class PamRS {
             @QueryParam("test") @Pattern(regexp = "true|false") @DefaultValue("false") String test) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
@@ -699,7 +798,7 @@ public class PamRS {
             }
         } catch (ConfigurationNotFoundException e) {
             throw new WebApplicationException(
-                    errResponse("No such Application Entity: " + findSCP, Response.Status.NOT_FOUND));
+                    errResponse(MessageFormat.format(INVALID_AE, findSCP), Response.Status.NOT_FOUND));
         } catch (ConnectException | DicomServiceException e) {
             throw new WebApplicationException(
                     errResponseAsTextPlain(exceptionAsString(e), Response.Status.BAD_GATEWAY));
@@ -724,7 +823,7 @@ public class PamRS {
         LOG.info("Merge prior patient identifier {} with target patient identifier {}",
                 trustedPriorPatientIDs, trustedPatientIDs);
         patientService.mergePatient(patMgtCtx);
-        notifyHL7Receivers("ADT^A40^ADT_A39", patMgtCtx);
+        notifyHL7Receivers(MERGE_PATIENT_MSG_TYPE, patMgtCtx);
         return true;
     }
 
@@ -734,7 +833,7 @@ public class PamRS {
                                 @PathParam("patientID") String multiplePatientIDs) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
@@ -744,13 +843,13 @@ public class PamRS {
             Collection<IDWithIssuer> trustedPriorPatientIDs = trustedPatientIDs(multiplePriorPatientIDs, arcAE);
             if (trustedPriorPatientIDs.isEmpty())
                 return errResponse(
-                        "Missing prior patient identifier with trusted assigning authority in " + multiplePriorPatientIDs,
+                        MessageFormat.format(PRIOR_PIDS_REQ_URL_NOT_TRUSTED, multiplePriorPatientIDs),
                         Response.Status.BAD_REQUEST);
 
             Collection<IDWithIssuer> trustedPatientIDs = trustedPatientIDs(multiplePatientIDs, arcAE);
             if (trustedPatientIDs.isEmpty())
                 return errResponse(
-                        "Missing patient identifier with trusted assigning authority in " + multiplePatientIDs,
+                        MessageFormat.format(PIDS_REQ_URL_NOT_TRUSTED, multiplePatientIDs),
                         Response.Status.BAD_REQUEST);
 
             Patient prevPatient = patientService.findPatient(trustedPriorPatientIDs);
@@ -768,7 +867,7 @@ public class PamRS {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
             return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
-        } catch(Exception e) {
+        } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -958,7 +1057,7 @@ public class PamRS {
             @QueryParam("test") @Pattern(regexp = "true|false") @DefaultValue("false") String test) {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
 
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))

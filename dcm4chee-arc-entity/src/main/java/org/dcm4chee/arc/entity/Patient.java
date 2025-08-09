@@ -53,8 +53,13 @@ import java.util.*;
  * @author Justin Falk <jfalkmu@gmail.com>
  * @author Gunter Zeilinger <gunterze@gmail.com>
  * @author Michael Backhaus <michael.backhaus@agfa.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  */
 @NamedQueries({
+@NamedQuery(
+    name=Patient.FIND_PATIENT_BY_PK,
+    query="select p from Patient p " +
+            "where p.pk = ?1"),
 @NamedQuery(
     name=Patient.FIND_BY_MERGED_WITH,
     query="select p from Patient p " +
@@ -104,6 +109,7 @@ import java.util.*;
 })
 public class Patient {
 
+    public static final String FIND_PATIENT_BY_PK = "Patient.findPatientByPk";
     public static final String FIND_BY_MERGED_WITH = "Patient.findByMergedWith";
     public static final String COUNT_BY_MERGED_WITH = "Patient.CountByMergedWith";
     public static final String FIND_BY_VERIFICATION_STATUS = "Patient.findByVerificationStatus";

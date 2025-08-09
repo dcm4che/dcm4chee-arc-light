@@ -87,6 +87,8 @@ public interface PatientService {
 
     Patient findPatient(Collection<IDWithIssuer> pids);
 
+    Patient findPatient(long pk);
+
     Patient createPatient(PatientMgtContext ctx);
 
     Patient updatePatient(PatientMgtContext ctx)

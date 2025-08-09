@@ -185,7 +185,18 @@ public class PatientServiceEJB {
         Patient pat = findPatient(pids);
         Patient mergedWith;
         if (pat != null && (mergedWith = pat.getMergedWith()) != null)
-            throw new PatientMergedException("" + pat + " merged with " + mergedWith);
+            throw new PatientMergedException(pat + " merged with " + mergedWith);
+
+        return pat;
+    }
+
+    public Patient findNotMergedPatient(long pk) throws NonUniquePatientException, PatientMergedException {
+        Patient pat = em.createNamedQuery(Patient.FIND_PATIENT_BY_PK, Patient.class)
+                        .setParameter(1, pk)
+                        .getSingleResult();
+        Patient mergedWith;
+        if (pat != null && (mergedWith = pat.getMergedWith()) != null)
+            throw new PatientMergedException(pat + " merged with " + mergedWith);
 
         return pat;
     }
@@ -316,7 +327,7 @@ public class PatientServiceEJB {
                     || mergedWith.getPatientIDs().stream()
                     .map(PatientID::getIDWithIssuer)
                     .noneMatch(ctx.getPreviousPatientIDs()::contains)) {
-                throw new PatientMergedException("" + pat + " merged with " + mergedWith);
+                throw new PatientMergedException(pat + " merged with " + mergedWith);
             }
             pat.setMergedWith(null);
         }

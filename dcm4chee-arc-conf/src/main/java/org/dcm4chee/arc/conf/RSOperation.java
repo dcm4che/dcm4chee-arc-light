@@ -49,6 +49,7 @@ public enum RSOperation {
     CreatePatient,
     UpdatePatient,
     DeletePatient,
+    DeletePatientByPID,
     ChangePatientID,
     ChangePatientID2,
     MergePatient,

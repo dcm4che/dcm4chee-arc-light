@@ -74,8 +74,18 @@ public class RSForward {
         forward(rsOp,
                 arcAE,
                 toContent(attrs, arcAE),
-                rsOp == RSOperation.CreatePatient ? IDWithIssuer.pidOf(attrs).toString() : null,
+                requiresPIDInURL(rsOp) ? IDWithIssuer.pidOf(attrs).toString() : null,
                 request);
+    }
+
+    private boolean requiresPIDInURL(RSOperation rsOp) {
+        switch (rsOp) {
+            case CreatePatient:
+            case DeletePatientByPID:
+                return true;
+            default:
+                return false;
+        }
     }
 
     public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, HttpServletRequest request, List<Attributes> attrs) {

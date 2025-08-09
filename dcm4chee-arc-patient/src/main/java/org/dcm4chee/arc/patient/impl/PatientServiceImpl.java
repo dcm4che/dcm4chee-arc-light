@@ -130,6 +130,11 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
+    public Patient findPatient(long pk) {
+        return ejb.findNotMergedPatient(pk);
+    }
+
+    @Override
     public Patient createPatient(PatientMgtContext ctx) {
         try {
             return ejb.createPatient(ctx);
