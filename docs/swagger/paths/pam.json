@@ -266,7 +266,7 @@
         "PAM-RS"
       ],
       "summary": "Delete Patient with Primary Key Permanently",
-      "operationId": "DeletePatient",
+      "operationId": "DeletePatientWithPk",
       "parameters": [
         {
           "$ref": "../parameters.json#/archiveAETPathParam"
