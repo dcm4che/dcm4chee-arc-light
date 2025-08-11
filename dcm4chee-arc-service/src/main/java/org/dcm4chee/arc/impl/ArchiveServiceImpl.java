@@ -260,6 +260,22 @@ public class ArchiveServiceImpl implements ArchiveService {
 
     @Override
     public void reload(HttpServletRequest request) throws Exception {
+        reload();
+        archiveServiceEvent.fire(new ArchiveServiceEvent(ArchiveServiceEvent.Type.RELOADED, request));
+    }
+
+    @Override
+    public boolean tryReload() {
+        try {
+            reload();
+            return true;
+        } catch (Exception e) {
+            LOG.warn("Failed to reload configuration:", e);
+            return false;
+        }
+    }
+
+    private void reload() throws Exception {
         deviceProducer.reloadConfiguration();
         for (Scheduler scheduler : schedulers) scheduler.reload();
         device.rebindConnections();
@@ -273,7 +289,6 @@ public class ArchiveServiceImpl implements ArchiveService {
         mergeMWLCache.clear();
         storePermissionCache.clear();
         configure();
-        archiveServiceEvent.fire(new ArchiveServiceEvent(ArchiveServiceEvent.Type.RELOADED, request));
     }
 
     private void configure() {

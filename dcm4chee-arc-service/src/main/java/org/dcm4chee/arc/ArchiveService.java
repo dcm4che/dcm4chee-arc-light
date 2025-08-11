@@ -57,4 +57,6 @@ public interface ArchiveService {
     Status status(HttpServletRequest request);
 
     void reload(HttpServletRequest request) throws Exception;
+
+    boolean tryReload();
 }

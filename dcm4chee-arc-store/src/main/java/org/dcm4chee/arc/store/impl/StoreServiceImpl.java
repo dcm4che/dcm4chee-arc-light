@@ -61,15 +61,11 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.CountingInputStream;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
-import org.dcm4chee.arc.Cache;
-import org.dcm4chee.arc.LeadingCFindSCPQueryCache;
-import org.dcm4chee.arc.MergeMWLCache;
-import org.dcm4chee.arc.MergeMWLQueryParam;
+import org.dcm4chee.arc.*;
 import org.dcm4chee.arc.coerce.CoercionFactory;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Location;
-import org.dcm4chee.arc.entity.Patient;
 import org.dcm4chee.arc.event.SoftwareConfiguration;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.metrics.MetricsService;
@@ -109,6 +105,9 @@ class StoreServiceImpl implements StoreService {
     static final Logger LOG = LoggerFactory.getLogger(StoreServiceImpl.class);
     static final int DIFF_STUDY_INSTANCE_UID = 0xC409;
     static final int FAILED_TO_PARSE_DICOM_STREAM = 0xC499;
+
+    @Inject
+    private ArchiveService service;
 
     @Inject
     private DicomConfiguration conf;
@@ -773,6 +772,7 @@ class StoreServiceImpl implements StoreService {
         session.putStorage(storageID, usableStorage.storage);
         session.withObjectStorageID(storageID);
         if (usableStorage.updateStorageIDs != null) {
+            service.tryReload();
             arcAE.setObjectStorageIDs(usableStorage.updateStorageIDs);
             updateDeviceConfiguration(arcDev);
         }
@@ -810,6 +810,7 @@ class StoreServiceImpl implements StoreService {
         session.putStorage(storageID, usableStorage.storage);
         session.setMetadataStorageID(storageID);
         if (usableStorage.updateStorageIDs != null) {
+            service.tryReload();
             arcAE.setMetadataStorageIDs(usableStorage.updateStorageIDs);
             updateDeviceConfiguration(arcDev);
         }

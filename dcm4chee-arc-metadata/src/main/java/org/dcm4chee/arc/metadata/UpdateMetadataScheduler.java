@@ -57,6 +57,7 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.util.DateUtils;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.ArchiveService;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.Duration;
@@ -94,6 +95,9 @@ import java.util.zip.ZipOutputStream;
 public class UpdateMetadataScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(UpdateMetadataScheduler.class);
+
+    @Inject
+    private ArchiveService service;
 
     @Inject
     private DicomConfiguration conf;
@@ -159,6 +163,7 @@ public class UpdateMetadataScheduler extends Scheduler {
                     arcDev.getFreeStorageDescriptors(storageIDs),
                     arcDev.getFullStorageDescriptors(storageIDs))) {
                 if (usableStorage.updateStorageIDs != null) {
+                    service.tryReload();
                     arcDev.setSeriesMetadataStorageIDs(usableStorage.updateStorageIDs);
                     updateDeviceConfiguration(arcDev);
                 }

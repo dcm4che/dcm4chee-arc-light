@@ -51,6 +51,7 @@ import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4che3.util.StringUtils;
+import org.dcm4chee.arc.ArchiveService;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
@@ -84,6 +85,9 @@ import java.util.zip.ZipInputStream;
 public class PurgeStorageScheduler extends Scheduler {
 
     private static final Logger LOG = LoggerFactory.getLogger(PurgeStorageScheduler.class);
+
+    @Inject
+    private ArchiveService service;
 
     @Inject
     private DeletionServiceEJB ejb;
@@ -257,6 +261,7 @@ public class PurgeStorageScheduler extends Scheduler {
                     LOG.warn("No studies for deletion found on {}", desc);
                     return 0;
                 }
+                service.tryReload();
                 desc.setDeleterMinStudyAccessTime(minAccessTime);
                 storeService.updateDeviceConfiguration(arcDev);
             }
@@ -277,6 +282,7 @@ public class PurgeStorageScheduler extends Scheduler {
                         ? deleteObjectsOfStudies(arcDev, desc, studyPks)
                         : deleteStudiesFromDB(arcDev, desc, studyPks);
             }
+            service.tryReload();
             desc.setDeleterMinStudyAccessTime(
                     maxAccessTime != null ? maxAccessTime : new Date(System.currentTimeMillis()));
             storeService.updateDeviceConfiguration(arcDev);
