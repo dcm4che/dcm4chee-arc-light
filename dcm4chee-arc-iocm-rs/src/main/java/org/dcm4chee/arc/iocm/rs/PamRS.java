@@ -60,6 +60,7 @@ import org.dcm4che3.conf.api.ConfigurationNotFoundException;
 import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.json.JSONReader;
+import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.Priority;
@@ -130,6 +131,10 @@ public class PamRS {
     private static final String UPDATE_PATIENT_MSG_TYPE = "ADT^A31^ADT_A05";
     private static final String CHANGE_PATIENT_ID_MSG_TYPE = "ADT^A47^ADT_A30";
     private static final String MERGE_PATIENT_MSG_TYPE = "ADT^A40^ADT_A39";
+    private static final String LOG_FWD_BY_PID = "Forward REST API by patient identifier, as pk on other site can be different.";
+    private static final String MERGE_PRIOR_TO_TARGET_PATIENT_PID = "Merge prior patient identifier {0} with target patient identifier {1}";
+    private static final String MERGE_PRIOR_TO_TARGET_PATIENT_PK = "Merge prior patient with primary key {0} to target patient with primary key {1}";
+    private static final String PRIOR_OR_TARGET_PATIENT_NOT_FOUND = "Prior patient with primary key {0} or target patient with primary key {1} not found";
 
     @Inject
     private Device device;
@@ -263,10 +268,12 @@ public class PamRS {
             ctx.setEventActionCode(AuditMessages.EventActionCode.Delete);
             ctx.setPatient(patient);
             deletionService.deletePatient(ctx, arcAE);
-            if (isPk)
+            if (isPk) {
+                LOG.info(LOG_FWD_BY_PID);
                 rsForward.forward(RSOperation.DeletePatientByPID, arcAE, patient.getAttributes(), request);
+            }
             else
-                rsForward.forward(RSOperation.DeletePatient, arcAE, null, request);
+                rsForward.forward(RSOperation.DeletePatient, arcAE, request);
             return Response.noContent().build();
         } catch (StudyNotEmptyException e) {
             return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
@@ -347,17 +354,6 @@ public class PamRS {
         return ctx;
     }
 
-    private boolean isPatientMatch(
-            Collection<IDWithIssuer> targetPatientIDs, Collection<IDWithIssuer> trustedPriorPatientIDs) {
-        for (IDWithIssuer trustedPriorPatientID : trustedPriorPatientIDs)
-            for (IDWithIssuer targetPatientID : targetPatientIDs)
-                if (Objects.equals(targetPatientID.getID(), trustedPriorPatientID.getID()) &&
-                        Objects.equals(targetPatientID.getIssuer(), trustedPriorPatientID.getIssuer()))
-                    return true;
-
-        return false;
-    }
-
     @PUT
     @Path("/patients/{priorPatientID}")
     @Consumes("application/dicom+json,application/json")
@@ -379,65 +375,14 @@ public class PamRS {
                     MessageFormat.format(PRIOR_PIDS_REQ_URL_NOT_TRUSTED, multiplePriorPatientIDs),
                     Response.Status.BAD_REQUEST);
 
-        PatientMgtContext ctx = patientMgtCtx(in);
-        ctx.setArchiveAEExtension(arcAE);
-        ctx.setPatientIDs(arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(ctx.getPatientIDs()));
-        ctx.setReasonForModification(reasonForModification);
-        ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
-        if (ctx.getPatientIDs().isEmpty())
-            return errResponse(
-                    MessageFormat.format(PIDS_REQ_PAYLOAD_NOT_TRUSTED, ctx.getPatientIDs()),
-                    Response.Status.BAD_REQUEST);
-
-        boolean mergePatients = Boolean.parseBoolean(merge);
-        boolean patientMatch = isPatientMatch(ctx.getPatientIDs(), trustedPriorPatientIDs);
-        if (patientMatch && mergePatients)
-            return errResponse(CIRCULAR_MERGE_NOT_ALLOWED, Response.Status.BAD_REQUEST);
-
-        RSOperation rsOp = RSOperation.CreatePatient;
-        String msgType = CREATE_PATIENT_MSG_TYPE;
-        try {
-            if (patientMatch) {
-                patientService.updatePatient(ctx);
-                if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)) {
-                    rsOp = RSOperation.UpdatePatient;
-                    msgType = UPDATE_PATIENT_MSG_TYPE;
-                }
-            } else {
-                ctx.setPreviousPatientIDs(trustedPriorPatientIDs);
-                if (mergePatients) {
-                    msgType = MERGE_PATIENT_MSG_TYPE;
-                    rsOp = RSOperation.MergePatient2;
-                    patientService.mergePatient(ctx);
-                } else {
-                    msgType = CHANGE_PATIENT_ID_MSG_TYPE;
-                    rsOp = RSOperation.ChangePatientID2;
-                    patientService.changePatientID(ctx);
-                }
-            }
-
-            if (!ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read)
-                    || rsOp == RSOperation.MergePatient2) {
-                rsForward.forward(rsOp, arcAE, ctx.getAttributes(), request);
-                notifyHL7Receivers(msgType, ctx);
-            }
-
-            return Response.noContent().build();
-        } catch (PatientAlreadyExistsException | NonUniquePatientException | PatientTrackingNotAllowedException
-                | CircularPatientMergeException e) {
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (PatientMergedException e) {
-            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
-        } catch (Exception e) {
-            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
-        }
+        return updatePatient(arcAE, in, trustedPriorPatientIDs, merge, null);
     }
 
     @PUT
     @Path("/patients/id/{priorPatientPK}")
     @Consumes("application/dicom+json,application/json")
     public Response updatePatient(
-            @PathParam("priorPatientPK") int priorPatientPK,
+            @PathParam("priorPatientPK") long priorPatientPK,
             @QueryParam("merge") @Pattern(regexp = "true|false") @DefaultValue("false") String merge,
             InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
@@ -448,11 +393,71 @@ public class PamRS {
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
             validateWebAppServiceClass();
 
-        try {
+        Patient priorPatient = patientService.findPatient(priorPatientPK);
+        if (priorPatient == null)
+            return errResponse("Patient with primary key " + priorPatientPK + " not found.",
+                    Response.Status.NOT_FOUND);
 
-            //RS Forwarding can't be done as pk on 2nd site can be different
+        Collection<IDWithIssuer> trustedPriorPatientIDs = IDWithIssuer.pidsOf(priorPatient.getAttributes());
+        return updatePatient(arcAE, in, trustedPriorPatientIDs, merge, priorPatient);
+    }
+
+    private Response updatePatient(
+            ArchiveAEExtension arcAE, InputStream in, Collection<IDWithIssuer> trustedPriorPatientIDs, String merge,
+            Patient priorPatient) {
+        PatientMgtContext ctx = patientMgtCtx(in);
+        Collection<IDWithIssuer> trustedPatientIDs = arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(ctx.getPatientIDs());
+        if (trustedPatientIDs.isEmpty())
+            return errResponse(
+                    MessageFormat.format(PIDS_REQ_PAYLOAD_NOT_TRUSTED, ctx.getPatientIDs()),
+                    Response.Status.BAD_REQUEST);
+
+        ctx.setArchiveAEExtension(arcAE);
+        ctx.setPatientIDs(trustedPatientIDs);
+        ctx.setReasonForModification(reasonForModification);
+        ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
+        ctx.setPatPk(Long.parseLong(ctx.getAttributes().getString(PrivateTag.PrivateCreator, PrivateTag.LogicalPatientID)));
+        if (priorPatient != null)
+            ctx.setPrevPatient(priorPatient);
+
+        boolean mergePatients = Boolean.parseBoolean(merge);
+        Collection<IDWithIssuer> targetPIDs = ctx.getPatientIDs();
+        boolean patientMatch = targetPIDs.containsAll(trustedPriorPatientIDs);
+        if (patientMatch && mergePatients)
+            return errResponse(CIRCULAR_MERGE_NOT_ALLOWED, Response.Status.BAD_REQUEST);
+
+        RSOperation rsOp = RSOperation.CreatePatient;
+        String msgType = CREATE_PATIENT_MSG_TYPE;
+        try {
+            if (patientMatch) {
+                patientService.updatePatient(ctx);
+                if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)) {
+                    rsOp = ctx.getPrevPatPk() != 0L ? RSOperation.UpdatePatientByPID : RSOperation.UpdatePatient;
+                    msgType = UPDATE_PATIENT_MSG_TYPE;
+                }
+            } else {
+                ctx.setPreviousPatientIDs(trustedPriorPatientIDs);
+                if (mergePatients) {
+                    msgType = MERGE_PATIENT_MSG_TYPE;
+                    rsOp = ctx.getPrevPatPk() != 0L ? RSOperation.MergePatientByPID : RSOperation.MergePatient2;
+                    patientService.mergePatient(ctx);
+                } else {
+                    if (isInvalidChangePID(ctx))
+                        return errResponse(
+                                "Invalid attempt to change patient identifiers. Primary key in request URL does not match with that in request payload",
+                                Response.Status.BAD_REQUEST);
+
+                    msgType = CHANGE_PATIENT_ID_MSG_TYPE;
+                    rsOp = ctx.getPrevPatPk() != 0L ? RSOperation.ChangePatientIDByPID : RSOperation.ChangePatientID2;
+                    patientService.changePatientID(ctx);
+                }
+            }
+
+            forwardAndNotify(rsOp, arcAE, ctx, msgType);
             return Response.noContent().build();
-        } catch (PatientAlreadyExistsException | NonUniquePatientException | PatientTrackingNotAllowedException
+        } catch (PatientAlreadyExistsException
+                 | NonUniquePatientException
+                 | PatientTrackingNotAllowedException
                  | CircularPatientMergeException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
@@ -460,6 +465,26 @@ public class PamRS {
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private boolean isInvalidChangePID(PatientMgtContext ctx) {
+        return ctx.getPatPk() != 0L && ctx.getPrevPatPk() != 0L && ctx.getPrevPatPk() != ctx.getPatPk();
+    }
+
+    private void forwardAndNotify(RSOperation rsOp, ArchiveAEExtension arcAE, PatientMgtContext ctx, String msgType) {
+        if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read))
+            return;
+
+        notifyHL7Receivers(msgType, ctx);
+        if (ctx.getPrevPatPk() != 0L)
+            LOG.info(LOG_FWD_BY_PID);
+
+        if (rsOp == RSOperation.MergePatientByPID || rsOp == RSOperation.ChangePatientIDByPID) {
+            rsForward.forward(rsOp, arcAE, ctx.getAttributes(), ctx.getPreviousAttributes(), request);
+            return;
+        }
+
+        rsForward.forward(rsOp, arcAE, ctx.getAttributes(), request);
     }
 
     @POST
@@ -509,7 +534,7 @@ public class PamRS {
                 }
             }
             if (merged) //forward RS only if at least one set of trusted prior patient identifiers in req payload was merged
-                rsForward.forward(RSOperation.MergePatient, arcAE, baos.toByteArray(), null, request);
+                rsForward.forward(RSOperation.MergePatient, arcAE, request, baos.toByteArray());
             return Response.noContent().build();
         } catch (JsonParsingException e) {
             return errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST);
@@ -548,16 +573,51 @@ public class PamRS {
                         MessageFormat.format(PIDS_REQ_URL_NOT_TRUSTED, multiplePatientIDs),
                         Response.Status.BAD_REQUEST);
 
-
             if (findSCP != null)
                 verifyMergePatient(trustedPriorPatientIDs, trustedPatientIDs, findSCP, cfindscu, arcAE.getApplicationEntity());
 
             mergePatient(trustedPatientIDs, trustedPriorPatientIDs, arcAE);
-            rsForward.forward(RSOperation.MergePatient, arcAE, null, request);
+            rsForward.forward(RSOperation.MergePatient, arcAE, request);
             return Response.noContent().build();
         } catch (NonUniquePatientException
                 | CircularPatientMergeException
                 | VerifyMergePatientException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @POST
+    @Path("/patients/id/{priorPatientPk}/merge/{patientPk}")
+    public Response mergePatientWithPk(@PathParam("priorPatientPk") String priorPatientPk,
+                                 @PathParam("patientPk") String patientPk) {
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
+            validateWebAppServiceClass();
+
+        try {
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            ctx.setArchiveAEExtension(arcAE);
+            ctx.setPatPk(Long.parseLong(patientPk));
+            ctx.setPrevPatPk(Long.parseLong(priorPatientPk));
+            LOG.info(MessageFormat.format(MERGE_PRIOR_TO_TARGET_PATIENT_PK, priorPatientPk, patientPk));
+            if (patientService.mergePatient(ctx) == null)
+                return errResponse(
+                        MessageFormat.format(PRIOR_OR_TARGET_PATIENT_NOT_FOUND, priorPatientPk, patientPk),
+                        Response.Status.NOT_FOUND);
+
+            LOG.info(LOG_FWD_BY_PID);
+            rsForward.forward(RSOperation.MergePatientByPID, arcAE, ctx.getAttributes(), ctx.getPreviousAttributes(), request);
+            notifyHL7Receivers(MERGE_PATIENT_MSG_TYPE, ctx);
+            return Response.noContent().build();
+        } catch (CircularPatientMergeException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
             return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
@@ -592,7 +652,7 @@ public class PamRS {
                         MessageFormat.format(PIDS_REQ_URL_NOT_FOUND, multiplePriorPatientIDs),
                         Response.Status.NOT_FOUND);
 
-            rsForward.forward(RSOperation.UnmergePatient, arcAE, null, request);
+            rsForward.forward(RSOperation.UnmergePatient, arcAE, request);
             return Response.noContent().build();
         } catch (NonUniquePatientException | PatientUnmergedException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
@@ -620,6 +680,7 @@ public class PamRS {
                         MessageFormat.format(PAT_PK_REQ_URL_NOT_FOUND, pk),
                         Response.Status.NOT_FOUND);
 
+            LOG.info(LOG_FWD_BY_PID);
             rsForward.forward(RSOperation.UnmergePatientByPID, arcAE, patMgtCtx.getAttributes(), request);
             return Response.noContent().build();
         } catch (PatientUnmergedException e) {
@@ -711,7 +772,7 @@ public class PamRS {
                             });
                 } while (remaining && failedPks.size() < supplementIssuerFetchSize);
                 if (!success.isEmpty())
-                    rsForward.forward(RSOperation.SupplementIssuer, arcAE, null, request);
+                    rsForward.forward(RSOperation.SupplementIssuer, arcAE, request);
             }
             return supplementIssuerResponse(success, ambiguous, failures, toManyDuplicates).build();
         } catch (Exception e) {
@@ -849,8 +910,7 @@ public class PamRS {
         patMgtCtx.setPatientIDs(trustedPatientIDs);
         patMgtCtx.setPreviousAttributes(exportPatientIDsWithIssuer(new Attributes(), trustedPriorPatientIDs));
         patMgtCtx.setPreviousPatientIDs(trustedPriorPatientIDs);
-        LOG.info("Merge prior patient identifier {} with target patient identifier {}",
-                trustedPriorPatientIDs, trustedPatientIDs);
+        LOG.info(MessageFormat.format(MERGE_PRIOR_TO_TARGET_PATIENT_PID, trustedPriorPatientIDs, trustedPatientIDs));
         patientService.mergePatient(patMgtCtx);
         notifyHL7Receivers(MERGE_PATIENT_MSG_TYPE, patMgtCtx);
         return true;
@@ -888,11 +948,13 @@ public class PamRS {
             ctx.setPreviousAttributes(prevPatient.getAttributes());
             ctx.setAttributes(exportPatientIDsWithIssuer(new Attributes(prevPatient.getAttributes()), trustedPatientIDs));
             patientService.changePatientID(ctx);
-            notifyHL7Receivers("ADT^A47^ADT_A30", ctx);
-            rsForward.forward(RSOperation.ChangePatientID, arcAE, null, request);
+            notifyHL7Receivers(CHANGE_PATIENT_ID_MSG_TYPE, ctx);
+            rsForward.forward(RSOperation.ChangePatientID, arcAE, request);
             return Response.noContent().build();
-        } catch (PatientAlreadyExistsException | NonUniquePatientException | PatientTrackingNotAllowedException
-                | CircularPatientMergeException e) {
+        } catch (PatientAlreadyExistsException
+                 | NonUniquePatientException
+                 | PatientTrackingNotAllowedException
+                 | CircularPatientMergeException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (PatientMergedException e) {
             return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
@@ -1123,7 +1185,7 @@ public class PamRS {
                 offset += blobs.size();
             }
             if (updated > 0)
-                rsForward.forward(RSOperation.UpdateCharset, arcAE, null, request);
+                rsForward.forward(RSOperation.UpdateCharset, arcAE, request);
             return updateCharsetResponse(updated, failures).build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);

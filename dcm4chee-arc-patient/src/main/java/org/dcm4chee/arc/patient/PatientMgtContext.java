@@ -114,6 +114,10 @@ public interface PatientMgtContext {
 
     void setPatient(Patient patient);
 
+    Patient getPrevPatient();
+
+    void setPrevPatient(Patient prevPatient);
+
     HttpServletRequestInfo getHttpServletRequestInfo();
 
     void setHttpServletRequestInfo(HttpServletRequestInfo httpServletRequestInfo);
@@ -155,4 +159,12 @@ public interface PatientMgtContext {
     String getSourceOfPreviousValues();
 
     void setSourceOfPreviousValues(String sourceOfPreviousValues);
+
+    long getPatPk();
+
+    void setPatPk(long patPk);
+
+    long getPrevPatPk();
+
+    void setPrevPatPk(long prevPatPk);
 }

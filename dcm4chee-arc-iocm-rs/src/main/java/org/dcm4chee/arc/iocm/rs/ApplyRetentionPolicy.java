@@ -169,7 +169,7 @@ public class ApplyRetentionPolicy {
                 runInTx.execute(es);
                 count = es.getCount();
             }
-            rsForward.forward(RSOperation.ApplyRetentionPolicy, arcAE, null, request);
+            rsForward.forward(RSOperation.ApplyRetentionPolicy, arcAE, request);
             return Response.ok("{\"count\":" + count + '}').build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);

@@ -214,7 +214,7 @@ public class MwlRS {
                 return errResponse("MWLItem with study instance UID : " + studyIUID + " and SPS ID : "
                                 + spsID + " not found.",
                         Response.Status.NOT_FOUND);
-            rsForward.forward(RSOperation.DeleteMWL, arcAE, null, request);
+            rsForward.forward(RSOperation.DeleteMWL, arcAE, request);
             return Response.noContent().build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
@@ -249,7 +249,7 @@ public class MwlRS {
                                         + spsID + " not found.",
                                 Response.Status.NOT_FOUND);
 
-            rsForward.forward(RSOperation.UpdateMWLStatus, arcAE, null, request);
+            rsForward.forward(RSOperation.UpdateMWLStatus, arcAE, request);
             return Response.noContent().build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);

@@ -60,6 +60,7 @@ import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.util.ByteUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.delete.DeletionService;
@@ -167,7 +168,7 @@ public class StudyMgtRS {
         try {
             deletionService.deleteStudy(
                     studyUID, HttpServletRequestInfo.valueOf(request), arcAE, Boolean.parseBoolean(retainObj));
-            rsForward.forward(RSOperation.DeleteStudy, arcAE, null, request);
+            rsForward.forward(RSOperation.DeleteStudy, arcAE, request);
             return Response.noContent().build();
         } catch (StudyNotFoundException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -408,7 +409,7 @@ public class StudyMgtRS {
             ctx.setReasonForModification(reasonForModification);
             ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
             studyService.updateStudyRequest(ctx);
-            rsForward.forward(RSOperation.UpdateStudyRequest, arcAE, request, requestAttrs);
+            rsForward.forward(RSOperation.UpdateStudyRequest, arcAE, request, toContent(requestAttrs, arcAE));
             return Response.accepted().build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -443,7 +444,7 @@ public class StudyMgtRS {
             ctx.setReasonForModification(reasonForModification);
             ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
             studyService.updateSeriesRequest(ctx);
-            rsForward.forward(RSOperation.UpdateSeriesRequest, arcAE, request, requestAttrs);
+            rsForward.forward(RSOperation.UpdateSeriesRequest, arcAE, request, toContent(requestAttrs, arcAE));
             return Response.accepted().build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -485,7 +486,7 @@ public class StudyMgtRS {
             ctx.setSeriesInstanceUID(seriesUID);
             ctx.setAccessControlID("null".equals(accessControlID) ? "*" :  accessControlID);
             studyService.updateAccessControlID(ctx);
-            rsForward.forward(rsOp, arcAE, null, request);
+            rsForward.forward(rsOp, arcAE, request);
             return Response.noContent().build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -524,7 +525,7 @@ public class StudyMgtRS {
             if (updatePolicy != null)
                 ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.valueOf(updatePolicy));
             studyService.moveStudyToPatient(studyUID, ctx);
-            rsForward.forward(RSOperation.MoveStudyToPatient, arcAE, null, request);
+            rsForward.forward(RSOperation.MoveStudyToPatient, arcAE, request);
             return Response.noContent().build();
         } catch (StudyMissingException e) {
             return errResponse(e.getMessage(), Response.Status.BAD_REQUEST);
@@ -586,7 +587,7 @@ public class StudyMgtRS {
                 ctx.setUnfreezeExpirationDate(true);
             ctx.setSeriesInstanceUID(seriesUID);
             studyService.updateExpirationDate(ctx);
-            rsForward.forward(op, arcAE, null, request);
+            rsForward.forward(op, arcAE, request);
             return Response.noContent().build();
         } catch (DateTimeParseException e) {
             return errResponse("Expiration date [" + expirationDate + "] cannot be parsed.",
@@ -680,5 +681,18 @@ public class StudyMgtRS {
                 .orElseThrow(() -> new WebApplicationException(errResponse(
                         "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
                         Response.Status.NOT_FOUND)));
+    }
+
+    private static byte[] toContent(List<Attributes> requestAttrs, ArchiveAEExtension arcAE) {
+        if (requestAttrs.isEmpty())
+            return ByteUtils.EMPTY_BYTES;
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (JsonGenerator gen = Json.createGenerator(out)) {
+            gen.writeStartArray();
+            requestAttrs.forEach(attrs -> arcAE.encodeAsJSONNumber(new JSONWriter(gen)).write(attrs));
+            gen.writeEnd();
+        }
+        return out.toByteArray();
     }
 }

@@ -170,6 +170,15 @@
       "type": "string"
     }
   },
+  "priorPatientPkPathParam": {
+    "name": "pk",
+    "in": "path",
+    "description": "Prior Patient record primary key",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "issuerPathParam": {
     "name": "issuer",
     "in": "path",

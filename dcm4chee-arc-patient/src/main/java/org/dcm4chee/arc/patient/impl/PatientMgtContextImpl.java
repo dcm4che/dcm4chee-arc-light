@@ -83,6 +83,7 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private String eventActionCode = AuditMessages.EventActionCode.Read;
     private Exception exception;
     private Patient patient;
+    private Patient prevPatient;
     private HttpServletRequestInfo httpServletRequestInfo;
     private Patient.VerificationStatus patientVerificationStatus = Patient.VerificationStatus.UNVERIFIED;
     private String pdqServiceURI;
@@ -91,6 +92,8 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     private String sourceMwlScp;
     private String reasonForModification;
     private String sourceOfPreviousValues;
+    private long patPk;
+    private long prevPatPk;
 
     PatientMgtContextImpl(Device device) {
         ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
@@ -276,6 +279,17 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     }
 
     @Override
+    public Patient getPrevPatient() {
+        return prevPatient;
+    }
+
+    @Override
+    public void setPrevPatient(Patient prevPatient) {
+        this.prevPatient = prevPatient;
+        this.prevPatPk = prevPatient.getPk();
+    }
+
+    @Override
     public HttpServletRequestInfo getHttpServletRequestInfo() {
         return httpServletRequestInfo;
     }
@@ -378,5 +392,25 @@ public class PatientMgtContextImpl implements PatientMgtContext {
     @Override
     public void setSourceOfPreviousValues(String sourceOfPreviousValues) {
         this.sourceOfPreviousValues = sourceOfPreviousValues;
+    }
+
+    @Override
+    public long getPatPk() {
+        return patPk;
+    }
+
+    @Override
+    public void setPatPk(long patPk) {
+        this.patPk = patPk;
+    }
+
+    @Override
+    public long getPrevPatPk() {
+        return prevPatPk;
+    }
+
+    @Override
+    public void setPrevPatPk(long prevPatPk) {
+        this.prevPatPk = prevPatPk;
     }
 }

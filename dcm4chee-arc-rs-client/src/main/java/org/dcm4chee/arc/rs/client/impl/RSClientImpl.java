@@ -116,24 +116,24 @@ public class RSClientImpl implements RSClient {
             return new Outcome(status, "No such Web Application found: " + webAppName);
         }
 
-        String targetURI = targetURI(rsOperation, requestURI, webApplication, patientID);
-        if (targetURI == null)
+        String requestURL = requestQueryString != null
+                            ? requestURI + "?" + requestQueryString
+                            : requestURI;
+        String targetURL = targetURL(rsOperation, requestURL, webApplication, patientID);
+        if (targetURL == null)
             return new Outcome(status, "Target URL not available.");
-        if (targetURI.equals(requestURI))
+        if (targetURL.equals(requestURI))
             return new Outcome(status, "Target URL same as Source Request URL!");
 
-        if (requestQueryString != null)
-            targetURI += "?" + requestQueryString;
-
-        try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(targetURI, webApplication).build()) {
-            WebTarget target = client.target(targetURI);
+        try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(targetURL, webApplication).build()) {
+            WebTarget target = client.target(targetURL);
             Invocation.Builder request = target.request();
             String authorization = accessTokenFromWebApp(webApplication);
             if (authorization != null)
                 request.header("Authorization", authorization);
 
             String method = getMethod(rsOperation);
-            LOG.info("Restful Service Forward : {} {}", method, targetURI);
+            LOG.info("Restful Service Forward : {} {}", method, targetURL);
 
             try (Response response = method.equals("POST")
                     ? content != null
@@ -154,25 +154,41 @@ public class RSClientImpl implements RSClient {
         return "Bearer " + accessTokenRequestor.getAccessToken2(webApp).getToken();
     }
 
-    private String targetURI(RSOperation rsOp,
-                       String requestURI,
-                       WebApplication webApplication,
-                       String patientID) {
-        String targetURI = null;
+    private String targetURL(RSOperation rsOp, String requestURL, WebApplication webApplication, String patientID) {
         try {
             if (webApplication.containsServiceClass(WebApplication.ServiceClass.DCM4CHEE_ARC_AET)) {
-                String serviceURL = webApplication.getServiceURL().toString();
-                targetURI = serviceURL
-                            + (serviceURL.endsWith("rs/") ? "" : "/")
-                            + requestURI.substring(requestURI.indexOf("/rs/") + 4);
-                if (rsOp == RSOperation.CreatePatient)
-                    targetURI += "/" + patientID;
+                String targetURL = resultantTargetURL(rsOp, intermediateTargetURL(webApplication, requestURL), patientID);
+                LOG.info("Target URL is {}", targetURL);
+                return targetURL;
             }
         } catch (Exception e) {
             LOG.warn("Failed to construct Target URL. \n", e);
         }
-        LOG.info("Target URL is {}", targetURI);
-        return targetURI;
+        return null;
+    }
+
+    private String intermediateTargetURL(WebApplication webApplication, String requestURI) {
+        String serviceURL = webApplication.getServiceURL().toString();
+        return serviceURL
+                + (serviceURL.endsWith("rs/") ? "" : "/")
+                + requestURI.substring(requestURI.indexOf("/rs/") + 4);
+    }
+
+    private String resultantTargetURL(RSOperation rsOperation, String targetURI, String patientID) {
+        switch (rsOperation) {
+            case CreatePatient:
+                return targetURI + "/" + patientID;
+            case UpdatePatientByPID:
+            case DeletePatientByPID:
+            case ChangePatientIDByPID:
+                return targetURI.substring(0, targetURI.indexOf("/id")) + "/" + patientID;
+            case MergePatientByPID:
+                return targetURI.substring(0, targetURI.indexOf("/id")) + "/" + patientID + "?merge=true";
+            case UnmergePatientByPID:
+                return targetURI.substring(0, targetURI.indexOf("/id")) + "/" + patientID + "/unmerge";
+            default:
+                return targetURI;
+        }
     }
 
     private Outcome buildOutcome(Response.Status status, Response.StatusType st) {
@@ -189,7 +205,7 @@ public class RSClientImpl implements RSClient {
             case INTERNAL_SERVER_ERROR:
                 return new Outcome(Task.Status.FAILED, st.toString());
         }
-        return new Outcome(Task.Status.WARNING, "Http Response Status from other archive is : " + status.toString());
+        return new Outcome(Task.Status.WARNING, "Http Response Status from other archive is : " + status);
     }
 
     private String getMethod(RSOperation rsOp) {
@@ -197,11 +213,14 @@ public class RSClientImpl implements RSClient {
         switch (rsOp) {
             case CreatePatient:
             case UpdatePatient:
+            case UpdatePatientByPID:
             case UpdateStudyExpirationDate:
             case UpdateSeriesExpirationDate:
             case UpdateStudyAccessControlID:
             case ChangePatientID2:
+            case ChangePatientIDByPID:
             case MergePatient2:
+            case MergePatientByPID:
             case UpdateStudy:
             case UpdateStudyRequest:
             case UpdateSeries:
@@ -211,6 +230,7 @@ public class RSClientImpl implements RSClient {
             case ChangePatientID:
             case MergePatient:
             case UnmergePatient:
+            case UnmergePatientByPID:
             case SupplementIssuer:
             case UpdateCharset:
             case ReimportStudy:
@@ -225,6 +245,7 @@ public class RSClientImpl implements RSClient {
                 method = "POST";
                 break;
             case DeletePatient:
+            case DeletePatientByPID:
             case DeleteStudy:
             case DeleteMWL:
                 method = "DELETE";

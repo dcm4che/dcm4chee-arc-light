@@ -335,7 +335,7 @@ public class IocmRS {
                 return errResponse("No instances of Study[UID=" + studyUID + "] found for rejection.",
                         Response.Status.NOT_FOUND);
             }
-            rsForward.forward(rsOp, arcAE, null, request);
+            rsForward.forward(rsOp, arcAE, request);
             return Response.ok("{\"count\":" + count + '}').build();
         } catch (IllegalStateException e) {
             return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
@@ -357,7 +357,7 @@ public class IocmRS {
                                         studyUID,
                                         seriesUID,
                                         objectUID);
-        rsForward.forward(rsOp, arcAE, null, request);
+        rsForward.forward(rsOp, arcAE, request);
         return Response.accepted().build();
     }
 

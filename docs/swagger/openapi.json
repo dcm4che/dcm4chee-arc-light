@@ -181,6 +181,9 @@
     "/aets/{aet}/rs/patients/{priorPatientID}/merge/{patientID}": {
       "$ref": "paths/pam.json#/patient.merge"
     },
+    "/aets/{aet}/rs/patients/id/{priorPatientPk}/merge/{patientPk}": {
+      "$ref": "paths/pam.json#/patient.mergeByPk"
+    },
     "/aets/{aet}/rs/patients/{priorPatientID}/changeid/{patientID}": {
       "$ref": "paths/pam.json#/patient.changeid"
     },

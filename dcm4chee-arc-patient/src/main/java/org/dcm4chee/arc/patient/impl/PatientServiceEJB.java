@@ -43,8 +43,12 @@ package org.dcm4chee.arc.patient.impl;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
@@ -145,7 +149,9 @@ public class PatientServiceEJB {
 
     public Patient updatePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findNotMergedPatient(ctx.getPatientIDs());
+        Patient pat = ctx.getPatPk() != 0L
+                        ? findNotMergedPatient(ctx.getPatPk())
+                        : findNotMergedPatient(ctx.getPatientIDs());
         if (pat == null) {
             if (ctx.isNoPatientCreate()) {
                 logSuppressPatientCreate(ctx);
@@ -190,15 +196,29 @@ public class PatientServiceEJB {
         return pat;
     }
 
-    public Patient findNotMergedPatient(long pk) throws NonUniquePatientException, PatientMergedException {
-        Patient pat = em.createNamedQuery(Patient.FIND_PATIENT_BY_PK, Patient.class)
-                        .setParameter(1, pk)
-                        .getSingleResult();
-        Patient mergedWith;
-        if (pat != null && (mergedWith = pat.getMergedWith()) != null)
-            throw new PatientMergedException(pat + " merged with " + mergedWith);
+    public Patient findNotMergedPatient(long pk) throws PatientMergedException {
+        try {
+            Patient pat = em.createNamedQuery(Patient.FIND_PATIENT_BY_PK, Patient.class)
+                    .setParameter(1, pk)
+                    .getSingleResult();
+            Patient mergedWith;
+            if (pat != null && (mergedWith = pat.getMergedWith()) != null)
+                throw new PatientMergedException(pat + " merged with " + mergedWith);
 
-        return pat;
+            return pat;
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public Patient findPatient(long pk) {
+        try {
+            return em.createNamedQuery(Patient.FIND_PATIENT_BY_PK, Patient.class)
+                    .setParameter(1, pk)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     public boolean unmergePatient(PatientMgtContext ctx)
@@ -226,9 +246,10 @@ public class PatientServiceEJB {
 
     public boolean unmergePatient(PatientMgtContext ctx, long pk)
             throws PatientUnmergedException {
-        Patient patient = em.createNamedQuery(Patient.FIND_PATIENT_BY_PK, Patient.class)
-                            .setParameter(1, pk)
-                            .getSingleResult();
+        Patient patient = findPatient(pk);
+        if (patient == null)
+            return false;
+
         return unmergePatient(ctx, patient);
     }
 
@@ -330,7 +351,31 @@ public class PatientServiceEJB {
 
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
+        if (ctx.getPatPk() != 0L && ctx.getPrevPatPk() != 0L)
+            return mergePatientWithPk(ctx);
+
         Patient pat = findPatient(ctx.getPatientIDs());
+        Patient prev = findNotMergedPatient(ctx.getPreviousPatientIDs());
+        return mergePatient(ctx, pat, prev);
+    }
+
+    private Patient mergePatientWithPk(PatientMgtContext ctx)
+            throws NonUniquePatientException, PatientMergedException {
+        Patient pat = findPatient(ctx.getPatPk());
+        Patient prev = findNotMergedPatient(ctx.getPrevPatPk());
+        if (pat == null || prev == null)
+            return null;
+
+        if (pat.getPatientIDs().stream().anyMatch(prev.getPatientIDs()::contains))
+            throw new CircularPatientMergeException("PriorPatientID same as target PatientID");
+
+        ctx.setAttributes(pat.getAttributes());
+        ctx.setPreviousAttributes(prev.getAttributes());
+        return mergePatient(ctx, pat, prev);
+    }
+
+    private Patient mergePatient(PatientMgtContext ctx, Patient pat, Patient prev)
+            throws NonUniquePatientException, PatientMergedException {
         Patient mergedWith;
         if (pat != null && (mergedWith = pat.getMergedWith()) != null) {
             if (ctx.getHl7ReferredMergedPatientPolicy() != HL7ReferredMergedPatientPolicy.ACCEPT_INVERSE_MERGE
@@ -341,7 +386,7 @@ public class PatientServiceEJB {
             }
             pat.setMergedWith(null);
         }
-        Patient prev = findNotMergedPatient(ctx.getPreviousPatientIDs());
+
         if (pat == null && prev == null && ctx.isNoPatientCreate()) {
             logSuppressPatientCreate(ctx);
             return null;
@@ -380,7 +425,9 @@ public class PatientServiceEJB {
 
     public Patient changePatientID(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, PatientAlreadyExistsException {
-        Patient pat = findNotMergedPatient(ctx.getPreviousPatientIDs());
+        Patient pat = ctx.getPrevPatient() == null
+                        ? findNotMergedPatient(ctx.getPreviousPatientIDs())
+                        : em.merge(ctx.getPrevPatient());
         if (pat == null) {
             if (ctx.isNoPatientCreate()) {
                 logSuppressPatientCreate(ctx);
@@ -393,7 +440,9 @@ public class PatientServiceEJB {
             ctx.setPreviousAttributes(new Attributes(pat.getAttributes()));
 
         Collection<IDWithIssuer> patientIDs = ctx.getPatientIDs();
-        Patient pat2 = findNotMergedPatient(patientIDs);
+        Patient pat2 = ctx.getPatPk() != 0L
+                        ? findNotMergedPatient(ctx.getPatPk())
+                        : findNotMergedPatient(patientIDs);
         if (pat2 != null && pat2 != pat)
             throw new PatientAlreadyExistsException("Patient with Patient IDs " + pat2.getPatientIDs() + "already exists");
 

@@ -230,7 +230,7 @@ public class ImportStorageRS {
                 importInstanceOnStorage(
                         storage, ctx, coerce, updatePolicy, now, location.getStoragePath());
             }
-            rsForward.forward(RSOperation.ReimportStudy, arcAE, null, request);
+            rsForward.forward(RSOperation.ReimportStudy, arcAE, request);
         } catch (StudyNotFoundException e) {
             throw new WebApplicationException(errResponse(e.getMessage(), Response.Status.NOT_FOUND));
         } catch (StudyNotEmptyException e) {

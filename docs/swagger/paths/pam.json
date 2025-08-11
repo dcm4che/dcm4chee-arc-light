@@ -224,7 +224,7 @@
       "tags": [
         "PAM-RS"
       ],
-      "summary": "Update, Create, Merge or Change Patient ID of patient with Primary Key",
+      "summary": "Update, Merge or Change Patient ID of patient with Primary Key",
       "operationId": "UpdatePatientWithPk",
       "parameters": [
         {
@@ -376,6 +376,46 @@
         },
         "502": {
           "description": "Failed to query external C-FIND SCP."
+        }
+      }
+    }
+  },
+  "patient.mergeByPk": {
+    "post": {
+      "tags": [
+        "PAM-RS"
+      ],
+      "summary": "Merge Patient with primary key",
+      "operationId": "MergePatientsWithPk",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/priorPatientPkPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPkPathParam"
+        }
+      ],
+      "responses": {
+        "204": {
+          "description": "successful operation"
+        },
+        "400": {
+          "description": "Missing prior or target patient identifier with trusted assigning authority in specified patient identifiers"
+        },
+        "403": {
+          "description": "Merging to already merged patient forbidden"
+        },
+        "404": {
+          "description": "No such Archive Application Entity or Either or both prior patient or target patient not found."
+        },
+        "409": {
+          "description": "Circular Patient Merge is detected"
+        },
+        "500": {
+          "description": "Internal Server Error."
         }
       }
     }

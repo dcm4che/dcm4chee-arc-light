@@ -221,9 +221,11 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException, CircularPatientMergeException {
-        if (ctx.getPatientIDs().stream().anyMatch(pid ->
-                ctx.getPreviousPatientIDs().stream().anyMatch(other -> pid.matches(other, true, true))))
-            throw new CircularPatientMergeException("PriorPatientID same as target PatientID");
+        if (ctx.getPatientIDs() != null && ctx.getPreviousPatientIDs() != null)
+            if (ctx.getPatientIDs().stream()
+                        .anyMatch(pid -> ctx.getPreviousPatientIDs().stream()
+                                                        .anyMatch(other -> pid.matches(other, true, true))))
+                throw new CircularPatientMergeException("PriorPatientID same as target PatientID");
 
         try {
             return ejb.mergePatient(ctx);
