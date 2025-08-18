@@ -801,7 +801,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.cfpLoadingBar.start();
                             switch (this.selectedElements.action) {
                                 case 'merge':
-                                    this.service.mergePatients(this.selectedElements,this.studyWebService)
+                                    this.service.mergePatientsByPk(this.selectedElements,this.studyWebService)
                                         .subscribe((res) => {
                                             this.appService.showMsg($localize `:@@study.patients_merged_successfully:Patients merged successfully!`);
                                             this.clearClipboard();
@@ -1038,10 +1038,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.unsubscribeUPS(model);
             }
             if(id.action === "delete_patient"){
-                this.deletePatient(model);
+                //this.deletePatient(model);
+                this.deletePatientByPk(model);
             }
             if(id.action === "unmerge_patient"){
-                this.unmergePatient(model);
+                //this.unmergePatient(model);
+                this.unmergePatientByPk(model);
             }
             if(id.action === "pdq_patient"){
                 this.queryNationalPatientRegister(model);
@@ -1275,6 +1277,29 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
         // });
     }
+    deletePatientByPk(patient){
+        const patientPk = this.service.getPatientPk(patient.attrs);
+        let $this = this;
+        this.confirm({
+            content: 'Are you sure you want to delete this patient?'
+        }).subscribe(result => {
+            if (result){
+                $this.cfpLoadingBar.start();
+                this.service.deletePatientByPk(this.studyWebService.selectedWebService, patientPk).subscribe(
+                    (response) => {
+                        $this.appService.showMsg($localize `:@@study.patient_deleted:Patient deleted successfully!`);
+                        // patients.splice(patientkey,1);
+                        $this.cfpLoadingBar.complete();
+                    },
+                    (err) => {
+                        $this.httpErrorHandler.handleError(err);
+                        // angular.element("#querypatients").trigger('click');
+                        $this.cfpLoadingBar.complete();
+                    }
+                );
+            }
+        });
+    };
     deletePatient(patient){
         // console.log("study",study);
         // if (!_.hasIn(patient, 'attrs["00201200"].Value[0]') || patient.attrs['00201200'].Value[0] === ''){
@@ -1304,6 +1329,27 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }
             });
         }
+    };
+    unmergePatientByPk(patient){
+        const patientPk = this.service.getPatientPk(patient.attrs);
+        let $this = this;
+        this.confirm({
+            content: $localize `:@@unmerge_patient_ask_confirmation:Are you sure you want to unmerge this patient?`
+        }).subscribe(result => {
+            if (result){
+                $this.cfpLoadingBar.start();
+                this.service.unmergePatientByPk(this.studyWebService.selectedWebService, patientPk).subscribe(
+                    (response) => {
+                        $this.appService.showMsg($localize `:@@unmerged_patient_successfully:Patient unmerged successfully!`);
+                        $this.cfpLoadingBar.complete();
+                    },
+                    (err) => {
+                        $this.httpErrorHandler.handleError(err);
+                        $this.cfpLoadingBar.complete();
+                    }
+                );
+            }
+        });
     };
     unmergePatient(patient){
         const patientId = this.service.getPatientId(patient.attrs);
@@ -4146,7 +4192,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.httpErrorHandler.handleError(err);
                         });
                     }else{
-                        this.service.modifyPatient(this.service.getPatientId(originalPatientObject.attrs),tempAttrs,this.studyWebService).subscribe(res=>{
+                        this.service.modifyPatientByPk(this.service.getPatientPk(originalPatientObject.attrs),tempAttrs,this.studyWebService).subscribe(res=>{
                             this.appService.showMsg($localize `:@@study.patient_updated_successfully:Patient updated successfully`);
                         },err=>{
                             _.assign(patient, originalPatientObject);

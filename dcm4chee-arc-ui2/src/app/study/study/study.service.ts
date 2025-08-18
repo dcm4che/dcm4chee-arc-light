@@ -109,7 +109,20 @@ export class StudyService {
             return this._keycloakService.getToken();
         }
     }
-
+    getPatientPk(patientAttrs) {
+        try{
+            console.log('patient attributes', patientAttrs);
+            let attrs;
+            if (_.hasIn(patientAttrs, '[0]')) {
+                attrs = patientAttrs[0];
+            } else {
+                attrs = patientAttrs;
+            }
+            return attrs['77771016'].Value[0];
+        }catch (e) {
+            return '';
+        }
+    }
     /*
     * return patientid - combination of patient id, issuer
     * */
@@ -770,11 +783,15 @@ export class StudyService {
             }
         }
     }
-
+    deletePatientByPk(dcmWebApp: DcmWebApp, patientPk:string){
+        return this.$http.delete(`${this.getDicomURL('patient', dcmWebApp)}/id/${patientPk}`, undefined, true);
+    }
     deletePatient(dcmWebApp: DcmWebApp, patientId:string){
         return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp)}/${patientId}`, undefined, true);
     }
-
+    unmergePatientByPk(dcmWebApp: DcmWebApp, patientPk:string){
+        return this.$http.post(`${this.getDicomURL('patient', dcmWebApp)}/id/${patientPk}/unmerge`, undefined, true);
+    }
     unmergePatient(dcmWebApp: DcmWebApp, patientId:string){
         return this.$http.post(`${this.getDicomURL("patient", dcmWebApp)}/${patientId}/unmerge`, undefined, true);
     }
@@ -4159,7 +4176,23 @@ export class StudyService {
             return throwError(e);
         }
     }
-
+    mergePatientsByPk = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService):Observable<any> => {
+        if(selectedElements.preActionElements.getAttrs('patient').length > 1){
+            return throwError({error:$localize `:@@multi_patient_merge_not_supported:Multi patient merge is not supported!`});
+        }else{
+            return this.getModifyPatientUrl(deviceWebservice).pipe(
+                switchMap((url:string)=>{
+                    console.log('url',url);
+                    const prePatientPk = this.getPatientPk(selectedElements.preActionElements.getAttrs('patient')[0]);
+                    return this.$http.put(
+                        `${url}/id/${prePatientPk}?merge=true`,
+                        selectedElements.postActionElements.getAttrs('patient'),
+                        this.jsonHeader
+                    )
+                })
+            )
+        }
+    };
     mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService):Observable<any> => {
         if(selectedElements.preActionElements.getAttrs("patient").length > 1){
             return throwError({error:$localize `:@@multi_patient_merge_not_supported:Multi patient merge is not supported!`});
@@ -4339,6 +4372,15 @@ export class StudyService {
 
     getModifyUPSUrl(deviceWebService: StudyWebService) {
         return this.getDicomURLFromWebService(deviceWebService, "uwl");
+    }
+    modifyPatientByPk(patientPk: string, patientObject, deviceWebservice: StudyWebService, queued?, batchID?) {
+        return this.getModifyPatientUrl(deviceWebservice)
+            .pipe(switchMap((url:string)=>{
+                if (url) {
+                    return this.$http.put(`${url}/id/${patientPk}${j4care.objToUrlParams({queued:queued,batchID:batchID}, true)}`, patientObject, undefined,true);
+                }
+                return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});
+            }))
     }
     modifyPatient(patientId: string, patientObject, deviceWebservice: StudyWebService, queued?, batchID?) {
         // const url = this.getModifyPatientUrl(deviceWebservice);
