@@ -786,14 +786,8 @@ export class StudyService {
     deletePatientByPk(dcmWebApp: DcmWebApp, patientPk:string){
         return this.$http.delete(`${this.getDicomURL('patient', dcmWebApp)}/id/${patientPk}`, undefined, true);
     }
-    deletePatient(dcmWebApp: DcmWebApp, patientId:string){
-        return this.$http.delete(`${this.getDicomURL("patient", dcmWebApp)}/${patientId}`, undefined, true);
-    }
     unmergePatientByPk(dcmWebApp: DcmWebApp, patientPk:string){
         return this.$http.post(`${this.getDicomURL('patient', dcmWebApp)}/id/${patientPk}/unmerge`, undefined, true);
-    }
-    unmergePatient(dcmWebApp: DcmWebApp, patientId:string){
-        return this.$http.post(`${this.getDicomURL("patient", dcmWebApp)}/${patientId}/unmerge`, undefined, true);
     }
 
     deleteMWL(dcmWebApp: DcmWebApp, studyInstanceUID:string, scheduledProcedureStepID:string,  responseType?: DicomResponseType){
@@ -4193,27 +4187,6 @@ export class StudyService {
             )
         }
     };
-    mergePatients = (selectedElements:SelectionActionElement,deviceWebservice: StudyWebService):Observable<any> => {
-        if(selectedElements.preActionElements.getAttrs("patient").length > 1){
-            return throwError({error:$localize `:@@multi_patient_merge_not_supported:Multi patient merge is not supported!`});
-        }else{
-            return this.getModifyPatientUrl(deviceWebservice).pipe(
-                switchMap((url:string)=>{
-                    console.log("url",url);
-                    const prePatientId = this.getPatientId(selectedElements.preActionElements.getAttrs("patient")[0]);
-                    if(prePatientId){
-                        return this.$http.put(
-                            `${url}/${prePatientId}?merge=true`,
-                            selectedElements.postActionElements.getAttrs("patient"),
-                            this.jsonHeader
-                        )
-                    }else {
-                        return throwError({error:$localize `:@@patient_id_not_found:Patient id not found!`});
-                    }
-                })
-            )
-        }
-    };
     rescheduleUPS(workitemUID,deviceWebservice: StudyWebService, model){
         return this.getModifyUPSUrl(deviceWebservice)
             .pipe(switchMap((url:string)=>{
@@ -4984,7 +4957,7 @@ export class StudyService {
     deleteMultipleObjects(multipleObjects: SelectionActionElement, selectedWebService: DcmWebApp, param?:any){
         return forkJoin(multipleObjects.getAllAsArray().map((element: SelectedDetailObject) => {
             if(element.dicomLevel === "patient" && _.hasIn(element,"object.attrs")){
-                return this.deletePatient(selectedWebService,this.getPatientId(element.object.attrs));
+                return this.deletePatientByPk(selectedWebService,this.getPatientPk(element.object.attrs));
             }
             if(element.dicomLevel === "study" && _.hasIn(element,"object.attrs")){
                 return this.deleteStudy(this.getStudyInstanceUID(element.object.attrs),selectedWebService,param);

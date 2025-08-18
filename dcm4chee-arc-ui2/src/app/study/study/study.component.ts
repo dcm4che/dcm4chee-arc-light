@@ -1038,11 +1038,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.unsubscribeUPS(model);
             }
             if(id.action === "delete_patient"){
-                //this.deletePatient(model);
                 this.deletePatientByPk(model);
             }
             if(id.action === "unmerge_patient"){
-                //this.unmergePatient(model);
                 this.unmergePatientByPk(model);
             }
             if(id.action === "pdq_patient"){
@@ -1300,36 +1298,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         });
     };
-    deletePatient(patient){
-        // console.log("study",study);
-        // if (!_.hasIn(patient, 'attrs["00201200"].Value[0]') || patient.attrs['00201200'].Value[0] === ''){
-        const patientId = this.service.getPatientId(patient.attrs);
-        if (!patientId || patientId === ""){
-            this.appService.showError($localize `:@@study.cant_delete_with_empty_id:Cannot delete patient with empty Patient ID!`);
-            this.cfpLoadingBar.complete();
-        }else{
-            let $this = this;
-            this.confirm({
-                content: 'Are you sure you want to delete this patient?'
-            }).subscribe(result => {
-                if (result){
-                    $this.cfpLoadingBar.start();
-                    this.service.deletePatient(this.studyWebService.selectedWebService, patientId).subscribe(
-                        (response) => {
-                            $this.appService.showMsg($localize `:@@study.patient_deleted:Patient deleted successfully!`);
-                            // patients.splice(patientkey,1);
-                            $this.cfpLoadingBar.complete();
-                        },
-                        (err) => {
-                            $this.httpErrorHandler.handleError(err);
-                            // angular.element("#querypatients").trigger('click');
-                            $this.cfpLoadingBar.complete();
-                        }
-                    );
-                }
-            });
-        }
-    };
     unmergePatientByPk(patient){
         const patientPk = this.service.getPatientPk(patient.attrs);
         let $this = this;
@@ -1350,32 +1318,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 );
             }
         });
-    };
-    unmergePatient(patient){
-        const patientId = this.service.getPatientId(patient.attrs);
-        if (!patientId || patientId === ""){
-            this.appService.showError($localize `:@@unmerge_with_empty_id_not_allowed:Cannot unmerge patient with empty Patient ID!`);
-            this.cfpLoadingBar.complete();
-        }else{
-            let $this = this;
-            this.confirm({
-                content: $localize `:@@unmerge_patient_ask_confirmation:Are you sure you want to unmerge this patient?`
-            }).subscribe(result => {
-                if (result){
-                    $this.cfpLoadingBar.start();
-                    this.service.unmergePatient(this.studyWebService.selectedWebService, patientId).subscribe(
-                        (response) => {
-                            $this.appService.showMsg($localize `:@@unmerged_patient_successfully:Patient unmerged successfully!`);
-                            $this.cfpLoadingBar.complete();
-                        },
-                        (err) => {
-                            $this.httpErrorHandler.handleError(err);
-                            $this.cfpLoadingBar.complete();
-                        }
-                    );
-                }
-            });
-        }
     };
     deleteMWL(mwl){
         this.confirm({
