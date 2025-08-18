@@ -284,7 +284,8 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     }
 
     private boolean fromFallbackCMoveSCP(Association storeas) {
-        return storeas.getRemoteAET().equals(getXDSiFallbackCMoveSCP()) &&
+        return storeas != null &&
+                storeas.getRemoteAET().equals(getXDSiFallbackCMoveSCP()) &&
                 storeas.getLocalAET().equals(getXDSiFallbackCMoveSCPDestination());
     }
 
