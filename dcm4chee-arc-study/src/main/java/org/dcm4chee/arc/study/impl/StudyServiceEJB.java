@@ -46,6 +46,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import org.dcm4che3.audit.AuditMessages;
+import org.dcm4che3.conf.api.ConfigurationChanges;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.soundex.FuzzyStr;
@@ -144,6 +145,16 @@ public class StudyServiceEJB {
                     + " found using patient identifiers sent in request payload does not match with "
                     + series.getStudy().getPatient() + " of " + series);
 
+        Sequence origRequestAttributes = attrs.getSequence(Tag.RequestAttributesSequence);
+        Sequence newRequestAttributes = newAttrs.getSequence(Tag.RequestAttributesSequence);
+        if (!Objects.equals(origRequestAttributes, newRequestAttributes)) {
+            Collection<SeriesRequestAttributes> requestAttributes = series.getRequestAttributes();
+            requestAttributes.clear();
+            if (newRequestAttributes != null)
+                for (Attributes requestAttr : newRequestAttributes) {
+                    requestAttributes.add(new SeriesRequestAttributes(requestAttr, ctx.getFuzzyStr()));
+                }
+        }
         Attributes.unifyCharacterSets(newAttrs, attrs);
         newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
         attrs = newAttrs;
