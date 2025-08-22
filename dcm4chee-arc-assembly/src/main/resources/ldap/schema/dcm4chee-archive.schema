@@ -2945,6 +2945,12 @@ attributetype ( 1.2.40.0.13.1.15.110.3.503 NAME 'dcmXDSiFallbackCMoveSCPDestinat
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 
+attributetype ( 1.2.40.0.13.1.15.110.3.504 NAME 'dcmInExpressionCountLimit'
+  DESC 'Limit the number of elements in the IN predicate used for matching SOP Instance UIDs in SQL queries (0 - only limited by DB specific constraint); 1000 if absent.'
+  EQUALITY integerMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
+  SINGLE-VALUE )
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -3215,6 +3221,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmSchedulerMinStartDelay $
     dcmSupplementIssuerFetchSize $
     dcmUpdateCharsetFetchSize $
+    dcmInExpressionCountLimit $
     dcmAuditAssigningAuthorityOfPatientID $
     dcmChangeRequesterAET $
     dcmMWLAccessionNumberGenerator $

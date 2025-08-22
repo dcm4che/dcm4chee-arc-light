@@ -92,6 +92,8 @@ public interface RetrieveContext extends Closeable {
 
     ArchiveAEExtension getArchiveAEExtension();
 
+    ArchiveDeviceExtension getArchiveDeviceExtension();
+
     String[] getAccessControlIDs();
 
     QueryRetrieveView getQueryRetrieveView();

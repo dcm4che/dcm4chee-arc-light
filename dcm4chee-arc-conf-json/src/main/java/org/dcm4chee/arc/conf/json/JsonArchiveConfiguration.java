@@ -446,6 +446,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.isStoreImplementationVersionName(), true);
         writer.writeNotDef("dcmSupplementIssuerFetchSize", arcDev.getSupplementIssuerFetchSize(), 100);
         writer.writeNotDef("dcmUpdateCharsetFetchSize", arcDev.getUpdateCharsetFetchSize(), 100);
+        writer.writeNotDef("dcmInExpressionCountLimit", arcDev.getInExpressionCountLimit(), 1000);
         writer.writeNotNullOrDef("dcmAuditAssigningAuthorityOfPatientID",
                 arcDev.getAuditAssigningAuthorityOfPatientID(), null);
         writer.writeNotNullOrDef("dcmChangeRequesterAET", arcDev.getChangeRequesterAET(), null);
@@ -2256,6 +2257,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUpdateCharsetFetchSize":
                     arcDev.setUpdateCharsetFetchSize(reader.intValue());
+                    break;
+                case "dcmInExpressionCountLimit":
+                    arcDev.setInExpressionCountLimit(reader.intValue());
                     break;
                 case "dcmAuditAssigningAuthorityOfPatientID":
                     arcDev.setAuditAssigningAuthorityOfPatientID(toIssuer(reader.stringValue()));

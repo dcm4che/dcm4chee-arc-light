@@ -265,9 +265,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean hl7TrackChangedPatientID = true;
     private volatile boolean auditSoftwareConfigurationVerbose = false;
     private volatile boolean hl7UseNullValue = false;
-
-    private volatile boolean hl7AppendHashOfStudyInstanceUIDToSeriesAndSOPInstanceUID;
-
     private volatile String[] hl7ADTReceivingApplication = {};
     private volatile String hl7ADTSendingApplication;
     private volatile int queueTasksFetchSize = 100;
@@ -357,6 +354,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int supplementIssuerFetchSize = 100;
     private volatile int updateCharsetFetchSize = 100;
     private volatile Issuer auditAssigningAuthorityOfPatientID;
+    private volatile int inExpressionCountLimit = 1000;
 
     private final EnumSet<VR> encodeAsJSONNumber = EnumSet.noneOf(VR.class);
     private final EnumSet<IANTrigger> ianTriggers = EnumSet.noneOf(IANTrigger.class);
@@ -3739,6 +3737,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.auditAssigningAuthorityOfPatientID = auditAssigningAuthorityOfPatientID;
     }
 
+    public int getInExpressionCountLimit() {
+        return inExpressionCountLimit;
+    }
+
+    public void setInExpressionCountLimit(int inExpressionCountLimit) {
+        this.inExpressionCountLimit = inExpressionCountLimit;
+    }
+
     public String getChangeRequesterAET() {
         return changeRequesterAET;
     }
@@ -4027,6 +4033,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         supplementIssuerFetchSize = arcdev.supplementIssuerFetchSize;
         updateCharsetFetchSize = arcdev.updateCharsetFetchSize;
         auditAssigningAuthorityOfPatientID = arcdev.auditAssigningAuthorityOfPatientID;
+        inExpressionCountLimit = arcdev.inExpressionCountLimit;
         changeRequesterAET = arcdev.changeRequesterAET;
         attributeFilters.clear();
         attributeFilters.putAll(arcdev.attributeFilters);

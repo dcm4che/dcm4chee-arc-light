@@ -204,6 +204,11 @@ class RetrieveContextImpl implements RetrieveContext {
     }
 
     @Override
+    public ArchiveDeviceExtension getArchiveDeviceExtension() {
+        return arcAE.getArchiveDeviceExtension();
+    }
+
+    @Override
     public String[] getAccessControlIDs() {
         return arcAE == null ? StringUtils.EMPTY_STRING : arcAE.getAccessControlIDs();
     }

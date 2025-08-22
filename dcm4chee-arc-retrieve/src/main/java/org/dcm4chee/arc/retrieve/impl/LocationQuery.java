@@ -48,6 +48,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -124,7 +125,9 @@ class LocationQuery {
             String[] sopInstanceUIDs = ctx.getSopInstanceUIDs();
             if (!QueryBuilder.isUniversalMatching(sopInstanceUIDs)) {
                 // SQL Server actually does support lesser parameters than its specified limit (2100)
-                int limit = getInExpressionCountLimit() - 10;
+                int limit = minGreaterZero(
+                        getInExpressionCountLimit(),
+                        ctx.getArchiveDeviceExtension().getInExpressionCountLimit());
                 if (limit > 0 && sopInstanceUIDs.length > limit) {
                     iuidPredicates =
                             builder.splitUIDPredicates(instance.get(Instance_.sopInstanceUID), sopInstanceUIDs, limit);
@@ -153,6 +156,10 @@ class LocationQuery {
                 instance.get(Instance_.updatedTime),
                 instanceAttrBlob
         );
+    }
+
+    private static int minGreaterZero(int a, int b) {
+        return a > 0 ? b > 0 ? Math.min(a, b) : a : b;
     }
 
     private int getInExpressionCountLimit() {
