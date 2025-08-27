@@ -2,11 +2,11 @@
   "openapi": "3.0.0",
   "info": {
     "title": "dcm4chee-arc",
-    "version": "5.33.0"
+    "version": "5.34.0"
   },
   "servers": [
     {
-      "url": "http://dcm4chee-arc:8080/dcm4chee-arc"
+      "url": "https://dcm4chee-arc:8443/dcm4chee-arc"
     }
   ],
   "tags": [
