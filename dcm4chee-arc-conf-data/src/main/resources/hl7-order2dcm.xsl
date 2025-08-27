@@ -22,9 +22,14 @@
           <xsl:with-param name="tag" select="'00400001'"/>
           <xsl:with-param name="vr" select="'AE'"/>
           <xsl:with-param name="val">
-            <xsl:call-template name="multiValue">
-              <xsl:with-param name="field" select="ORC[1]/field[18]"/>
-            </xsl:call-template>
+            <xsl:choose>
+              <xsl:when test="$hl7ScheduledStationAETInOrder = 'ORC_18'">
+                <xsl:call-template name="multiValue">
+                  <xsl:with-param name="field" select="ORC[1]/field[18]"/>
+                </xsl:call-template>
+              </xsl:when>
+              <xsl:otherwise/>
+            </xsl:choose>
           </xsl:with-param>
         </xsl:call-template>
       </xsl:variable>
