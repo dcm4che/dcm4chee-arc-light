@@ -124,6 +124,9 @@ public class QueueManagerRS {
     @QueryParam("remoteAET")
     private String remoteAET;
 
+    @QueryParam("StudyInstanceUID")
+    private String studyInstanceUID;
+
     @QueryParam("orderby")
     @DefaultValue("-updatedTime")
     @Pattern(regexp = "(-?)createdTime|(-?)updatedTime|(-?)scheduledTime")
@@ -249,6 +252,7 @@ public class QueueManagerRS {
         taskQueryParam.setCreatedTime(createdTime);
         taskQueryParam.setUpdatedTime(updatedTime);
         taskQueryParam.setOrderBy(orderby);
+        taskQueryParam.setStudyIUID(studyInstanceUID);
         return taskQueryParam;
     }
 

@@ -2117,6 +2117,9 @@
         },
         {
           "$ref": "../parameters.json#/orderByTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyInstanceUID"
         }
       ],
       "responses": {
@@ -2174,6 +2177,9 @@
         },
         {
           "$ref": "../parameters.json#/updatedTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyInstanceUID"
         }
       ],
       "responses": {
@@ -2226,6 +2232,9 @@
         },
         {
           "$ref": "../parameters.json#/updatedTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyInstanceUID"
         }
       ],
       "responses": {
@@ -2278,6 +2287,9 @@
         },
         {
           "$ref": "../parameters.json#/updatedTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyInstanceUID"
         }
       ],
       "responses": {
@@ -2370,6 +2382,9 @@
         },
         {
           "$ref": "../parameters.json#/scheduledTime"
+        },
+        {
+          "$ref": "../parameters.json#/StudyInstanceUID"
         }
       ],
       "responses": {

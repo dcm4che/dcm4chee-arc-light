@@ -516,14 +516,14 @@ public class QueryBuilder {
             predicates.add(cb.lessThan(task.get(Task_.updatedTime), taskQueryParam.getUpdatedBefore()));
         if (taskQueryParam.getNotType() != null)
             predicates.add(cb.notEqual(task.get(Task_.type), taskQueryParam.getNotType()));
+        if (taskQueryParam.getStudyIUID() != null)
+            predicates.add(cb.equal(task.get(Task_.studyInstanceUID), taskQueryParam.getStudyIUID()));
         if (taskQueryParam.getType() != null) {
             predicates.add(cb.equal(task.get(Task_.type), taskQueryParam.getType()));
             switch (taskQueryParam.getType()) {
                 case EXPORT:
                     if (taskQueryParam.getExporterIDs() != null && !taskQueryParam.getExporterIDs().isEmpty())
                         predicates.add(task.get(Task_.exporterID).in(taskQueryParam.getExporterIDs()));
-                    if (taskQueryParam.getStudyIUID() != null)
-                        predicates.add(cb.equal(task.get(Task_.studyInstanceUID), taskQueryParam.getStudyIUID()));
                     break;
                 case RETRIEVE:
                     if (taskQueryParam.getLocalAET() != null)
@@ -532,14 +532,10 @@ public class QueryBuilder {
                         predicates.add(cb.equal(task.get(Task_.remoteAET), taskQueryParam.getRemoteAET()));
                     if (taskQueryParam.getDestinationAET() != null)
                         predicates.add(cb.equal(task.get(Task_.destinationAET), taskQueryParam.getDestinationAET()));
-                    if (taskQueryParam.getStudyIUID() != null)
-                        predicates.add(cb.equal(task.get(Task_.studyInstanceUID), taskQueryParam.getStudyIUID()));
                     break;
                 case STGVER:
                     if (taskQueryParam.getLocalAET() != null)
                         predicates.add(cb.equal(task.get(Task_.localAET), taskQueryParam.getLocalAET()));
-                    if (taskQueryParam.getStudyIUID() != null)
-                        predicates.add(cb.equal(task.get(Task_.studyInstanceUID), taskQueryParam.getStudyIUID()));
                     break;
                 case DIFF:
                     if (taskQueryParam.getLocalAET() != null)
