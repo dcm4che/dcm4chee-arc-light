@@ -69,7 +69,7 @@
     </dependency>
     <dependency>
       <groupId>org.wildfly.security</groupId>
-      <artifactId>wildfly-elytron</artifactId>
+      <artifactId>wildfly-elytron-http-oidc</artifactId>
       <scope>provided</scope>
     </dependency>
   </dependencies>
