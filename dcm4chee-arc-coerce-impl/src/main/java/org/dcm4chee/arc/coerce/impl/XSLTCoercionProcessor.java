@@ -43,6 +43,8 @@ package org.dcm4chee.arc.coerce.impl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.io.SAXTransformer;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.util.StringUtils;
@@ -75,6 +77,10 @@ public class XSLTCoercionProcessor implements CoercionProcessor {
         Attributes newAttrs = SAXTransformer.transform(attrs, tpls, false,
                 !coercion.parseBooleanCoercionParam("xsl-no-keyword"),
                 t -> setParameters(t, sendingHost, sendingAET, receivingHost, receivingAET));
+        String[] cscodes = attrs.getStrings(Tag.SpecificCharacterSet);
+        if (cscodes != null) {
+            newAttrs.setString(Tag.SpecificCharacterSet, VR.CS, cscodes);
+        }
         if (modified != null) {
             attrs.update(Attributes.UpdatePolicy.OVERWRITE, newAttrs, modified);
         } else {
