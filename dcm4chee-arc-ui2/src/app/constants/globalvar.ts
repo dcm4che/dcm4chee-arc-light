@@ -5709,6 +5709,26 @@ export class Globalvar {
                     description:$localize `:@@scheduled_procedure_step_id:Scheduled Procedure Step ID`,
                     placeholder:$localize `:@@scheduled_procedure_step_id:Scheduled Procedure Step ID`
                 }, {
+                    tag:"issuer-selector",
+                    issuers:[
+                        {
+                            key:"RequestAttributesSequence.AccessionNumber",
+                            label:$localize `:@@accession_number:Accession Number`,
+                        },
+                        {
+                            key:"RequestAttributesSequence.IssuerOfAccessionNumberSequence.LocalNamespaceEntityID",
+                            label:$localize `:@@local_namespace_id:Local Namespace Entity ID`
+                        }, {
+                            key:"RequestAttributesSequence.IssuerOfAccessionNumberSequence.UniversalEntityID",
+                            label:$localize `:@@universal_entity_id:Universal Entity ID`
+                        }, {
+                            key:"RequestAttributesSequence.IssuerOfAccessionNumberSequence.UniversalEntityIDType",
+                            label:$localize `:@@universal_entity_id_type:Universal Entity ID Type`
+                        }
+                    ],
+                    description:$localize `:@@req_attrs_seq_acc_num_hover:Accession Number & Issuer of Accession Number Sequence in Request Attributes Sequence`,
+                    placeholder:$localize `:@@req_attrs_seq_acc_num:Req Attrs Seq - Accession No. & Issuer`,
+                }, {
                     tag:"select",
                     filterKey:"includedefaults",
                     showStar:true,
