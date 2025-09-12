@@ -42,7 +42,6 @@
               "browser": ""
             },
             "index": "src/index.html",
-            "crossOrigin": "use-credentials",
             "polyfills": [
               "src/polyfills.ts"
             ],
@@ -437,11 +436,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "crossOrigin": "use-credentials",
-            "allowedCommonJsDependencies": [
-              "lodash"
-            ],
-            "buildTarget": "dcm4chee-arc-ui2:build"
+            "buildTarget": "dcm4chee-arc-ui2:build",
+            "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {

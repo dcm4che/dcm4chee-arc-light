@@ -1,0 +1,9 @@
+{
+  "dcm4chee-arc-urls": [
+    "http://shefki-lifebook:8080/dcm4chee-arc"
+  ],
+  "dicomDeviceName": "dcm4chee-arc",
+  "super-user-role": "root",
+  "management-http-port": 19990,
+  "management-https-port": 19993
+}

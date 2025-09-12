@@ -1,0 +1,8 @@
+{
+  "realm": "dcm4che",
+  "clientId": "dcm4chee-arc-ui",
+  "url": "https://shefki-lifebook:8843",
+  "ssl-required": "external",
+  "public-client": true,
+  "confidential-port": 0
+}

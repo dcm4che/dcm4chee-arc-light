@@ -16,6 +16,7 @@
     "prod_old": "ng build --aot --configuration production",
     "prod": "ng build --localize --configuration production --optimization true --aot true && yarn run addversion",
     "dev": "ng build --localize && yarn run addversion",
+    "serve": "ng serve --proxy-config proxy.conf.js --verbose",
     "e2e": "ng e2e",
     "addversion": "node add_version_to_scripts.js",
     "extract-translations_new": "ng extract-i18n --output-path src/assets/locale_pro --format=json",
