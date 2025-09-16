@@ -1,7 +1,7 @@
 <div class="patient_name_picker" [ngClass]="{'open':selectorOpen}">
     <div class="input_field">
         <div class="input_block">
-            <input type="text" [(ngModel)]="model" placeholder="{{placeholder}}" title="{{title}}" (ngModelChange)="filterChanged()">
+            <input class="model_input" type="text" [(ngModel)]="model" placeholder="{{placeholder}}" title="{{title}}" (ngModelChange)="filterChanged()">
             <span class="glyphicon glyphicon-remove" *ngIf="model" (click)="hardClear()"></span>
         </div>
         <i class="material-icons filter_button" (click)="togglePicker()">
@@ -20,7 +20,7 @@
                                 <div class="th" *ngFor="let issuer of issuers">{{issuer.label}}</div>
                             </div>
                             <div class="tr">
-                                <div class="td" *ngFor="let issuer of issuers">
+                                <div class="td" *ngFor="let issuer of issuers;trackBy: trackById">
                                     <input type="text" class="issuer_model" [placeholder]="issuer.label" [(ngModel)]="filterModel[issuer.key]" (ngModelChange)="set()">
                                 </div>
                             </div>

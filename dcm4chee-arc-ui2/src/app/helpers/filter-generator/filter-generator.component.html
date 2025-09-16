@@ -48,9 +48,6 @@
                 <ng-container *ngSwitchCase="'multi-checkbox'">
                     <!--options:{{line[index]?.options|json}}-->
                     <label *ngFor="let item of line[index]?.options">
-<!--
-                        item:{{item|json}}
--->
                         <input [disabled]="item.disabled" type="checkbox" (ngModelChange)="model[item.key] = $event;filterChange($event)" [(ngModel)]="model[item.key]"  title="{{item?.description}}" />
                         <span [ngStyle]="item?.style" >{{item.text}}</span>
                     </label>
@@ -261,6 +258,7 @@
                         [codes]="line[index]?.codes"
                         placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                         (modelChange)="codeChanged(line[index]?.codes, $event)"></code-selector>
+
                     <issuer-selector *ngSwitchCase="'issuer-selector'"
                          [title]="line[index]?.description"
                          [issuers]="line[index]?.issuers"

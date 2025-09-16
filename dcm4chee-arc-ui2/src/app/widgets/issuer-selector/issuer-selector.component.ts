@@ -35,6 +35,7 @@ export class IssuerSelectorComponent implements OnInit {
     filterModel = {};
     maiInputValid:boolean = true;
     viewLimit = 4;
+
     constructor() { }
 
     ngOnInit() {
@@ -119,6 +120,9 @@ export class IssuerSelectorComponent implements OnInit {
         }catch (e) {
 
         }
+    }
+    trackById(index: number, item: any) {
+        return item.key || index;
     }
     clearInnerModels(){
         this.issuers.forEach(issue=>{

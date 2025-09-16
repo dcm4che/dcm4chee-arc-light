@@ -6,7 +6,7 @@ import {
     Input,
     OnDestroy,
     OnInit,
-    Output, ViewContainerRef
+    Output, QueryList, ViewChildren, ViewContainerRef
 } from '@angular/core';
 import {j4care} from '../j4care.service';
 import * as _ from 'lodash-es';
@@ -83,6 +83,12 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     // A function that will be triggered every time when the filter will change
     // (So one can manipulate the schema based on some value/dropdown/checkbox in the model)
     @Input() onFilterChangeHook: Function;
+
+    @ViewChildren(CodeSelectorComponent) codeSelectorComponent: QueryList<CodeSelectorComponent>;
+    @ViewChildren(PersonNamePickerComponent) personNamePickerComponent: QueryList<PersonNamePickerComponent>;
+    @ViewChildren(IssuerSelectorComponent) issuerSelectorComponent: QueryList<IssuerSelectorComponent>;
+    @ViewChildren(ModifiedWidgetComponent) modifiedWidgetComponent: QueryList<ModifiedWidgetComponent>;
+
     dialogRef: MatDialogRef<any>;
     cssBlockClass = '';
     hideLoader = false;
@@ -321,6 +327,10 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
         Object.keys(this.model).forEach(filter => {
            this.model[filter] = '';
         });
+        this.codeSelectorComponent.forEach(component => component.hardClear());
+        this.personNamePickerComponent.forEach(component => component.clear());
+        this.issuerSelectorComponent.forEach(component => component.hardClear());
+        this.modifiedWidgetComponent.forEach(component => component.clear());
         this.onFilterClear.emit(this.model);
     }
     trackByFn(index, item) {
