@@ -14,7 +14,6 @@ import {SelectDropdown} from "../../interfaces";
 import {animate, state, style, transition, trigger} from "@angular/animations";
 import {CommonModule, NgClass} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {AppModule} from '../../app.module';
 import {ArrayToStringPipe} from '../../pipes/array-to-string.pipe';
 import {SearchPipe} from '../../pipes/search.pipe';
 import * as _ from 'lodash-es';
