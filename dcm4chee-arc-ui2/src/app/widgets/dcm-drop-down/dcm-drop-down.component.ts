@@ -17,6 +17,7 @@ import {FormsModule} from '@angular/forms';
 import {AppModule} from '../../app.module';
 import {ArrayToStringPipe} from '../../pipes/array-to-string.pipe';
 import {SearchPipe} from '../../pipes/search.pipe';
+import * as _ from 'lodash-es';
 
 @Component({
     selector: 'dcm-drop-down',
@@ -68,7 +69,7 @@ export class DcmDropDownComponent implements OnInit {
     private _options:SelectDropdown<any>[];
     @Input()
     set options(values:SelectDropdown<any>[]){
-        this._options = values;
+        this._options = _.cloneDeep(values);
         if(values){
             values.forEach(((option:SelectDropdown<any>)=>{
                 if(option.selected){
