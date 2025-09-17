@@ -7,7 +7,7 @@ declare var DCM4CHE: any;
 import * as _ from 'lodash-es';
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {SelectDropdown} from "../../../interfaces";
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
 import {FormsModule} from '@angular/forms';
 import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
 import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
@@ -41,7 +41,8 @@ import {CommonModule} from '@angular/common';
         IodFormGeneratorComponent,
         DcmDropDownComponent,
         CommonModule,
-        SearchPipe
+        SearchPipe,
+        MatDialogContent
     ],
     standalone: true
 })
@@ -182,8 +183,8 @@ export class EditSeriesComponent{
         if (this._seriesResult.series.attrs[attrcode] != undefined){
             if (this._iod[attrcode].multi){
                 this._seriesResult.series.attrs[attrcode]['Value'].push('');
-                this.addSeriesAttribut           = '';
-                this.opendropdown                 = false;
+                this.addSeriesAttribut = '';
+                this.opendropdown = false;
             }else{
                 this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
             }
@@ -204,7 +205,7 @@ export class EditSeriesComponent{
                 this.opendropdown = true;
             }
             if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected').length > 0){
-                attrcode = window.document.getElementsByClassName("dropdown_element selected")[0].getAttribute("name");;
+                attrcode = window.document.getElementsByClassName("dropdown_element selected")[0].getAttribute("name");
             }else{
                 attrcode = filtered[0].code;
             }

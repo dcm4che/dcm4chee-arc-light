@@ -7,7 +7,7 @@ import * as _ from 'lodash-es';
 import {SearchPipe} from '../../../pipes/search.pipe';
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {j4care} from "../../../helpers/j4care.service";
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
 import {FormsModule} from '@angular/forms';
 import {CommonModule, NgClass} from '@angular/common';
 import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
@@ -25,7 +25,8 @@ import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod
         NgClass,
         IodFormGeneratorComponent,
         CommonModule,
-        SearchPipe
+        SearchPipe,
+        MatDialogContent
     ],
     standalone: true
 })

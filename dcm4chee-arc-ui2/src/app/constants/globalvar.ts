@@ -1139,7 +1139,8 @@ export class Globalvar {
                     action: 'replace'
                 },
                 'edit': {
-                    action: 'disable'
+                    action: 'disable',
+                    onlyInRoot: true
                 }
             },
             '0020000E': {
@@ -1153,7 +1154,8 @@ export class Globalvar {
                     action: 'replace'
                 },
                 'edit': {
-                    action: 'disable'
+                    action: 'disable',
+                    onlyInRoot: true
                 }
             },
             '00741000': {
