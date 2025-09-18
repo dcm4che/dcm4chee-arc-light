@@ -24,8 +24,16 @@ export class IssuerSelectorComponent implements OnInit {
     splitters = [];
     @Input('model')
     set model(value){
-        console.log("value",value);
-        this._model = value;
+        if(value && this.issuers && this.issuers.length > 0) {
+            this.issuers.forEach(issuer => {
+                if ( value && value[issuer.key]) {
+                    this.filterModel[issuer.key] = value[issuer.key];
+                } else {
+                    this.filterModel[issuer.key] = '';
+                }
+            });
+            this.set();
+        }
     }
     get model(){
         return this._model;
@@ -45,36 +53,36 @@ export class IssuerSelectorComponent implements OnInit {
             let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "AccessionNumber"));
             issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('^');
             if(issuerPart){
-                this.model = `${j4care.appendStringIfExist(this.filterModel["AccessionNumber"], "^")}${issuerPart}`;
+                this._model = `${j4care.appendStringIfExist(this.filterModel["AccessionNumber"], "^")}${issuerPart}`;
             }else{
-                this.model = `${this.filterModel?.["AccessionNumber"] || ''}`;
+                this._model = `${this.filterModel?.["AccessionNumber"] || ''}`;
             }
             this.modelChange.emit(this.filterModel);
         } else if(this.filterModel && this.filterModel["ScheduledStepAttributesSequence.AccessionNumber"]) {
             let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "ScheduledStepAttributesSequence.AccessionNumber"));
             issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('^');
             if(issuerPart){
-                this.model = `${j4care.appendStringIfExist(this.filterModel["ScheduledStepAttributesSequence.AccessionNumber"], "^")}${issuerPart}`;
+                this._model = `${j4care.appendStringIfExist(this.filterModel["ScheduledStepAttributesSequence.AccessionNumber"], "^")}${issuerPart}`;
             }else{
-                this.model = `${this.filterModel?.["ScheduledStepAttributesSequence.AccessionNumber"] || ''}`;
+                this._model = `${this.filterModel?.["ScheduledStepAttributesSequence.AccessionNumber"] || ''}`;
             }
             this.modelChange.emit(this.filterModel);
         } else if(this.filterModel && this.filterModel["PatientID"]) {
             let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "PatientID"));
             issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('&');
             if(issuerPart){
-                this.model = `${j4care.appendStringIfExist(this.filterModel["PatientID"], "^^^")}${issuerPart}`;
+                this._model = `${j4care.appendStringIfExist(this.filterModel["PatientID"], "^^^")}${issuerPart}`;
             }else{
-                this.model = `${this.filterModel?.["PatientID"] || ''}`;
+                this._model = `${this.filterModel?.["PatientID"] || ''}`;
             }
             this.modelChange.emit(this.filterModel);
         } else if(this.filterModel && this.filterModel["AdmissionID"]) {
             let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "AdmissionID"));
             issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('&');
             if(issuerPart){
-                this.model = `${j4care.appendStringIfExist(this.filterModel["AdmissionID"], "^^^")}${issuerPart}`;
+                this._model = `${j4care.appendStringIfExist(this.filterModel["AdmissionID"], "^^^")}${issuerPart}`;
             }else{
-                this.model = `${this.filterModel?.["AdmissionID"] || ''}`;
+                this._model = `${this.filterModel?.["AdmissionID"] || ''}`;
             }
             this.modelChange.emit(this.filterModel);
         }

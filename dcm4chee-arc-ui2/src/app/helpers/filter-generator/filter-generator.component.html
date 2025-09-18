@@ -262,6 +262,7 @@
                     <issuer-selector *ngSwitchCase="'issuer-selector'"
                          [title]="line[index]?.description"
                          [issuers]="line[index]?.issuers"
+                         [model]="model"
                          placeholder="{{line[index]?.placeholder || line[index]?.description}}"
                          (modelChange)="issuerChanged(line[index]?.issuers, $event)"></issuer-selector>
                     <modified-widget *ngSwitchCase="'modified-widget'"

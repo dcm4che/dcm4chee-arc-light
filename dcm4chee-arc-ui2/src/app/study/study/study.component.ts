@@ -3079,7 +3079,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let internal = args[0];
         let studyConfig = args[1];
         return value.filter(option=>{
-            console.log("option",option);
             if(option.value === "create_patient"
                 || option.value === "supplement_issuer"
                 || option.value === "update_charset"
