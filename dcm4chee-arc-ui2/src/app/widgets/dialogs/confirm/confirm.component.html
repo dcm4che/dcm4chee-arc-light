@@ -19,7 +19,7 @@
                             (modelChange)="parameters.result.pCalendar[index] = $event"
                             [datePickerMode]="true"
                             [placeholder]="calendar.placeholder"
-                            dateFormat="YYYYMMDD"
+                            dateFormat="yyyyMMdd"
                     ></range-picker>
                 </ng-container>
             </div>
@@ -57,7 +57,7 @@
                         (modelChange)="parameters.result.date = $event"
                         [datePickerMode]="true"
                         [placeholder]="parameters.date.placeholder"
-                        dateFormat="YYYYMMDD"
+                        dateFormat="yyyyMMdd"
                 ></range-picker>
             </div>
             <div *ngIf="parameters.warningOn && parameters.warningOn.message">

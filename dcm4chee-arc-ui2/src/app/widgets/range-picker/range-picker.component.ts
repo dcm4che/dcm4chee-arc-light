@@ -98,7 +98,7 @@ export class RangePickerComponent implements OnInit {
         try{
             if (e) {
                 if (e.value) {
-                    this[mode] = (<Moment>e.value).format("YYYYMMDD");
+                    this[mode] = (<Moment>e.value).format("yyyyMMdd");
                 } else {
                     this[mode] = j4care.formatDate(new Date(e),"yyyyMMdd");
                 }
@@ -108,7 +108,7 @@ export class RangePickerComponent implements OnInit {
         }
     }
     setSingeDatePicker(mode, e){
-        let format = this.dateFormat || "YYYYMMDD";
+        let format = this.dateFormat || "yyyyMMdd";
         try{
             if (e) {
                 let formattedDate;
@@ -226,7 +226,7 @@ export class RangePickerComponent implements OnInit {
     getDateFromValue(value){
         let result = value || (this.onlyTime ? '': j4care.dateToString(new Date()));
         if(_.hasIn(result, "_isAMomentObject") && result._isAMomentObject){
-            return (<Moment>result).format("YYYYMMDD");
+            return (<Moment>result).format("yyyyMMdd");
         }
         return result;
     }

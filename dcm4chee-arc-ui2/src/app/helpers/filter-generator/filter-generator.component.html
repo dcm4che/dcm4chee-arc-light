@@ -195,7 +195,7 @@
                               (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                               [datePickerMode]="true"
                               placeholder="{{line[index]?.placeholder || line[index]?.description}}"
-                              dateFormat="YYYYMMDD"
+                              dateFormat="yyyyMMdd"
                               title="{{line[index]?.description}}"
                       ></range-picker>
                     <range-picker
@@ -242,7 +242,7 @@
                           [model]="model[line[index]?.filterKey]"
                           (modelChange)="dateChanged(line[index]?.filterKey, $event)"
                           placeholder="{{line[index]?.placeholder || line[index]?.description}}"
-                          dateFormat="YYYYMMDD"
+                          dateFormat="yyyyMMdd"
                           [onlySingleMode]="true"
                           defaultTime="00:00:00"
                           mode="single"

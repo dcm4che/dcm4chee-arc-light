@@ -36,7 +36,7 @@
                         [model]="object[o].Value[i]"
                         (modelChange)="object[o].Value[i] = $event"
                         [datePickerMode]="true"
-                        dateFormat="YYYYMMDD"
+                        dateFormat="yyyyMMdd"
                 ></range-picker>
 
                 <select class="selectelement {{o}}" *ngIf="o === '00100040' && o != '00102203' && o != '00741202'"

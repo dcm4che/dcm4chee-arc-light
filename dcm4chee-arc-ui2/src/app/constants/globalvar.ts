@@ -9,13 +9,13 @@ import {j4care} from "../helpers/j4care.service";
 
 export const MY_FORMATS = {
     parse: {
-        dateInput: 'YYYYMMDD',
+        dateInput: 'yyyyMMdd',
     },
     display: {
-        dateInput: 'YYYYMMDD',
-        monthYearLabel: 'MM YYYY',
+        dateInput: 'yyyyMMdd',
+        monthYearLabel: 'MM yyyy',
         dateA11yLabel: 'LL',
-        monthYearA11yLabel: 'MM YYYY',
+        monthYearA11yLabel: 'MM yyyy',
     },
 };
 
