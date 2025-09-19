@@ -134,7 +134,8 @@ export class IssuerSelectorComponent implements OnInit {
     }
     clearInnerModels(){
         this.issuers.forEach(issue=>{
-            this.filterModel[issue.key] = "";
+            this.filterModel[issue.key] = '';
         })
+        this._model = '';
     }
 }
