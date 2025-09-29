@@ -72,55 +72,62 @@ public class QueryBuilder {
     }
 
     public List<Order> orderPatients(Root<Patient> patient, List<OrderByTag> orderByTags) {
-        List<Order> result = new ArrayList<>(orderByTags.size());
+        List<Order> result = new ArrayList<>(orderByTags.size() + 1);
         for (OrderByTag orderByTag : orderByTags)
             orderPatients(patient, orderByTag, result);
+        result.add(cb.asc(patient.get(Patient_.pk)));
         return result;
     }
 
     public List<Order> orderStudies(From<Study, Patient> patient, Root<Study> study,
             List<OrderByTag> orderByTags) {
-        List<Order> result = new ArrayList<>(orderByTags.size());
+        List<Order> result = new ArrayList<>(orderByTags.size() + 1);
         for (OrderByTag orderByTag : orderByTags)
             orderStudies(patient, study, orderByTag, result);
+        result.add(cb.asc(study.get(Study_.pk)));
         return result;
     }
 
     public List<Order> orderSeries(From<Study, Patient> patient, From<Series, Study> study, Root<Series> series,
             List<OrderByTag> orderByTags) {
-        List<Order> result = new ArrayList<>(orderByTags.size());
+        List<Order> result = new ArrayList<>(orderByTags.size() + 1);
         for (OrderByTag orderByTag : orderByTags)
             orderSeries(patient, study, series, orderByTag, result);
+        result.add(cb.asc(series.get(Series_.pk)));
         return result;
     }
 
     public List<Order> orderInstances(From<Study, Patient> patient, From<Series, Study> study,
             From<Instance, Series> series, Root<Instance> instance, List<OrderByTag> orderByTags) {
-        List<Order> result = new ArrayList<>(orderByTags.size());
+        List<Order> result = new ArrayList<>(orderByTags.size() + 1);
         for (OrderByTag orderByTag : orderByTags)
             orderInstances(patient, study, series, instance, orderByTag, result);
+        result.add(cb.asc(instance.get(Instance_.pk)));
         return result;
     }
 
     public List<Order> orderMWLItems(From<MWLItem, Patient> patient, Root<MWLItem> mwlItem,
             List<OrderByTag> orderByTags) {
-        List<Order> result = new ArrayList<>(orderByTags.size());
+        List<Order> result = new ArrayList<>(orderByTags.size() + 1);
         for (OrderByTag orderByTag : orderByTags)
             orderMWLItems(patient, mwlItem, orderByTag, result);
+        result.add(cb.asc(mwlItem.get(MWLItem_.pk)));
         return result;
     }
 
     public List<Order> orderWorkitems(Join<UPS, Patient> patient, Root<UPS> ups, List<OrderByTag> orderByTags) {
-        List<Order> result = new ArrayList<>(orderByTags.size());
+        List<Order> result = new ArrayList<>(orderByTags.size() + 1);
         for (OrderByTag orderByTag : orderByTags)
             orderWorkitems(patient, ups, orderByTag, result);
+        result.add(cb.asc(ups.get(UPS_.pk)));
         return result;
     }
 
     public List<Order> orderMPPS(From<MPPS, Patient> patient, Root<MPPS> mpps, List<OrderByTag> orderByTags) {
-        List<Order> result = new ArrayList<>(orderByTags.size());
+        List<Order> result = new ArrayList<>(orderByTags.size() + 1);
         for (OrderByTag orderByTag : orderByTags)
             orderMPPS(patient, mpps, orderByTag, result);
+        result.add(cb.asc(mpps.get(MPPS_.pk)));
         return result;
     }
 
