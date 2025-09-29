@@ -102,6 +102,7 @@ public class QueryBuilder {
         List<Order> result = new ArrayList<>(orderByTags.size() + 1);
         for (OrderByTag orderByTag : orderByTags)
             orderInstances(patient, study, series, instance, orderByTag, result);
+        result.add(cb.asc(series.get(Series_.pk)));
         result.add(cb.asc(instance.get(Instance_.pk)));
         return result;
     }
