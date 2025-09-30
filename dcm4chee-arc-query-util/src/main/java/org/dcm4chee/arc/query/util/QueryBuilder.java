@@ -99,7 +99,7 @@ public class QueryBuilder {
 
     public List<Order> orderInstances(From<Study, Patient> patient, From<Series, Study> study,
             From<Instance, Series> series, Root<Instance> instance, List<OrderByTag> orderByTags) {
-        List<Order> result = new ArrayList<>(orderByTags.size() + 1);
+        List<Order> result = new ArrayList<>(orderByTags.size() + 2);
         for (OrderByTag orderByTag : orderByTags)
             orderInstances(patient, study, series, instance, orderByTag, result);
         result.add(cb.asc(series.get(Series_.pk)));
