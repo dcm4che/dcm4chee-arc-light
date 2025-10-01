@@ -57,6 +57,7 @@
         <xsl:with-param name="obr" select="OBR[1]"/>
       </xsl:apply-templates>
       <xsl:apply-templates select="OBX"/>
+      <xsl:apply-templates select="NTE"/>
       <!-- Admission ID, Issuer -->
       <xsl:call-template name="admissionID">
         <xsl:with-param name="visitNumber" select="PV1/field[19]"/>
@@ -210,17 +211,6 @@
       <xsl:with-param name="tag" select="'00401004'"/>
       <xsl:with-param name="vr" select="'LO'"/>
       <xsl:with-param name="val" select="substring(field[30]/text(),1,64)"/>
-    </xsl:call-template>
-    <!-- Requested Procedure Comments -->
-    <xsl:call-template name="attr">
-      <xsl:with-param name="tag" select="'00401400'"/>
-      <xsl:with-param name="vr" select="'LT'"/>
-      <xsl:with-param name="val">
-        <xsl:variable name="nte" select="following-sibling::*[1]"/>
-        <xsl:if test="name($nte)='NTE'">
-          <xsl:value-of select="$nte/field[3]"/>
-        </xsl:if>
-      </xsl:with-param>
     </xsl:call-template>
     <xsl:variable name="ipc" select="following-sibling::IPC"/>
     <xsl:choose>
@@ -512,6 +502,15 @@
       </xsl:when>
       <xsl:otherwise/>
     </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match="NTE">
+    <!-- Requested Procedure Comments -->
+    <xsl:call-template name="attr">
+      <xsl:with-param name="tag" select="'00401400'"/>
+      <xsl:with-param name="vr" select="'LT'"/>
+      <xsl:with-param name="val" select="field[3]" />
+    </xsl:call-template>
   </xsl:template>
 
 </xsl:stylesheet>
