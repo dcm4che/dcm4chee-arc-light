@@ -684,7 +684,7 @@
     <xsl:variable name="patientTelecomInfo">
       <xsl:choose>
         <xsl:when test="string-length($home) > 0 and string-length($business) > 0">
-          <xsl:value-of select="concat($homeTelecomInfoAsStr, '~', $businessTelecomInfoAsStr)"/>
+          <xsl:value-of select="concat($homeTelecomInfoAsStr, ', ', $businessTelecomInfoAsStr)"/>
         </xsl:when>
         <xsl:when test="string-length($home) > 0 and string-length($business) = 0">
           <xsl:value-of select="$homeTelecomInfoAsStr"/>
@@ -703,7 +703,7 @@
     <xsl:variable name="patientTelephoneNos">
       <xsl:choose>
         <xsl:when test="string-length($home) > 0 and string-length($business) > 0">
-          <xsl:value-of select="concat($homeTelephone, '~', $businessTelephone)"/>
+          <xsl:value-of select="concat($homeTelephone, ', ', $businessTelephone)"/>
         </xsl:when>
         <xsl:when test="string-length($home) > 0 and string-length($business) = 0">
           <xsl:value-of select="$homeTelephone"/>
