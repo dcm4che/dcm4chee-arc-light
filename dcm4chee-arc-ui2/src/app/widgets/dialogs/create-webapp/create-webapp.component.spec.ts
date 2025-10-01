@@ -1,7 +1,7 @@
 import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 
 import { CreateWebappComponent } from './create-webapp.component';
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialogRef} from '@angular/material/dialog';
 
 
 class CreateWebappDependenc{
@@ -13,7 +13,7 @@ describe('CreateWebappComponent', () => {
 
     beforeEach(waitForAsync(() => {
          TestBed.configureTestingModule({
-            declarations: [CreateWebappComponent],
+            declarations: [],
             providers: [
                 {provide: MatDialogRef, useClass: CreateWebappDependenc}
             ],

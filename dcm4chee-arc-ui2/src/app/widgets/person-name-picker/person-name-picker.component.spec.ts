@@ -1,8 +1,8 @@
 import {ComponentFixture, TestBed, waitForAsync} from '@angular/core/testing';
 
 import { PersonNamePickerComponent } from './person-name-picker.component';
-import {MatDialogRef} from "@angular/material/dialog";
-import {AppService} from "../../app.service";
+import {MatDialogRef} from '@angular/material/dialog';
+import {AppService} from '../../app.service';
 class PatientNameDependenc{
 }
 describe('PatientNamePickerComponent', () => {
@@ -11,7 +11,7 @@ describe('PatientNamePickerComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [PersonNamePickerComponent],
+      declarations: [],
         providers: [
           { provide: AppService, useClass: PatientNameDependenc }
         ],

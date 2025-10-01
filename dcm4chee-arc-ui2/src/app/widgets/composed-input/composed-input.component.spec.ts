@@ -8,7 +8,7 @@ describe('ComposedInputComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [ComposedInputComponent]
+      declarations: []
     });
     fixture = TestBed.createComponent(ComposedInputComponent);
     component = fixture.componentInstance;
@@ -19,20 +19,20 @@ describe('ComposedInputComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it("Should join the composed fields",()=>{
+  it('Should join the composed fields',()=>{
     component.inputSize = 5;
     component.joins = "^"
     component.modelArray = [
-        "TestName",
-        "TestSurname"
+        'TestName',
+        'TestSurname'
     ]
     expect(component.getComposedValue()).toEqual("TestName^TestSurname");
     component.modelArray = [
-        "TestName",
-        "TestSurname",
-        "",
-        "",
-        ""
+        'TestName',
+        'TestSurname',
+        '',
+        '',
+        ''
     ]
     expect(component.getComposedValue()).toEqual("TestName^TestSurname");
 

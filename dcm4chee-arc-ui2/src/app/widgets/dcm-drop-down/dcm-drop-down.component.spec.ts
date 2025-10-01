@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { DcmDropDownComponent } from './dcm-drop-down.component';
-import {ClickOutsideDirective} from "../../helpers/click-outside.directive";
-import {FormsModule} from "@angular/forms";
-import {SearchPipe} from "../../pipes/search.pipe";
+import {ClickOutsideDirective} from '../../helpers/click-outside.directive';
+import {FormsModule} from '@angular/forms';
+import {SearchPipe} from '../../pipes/search.pipe';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {ArrayToStringPipe} from "../../pipes/array-to-string.pipe";
+import {ArrayToStringPipe} from '../../pipes/array-to-string.pipe';
 
 describe('DcmDropDownComponent', () => {
   let component: DcmDropDownComponent;
@@ -13,7 +13,7 @@ describe('DcmDropDownComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-        declarations: [DcmDropDownComponent, ClickOutsideDirective, SearchPipe, ArrayToStringPipe],
+        declarations: [],
         imports: [FormsModule, BrowserAnimationsModule],
         teardown: { destroyAfterEach: false }
     })

@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import * as _ from "lodash-es";
+import * as _ from 'lodash-es';
 import {CommonModule, NgClass} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 @Component({
@@ -22,7 +22,7 @@ export class CodeSelectorComponent implements OnInit {
     @Input() codes:string[];
     @Input('model')
     set model(value){
-        console.log("value",value);
+        console.log('value',value);
         this._model = value;
     }
     get model(){
@@ -46,7 +46,7 @@ export class CodeSelectorComponent implements OnInit {
         this.selectorOpen = !this.selectorOpen;
     }
     hardClear(){
-        this.model = "";
+        this.model = '';
         this.modelChange.emit(undefined);
     }
     filterChanged(){

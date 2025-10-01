@@ -8,7 +8,7 @@ describe('CodeSelectorComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-    declarations: [CodeSelectorComponent],
+    declarations: [],
     teardown: { destroyAfterEach: false }
 })
     .compileComponents();
