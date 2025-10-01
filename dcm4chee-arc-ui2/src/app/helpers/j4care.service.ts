@@ -1912,5 +1912,15 @@ export class j4care {
             return false;
         }
     }
-
+    static sliceArrayFromRightUntilNotEmpty(array:any[]){
+        try{
+            let lastNotEmptyElementIndex = array.length - 1;
+            while(lastNotEmptyElementIndex > -1 && (array[lastNotEmptyElementIndex] === undefined || array[lastNotEmptyElementIndex] === null || array[lastNotEmptyElementIndex] === '')){
+                lastNotEmptyElementIndex--;
+            }
+            return array.slice(0, (lastNotEmptyElementIndex + 1));
+        }catch (e) {
+            return array;
+        }
+    }
 }

@@ -1109,4 +1109,12 @@ describe('j4care', () => {
         ])
 
     });
+    it('should slice the empty elements from right until it finds an non empty element',()=>{
+        expect(j4care.sliceArrayFromRightUntilNotEmpty(["test",undefined,"test2",1,undefined])).toEqual(["test",undefined,"test2",1]);
+        expect(j4care.sliceArrayFromRightUntilNotEmpty(["test",undefined,"test2",0,undefined])).toEqual(["test",undefined,"test2",0]);
+        expect(j4care.sliceArrayFromRightUntilNotEmpty(["test",undefined,"test2","",undefined])).toEqual(["test",undefined,"test2"]);
+        expect(j4care.sliceArrayFromRightUntilNotEmpty([])).toEqual([]);
+        expect(j4care.sliceArrayFromRightUntilNotEmpty(undefined)).toEqual(undefined);
+        expect(j4care.sliceArrayFromRightUntilNotEmpty(<any>'')).toEqual('');
+    });
 });
