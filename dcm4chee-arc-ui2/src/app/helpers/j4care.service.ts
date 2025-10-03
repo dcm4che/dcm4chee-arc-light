@@ -27,6 +27,7 @@ import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
 import {Aet} from "../models/aet";
 import {Device} from "../models/device";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
+import {DynamicPipePipe} from '../pipes/dynamic-pipe.pipe';
 
 declare const bigInt:Function;
 
@@ -1922,5 +1923,26 @@ export class j4care {
         }catch (e) {
             return array;
         }
+    }
+
+    static getDynamicPipeValue(object: any, table: TableSchemaElement, dynamicPipe:DynamicPipePipe, tooltipMode?:boolean) {
+        let value:any;
+        if(object && !_.hasIn(object,'attrs')){
+            object = {attrs:object};
+        }
+        if(table.pathToValue){
+            value = dynamicPipe.transform(_.get(object.attrs,table.pathToValue),table.pipe);
+        }else{
+            value = dynamicPipe.transform(object.attrs,table.pipe);
+        }
+        if(typeof value === "string"){
+            return value;
+        }else if(_.hasIn(value,"html")){
+            if(tooltipMode && _.hasIn(value,"tooltip")){
+                return value.tooltip;
+            }
+            return value.html;
+        }
+        return "";
     }
 }

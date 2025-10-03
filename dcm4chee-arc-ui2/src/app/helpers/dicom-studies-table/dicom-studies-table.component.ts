@@ -157,20 +157,6 @@ export class DicomStudiesTableComponent implements OnInit {
 
 
     getDynamicPipeValue(object: any, table: TableSchemaElement, tooltipMode?:boolean) {
-        let value:any;
-        if(table.pathToValue){
-            value = this.dynamicPipe.transform(_.get(object.attrs,table.pathToValue),table.pipe);
-        }else{
-            value = this.dynamicPipe.transform(object.attrs,table.pipe);
-        }
-        if(typeof value === "string"){
-            return value;
-        }else if(_.hasIn(value,"html")){
-            if(tooltipMode && _.hasIn(value,"tooltip")){
-                return value.tooltip;
-            }
-            return value.html;
-        }
-        return "";
+        return j4care.getDynamicPipeValue(object, table, this.dynamicPipe, tooltipMode)
     }
 }

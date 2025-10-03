@@ -18,7 +18,7 @@ import {DynamicPipePipe} from '../../../pipes/dynamic-pipe.pipe';
         NgSwitch,
         DynamicPipePipe,
         UpperCasePipe,
-        CommonModule
+        CommonModule,
     ],
     standalone: true
 })
@@ -47,7 +47,8 @@ export class SelectionsDicomViewComponent implements OnInit {
     }
 
     constructor(
-        private service:SelectionsDicomViewService
+        private service:SelectionsDicomViewService,
+        private dynamicPipe:DynamicPipePipe
     ) { }
 
     ngOnInit() {
@@ -56,5 +57,8 @@ export class SelectionsDicomViewComponent implements OnInit {
     actions(model){
         console.log("model",model);
         this.onRemoveFromSelection.emit(model);
+    }
+    getDynamicPipeValue(object: any, table: TableSchemaElement, tooltipMode?:boolean) {
+        return j4care.getDynamicPipeValue(object, table, this.dynamicPipe, tooltipMode)
     }
 }

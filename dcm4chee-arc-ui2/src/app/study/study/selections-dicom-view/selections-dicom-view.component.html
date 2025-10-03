@@ -20,10 +20,10 @@
                 <span *ngSwitchCase="'value'">{{_.get(selectionsDicomObjects[id].object.attrs,table_element.pathToValue) || '&nbsp;'}}</span>
                 <ng-container *ngSwitchCase="'pipe'">
                     <ng-container *ngIf="table_element.pathToValue">
-                        {{_.get(selectionsDicomObjects[id].object.attrs,table_element.pathToValue) | dynamicPipe:table_element.pipe}}
+                        <span [innerHTML]="getDynamicPipeValue(_.get(selectionsDicomObjects[id].object.attrs,table_element.pathToValue),table_element)"></span>
                     </ng-container>
                     <ng-container *ngIf="!table_element.pathToValue">
-                        {{selectionsDicomObjects[id].object.attrs | dynamicPipe:table_element.pipe}}
+                        <span [innerHTML]="getDynamicPipeValue(selectionsDicomObjects[id].object.attrs,table_element)"></span>
                     </ng-container>
                 </ng-container>
             </div>
