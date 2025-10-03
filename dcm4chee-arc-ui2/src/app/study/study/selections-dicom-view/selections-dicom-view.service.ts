@@ -23,18 +23,10 @@ export class SelectionsDicomViewService {
                     calculatedWidth: "20%"
                 }),
                 new TableSchemaElement({
-                    type: "value",
-                    header: $localize `:@@patient_id:Patient ID`,
-                    pathToValue: "00100020.Value[0]",
-                    headerDescription: $localize `:@@patient_id:Patient ID`,
-                    widthWeight: 1,
-                    calculatedWidth: "20%"
-                }),
-                new TableSchemaElement({
-                    type: "pipe",
-                    header: $localize `:@@issuer_of_patient:Issuer of Patient`,
-                    headerDescription: $localize `:@@issuer_of_patient:Issuer of Patient`,
-                    widthWeight: 1,
+                    type: 'pipe',
+                    header: $localize `:@@patient_identifiers:Patient Identifiers`,
+                    headerDescription: $localize `:@@patient_identifiers:Patient Identifiers`,
+                    widthWeight: 2,
                     calculatedWidth: "20%",
                     pipe: new DynamicPipe(PatientIssuerPipe, undefined)
                 }),
