@@ -147,7 +147,6 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration hl7PSUDelay;
     private Duration hl7PSUTimeout;
     private Boolean hl7PSUOnTimeout;
-    private Boolean hl7PSUMWL;
     private HL7PSUMWLMatchingKey hl7PSUMWLMatchingKey;
     private Boolean hl7PSUForRequestedProcedure;
     private Boolean hl7PSUPIDPV1;
@@ -1551,20 +1550,6 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().isHL7PSUOnTimeout();
     }
 
-    public Boolean getHL7PSUMWL() {
-        return hl7PSUMWL;
-    }
-
-    public void setHL7PSUMWL(Boolean hl7PSUMWL) {
-        this.hl7PSUMWL = hl7PSUMWL;
-    }
-
-    public boolean hl7PSUMWL() {
-        return hl7PSUMWL != null
-                ? hl7PSUMWL
-                : getArchiveDeviceExtension().isHL7PSUMWL();
-    }
-
     public HL7PSUMWLMatchingKey getHL7PSUMWLMatchingKey() {
         return hl7PSUMWLMatchingKey;
     }
@@ -1661,16 +1646,6 @@ public class ArchiveAEExtension extends AEExtension {
         return hl7PSUPlacerOrderNumber != null
                 ? hl7PSUPlacerOrderNumber
                 : getArchiveDeviceExtension().getHl7PSUPlacerOrderNumber();
-    }
-
-    public boolean hl7PSUOnStudy() {
-        return (hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() != null)
-                || (hl7PSUDelay() != null && hl7PSUMWL());
-    }
-
-    public boolean hl7PSUOnMPPS() {
-        return (hl7PSUSendingApplication() != null && hl7PSUReceivingApplications().length > 0 && hl7PSUDelay() == null)
-                || (hl7PSUDelay() == null && hl7PSUMWL());
     }
 
     public HL7PSUMessageType getHl7PSUMessageType() {
@@ -2210,7 +2185,6 @@ public class ArchiveAEExtension extends AEExtension {
         hl7PSUDelay = aeExt.hl7PSUDelay;
         hl7PSUTimeout = aeExt.hl7PSUTimeout;
         hl7PSUOnTimeout = aeExt.hl7PSUOnTimeout;
-        hl7PSUMWL = aeExt.hl7PSUMWL;
         hl7PSUMWLMatchingKey = aeExt.hl7PSUMWLMatchingKey;
         hl7PSUForRequestedProcedure = aeExt.hl7PSUForRequestedProcedure;
         hl7PSUPIDPV1 = aeExt.hl7PSUPIDPV1;

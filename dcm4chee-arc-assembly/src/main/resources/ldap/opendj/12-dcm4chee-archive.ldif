@@ -752,7 +752,7 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.151 NAME 'hl7PSUSendingApplication'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
   SINGLE-VALUE )
 attributeTypes: ( 1.2.40.0.13.1.15.110.3.152 NAME 'hl7PSUMWL'
-  DESC 'Specifies if the Status of MWL Items in the DB is updated to COMPLETED for a received study after the configured HL7 Procedure Status Update Delay only if no notification to HL7 receivers is configured. Disabled, if absent.'
+  DESC 'NO LONGER USED - MAY BE DECLARED OBSOLETE IN FUTURE VERSION'
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )

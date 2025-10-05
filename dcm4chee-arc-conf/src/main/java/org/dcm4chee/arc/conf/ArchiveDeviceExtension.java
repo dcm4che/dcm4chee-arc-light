@@ -245,7 +245,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile boolean hl7PSUOnTimeout;
     private volatile int hl7PSUTaskFetchSize = 100;
     private volatile Duration hl7PSUTaskPollingInterval;
-    private volatile boolean hl7PSUMWL = false;
     private volatile HL7PSUMWLMatchingKey hl7PSUMWLMatchingKey = HL7PSUMWLMatchingKey.StudyInstanceUID;
     private volatile boolean hl7PSUForRequestedProcedure = false;
     private volatile boolean hl7PSUPIDPV1 = false;
@@ -1799,14 +1798,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setHL7PSUTaskFetchSize(int hl7PSUTaskFetchSize) {
         this.hl7PSUTaskFetchSize = hl7PSUTaskFetchSize;
-    }
-
-    public boolean isHL7PSUMWL() {
-        return hl7PSUMWL;
-    }
-
-    public void setHL7PSUMWL(boolean hl7PSUMWL) {
-        this.hl7PSUMWL = hl7PSUMWL;
     }
 
     public HL7PSUMWLMatchingKey getHL7PSUMWLMatchingKey() {
@@ -3924,7 +3915,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUOnTimeout = arcdev.hl7PSUOnTimeout;
         hl7PSUTaskPollingInterval = arcdev.hl7PSUTaskPollingInterval;
         hl7PSUTaskFetchSize = arcdev.hl7PSUTaskFetchSize;
-        hl7PSUMWL = arcdev.hl7PSUMWL;
         hl7PSUMWLMatchingKey = arcdev.hl7PSUMWLMatchingKey;
         hl7PSUForRequestedProcedure = arcdev.hl7PSUForRequestedProcedure;
         hl7PSUPIDPV1 = arcdev.hl7PSUPIDPV1;

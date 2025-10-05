@@ -282,7 +282,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotDef("hl7PSUOnTimeout", arcDev.isHL7PSUOnTimeout(), false);
         writer.writeNotNullOrDef("hl7PSUTaskPollingInterval", arcDev.getHL7PSUTaskPollingInterval(), null);
         writer.writeNotDef("hl7PSUTaskFetchSize", arcDev.getHL7PSUTaskFetchSize(), 100);
-        writer.writeNotDef("hl7PSUMWL", arcDev.isHL7PSUMWL(), false);
         writer.writeNotNullOrDef("hl7PSUMWLMatchingKey",
                 arcDev.getHL7PSUMWLMatchingKey(), HL7PSUMWLMatchingKey.StudyInstanceUID);
         writer.writeNotDef("hl7PSUForRequestedProcedure", arcDev.isHl7PSUForRequestedProcedure(), false);
@@ -1383,7 +1382,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PSUDelay", arcAE.getHL7PSUDelay(), null);
         writer.writeNotNullOrDef("hl7PSUTimeout", arcAE.getHL7PSUTimeout(), null);
         writer.writeNotNull("hl7PSUOnTimeout", arcAE.getHL7PSUOnTimeout());
-        writer.writeNotNull("hl7PSUMWL", arcAE.getHL7PSUMWL());
         writer.writeNotNullOrDef("hl7PSUMWLMatchingKey", arcAE.getHL7PSUMWLMatchingKey(), null);
         writer.writeNotNull("hl7PSUForRequestedProcedure", arcAE.getHl7PSUForRequestedProcedure());
         writer.writeNotNull("hl7PSUPIDPV1", arcAE.getHl7PSUPIDPV1());
@@ -1928,9 +1926,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUTaskFetchSize":
                     arcDev.setHL7PSUTaskFetchSize(reader.intValue());
-                    break;
-                case "hl7PSUMWL":
-                    arcDev.setHL7PSUMWL(reader.booleanValue());
                     break;
                 case "hl7PSUMWLMatchingKey":
                     arcDev.setHL7PSUMWLMatchingKey(HL7PSUMWLMatchingKey.valueOf(reader.stringValue()));
@@ -4456,9 +4451,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7PSUOnTimeout":
                     arcAE.setHL7PSUOnTimeout(reader.booleanValue());
-                    break;
-                case "hl7PSUMWL":
-                    arcAE.setHL7PSUMWL(reader.booleanValue());
                     break;
                 case "hl7PSUMWLMatchingKey":
                     arcAE.setHL7PSUMWLMatchingKey(HL7PSUMWLMatchingKey.valueOf(reader.stringValue()));
