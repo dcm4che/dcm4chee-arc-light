@@ -10836,6 +10836,24 @@ dcmIIOFormatName: jpeg2000-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 objectClass: dcmImageReader
 
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.110,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+objectClass: dcmImageReader
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.111,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+objectClass: dcmImageReader
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.112,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+objectClass: dcmImageReader
+
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.201,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
 dcmIIOFormatName: jpeg2000-cv
@@ -10923,6 +10941,29 @@ dcmIIOFormatName: jpeg2000-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 objectClass: dcmImageWriter
 dcmImageWriteParam: compressionRatiofactor=10.0
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.110,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeJXLImageWriter
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+objectClass: dcmImageWriter
+dcmImageWriteParam: compressionType=LOSSLESS
+dcmImageWriteParam: effort=7.0
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.111,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeJXLImageWriter
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+objectClass: dcmImageWriter
+dcmImageWriteParam: compressionType=LOSSLESS
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.112,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeJXLImageWriter
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+objectClass: dcmImageWriter
+dcmImageWriteParam: compressionType=LOSSY
+dcmImageWriteParam: compressionQuality=0.85
 
 dn: cn=RetrieveAsReceived,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
