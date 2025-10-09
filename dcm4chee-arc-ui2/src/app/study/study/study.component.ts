@@ -2790,7 +2790,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         index++;
                     }
                     tags.splice(index, 0, '00201200');
-                    tags.push('77770010', '77771010', '77771011', '77771012', '77771013', '77771014');
+                    tags.push('77770010', '77771010', '77771011', '77771012', '77771013', '77771014','77771016');
 
                     res.forEach((studyAttrs, index) => {
                         patAttrs = {};
