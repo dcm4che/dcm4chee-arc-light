@@ -73,7 +73,13 @@ public class MWLQuery extends AbstractQuery {
         this.mwlItem = q.from(MWLItem.class);
         this.patient = mwlItem.join(MWLItem_.patient);
         return order(restrict(q, patient, mwlItem)).multiselect(
+                patient.get(Patient_.pk),
                 patient.get(Patient_.numberOfStudies),
+                patient.get(Patient_.createdTime),
+                patient.get(Patient_.updatedTime),
+                patient.get(Patient_.verificationTime),
+                patient.get(Patient_.verificationStatus),
+                patient.get(Patient_.failedVerifications),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
                 mwlAttrBlob = mwlItem.join(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes));
     }
@@ -95,6 +101,7 @@ public class MWLQuery extends AbstractQuery {
         attrs.addAll(patAttrs);
         attrs.addAll(mwlAttrs);
         attrs.setInt(Tag.NumberOfPatientRelatedStudies, VR.IS, results.get(patient.get(Patient_.numberOfStudies)));
+        PatientQuery.addPatientQRAttrs(patient, context, results, attrs);
         return attrs;
     }
 
