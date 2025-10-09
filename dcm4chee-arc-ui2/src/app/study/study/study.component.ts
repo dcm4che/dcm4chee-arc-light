@@ -1279,7 +1279,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         const patientPk = this.service.getPatientPk(patient.attrs);
         let $this = this;
         this.confirm({
-            content: 'Are you sure you want to delete this patient?'
+            content: $localize `:@@are_you_sure_you_want_to_delete_this_patient:Are you sure you want to delete this patient?`
         }).subscribe(result => {
             if (result){
                 $this.cfpLoadingBar.start();
