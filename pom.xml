@@ -57,7 +57,7 @@
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
     <wildfly-ee.version>37.0.0.Final</wildfly-ee.version>
     <!-- Versions -->
-    <dcm4che.version>5.34.1</dcm4che.version>
+    <dcm4che.version>5.34.2</dcm4che.version>
     <keycloak.version>25.0.6</keycloak.version>
     <jbossws-cxf-client.version>7.3.3.Final</jbossws-cxf-client.version>
     <jaxb-xjc.version>4.0.5</jaxb-xjc.version>
