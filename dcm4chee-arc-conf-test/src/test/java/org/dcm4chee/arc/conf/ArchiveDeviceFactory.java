@@ -828,6 +828,9 @@ class ArchiveDeviceFactory {
             UID.JPEGLSNearLossless,
             UID.JPEG2000Lossless,
             UID.JPEG2000,
+            UID.JPEGXLLossless,
+            UID.JPEGXLJPEGRecompression,
+            UID.JPEGXL,
             UID.HTJ2KLossless,
             UID.HTJ2KLosslessRPCL,
             UID.HTJ2K,
@@ -1187,6 +1190,14 @@ class ArchiveDeviceFactory {
                     "SendingApplicationEntityTitle=JPEG_2000"
             ),
             UID.JPEG2000Lossless,
+            "maxPixelValueError=0"
+    );
+    static final ArchiveCompressionRule JPEG_XL = createCompressionRule(
+            "JPEG XL Lossless",
+            new Conditions(
+                    "SendingApplicationEntityTitle=JPEG_XL"
+            ),
+            UID.JPEGXLLossless,
             "maxPixelValueError=0"
     );
 
@@ -2186,6 +2197,7 @@ class ArchiveDeviceFactory {
             ext.addCompressionRule(JPEG_LS);
             ext.addCompressionRule(JPEG_LS_LOSSY);
             ext.addCompressionRule(JPEG_2000);
+            ext.addCompressionRule(JPEG_XL);
 
             ext.addStudyRetentionPolicy(THICK_SLICE);
             ext.addStudyRetentionPolicy(THIN_SLICE);

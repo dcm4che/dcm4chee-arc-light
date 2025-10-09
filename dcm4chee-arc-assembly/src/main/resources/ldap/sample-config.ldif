@@ -3540,6 +3540,13 @@ objectClass: dcmArchiveCompressionRule
 dcmImageWriteParam: maxPixelValueError=0.0
 cn: JPEG LS Lossless
 
+dn: cn=JPEG XL Lossless,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dcmProperty: SendingApplicationEntityTitle=JPEG_XL
+objectClass: dcmArchiveCompressionRule
+dcmImageWriteParam: maxPixelValueError=0.0
+cn: JPEG XL Lossless
+
 dn: dcmExporterID=XDS-I,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmRetrieveAET: DCM4CHEE
 dcmRetrieveLocationUID: 1.3.6.1.4.1.21367.13.80.110
@@ -4795,6 +4802,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -4816,6 +4826,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -4837,6 +4850,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -4858,6 +4874,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -4897,6 +4916,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -4918,6 +4940,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5302,6 +5327,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5323,6 +5351,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5344,6 +5375,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5365,6 +5399,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5386,6 +5423,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5407,6 +5447,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5428,6 +5471,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5449,6 +5495,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5470,6 +5519,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5491,6 +5543,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5548,6 +5603,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5569,6 +5627,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5590,6 +5651,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5611,6 +5675,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5632,6 +5699,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5653,6 +5723,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5750,6 +5823,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5771,6 +5847,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5846,6 +5925,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -5867,6 +5949,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6052,6 +6137,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6073,6 +6161,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6094,6 +6185,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6115,6 +6209,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6182,6 +6279,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6203,6 +6303,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6262,6 +6365,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6283,6 +6389,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6340,6 +6449,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6361,6 +6473,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6522,6 +6637,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6543,6 +6661,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6654,6 +6775,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6675,6 +6799,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6800,6 +6927,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6821,6 +6951,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6860,6 +6993,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6881,6 +7017,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6938,6 +7077,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -6959,6 +7101,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7120,6 +7265,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7141,6 +7289,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7162,6 +7313,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7183,6 +7337,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7422,6 +7579,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7443,6 +7603,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7464,6 +7627,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7485,6 +7651,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7596,6 +7765,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7617,6 +7789,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7656,6 +7831,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7677,6 +7855,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7752,6 +7933,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7773,6 +7957,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7884,6 +8071,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7905,6 +8095,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7926,6 +8119,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7947,6 +8143,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7968,6 +8167,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -7989,6 +8191,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8064,6 +8269,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8085,6 +8293,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8106,6 +8317,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8127,6 +8341,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8204,6 +8421,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8225,6 +8445,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8246,6 +8469,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8267,6 +8493,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8416,6 +8645,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8437,6 +8669,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8458,6 +8693,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8479,6 +8717,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8554,6 +8795,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8575,6 +8819,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8668,6 +8915,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8689,6 +8939,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8726,6 +8979,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8747,6 +9003,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8806,6 +9065,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -8827,6 +9089,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9046,6 +9311,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9067,6 +9335,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9088,6 +9359,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9109,6 +9383,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9166,6 +9443,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9187,6 +9467,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9208,6 +9491,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9229,6 +9515,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9250,6 +9539,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9271,6 +9563,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9292,6 +9587,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9313,6 +9611,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9334,6 +9635,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9355,6 +9659,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9394,6 +9701,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9415,6 +9725,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9454,6 +9767,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9475,6 +9791,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9512,6 +9831,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9533,6 +9855,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9644,6 +9969,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9665,6 +9993,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9766,6 +10097,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9787,6 +10121,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9864,6 +10201,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9885,6 +10225,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9924,6 +10267,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9945,6 +10291,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9966,6 +10315,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -9987,6 +10339,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10008,6 +10363,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10029,6 +10387,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10180,6 +10541,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10201,6 +10565,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10353,6 +10720,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10374,6 +10744,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10470,6 +10843,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10491,6 +10867,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10530,6 +10909,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10551,6 +10933,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10608,6 +10993,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10629,6 +11017,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10650,6 +11041,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10671,6 +11065,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10692,6 +11089,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10713,6 +11113,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10752,6 +11155,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10773,6 +11179,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10812,6 +11221,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10833,6 +11245,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10872,6 +11287,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10893,6 +11311,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10914,6 +11335,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10935,6 +11359,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10956,6 +11383,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10977,6 +11407,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -10998,6 +11431,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11019,6 +11455,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11058,6 +11497,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11079,6 +11521,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11100,6 +11545,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11121,6 +11569,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11160,6 +11611,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11181,6 +11635,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11268,6 +11725,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11289,6 +11749,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11310,6 +11773,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11331,6 +11797,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11352,6 +11821,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11373,6 +11845,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11394,6 +11869,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11415,6 +11893,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11595,6 +12076,24 @@ dcmIIOFormatName: jpeg2000-cv
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 objectClass: dcmImageReader
 
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.110,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+objectClass: dcmImageReader
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.111,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+objectClass: dcmImageReader
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.112,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+objectClass: dcmImageReader
+
 dn: dicomTransferSyntax=1.2.840.10008.1.2.4.201,cn=Image Reader Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmJavaClassName: org.dcm4che3.opencv.NativeImageReader
 dcmIIOFormatName: jpeg2000-cv
@@ -11683,6 +12182,29 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.91
 objectClass: dcmImageWriter
 dcmImageWriteParam: compressionRatiofactor=10.0
 
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.110,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeJXLImageWriter
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+objectClass: dcmImageWriter
+dcmImageWriteParam: compressionType=LOSSLESS
+dcmImageWriteParam: effort=7.0
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.111,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeJXLImageWriter
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+objectClass: dcmImageWriter
+dcmImageWriteParam: compressionType=LOSSLESS
+
+dn: dicomTransferSyntax=1.2.840.10008.1.2.4.112,cn=Image Writer Factory,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmJavaClassName: org.dcm4che3.opencv.NativeJXLImageWriter
+dcmIIOFormatName: jpeg-xl-cv
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+objectClass: dcmImageWriter
+dcmImageWriteParam: compressionType=LOSSY
+dcmImageWriteParam: compressionQuality=0.85
+
 dn: cn=RetrieveAsReceived,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: C_STORE_RQ
 dicomTransferRole: SCP
@@ -11721,6 +12243,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11742,6 +12267,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11772,6 +12300,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11978,6 +12509,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -11999,6 +12533,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12020,6 +12557,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12041,6 +12581,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12062,6 +12605,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12101,6 +12647,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12122,6 +12671,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12143,6 +12695,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12202,6 +12757,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12250,6 +12808,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12353,6 +12914,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12374,6 +12938,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12413,6 +12980,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12453,6 +13023,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12492,6 +13065,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12583,6 +13159,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12649,6 +13228,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12722,6 +13304,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12752,6 +13337,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12791,6 +13379,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12882,6 +13473,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -12903,6 +13497,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13033,6 +13630,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13054,6 +13654,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13120,6 +13723,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13150,6 +13756,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13198,6 +13807,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13264,6 +13876,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13285,6 +13900,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13306,6 +13924,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13354,6 +13975,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13375,6 +13999,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13424,6 +14051,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13445,6 +14075,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13530,6 +14163,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13551,6 +14187,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13599,6 +14238,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13656,6 +14298,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13685,6 +14330,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13725,6 +14373,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13845,6 +14496,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13866,6 +14520,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13905,6 +14562,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13926,6 +14586,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13947,6 +14610,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13968,6 +14634,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -13989,6 +14658,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14019,6 +14691,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14049,6 +14724,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14070,6 +14748,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14136,6 +14817,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14193,6 +14877,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14242,6 +14929,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14272,6 +14962,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14293,6 +14986,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14314,6 +15010,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14400,6 +15099,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14506,6 +15208,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14575,6 +15280,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14605,6 +15313,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14644,6 +15355,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14665,6 +15379,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14686,6 +15403,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14716,6 +15436,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14746,6 +15469,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14776,6 +15502,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14797,6 +15526,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14818,6 +15550,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14839,6 +15574,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14869,6 +15607,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14890,6 +15631,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14920,6 +15664,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -14989,6 +15736,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15010,6 +15760,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15031,6 +15784,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15052,6 +15808,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15299,6 +16058,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15320,6 +16082,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15350,6 +16115,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15556,6 +16324,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15577,6 +16348,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15598,6 +16372,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15619,6 +16396,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15640,6 +16420,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15679,6 +16462,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15700,6 +16486,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15721,6 +16510,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15780,6 +16572,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15828,6 +16623,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15931,6 +16729,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15952,6 +16753,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -15991,6 +16795,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16031,6 +16838,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16070,6 +16880,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16161,6 +16974,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16227,6 +17043,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16300,6 +17119,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16330,6 +17152,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16369,6 +17194,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16460,6 +17288,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16481,6 +17312,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16611,6 +17445,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16632,6 +17469,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16698,6 +17538,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16728,6 +17571,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16776,6 +17622,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16842,6 +17691,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16863,6 +17715,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16884,6 +17739,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16932,6 +17790,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -16953,6 +17814,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17002,6 +17866,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17023,6 +17890,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17108,6 +17978,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17129,6 +18002,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17177,6 +18053,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17234,6 +18113,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17263,6 +18145,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17303,6 +18188,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17423,6 +18311,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17444,6 +18335,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17483,6 +18377,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17504,6 +18401,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17525,6 +18425,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17546,6 +18449,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17567,6 +18473,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17597,6 +18506,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17627,6 +18539,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17648,6 +18563,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17714,6 +18632,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17779,6 +18700,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17828,6 +18752,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17858,6 +18785,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17879,6 +18809,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17900,6 +18833,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -17986,6 +18922,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18092,6 +19031,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18161,6 +19103,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18191,6 +19136,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18230,6 +19178,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18251,6 +19202,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18272,6 +19226,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18302,6 +19259,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18332,6 +19292,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18362,6 +19325,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18383,6 +19349,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18404,6 +19373,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18425,6 +19397,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18455,6 +19430,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18476,6 +19454,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18506,6 +19487,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18575,6 +19559,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18596,6 +19583,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18617,6 +19607,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203
@@ -18638,6 +19631,9 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.80
 dicomTransferSyntax: 1.2.840.10008.1.2.4.81
 dicomTransferSyntax: 1.2.840.10008.1.2.4.90
 dicomTransferSyntax: 1.2.840.10008.1.2.4.91
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 dicomTransferSyntax: 1.2.840.10008.1.2.4.201
 dicomTransferSyntax: 1.2.840.10008.1.2.4.202
 dicomTransferSyntax: 1.2.840.10008.1.2.4.203

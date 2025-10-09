@@ -1,0 +1,554 @@
+version: 1
+
+dn: cn=CT Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=MR Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=RT Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Ultrasound Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Enhanced CT Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Enhanced MR Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Enhanced RT Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Enhanced XA Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Enhanced PET Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Enhanced US Volume Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Enhanced XRF Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Photoacoustic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=VL Endoscopic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=VL Microscopic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private Fuji CR Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=VL Photographic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Corneal Topography Map Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Nuclear Medicine Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Enhanced MR Color Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Secondary Capture Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Ophthalmic Thickness Map Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private Philips CX Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private Toshiba US Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=X-Ray Angiographic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Confocal Microscopy Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Breast Tomosynthesis Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Computed Radiography Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Ultrasound Image Storage (Retired) SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=VL Image Storage - Trial (Retired) SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Ophthalmic Tomography Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=X-Ray 3D Angiographic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=X-Ray 3D Craniofacial Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Enhanced Continuous RT Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Ultrasound Multi-frame Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Dermoscopic Photography Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private GE Dicom CT Image Info Object SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private GE Dicom MR Image Info Object SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=X-Ray Radiofluoroscopic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private Philips MR Color Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private PMOD Multi-frame Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private Philips Perfusion Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=VL Whole Slide Microscopy Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Nuclear Medicine Image Storage (Retired) SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Legacy Converted Enhanced CT Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Legacy Converted Enhanced MR Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Ophthalmic Photography 8 Bit Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Positron Emission Tomography Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private GE Dicom Display Image Info Object SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private Philips CT Synthetic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private Philips CX Synthetic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private Philips MR Synthetic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Legacy Converted Enhanced PET Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Ophthalmic Photography 16 Bit Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Digital X-Ray Image Storage - For Processing SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private PixelMed Floating Point Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Digital X-Ray Image Storage - For Presentation SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Ultrasound Multi-frame Image Storage (Retired) SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=VL Multi-frame Image Storage - Trial (Retired) SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=VL Slide-Coordinates Microscopic Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Confocal Microscopy Tiled Pyramidal Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=X-Ray Angiographic Bi-Plane Image Storage (Retired) SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Breast Projection X-Ray Image Storage - For Processing SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Multi-frame True Color Secondary Capture Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Digital Intra-Oral X-Ray Image Storage - For Processing SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Breast Projection X-Ray Image Storage - For Presentation SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Digital Mammography X-Ray Image Storage - For Processing SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Digital Intra-Oral X-Ray Image Storage - For Presentation SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Digital Mammography X-Ray Image Storage - For Presentation SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Multi-frame Grayscale Byte Secondary Capture Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Multi-frame Grayscale Word Secondary Capture Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private PixelMed Legacy Converted Enhanced CT Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private PixelMed Legacy Converted Enhanced MR Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Private PixelMed Legacy Converted Enhanced PET Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Ophthalmic Optical Coherence Tomography En Face Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Wide Field Ophthalmic Photography 3D Coordinates Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Ophthalmic Optical Coherence Tomography B-scan Volume Analysis Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Wide Field Ophthalmic Photography Stereographic Projection Image Storage SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Intravascular Optical Coherence Tomography Image Storage - For Processing SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
+
+dn: cn=Intravascular Optical Coherence Tomography Image Storage - For Presentation SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+add: dicomTransferSyntax
+dicomTransferSyntax: 1.2.840.10008.1.2.4.110
+dicomTransferSyntax: 1.2.840.10008.1.2.4.111
+dicomTransferSyntax: 1.2.840.10008.1.2.4.112
