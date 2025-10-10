@@ -2848,7 +2848,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         index++;
                     }
                     tagsPatient.splice(index, 0, '00201200');
-                    tagsPatient.push('77770010', '77771010', '77771011', '77771012', '77771013', '77771014');
+                    tagsPatient.push('77770010', '77771010', '77771011', '77771012', '77771013', '77771014','77771016');
 
                     while (tagsStudy && (tagsStudy[index] < '00201206')) {
                         index++;
