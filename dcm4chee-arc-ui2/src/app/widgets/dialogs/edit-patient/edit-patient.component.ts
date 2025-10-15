@@ -1,4 +1,4 @@
-import {Component, ViewEncapsulation} from '@angular/core';
+import {Component, Input, ViewEncapsulation} from '@angular/core';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {Globalvar} from '../../../constants/globalvar';
 declare var DCM4CHE: any;
@@ -13,6 +13,8 @@ import {CommonModule, NgClass} from '@angular/common';
 import {FormGeneratorComponent} from '../../../helpers/form-generator/form-generator.component';
 import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
 import {FormsModule} from '@angular/forms';
+import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
+import {SelectDropdown} from '../../../interfaces';
 
 @Component({
     selector: 'app-edit-patient',
@@ -26,7 +28,8 @@ import {FormsModule} from '@angular/forms';
         FormsModule,
         CommonModule,
         SearchPipe,
-        MatDialogContent
+        MatDialogContent,
+        DcmDropDownComponent
     ],
     standalone: true
 })
@@ -47,10 +50,25 @@ export class EditPatientComponent {
     private _patientkey: any;
     private _externalInternalAetMode;
     private _iod: any;
-
+    reasonForModification:SelectDropdown<any>[] = [
+        new SelectDropdown("COERCE", "COERCE"),
+        new SelectDropdown("CORRECT", "CORRECT"),
+    ]
+    updatePolicy:SelectDropdown<any>[] = [
+        new SelectDropdown("SUPPLEMENT", "SUPPLEMENT"),
+        new SelectDropdown("MERGE", "MERGE"),
+        new SelectDropdown("OVERWRITE", "OVERWRITE"),
+    ]
+    @Input()
+    hideAdditionalParams:boolean;
     simpleForm = {
         schema:undefined,
         model:{}
+    }
+    patientResults:any = {
+        patient:undefined,
+        reasonForModificationResult:undefined,
+        sourceOfPrevVals:undefined
     }
     constructor(
         public dialogRef: MatDialogRef<EditPatientComponent>,

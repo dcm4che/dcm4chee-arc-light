@@ -4118,13 +4118,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
             this.dialogRef.componentInstance.mode = mode;
             this.dialogRef.componentInstance.patient = patientFiltered;
+            this.dialogRef.componentInstance.patientResults.patient = patientFiltered;
             this.dialogRef.componentInstance.dropdown = this.service.getArrayFromIod(iod);
             this.dialogRef.componentInstance.iod = this.service.replaceKeyInJson(iod, 'items', 'Value');
             this.dialogRef.componentInstance.saveLabel = config.saveLabel;
             this.dialogRef.componentInstance.titleLabel = config.titleLabel;
             this.dialogRef.afterClosed().subscribe(result => {
                 if (result){
-                    const tempAttrs = {...result.attrs, ...onlyPrivateAttrs};
+                    const {patient: formPatient , ...additionalParams} = result;
+                    const tempAttrs = {...formPatient.attrs, ...onlyPrivateAttrs};
                     j4care.removeKeyFromObject(tempAttrs, ["required","enum", "multi"]);
                     if(mode === "create"){
                         this.service.modifyPatient(undefined,tempAttrs,this.studyWebService).subscribe(res=>{
@@ -4133,7 +4135,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.httpErrorHandler.handleError(err);
                         });
                     }else{
-                        this.service.modifyPatientByPk(this.service.getPatientPk(originalPatientObject.attrs),tempAttrs,this.studyWebService).subscribe(res=>{
+                        this.service.modifyPatientByPk(this.service.getPatientPk(originalPatientObject.attrs),tempAttrs,this.studyWebService, undefined, undefined, additionalParams).subscribe(res=>{
                             this.appService.showMsg($localize `:@@study.patient_updated_successfully:Patient updated successfully`);
                         },err=>{
                             _.assign(patient, originalPatientObject);

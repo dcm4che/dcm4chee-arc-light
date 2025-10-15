@@ -4346,11 +4346,11 @@ export class StudyService {
     getModifyUPSUrl(deviceWebService: StudyWebService) {
         return this.getDicomURLFromWebService(deviceWebService, "uwl");
     }
-    modifyPatientByPk(patientPk: string, patientObject, deviceWebservice: StudyWebService, queued?, batchID?) {
+    modifyPatientByPk(patientPk: string, patientObject, deviceWebservice: StudyWebService, queued?, batchID?,additionalParams?) {
         return this.getModifyPatientUrl(deviceWebservice)
             .pipe(switchMap((url:string)=>{
                 if (url) {
-                    return this.$http.put(`${url}/id/${patientPk}${j4care.objToUrlParams({queued:queued,batchID:batchID}, true)}`, patientObject, undefined,true);
+                    return this.$http.put(`${url}/id/${patientPk}${j4care.objToUrlParams({queued:queued,batchID:batchID, ...additionalParams}, true)}`, patientObject, undefined,true);
                 }
                 return throwError({error: $localize `:@@error_on_getting_needed_webapp:Error on getting the needed WebApp (with one of the web service classes "DCM4CHEE_ARC_AET" or "PAM")`});
             }))

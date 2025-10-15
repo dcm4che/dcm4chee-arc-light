@@ -5,6 +5,28 @@
   margin-top:10px;
   padding: 15px 20px;
 }
+.inputpart{
+  box-shadow: 5px 3px 13px 0 rgba(68, 68, 68, 0.93);
+  margin-top: 10px;
+  padding: 15px 70px;
+  .form_input {
+    display: grid;
+    grid-template-columns: 1fr 1.36fr;
+    margin-bottom: 15px;
+    grid-gap: 12px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+  }
+
+  .form_input label {
+    text-align: right;
+  }
+
+  .form_input input, .form_input dcm-drop-down {
+    width: 96%;
+    min-height: 30px;
+  }
+}
 .form_content{
   display: grid;
   position: relative;
@@ -27,6 +49,7 @@
 }
 .cdk-overlay-container .edit-patient .mat-mdc-dialog-content{
   margin: 0;
+  max-height: 40vh;
 }
 .modal_vertical_nav{
   padding: 0;
