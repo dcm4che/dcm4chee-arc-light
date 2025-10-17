@@ -4963,6 +4963,11 @@ export class Globalvar {
                     ],
                     placeholder:$localize `:@@include_defaults:Include Defaults`,
                     description:$localize `:@@include_defaults_desc:Enable to return only the attributes specified by Query Parameter 'includefield' without including the default set of attributes specified by DICOM Part 18`
+                },{
+                    tag:"range-picker",
+                    type:"text",
+                    filterKey:"SeriesReceiveDateTime",
+                    description:$localize `:@@series_received:Series Received`
                 }
             ];
         }
@@ -5740,6 +5745,11 @@ export class Globalvar {
                     ],
                     placeholder:$localize `:@@include_defaults:Include Defaults`,
                     description:$localize `:@@include_defaults_desc:Enable to return only the attributes specified by Query Parameter 'includefield' without including the default set of attributes specified by DICOM Part 18`
+                },{
+                    tag:"range-picker",
+                    type:"text",
+                    filterKey:"SeriesReceiveDateTime",
+                    description:$localize `:@@series_received:Series Received`
                 }
             ];
         }
