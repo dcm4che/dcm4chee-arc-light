@@ -4828,8 +4828,7 @@ export class StudyService {
             }
         } else {
             if (_.hasIn(study.attrs, "77771023.Value.0") && study.attrs["77771023"].Value[0] != "") {
-                let expiredDateString = study.attrs["77771023"].Value[0];
-                expiredDate = new Date(expiredDateString.substring(0, 4) + '.' + expiredDateString.substring(4, 6) + '.' + expiredDateString.substring(6, 8));
+                expiredDate = this.extractExpireDate(study);
             } else {
                 expiredDate = new Date();
             }
@@ -4901,6 +4900,20 @@ export class StudyService {
             },
             saveButton: $localize `:@@SAVE:SAVE`
         };
+    }
+
+    extractExpireDate(study:any){
+        try{
+            const expiredDateString = study.attrs["77771023"].Value[0];
+            return new Date(
+                expiredDateString.substring(0, 4) + '.'
+                + expiredDateString.substring(4, 6) + '.'
+                + expiredDateString.substring(6, 8)
+            );
+
+        }catch(e){
+            return undefined;
+        }
     }
 
     setExpiredDateSeries(deviceWebservice: StudyWebService, studyUID, seriesUID, expiredDate, exporter) {
