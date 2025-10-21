@@ -24,7 +24,7 @@ export class IssuerSelectorComponent implements OnInit {
     splitters = [];
     @Input('model')
     set model(value){
-        if(value && this.issuers && this.issuers.length > 0) {
+        if(value && typeof value != "string" && this.issuers && this.issuers.length > 0) {
             this.issuers.forEach(issuer => {
                 if ( value && value[issuer.key]) {
                     this.filterModel[issuer.key] = value[issuer.key];
@@ -32,6 +32,9 @@ export class IssuerSelectorComponent implements OnInit {
                     this.filterModel[issuer.key] = '';
                 }
             });
+            this.set();
+        }else if(typeof value === 'string'){
+            this.filterModel[this.issuers[0].key] = value;
             this.set();
         }
     }
