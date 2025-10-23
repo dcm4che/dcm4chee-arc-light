@@ -2456,6 +2456,11 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.504 NAME 'dcmInExpressionCountLimit'
   EQUALITY integerMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.27
   SINGLE-VALUE )
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.505 NAME 'dcmCheckIfAlreadyExistsOnDestination'
+  DESC 'Indicates to only export an object if there is not already an object with such Storage Path on the destination storage; disabled if absent'
+  EQUALITY booleanMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
+  SINGLE-VALUE )
 olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -3048,6 +3053,7 @@ olcObjectClasses: ( 1.2.40.0.13.1.15.110.4.15 NAME 'dcmExporter'
     dcmExportAsSourceAE $
     dcmDeleteStudyFromStorageID $
     dcmRejectForDataRetentionExpiry $
+    dcmCheckIfAlreadyExistsOnDestination $
     dcmStgCmtSCP $
     dcmIanDestination $
     dcmRetrieveAET $

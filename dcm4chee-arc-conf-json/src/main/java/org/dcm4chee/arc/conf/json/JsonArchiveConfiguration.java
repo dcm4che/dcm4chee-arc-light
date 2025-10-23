@@ -683,6 +683,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotEmpty("dcmSchedule", ed.getSchedules());
             writer.writeNotEmpty("dcmProperty", ed.getProperties());
             writer.writeNotDef("dcmRejectForDataRetentionExpiry", ed.isRejectForDataRetentionExpiry(), false);
+            writer.writeNotDef("dcmCheckIfAlreadyExistsOnDestination", ed.isCheckIfAlreadyExistsOnDestination(), false);
             writer.writeNotDef("dcmExportAsSourceAE", ed.isExportAsSourceAE(), false);
             writer.writeEnd();
         }
@@ -2820,6 +2821,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmRejectForDataRetentionExpiry":
                         ed.setRejectForDataRetentionExpiry(reader.booleanValue());
+                        break;
+                    case "dcmCheckIfAlreadyExistsOnDestination":
+                        ed.setCheckIfAlreadyExistsOnDestination(reader.booleanValue());
                         break;
                     case "dcmExportAsSourceAE":
                         ed.setExportAsSourceAE(reader.booleanValue());

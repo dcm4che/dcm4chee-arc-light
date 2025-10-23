@@ -44,7 +44,9 @@ package org.dcm4che.arc.export.storage;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.io.DicomInputStream;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -69,6 +71,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.NoSuchFileException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -124,9 +127,9 @@ public class StorageExporter extends AbstractExporter {
                 StorageDescriptor storageDescriptor = storage.getStorageDescriptor();
                 retrieveContext.setDestinationStorage(storageDescriptor);
                 boolean tarArchiver = storageDescriptor.isArchiveSeriesAsTAR();
-                Map<String,Map<String,Map<String, InstanceLocations>>> matchesByTar =
+                Map<String, Map<String, Map<String, InstanceLocations>>> matchesByTar =
                         tarArchiver ? null : new HashMap<>();
-                for (Iterator<InstanceLocations> it = retrieveContext.getMatches().iterator(); it.hasNext();) {
+                for (Iterator<InstanceLocations> it = retrieveContext.getMatches().iterator(); it.hasNext(); ) {
                     InstanceLocations match = it.next();
                     if (locationsOnStorage(match).anyMatch(Location::isStatusOK)) {
                         it.remove();
@@ -283,12 +286,18 @@ public class StorageExporter extends AbstractExporter {
         for (InstanceLocations match : retrieveContext.getMatches()) {
             WriteContext writeCtx = storage.createWriteContext(match.getAttributes());
             writeCtx.setStudyInstanceUID(retrieveContext.getStudyInstanceUID());
-            try (LocationInputStream locationInputStream = retrieveService.openLocationInputStream(
+            Location location;
+            if (descriptor.isCheckIfAlreadyExistsOnDestination() && (location = findLocation(writeCtx, match)) != null) {
+                LOG.debug("Found {} at {}", match, storage.getStorageDescriptor());
+                storeService.replaceLocation(storeSession, match.getInstancePk(), location,
+                        locationsOnStorage(match).collect(Collectors.toList()));
+                retrieveContext.incrementCompleted();
+            } else try (LocationInputStream locationInputStream = retrieveService.openLocationInputStream(
                     retrieveContext, match)) {
                 LOG.debug("Start copying {} to {}", match, storage.getStorageDescriptor());
                 writeCtx.setContentLength(locationInputStream.location.getSize());
                 storage.copy(locationInputStream.stream, writeCtx);
-                Location location = mkLocation(locationInputStream.location, writeCtx.getStoragePath(), status);
+                location = mkLocation(locationInputStream.location, writeCtx.getStoragePath(), status);
                 storeService.replaceLocation(storeSession, match.getInstancePk(), location,
                         locationsOnStorage(match).collect(Collectors.toList()));
                 storage.commitStorage(writeCtx);
@@ -309,9 +318,32 @@ public class StorageExporter extends AbstractExporter {
         return seriesIUIDs;
     }
 
+    private Location findLocation(WriteContext writeCtx, InstanceLocations match) {
+        Storage storage = writeCtx.getStorage();
+        ReadContext readCtx = storage.createReadContext();
+        readCtx.setStoragePath(writeCtx.getStoragePath());
+        readCtx.setMessageDigest(storage.getStorageDescriptor().getMessageDigest());
+        try (DicomInputStream dis = new DicomInputStream(storage.openInputStream(readCtx))) {
+            Attributes fmi = dis.readFileMetaInformation();
+            StreamUtils.copy(dis, null);
+            return new Location.Builder()
+                    .storageID(storageID)
+                    .storagePath(readCtx.getStoragePath())
+                    .transferSyntaxUID(fmi.getString(Tag.TransferSyntaxUID))
+                    .size(readCtx.getSize())
+                    .digest(readCtx.getDigest())
+                    .build();
+        } catch (NoSuchFileException e) {
+            return null;
+        } catch (IOException e) {
+            LOG.warn("Failed to load {} from {}:\n", match, storage.getStorageDescriptor(), e);
+            return null;
+        }
+    }
+
     private Stream<Location> locationsOnStorage(InstanceLocations match) {
         return match.getLocations().stream().filter(l -> l.getStorageID().equals(storageID));
-     }
+    }
 
     private Collection<String> tarFiles(RetrieveContext retrieveContext, StoreSession storeSession, Storage storage,
                                         LocationStatus status) {

@@ -54,7 +54,6 @@ import java.util.Map;
  */
 
 public class ExporterDescriptor {
-
     private String exporterID;
     private String description;
     private URI exportURI;
@@ -68,6 +67,7 @@ public class ExporterDescriptor {
     private String stgCmtSCPAETitle;
     private String deleteStudyFromStorageID;
     private boolean rejectForDataRetentionExpiry;
+    private boolean checkIfAlreadyExistsOnDestination;
     private ScheduleExpression[] schedules = {};
     private final Map<String, String> properties = new HashMap<>();
 
@@ -185,6 +185,14 @@ public class ExporterDescriptor {
 
     public void setRejectForDataRetentionExpiry(boolean rejectForDataRetentionExpiry) {
         this.rejectForDataRetentionExpiry = rejectForDataRetentionExpiry;
+    }
+
+    public boolean isCheckIfAlreadyExistsOnDestination() {
+        return checkIfAlreadyExistsOnDestination;
+    }
+
+    public void setCheckIfAlreadyExistsOnDestination(boolean checkIfAlreadyExistsOnDestination) {
+        this.checkIfAlreadyExistsOnDestination = checkIfAlreadyExistsOnDestination;
     }
 
     public ScheduleExpression[] getSchedules() {

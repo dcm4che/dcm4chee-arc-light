@@ -3434,6 +3434,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", descriptor.getProperties());
         LdapUtils.storeNotDef(ldapObj, attrs,
                 "dcmRejectForDataRetentionExpiry", descriptor.isRejectForDataRetentionExpiry(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs,
+                "dcmCheckIfAlreadyExistsOnDestination", descriptor.isCheckIfAlreadyExistsOnDestination(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmExportAsSourceAE", descriptor.isExportAsSourceAE(), false);
         return attrs;
     }
@@ -3459,6 +3461,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), Availability.ONLINE));
                 desc.setRejectForDataRetentionExpiry(
                         LdapUtils.booleanValue(attrs.get("dcmRejectForDataRetentionExpiry"), false));
+                desc.setCheckIfAlreadyExistsOnDestination(
+                        LdapUtils.booleanValue(attrs.get("dcmCheckIfAlreadyExistsOnDestination"), false));
                 desc.setExportAsSourceAE(LdapUtils.booleanValue(attrs.get("dcmExportAsSourceAE"), false));
                 desc.setSchedules(ScheduleExpression.valuesOf(LdapUtils.stringArray(attrs.get("dcmSchedule"))));
                 desc.setProperties(LdapUtils.stringArray(attrs.get("dcmProperty")));
@@ -3518,6 +3522,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
         LdapUtils.storeDiff(ldapObj, mods, "dcmRejectForDataRetentionExpiry",
                 prev.isRejectForDataRetentionExpiry(), desc.isRejectForDataRetentionExpiry(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmCheckIfAlreadyExistsOnDestination",
+                prev.isCheckIfAlreadyExistsOnDestination(), desc.isCheckIfAlreadyExistsOnDestination(), false);
         LdapUtils.storeDiff(ldapObj, mods, "dcmExportAsSourceAE",
                 prev.isExportAsSourceAE(), desc.isExportAsSourceAE(), false);
         return mods;
