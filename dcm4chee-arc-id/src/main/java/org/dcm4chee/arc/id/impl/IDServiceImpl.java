@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.id.impl;
 
+import jakarta.ejb.EJBException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.dcm4che3.data.Attributes;
@@ -47,6 +48,7 @@ import org.dcm4che3.data.Issuer;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.net.Device;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.IDGenerator;
 import org.dcm4chee.arc.id.IDService;
@@ -126,11 +128,23 @@ public class IDServiceImpl implements IDService {
     }
 
     private int nextValue(String name, int initalValue) {
-        try {
-            return ejb.nextValue(name, initalValue);
-        } catch (RuntimeException e) {
-            LOG.info("Failed to create {} - retry\n", name, e);
-            return ejb.nextValue(name, initalValue);
+        ArchiveDeviceExtension arcDev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        int retries = arcDev.getStoreUpdateDBMaxRetries();
+        for (;;) {
+            try {
+                return ejb.nextValue(name, initalValue);
+            } catch (EJBException e) {
+                if (retries-- > 0) {
+                    LOG.info("Failed to create {} - retry\n", name, e);
+                } else {
+                    throw e;
+                }
+            }
+            try {
+                Thread.sleep(arcDev.storeUpdateDBRetryDelay());
+            } catch (InterruptedException e) {
+                LOG.info("Failed to delay retry to create {}:\n", name, e);
+            }
         }
     }
 }
