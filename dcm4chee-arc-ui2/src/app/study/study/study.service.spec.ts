@@ -399,5 +399,34 @@ describe('StudyService', () => {
             ]);
         })
     );
+    it("Should extract the roles if configured from a web app object",inject([StudyService], (service: StudyService)=>{
+        const webAppObject = {
+            "dcmProperty": [
+                "roles=admin, user"
+            ]
+        }
+        expect(service.getWebAppRoles(webAppObject)).toEqual(["admin","user"]);
+        const webAppObject2 = {
+            "dcmProperty": [
+                "roles=admin user"
+            ]
+        }
+        expect(service.getWebAppRoles(webAppObject2)).toEqual(["admin","user"]);
+
+        const webAppObject3 = {
+            "dcmProperty": [
+                "roles=admin,user,test"
+            ]
+        }
+        expect(service.getWebAppRoles(webAppObject3)).toEqual(["admin","user","test"]);
+        const webAppObject4 = {
+            "dcmProperty": [
+                "roles=admin,user,test,"
+            ]
+        }
+        expect(service.getWebAppRoles(webAppObject3)).toEqual(["admin","user","test"]);
+
+        })
+    );
 
 });

@@ -18,24 +18,47 @@ export class IssuerSelectorComponent implements OnInit {
 
     private _model;
 
-    @Input() placeholder:string;
-    @Input() title:string;
-    @Input() issuers:any[];
+    @Input() placeholder: string;
+    @Input() title: string;
+    @Input() issuers: any[];
     splitters = [];
+    suffixDropdownKeyConfig = {
+        'dcmuiIssuerOfAccessionNumberSequence': {
+            mainKey: 'AccessionNumber',
+            suffixSplitChar: '^',
+            mergeChar: '^',
+            secondaryKeys:[
+                'IssuerOfAccessionNumberSequence.LocalNamespaceEntityID',
+                'IssuerOfAccessionNumberSequence.UniversalEntityID',
+                'IssuerOfAccessionNumberSequence.UniversalEntityIDType'
+            ]
+        },
+        'dcmuiIssuerOfAdmissionIDSequence': {
+            mainKey: 'AdmissionID',
+            suffixSplitChar: '&',
+            mergeChar: '^^^',
+            secondaryKeys:[
+                'IssuerOfAdmissionIDSequence.LocalNamespaceEntityID',
+                'IssuerOfAdmissionIDSequence.UniversalEntityID',
+                'IssuerOfAdmissionIDSequence.UniversalEntityIDType'
+            ]
+        },
+        'dcmuiIssuerOfPatientIDSequence': {
+            mainKey: 'PatientID',
+            suffixSplitChar: '&',
+            mergeChar: '^^^',
+            secondaryKeys: [
+                'IssuerOfPatientID',
+                'IssuerOfPatientIDQualifiersSequence.UniversalEntityID',
+                'IssuerOfPatientIDQualifiersSequence.UniversalEntityIDType'
+            ]
+        }
+    };
     @Input('model')
     set model(value){
-        if(value && typeof value != "string" && this.issuers && this.issuers.length > 0) {
-            this.issuers.forEach(issuer => {
-                if ( value && value[issuer.key]) {
-                    this.filterModel[issuer.key] = value[issuer.key];
-                } else {
-                    this.filterModel[issuer.key] = '';
-                }
-            });
-            this.set();
-        }else if(typeof value === 'string'){
-            this.filterModel[this.issuers[0].key] = value;
-            this.set();
+        if(value && this.issuers && this.issuers.length > 0) {
+            this.setFilterModel(value);
+            //this.set(true);
         }
     }
     get model(){
@@ -50,44 +73,82 @@ export class IssuerSelectorComponent implements OnInit {
     constructor() { }
 
     ngOnInit() {
+        this.initSplitters();
     }
-    set(){
-        if(this.filterModel && this.filterModel["AccessionNumber"]) {
-            let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "AccessionNumber"));
-            issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('^');
-            if(issuerPart){
-                this._model = `${j4care.appendStringIfExist(this.filterModel["AccessionNumber"], "^")}${issuerPart}`;
+
+    setFilterModel(value){
+        try {
+            if(typeof value === "string"){
+                this.triggerExtraction(value);
             }else{
-                this._model = `${this.filterModel?.["AccessionNumber"] || ''}`;
+                this.issuers.forEach(issuer => {
+                    if ( value && value[issuer.key]) {
+                        this.filterModel[issuer.key] = value[issuer.key];
+                    } else {
+                        this.filterModel[issuer.key] = '';
+                    }
+                });
+                let hypotheticValue = '';
+                Object.keys(this.suffixDropdownKeyConfig).forEach((suffixDropdownKey) => {
+                    const configObject = this.suffixDropdownKeyConfig[suffixDropdownKey];
+                    if(this.filterModel[configObject.mainKey]){
+                        hypotheticValue = j4care.sliceArrayFromRightUntilNotEmpty(
+                            configObject.secondaryKeys.map(key=>this.filterModel[key] || '')
+                        ).join(configObject.suffixSplitChar);
+                    }
+                })
             }
-            this.modelChange.emit(this.filterModel);
-        } else if(this.filterModel && this.filterModel["ScheduledStepAttributesSequence.AccessionNumber"]) {
-            let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "ScheduledStepAttributesSequence.AccessionNumber"));
-            issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('^');
-            if(issuerPart){
-                this._model = `${j4care.appendStringIfExist(this.filterModel["ScheduledStepAttributesSequence.AccessionNumber"], "^")}${issuerPart}`;
-            }else{
-                this._model = `${this.filterModel?.["ScheduledStepAttributesSequence.AccessionNumber"] || ''}`;
+        }catch (e) {
+        }
+    }
+
+    set(templateInit){
+        if (templateInit) {
+            if (this.filterModel[this.issuers[0].key]) {
+                this._model = this.filterModel[this.issuers[0].key];
+                this.modelChange.emit(this.filterModel);
+            } else {
+                this._model = '';
+                this.modelChange.emit(undefined);
             }
-            this.modelChange.emit(this.filterModel);
-        } else if(this.filterModel && this.filterModel["PatientID"]) {
-            let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "PatientID"));
-            issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('&');
-            if(issuerPart){
-                this._model = `${j4care.appendStringIfExist(this.filterModel["PatientID"], "^^^")}${issuerPart}`;
-            }else{
-                this._model = `${this.filterModel?.["PatientID"] || ''}`;
+        } else {
+            if(this.filterModel && this.filterModel["AccessionNumber"]) {
+                let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "AccessionNumber"));
+                issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('^');
+                if(issuerPart){
+                    this._model = `${j4care.appendStringIfExist(this.filterModel["AccessionNumber"], "^")}${issuerPart}`;
+                }else{
+                    this._model = `${this.filterModel?.["AccessionNumber"] || ''}`;
+                }
+                this.modelChange.emit(this.filterModel);
+            } else if(this.filterModel && this.filterModel["ScheduledStepAttributesSequence.AccessionNumber"]) {
+                let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "ScheduledStepAttributesSequence.AccessionNumber"));
+                issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('^');
+                if(issuerPart){
+                    this._model = `${j4care.appendStringIfExist(this.filterModel["ScheduledStepAttributesSequence.AccessionNumber"], "^")}${issuerPart}`;
+                }else{
+                    this._model = `${this.filterModel?.["ScheduledStepAttributesSequence.AccessionNumber"] || ''}`;
+                }
+                this.modelChange.emit(this.filterModel);
+            } else if(this.filterModel && this.filterModel["PatientID"]) {
+                let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "PatientID"));
+                issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('&');
+                if(issuerPart){
+                    this._model = `${j4care.appendStringIfExist(this.filterModel["PatientID"], "^^^")}${issuerPart}`;
+                }else{
+                    this._model = `${this.filterModel?.["PatientID"] || ''}`;
+                }
+                this.modelChange.emit(this.filterModel);
+            } else if(this.filterModel && this.filterModel["AdmissionID"]) {
+                let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "AdmissionID"));
+                issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('&');
+                if(issuerPart){
+                    this._model = `${j4care.appendStringIfExist(this.filterModel["AdmissionID"], "^^^")}${issuerPart}`;
+                }else{
+                    this._model = `${this.filterModel?.["AdmissionID"] || ''}`;
+                }
+                this.modelChange.emit(this.filterModel);
             }
-            this.modelChange.emit(this.filterModel);
-        } else if(this.filterModel && this.filterModel["AdmissionID"]) {
-            let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "AdmissionID"));
-            issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('&');
-            if(issuerPart){
-                this._model = `${j4care.appendStringIfExist(this.filterModel["AdmissionID"], "^^^")}${issuerPart}`;
-            }else{
-                this._model = `${this.filterModel?.["AdmissionID"] || ''}`;
-            }
-            this.modelChange.emit(this.filterModel);
         }
     }
     togglePicker(){
@@ -99,37 +160,61 @@ export class IssuerSelectorComponent implements OnInit {
         this.modelChange.emit(undefined);
     }
     filterChanged(){
-        this.extractModelsFromString();
+        this.triggerExtraction();
         this.modelChange.emit(this.filterModel);
     }
 
     initSplitters(){
         this.splitters = [];
-        this.issuers.forEach((value,i)=>{
-            if(i === 0 && _.hasIn(this.issuers,"0.key") && this.issuers[0].key === "PatientID"){
-                this.splitters[i] = "^^^";
-            }else{
-                this.splitters[i] = "&";
-            }
-        });
+        if( this.issuers && this.issuers.length > 0 ) {
+            Object.keys(this.suffixDropdownKeyConfig).forEach((suffixDropdownKey) => {
+                if(this.splitters.length === 0){
+                    const configObject = this.suffixDropdownKeyConfig[suffixDropdownKey];
+                    if(_.hasIn(this.filterModel, configObject.mainKey)){
+                        this.splitters[0] = configObject.mergeChar;
+                        this.issuers.forEach((issuer,i)=>{
+                            if(i > 0 && i < (this.issuers.length-1)){
+                                this.splitters[i] = configObject.suffixSplitChar;
+                            }
+                        })
+                    }
+                }
+            })
+        }
     }
-    extractModelsFromString(){
+    triggerExtraction(value?:string){
         try{
-            if(this.model){
-                let modelTemp = this.model;
+            if(value || this._model){
+                value = value || this._model;
+                let modelTemp = value;
                 this.initSplitters();
-                this.issuers.forEach((value,i)=>{
-                    const split = this.splitters[i] || "&";
-                    let splitted = modelTemp.split(split);
-                    this.filterModel[this.issuers[i].key] = splitted[0].replace(/\&/g,"").replace(/\^/g,"") || "";
-                    splitted.shift();
-                    modelTemp = splitted.join(split);
-                });
+                this.filterModel = this.extractModelsFromString(modelTemp, this.filterModel, this.issuers, this.splitters);
+                this.set(false);
+                this.modelChange.emit(
+                    this.filterModel
+                )
             }else{
                 this.clearInnerModels();
             }
         }catch (e) {
 
+        }
+    }
+    extractModelsFromString(model, filterModel = this.filterModel, issuers = this.issuers, splitters = this.splitters){
+        try{
+            if(model){
+                console.log("suffixDropdownKeyConfig",this.suffixDropdownKeyConfig);
+                issuers.forEach((value,i)=>{
+                    const split = splitters[i] || "&";
+                    let splitted = model.split(split);
+                    filterModel[issuers[i].key] = splitted[0].replace(/\&/g,"").replace(/\^/g,"") || "";
+                    splitted.shift();
+                    model = splitted.join(split);
+                });
+                return filterModel;
+            }
+        }catch (e) {
+            return filterModel;
         }
     }
     trackById(index: number, item: any) {
