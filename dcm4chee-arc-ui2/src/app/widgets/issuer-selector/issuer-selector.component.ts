@@ -58,7 +58,6 @@ export class IssuerSelectorComponent implements OnInit {
     set model(value){
         if(value && this.issuers && this.issuers.length > 0) {
             this.setFilterModel(value);
-            //this.set(true);
         }
     }
     get model(){
@@ -88,30 +87,14 @@ export class IssuerSelectorComponent implements OnInit {
                         this.filterModel[issuer.key] = '';
                     }
                 });
-                let hypotheticValue = '';
-                Object.keys(this.suffixDropdownKeyConfig).forEach((suffixDropdownKey) => {
-                    const configObject = this.suffixDropdownKeyConfig[suffixDropdownKey];
-                    if(this.filterModel[configObject.mainKey]){
-                        hypotheticValue = j4care.sliceArrayFromRightUntilNotEmpty(
-                            configObject.secondaryKeys.map(key=>this.filterModel[key] || '')
-                        ).join(configObject.suffixSplitChar);
-                    }
-                })
+                this.set();
             }
         }catch (e) {
         }
     }
 
-    set(templateInit){
-        if (templateInit) {
-            if (this.filterModel[this.issuers[0].key]) {
-                this._model = this.filterModel[this.issuers[0].key];
-                this.modelChange.emit(this.filterModel);
-            } else {
-                this._model = '';
-                this.modelChange.emit(undefined);
-            }
-        } else {
+    set(){
+
             if(this.filterModel && this.filterModel["AccessionNumber"]) {
                 let issuerPart  = _.values(_.pickBy(this.filterModel,(value,key)=>key != "AccessionNumber"));
                 issuerPart = j4care.removeLastEmptyStringsFromArray(issuerPart).join('^');
@@ -149,7 +132,6 @@ export class IssuerSelectorComponent implements OnInit {
                 }
                 this.modelChange.emit(this.filterModel);
             }
-        }
     }
     togglePicker(){
         this.selectorOpen = !this.selectorOpen;
@@ -189,7 +171,7 @@ export class IssuerSelectorComponent implements OnInit {
                 let modelTemp = value;
                 this.initSplitters();
                 this.filterModel = this.extractModelsFromString(modelTemp, this.filterModel, this.issuers, this.splitters);
-                this.set(false);
+                this.set();
                 this.modelChange.emit(
                     this.filterModel
                 )
