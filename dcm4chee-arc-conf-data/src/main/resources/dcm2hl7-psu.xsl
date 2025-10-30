@@ -507,10 +507,13 @@
                             <xsl:with-param name="item" select="$procedureCodeStudy"/>
                         </xsl:call-template>
                     </xsl:when>
-                    <xsl:when test="$requestAttrsSeries and boolean(DicomAttribute[@tag='00321064']/Item)">
-                        <xsl:call-template name="codeItem">
-                            <xsl:with-param name="item" select="DicomAttribute[@tag='00321064']/Item"/>
-                        </xsl:call-template>
+                    <xsl:when test="$requestAttrsSeries">
+                        <xsl:variable name="requestAttrsSeriesReqProcedureCode" select="$requestAttrsSeries/Item/DicomAttribute[@tag='00321064']/Item"/>
+                        <xsl:if test="$requestAttrsSeriesReqProcedureCode">
+                            <xsl:call-template name="codeItem">
+                                <xsl:with-param name="item" select="$requestAttrsSeriesReqProcedureCode"/>
+                            </xsl:call-template>
+                        </xsl:if>
                     </xsl:when>
                     <xsl:otherwise/>
                 </xsl:choose>
