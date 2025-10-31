@@ -4919,8 +4919,9 @@ export class StudyService {
     setExpiredDateSeries(deviceWebservice: StudyWebService, studyUID, seriesUID, expiredDate, exporter) {
         const url = this.getModifyStudyUrl(deviceWebservice);
         let localParams = "";
-        if (exporter)
+        if (exporter) {
             localParams = `?ExporterID=${exporter}`;
+        }
         return this.$http.put(`${url}/${studyUID}/series/${seriesUID}/expire/${expiredDate}${localParams}`, {})
     }
 

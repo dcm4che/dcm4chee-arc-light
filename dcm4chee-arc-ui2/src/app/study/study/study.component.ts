@@ -5271,12 +5271,19 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if (expiredDate &&  !result.schema_model.expiredDate) {
                     result.schema_model.expiredDate = 'never';
                 }
+                if(!expiredDate &&
+                    _.hasIn(study,"attrs.7777102B.Value[0]") &&
+                    _.get(study,"attrs.7777102B.Value[0]") === 'FROZEN' &&
+                    (result.schema_model.FreezeExpirationDate === undefined || result.schema_model.FreezeExpirationDate === true)
+                ){
+                    result.schema_model.FreezeExpirationDate = false;
+                }
                 if(result.schema_model.expiredDate || result.schema_model.protectStudy){
                     this.service.setExpiredDate(this.studyWebService,
                                                 _.get(study,"attrs.0020000D.Value[0]"),
                                                 result.schema_model.protectStudy ? "never" : result.schema_model.expiredDate,
                                                 result.schema_model.exporter,
-                                                result.schema_model.freezeExpirationDate)
+                                                result.schema_model.FreezeExpirationDate)
                         .subscribe((res)=>{
                             _.set(study,"attrs.77771023.Value[0]",result.schema_model.expiredDate);
                             _.set(study,"attrs.77771023.vr","DA");
