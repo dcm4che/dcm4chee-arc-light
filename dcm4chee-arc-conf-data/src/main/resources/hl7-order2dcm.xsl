@@ -48,6 +48,9 @@
         <xsl:with-param name="spsStartDateTime" select="$spsStartDateTime"/>
         <xsl:with-param name="spsScheduledPhysician" select="$spsScheduledPhysician"/>
       </xsl:call-template>
+      <xsl:call-template name="tz">
+        <xsl:with-param name="val" select="$spsStartDateTime"/>
+      </xsl:call-template>
 
       <xsl:apply-templates select="ZDS">
         <xsl:with-param name="spsAETsDefault" select="$spsAETsDefault"/>
@@ -232,6 +235,31 @@
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="tz">
+    <xsl:param name="val"/>
+    <xsl:variable name="str" select="normalize-space($val)" />
+    <xsl:if test="$str and $str != '&quot;&quot;'">
+      <xsl:variable name="tm" select="substring($str,9)"/>
+      <xsl:variable name="tm_plus" select="substring-before($tm,'+')"/>
+      <xsl:variable name="tm_minus" select="substring-before($tm,'-')"/>
+      <xsl:if test="$tm_plus or $tm_minus">
+        <DicomAttribute tag="00080201" vr="SH">
+          <Value number="1">
+            <xsl:choose>
+              <xsl:when test="$tm_plus">
+                <xsl:value-of select="concat('+', substring-after($tm,'+'))"/>
+              </xsl:when>
+              <xsl:when test="$tm_minus">
+                <xsl:value-of select="concat('-', substring-after($tm,'-'))"/>
+              </xsl:when>
+              <xsl:otherwise/>
+            </xsl:choose>
+          </Value>
+        </DicomAttribute>
+      </xsl:if>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template name="spsSeq">
