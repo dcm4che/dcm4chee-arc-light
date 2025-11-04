@@ -119,9 +119,10 @@ public class MWLCFindSCP extends BasicCFindSCP {
     }
 
     private Attributes createReturnKeys(Attributes keys) {
-        Attributes returnKeys = new Attributes(keys.size() + 3);
+        Attributes returnKeys = new Attributes(keys.size() + 2);
         returnKeys.addAll(keys);
         returnKeys.setNull(Tag.SpecificCharacterSet, VR.CS);
+        returnKeys.setNull(Tag.TimezoneOffsetFromUTC, VR.SH);
         return returnKeys;
     }
 }

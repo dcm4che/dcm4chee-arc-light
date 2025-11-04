@@ -121,7 +121,7 @@ class CommonCFindSCP extends BasicCFindSCP {
     }
 
     private Attributes createReturnKeys(Attributes keys) {
-        Attributes returnKeys = new Attributes(keys.size() + 3);
+        Attributes returnKeys = new Attributes(keys.size() + 4);
         returnKeys.addAll(keys);
         returnKeys.removePrivateAttributes(PrivateTag.PrivateCreator, 0x7777);
         returnKeys.setNull(Tag.SpecificCharacterSet, VR.CS);
