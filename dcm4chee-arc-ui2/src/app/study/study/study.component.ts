@@ -230,7 +230,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             new SelectDropdown("unsubscribe_uwl",$localize `:@@unsubscribe_uwl:Unsubscribe from Unified Worklist`),
             new SelectDropdown("suspend_uwl",$localize `:@@suspend_uwl:Suspend Unified Worklist`),
             new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
-            new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
+            new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete rejected instances`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
             new SelectDropdown("export_multiple_study",$localize `:@@study.export_multiple:Export matching studies`),
             new SelectDropdown("apply_retention_multiple_series",$localize `:@@study.apply_retention_multiple_series:Apply retention policy to matching series`),
             new SelectDropdown("export_multiple_series",$localize `:@@study.export_multiple_series:Export matching series`),

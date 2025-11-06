@@ -1,13 +1,13 @@
 <div class="vex vex-theme-os confirm" xmlns="http://www.w3.org/1999/html">
     <div class="vex-dialog-form">
         <div class="form-group">
-            <label i18n="@@delete-rejected.delete_instances_with_rejected_type">Delete instances with rejected type</label>
+            <label i18n="@@delete-rejected.delete_instances_with_rejected_type">Delete rejected instances with rejection note type</label>
             <select id="reject" [(ngModel)]="results.reject" name="reject" class="form-control">
                 <option *ngFor="let rjn of rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
                 </select>
             </div>
         <div class="form-group">
-        <label i18n="@@delete-rejected.maximum_reject_date_of_instances_to_delete">Maximum reject date of instances to delete</label>
+        <label i18n="@@delete-rejected.maximum_reject_date_of_instances_to_delete">Maximum date of rejected instances to delete</label>
             <!--<input [(ngModel)]="rejectedBefore.date" autocomplete="off" class="form-control" (click)="rejectedBeforeOpen()" placeholder="Delete all instances before this date" is-open="rejectedBefore.opened" id="rejectedBefore" title="Delete all instances before this date" type="text" uib-datepicker-popup="{{format2}}" close-text="Close"/>-->
 <!--            <p-calendar
                     dataType="string"
@@ -24,7 +24,7 @@
                     [datePickerMode]="true"
                     dateFormat="yyyy-MM-dd"
                     i18n-placeholder="@@placeholder.delete_all_instances_before"
-                    placeholder="Delete all instances before this date"
+                    placeholder="Delete all rejected instances before this date"
             ></range-picker>
         </div>
         <div class="checkbox">
