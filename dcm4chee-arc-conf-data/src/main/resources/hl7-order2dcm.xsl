@@ -111,7 +111,7 @@
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00081040'"/>
       <xsl:with-param name="vr" select="'LO'"/>
-      <xsl:with-param name="val" select="field[13]"/>
+      <xsl:with-param name="val" select="field[13]/component[8]"/>
     </xsl:call-template>
     <!-- Confidentiality Code -->
     <xsl:call-template name="attr">
