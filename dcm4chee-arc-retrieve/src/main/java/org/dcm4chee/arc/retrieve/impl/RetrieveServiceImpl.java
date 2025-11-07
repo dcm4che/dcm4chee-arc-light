@@ -383,6 +383,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                         metadataUpdate.storageID,
                         metadataUpdate.storagePath,
                         seriesAttributes.attrs);
+                adjustLocationsFromDB(ctx);
             } else {
                 new LocationQuery(em, cb, ctx, codeCache).execute(studyInfoMap);
                 if (metadataUpdate == null && ctx.isRetrieveMetadata() || ctx.isConsiderPurgedInstances())
@@ -394,6 +395,60 @@ public class RetrieveServiceImpl implements RetrieveService {
             return !matches.isEmpty();
         } catch (IOException e) {
             throw new DicomServiceException(Status.UnableToCalculateNumberOfMatches, e);
+        }
+    }
+
+    private void adjustLocationsFromDB(RetrieveContext ctx) {
+        Map<String, List<Tuple>> map = em.createNamedQuery(Location.FIND_WITH_SOP_IUID_BY_SERIES_PK_AND_OBJECT_TYPE, Tuple.class)
+                .setParameter(1, ctx.getSeriesMetadataUpdate().seriesPk)
+                .setParameter(2, Location.ObjectType.DICOM_FILE)
+                .getResultStream()
+                .collect(Collectors.groupingBy(tuple -> tuple.get(0, String.class)));
+        for (InstanceLocations match : ctx.getMatches()) {
+            List<Tuple> tuples = map.get(match.getSopInstanceUID());
+            if (tuples != null) {
+                match.getLocations().clear();
+                Attributes attrs = match.getAttributes();
+                attrs.remove(PrivateTag.PrivateCreator, PrivateTag.OtherStorageSequence);
+                attrs.remove(PrivateTag.PrivateCreator, PrivateTag.StorageID);
+                attrs.remove(PrivateTag.PrivateCreator, PrivateTag.StoragePath);
+                attrs.remove(PrivateTag.PrivateCreator, PrivateTag.StorageTransferSyntaxUID);
+                attrs.remove(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize);
+                attrs.remove(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest);
+                attrs.remove(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus);
+                attrs.remove(PrivateTag.PrivateCreator, PrivateTag.StorageObjectMultiReference);
+                Attributes item = null;
+                Sequence seq = null;
+                for (Tuple tuple : tuples) {
+                    Location location = tuple.get(1, Location.class);
+                    match.getLocations().add(location);
+                    if (item == null) {
+                        item = attrs;
+                    } else {
+                        if (seq == null) {
+                            seq = attrs.newSequence(PrivateTag.PrivateCreator, PrivateTag.OtherStorageSequence, 1);
+                        }
+                        seq.add(item = new Attributes(7));
+                    }
+                    item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageID, VR.LO,
+                            location.getStorageID());
+                    item.setString(PrivateTag.PrivateCreator, PrivateTag.StoragePath, VR.LO,
+                            StringUtils.split(location.getStoragePath(), '/'));
+                    item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageTransferSyntaxUID, VR.UI,
+                            location.getTransferSyntaxUID());
+                    item.setInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectSize, VR.UL,
+                            (int) location.getSize());
+                    if (location.getDigestAsHexString() != null)
+                        item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectDigest, VR.LO,
+                                location.getDigestAsHexString());
+                    if (location.getStatus() != LocationStatus.OK)
+                        item.setString(PrivateTag.PrivateCreator, PrivateTag.StorageObjectStatus, VR.CS,
+                                location.getStatus().name());
+                    if (location.getMultiReference() != null)
+                        item.setInt(PrivateTag.PrivateCreator, PrivateTag.StorageObjectMultiReference, VR.IS,
+                                location.getMultiReference());
+                }
+            }
         }
     }
 

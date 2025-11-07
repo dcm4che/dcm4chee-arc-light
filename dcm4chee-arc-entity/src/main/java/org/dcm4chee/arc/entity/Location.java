@@ -69,6 +69,9 @@ import java.util.Date;
                         "where inst.series.study.pk=?1"),
         @NamedQuery(name = Location.FIND_BY_SERIES_PK,
                 query = "select l from Location l where l.instance.series.pk=?1"),
+        @NamedQuery(name = Location.FIND_WITH_SOP_IUID_BY_SERIES_PK_AND_OBJECT_TYPE,
+                query = "select l.instance.sopInstanceUID, l from Location l " +
+                        "where l.instance.series.pk=?1 and l.objectType=?2"),
         @NamedQuery(name = Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS,
                 query = "select l from Location l join fetch l.instance inst " +
                         "where inst.series.study.pk=?1 and l.storageID in ?2"),
@@ -151,6 +154,7 @@ public class Location {
     public static final String FIND_BY_STATUS_CREATED_BEFORE = "Location.FindByStatusCreatedBefore";
     public static final String FIND_BY_STUDY_PK = "Location.FindByStudyPk";
     public static final String FIND_BY_SERIES_PK = "Location.FindBySeriesPk";
+    public static final String FIND_WITH_SOP_IUID_BY_SERIES_PK_AND_OBJECT_TYPE = "Location.FindWithSOPIUIDBySeriesPkAndObjectType";
     public static final String FIND_BY_STUDY_PK_AND_STORAGE_IDS = "Location.FindByStudyPkAndStorageIDs";
     public static final String FIND_BY_SOP_IUID_AND_STORAGE_ID = "Location.FindBySOPIUIDAndStorageID";
     public static final String INSTANCE_PKS_BY_STUDY_PK_AND_STORAGE_IDS = "Location.InstancePksByStudyPkAndStorageIDs";
