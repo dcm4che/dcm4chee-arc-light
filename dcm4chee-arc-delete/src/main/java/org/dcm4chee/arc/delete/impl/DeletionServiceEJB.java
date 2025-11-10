@@ -674,6 +674,7 @@ public class DeletionServiceEJB {
             Date now = new Date();
             series.setMetadataScheduledUpdateTime(now);
             series.setInstancePurgeTime(now);
+            series.setMetadataUpdateLoadObjects(true);
             return false;
         }
         series.setModifiedTime(maxInstanceUpdatedTimeOfSeries(series));
