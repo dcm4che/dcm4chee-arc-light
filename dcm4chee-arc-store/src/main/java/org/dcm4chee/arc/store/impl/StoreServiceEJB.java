@@ -1566,7 +1566,7 @@ public class StoreServiceEJB {
                 session.getCalledAET(),
                 ctx.getAttributes());
 
-        if (retentionPolicy != null && retentionPolicy.isFreezeExpirationDate() && retentionPolicy.isRevokeExpiration()) {
+        if (protectStudy(retentionPolicy)) {
             LOG.info("Protect Study[UID={}] from being expired, triggered by {}. Set ExpirationDate[=null] and " +
                             "ExpirationState[={FROZEN}].",
                     study.getStudyInstanceUID(), retentionPolicy);
@@ -1582,8 +1582,8 @@ public class StoreServiceEJB {
         if (retentionPolicy == null)
             return;
 
-        study.setExpirationExporterID(retentionPolicy.getExporterID());
         LocalDate expirationDate = retentionPolicy.expirationDate(ctx.getAttributes());
+        study.setExpirationExporterID(retentionPolicy.getExporterID());
         if (retentionPolicy.isFreezeExpirationDate()) {
             LOG.info("Freeze Study[UID={}] with ExpirationDate[={}] and ExpirationState[=FROZEN], triggered by {}",
                     study.getStudyInstanceUID(), expirationDate, retentionPolicy);
@@ -1602,12 +1602,16 @@ public class StoreServiceEJB {
         }
     }
 
+    private boolean protectStudy(StudyRetentionPolicy retentionPolicy) {
+        return retentionPolicy != null && retentionPolicy.isFreezeExpirationDate() && retentionPolicy.isRevokeExpiration();
+    }
+
     private void freezeStudyAndItsSeries(Series series, Study study, LocalDate expirationDate, String logPrefix) {
         study.setExpirationState(ExpirationState.FROZEN);
         study.setExpirationDate(expirationDate);
         freezeSeries(series, study, expirationDate, logPrefix);
-        LOG.info(logPrefix + " {} remaining Series of Study[UID={}] with ExpirationDate[{}] and ExpirationState[=FROZEN]",
-                em.createNamedQuery(Series.EXPIRE_SERIES)
+        LOG.info(logPrefix + " {} remaining non-expired Series of Study[UID={}] with ExpirationDate[{}] and ExpirationState[=FROZEN]",
+                em.createNamedQuery(Series.EXPIRE_NON_EXPIRED_SERIES)
                 .setParameter(1, study.getPk())
                 .setParameter(2, ExpirationState.FROZEN)
                 .setParameter(3,
