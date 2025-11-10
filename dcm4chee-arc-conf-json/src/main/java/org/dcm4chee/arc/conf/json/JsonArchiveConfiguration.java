@@ -2584,7 +2584,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     case "dcmDeleterThreshold":
                         st.setDeleterThresholdsFromStrings(reader.stringArray());
                         break;
-                    case "dcmDeleterThresholdMaxUseableSpace":
+                    case "dcmDeleterThresholdMaxUsableSpace":
                         st.setDeleterThresholdsMaxUseableSpaceFromStrings(reader.stringArray());
                         break;
                     case "dcmProperty":

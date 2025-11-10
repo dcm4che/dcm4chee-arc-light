@@ -3154,7 +3154,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getStorageThreshold(), desc.getStorageThreshold(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThreshold",
                 prev.getDeleterThresholdsAsStrings(), desc.getDeleterThresholdsAsStrings());
-        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThresholdMaxUseableSpace",
+        LdapUtils.storeDiff(ldapObj, mods, "dcmDeleterThresholdMaxUsableSpace",
                 prev.getDeleterThresholdsMaxUsableSpaceAsStrings(),
                 desc.getDeleterThresholdsMaxUsableSpaceAsStrings());
         LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty", prev.getProperties(), desc.getProperties());
