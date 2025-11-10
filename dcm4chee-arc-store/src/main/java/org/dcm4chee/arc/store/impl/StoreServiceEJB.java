@@ -1574,7 +1574,7 @@ public class StoreServiceEJB {
             return;
         }
 
-        if (study.getExpirationState() == ExpirationState.FROZEN) {
+        if (retentionPolicy == null && study.getExpirationState() == ExpirationState.FROZEN) {
             freezeSeries(series, study, studyExpirationDate, "Freeze");
             return;
         }
