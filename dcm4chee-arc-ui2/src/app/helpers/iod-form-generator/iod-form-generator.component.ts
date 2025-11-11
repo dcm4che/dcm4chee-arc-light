@@ -8,6 +8,7 @@ import {FormsModule} from '@angular/forms';
 import {SpecificCharPickerComponent} from '../../widgets/specific-char-picker/specific-char-picker.component';
 import {AppModule} from '../../app.module';
 import {PlaceholderchangerDirective} from '../placeholderchanger.directive';
+import {j4care} from '../j4care.service';
 declare var DCM4CHE: any;
 
 @Component({
@@ -21,6 +22,28 @@ declare var DCM4CHE: any;
         PlaceholderchangerDirective,
         CommonModule
     ],
+    styles:[`
+        .active.sqiod:hover{
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            input{
+                color: black;
+            }
+        }
+        .add_multi_button{
+            float: right;
+            width: 50px;
+            height: 28px;
+            background: white;
+            color: #00000087;
+            border: navajowhite;
+            margin: 5px 20px;
+            &:hover{
+                background: #212121;
+                color: white;
+            }
+        }
+    `],
     standalone: true
 })
 export class IodFormGeneratorComponent implements OnInit {
@@ -58,11 +81,7 @@ export class IodFormGeneratorComponent implements OnInit {
             this.hasValue = false;
         }
         console.log('hasValue=', this.hasValue);
-        if (_.isArray(this.object)){
-            this.objectIsArray = true;
-        }else{
-            this.objectIsArray = false;
-        }
+        this.objectIsArray = _.isArray(this.object);
         console.log('objectisarray', this.objectIsArray);
     }
     getKeys(obj){
@@ -75,6 +94,7 @@ export class IodFormGeneratorComponent implements OnInit {
     }
     options = Globalvar.OPTIONS;
     DCM4CHE = DCM4CHE;
+    activeBlock = false;
     onChange(newValue, model) {
         _.set(this, model, newValue);
     }
@@ -99,5 +119,26 @@ export class IodFormGeneratorComponent implements OnInit {
     }
     charChange(event){
         console.log("test in charchange",event);
+    }
+    addPart(object,o, iod, i, io){
+        try{
+            if(object[o] && _.hasIn(object[o], 'Value') && _.isArray(object[o].Value) && object[o].Value[i]){
+                let clonedObject = _.cloneDeep(object[o].Value[i])
+                j4care.traverse(clonedObject, (value, key,obj,savedKeys)=>{
+                    console.log("key",obj[key]);
+                    console.log("key",value[key]);
+                    console.log("test",obj);
+                    console.log("savedKeys",savedKeys);
+                    if(key == "0" && savedKeys === "Value[Value]" && typeof value === "string"){
+                        obj[key] = "";
+                    }
+                    return obj[key];
+                });
+                console.log("clonedObject",clonedObject);
+                object[o].Value.splice(i+1, 0, clonedObject);
+            }
+        }catch (e) {
+            console.warn(e);
+        }
     }
 }

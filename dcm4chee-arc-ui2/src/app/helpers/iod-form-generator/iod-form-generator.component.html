@@ -4,6 +4,9 @@
     <div (click)="removeAttr(o)" *ngIf="object[o].vr === 'SQ' && !prefix " class="iod_remove glyphicon glyphicon-remove"></div>
     <div class="form_input" *ngIf="object[o].vr != 'SQ'">
         <div  *ngFor="let v of object[o].Value; let i=index; trackBy:trackByFn">
+<!--            @if (iod && iod.multi && !(object[o].vr === 'SQ' && !prefix)) {
+                <div (click)="removeAttr(o)" class="iod_remove glyphicon glyphicon-remove"></div>
+            }-->
             <div *ngIf="object[o].vr != 'PN'" class="ariod">
                 <input *ngIf="!(object[o].enum && object[o].enum.length > 0) && object[o].vr != 'DA' && object[o].vr != 'DT' && o != '00100040' && o != '00080005' && o != '00102203' && o != '00741202'"
                        class="{{o}}"
@@ -91,9 +94,10 @@
         </div>
     </div>
     <div *ngIf="object[o].vr === 'SQ'">
-        <div *ngFor="let io of object[o].Value; let i=index; trackBy:trackByFn" class="sqiod">
+        <div *ngFor="let io of object[o].Value; let i=index; trackBy:trackByFn" class="sqiod" [ngClass]="{'active':activeBlock}">
             <div (click)="removeAttr(o,i)" *ngIf="(!prefix || prefix==='') && object[o].Value.length > 1" class="iod_remove glyphicon glyphicon-remove"></div>
-            <iod-form-generator  [object]="object[o].Value[i]" [mode]="mode" [prefix]="'>'+ (prefix || '')"></iod-form-generator>
+            <iod-form-generator  [object]="object[o].Value[i]" [mode]="mode" [prefix]="'>'+ (prefix || '')" [iod]="iod[o]"></iod-form-generator>
+            <button class="add_multi_button" (mouseover)="activeBlock = true" (mouseleave)="activeBlock = false" (click)="addPart(object,o, iod, i,io)"><span class="glyphicon glyphicon-plus"></span></button>
         </div>
     </div>
 </div>

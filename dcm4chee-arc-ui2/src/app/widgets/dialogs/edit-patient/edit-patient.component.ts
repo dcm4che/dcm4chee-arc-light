@@ -295,40 +295,32 @@ export class EditPatientComponent {
         }
     }
     addAttribute(attrcode, patient){
-        if (patient.attrs[attrcode]){
-            if (this._iod[attrcode].multi){
-                        // this.patien.attrs[attrcode]  = this.iod.data[attrcode];
-                console.log('multi', this._iod[attrcode]);
-                if (patient.attrs[attrcode].vr === 'PN'){
-                    patient.attrs[attrcode]['Value'].push({Alphabetic: ''});
-                }else{
-                    if (patient.attrs[attrcode].vr === 'SQ'){
-                        patient.attrs[attrcode]['Value'].push(_.cloneDeep(this._iod[attrcode].Value[0]));
-                    }else{
-                        patient.attrs[attrcode]['Value'].push('');
+        try {
+            if (j4care.hasSet(patient,attrcode)) {
+                if (this._iod[attrcode].multi) {
+                    if (patient[attrcode].vr === 'PN') {
+                        patient[attrcode]['Value'].push({Alphabetic: ''});
+                    } else {
+                        if (patient[attrcode].vr === 'SQ') {
+                            patient[attrcode]['Value'].push(_.cloneDeep(this._iod[attrcode].Value[0]));
+                        } else {
+                            patient[attrcode]['Value'].push('');
+                        }
                     }
+                    this.addPatientAttribut = '';
+                    this.opendropdown = false;
+                } else {
+                    this.mainservice.showWarning($localize`:@@attribute_already_exists:Attribute already exists!`);
                 }
-                this.addPatientAttribut           = '';
-                this.opendropdown                 = false;
-            }else{
-                this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
-                console.log('message attribute already exists');
+            } else {
+                patient[attrcode] = _.cloneDeep(this._iod[attrcode]);
+                j4care.removeKeyFromObject(patient[attrcode], "multi");
+                j4care.removeKeyFromObject(patient[attrcode], "required");
             }
-        }else{
-            // console.log("in else", this.dialogRef.componentInstance.patient);
-            console.log('this.iodattrcod', this._iod[attrcode]);
-             patient.attrs[attrcode]  = _.cloneDeep(this._iod[attrcode]);
-             j4care.removeKeyFromObject(patient.attrs[attrcode],"multi");
-             j4care.removeKeyFromObject(patient.attrs[attrcode],"required");
-
-  /*           delete patient.attrs[attrcode]["multi"];
-             delete patient.attrs[attrcode]["required"];*/
-            // patient.attrs[attrcode].Value[0] = "";
-            console.log('patient=', patient);
+            this.opendropdown = false;
+        }catch (e) {
+            console.log("e", e);
         }
-        // this.dialogRef.componentInstance.patient = patient;
-        this.opendropdown = false;
-        console.log('patient after add ', patient);
     };
     removeAttr(attrcode){
         switch (arguments.length) {
