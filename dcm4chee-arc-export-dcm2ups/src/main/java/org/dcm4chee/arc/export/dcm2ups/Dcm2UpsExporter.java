@@ -54,10 +54,7 @@ import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.Base64;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
-import org.dcm4chee.arc.conf.ExporterDescriptor;
-import org.dcm4chee.arc.conf.InputReadinessState;
-import org.dcm4chee.arc.conf.UPSPriority;
-import org.dcm4chee.arc.conf.UPSState;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
@@ -173,7 +170,7 @@ public class Dcm2UpsExporter extends AbstractExporter {
         try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, destWebApp).build()) {
             WebTarget target = client.target(url);
             Invocation.Builder request = target.request();
-            String token = authorization(destWebApp);
+            String token = accessTokenRequestor.authorizationHeader(destWebApp);
             if (token != null)
                 request.header("Authorization", token);
 
@@ -326,24 +323,6 @@ public class Dcm2UpsExporter extends AbstractExporter {
 
         return new Outcome(Task.Status.WARNING,
                 "UPS creation unsuccessful : " + rsp.getHeaderString("Warning"));
-    }
-
-    private String authorization(WebApplication destWebApp) throws Exception {
-        Map<String, String> properties = destWebApp.getProperties();
-        return destWebApp.getKeycloakClientID() != null
-                ? "Bearer " + accessTokenRequestor.getAccessToken2(destWebApp).getToken()
-                : properties.containsKey("bearer-token")
-                ? "Bearer " + properties.get("bearer-token")
-                : properties.containsKey("basic-auth")
-                ? "Basic " + encodeBase64(properties.get("basic-auth").getBytes(StandardCharsets.UTF_8))
-                : null;
-    }
-
-    private String encodeBase64(byte[] b) {
-        int len = (b.length * 4 / 3 + 3) & ~3;
-        char[] ch = new char[len];
-        Base64.encode(b, 0, b.length, ch, 0);
-        return new String(ch);
     }
 
 }

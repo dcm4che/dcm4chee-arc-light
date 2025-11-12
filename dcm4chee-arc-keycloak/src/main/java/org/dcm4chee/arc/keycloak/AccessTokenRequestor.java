@@ -54,6 +54,7 @@ import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.KeycloakClient;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.util.Base64;
 import org.dcm4chee.arc.event.ArchiveServiceEvent;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
@@ -72,6 +73,7 @@ import org.keycloak.util.JWKSUtils;
 import org.keycloak.util.JsonSerialization;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.PublicKey;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -238,6 +240,25 @@ public class AccessTokenRequestor {
         } finally {
             client.close();
         }
+    }
+
+    public String authorizationHeader(WebApplication destWebApp) throws Exception {
+        Map<String, String> properties = destWebApp.getProperties();
+        return destWebApp.getKeycloakClientID() != null
+                ? "Bearer " + getAccessToken2(destWebApp).getToken()
+                : properties.containsKey("bearer-token")
+                ? "Bearer " + properties.get("bearer-token")
+                : properties.containsKey("basic-auth")
+                ? "Basic " + encodeBase64(properties.get("basic-auth").getBytes(StandardCharsets.UTF_8))
+                : null;
+    }
+
+
+    private static String encodeBase64(byte[] b) {
+        int len = (b.length * 4 / 3 + 3) & ~3;
+        char[] ch = new char[len];
+        Base64.encode(b, 0, b.length, ch, 0);
+        return new String(ch);
     }
 
     private static class CachedKeycloak {

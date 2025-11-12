@@ -193,7 +193,7 @@ public class XDSiExporter extends AbstractExporter {
     @Override
     public Outcome export(ExportContext ctx) throws Exception {
         ApplicationEntity ae = device.getApplicationEntity(ctx.getAETitle(), true);
-        Collection<Attributes> seriesAttrs = new ArrayList<>();
+        Map<String, Attributes> seriesAttrs = new HashMap<>();
         this.manifest = queryService.createXDSiManifest(ae, ctx.getStudyInstanceUID(),
                 descriptor.getRetrieveAETitles(), descriptor.getRetrieveLocationUID(),
                 manifestTitle, manifestSeriesNumber, manifestInstanceNumber, seriesAttrs);
@@ -206,7 +206,7 @@ public class XDSiExporter extends AbstractExporter {
         initSourcePatientInfo();
         referenceIdList.add(manifest.getString(Tag.StudyInstanceUID) + "^^^^" + CXI_TYPE_STUDY_INSTANCE_UID);
         addAccessionNumber(manifest);
-        processSeriesAttrs(seriesAttrs);
+        processSeriesAttrs(seriesAttrs.values());
         ctx.setXDSiManifest(manifest);
         ctx.setSubmissionSetUID(submissionSetUID);
         try {

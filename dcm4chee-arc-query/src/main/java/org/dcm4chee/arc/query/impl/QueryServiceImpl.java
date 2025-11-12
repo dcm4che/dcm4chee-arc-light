@@ -438,11 +438,19 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public Attributes getStudyAttributesWithSOPInstanceRefs(
-            String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs) {
+            String studyUID, ApplicationEntity ae, Map<String, Attributes> seriesAttrs) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
         return ejb.getStudyAttributesWithSOPInstanceRefs(
                 QueryServiceEJB.SOPInstanceRefsType.KOS_XDSI, studyUID, null, null, qrView, seriesAttrs,
                 null, null);
+    }
+
+    @Override
+    public Attributes getImagingStudyInfo(String studyUID, ApplicationEntity ae, Map<String, Attributes> seriesAttrs) {
+        QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
+        return ejb.getStudyAttributesWithSOPInstanceRefs(
+                QueryServiceEJB.SOPInstanceRefsType.FHIR_IMAGING_STUDY, studyUID, null, null, qrView,
+                null, null, null);
     }
 
     @Override
@@ -461,7 +469,7 @@ class QueryServiceImpl implements QueryService {
     public Attributes createXDSiManifest(ApplicationEntity ae, String studyUID,
                                          String[] retrieveAETs, String retrieveLocationUID,
                                          Code conceptNameCode, int seriesNumber, int instanceNumber,
-                                         Collection<Attributes> seriesAttrs) {
+                                         Map<String, Attributes> seriesAttrs) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
         Attributes attrs = ejb.getStudyAttributesWithSOPInstanceRefs(
                 QueryServiceEJB.SOPInstanceRefsType.KOS_XDSI, studyUID, null, null, qrView, seriesAttrs,

@@ -55,10 +55,7 @@ import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.util.QueryParam;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -109,14 +106,16 @@ public interface QueryService {
             QueryRetrieveView qrView);
 
     Attributes getStudyAttributesWithSOPInstanceRefs(
-            String studyUID, ApplicationEntity ae, Collection<Attributes> seriesAttrs);
+            String studyUID, ApplicationEntity ae, Map<String, Attributes> seriesAttrs);
+
+    Attributes getImagingStudyInfo(String studyUID, ApplicationEntity ae, Map<String, Attributes> seriesAttrs);
 
     Attributes createIAN(ApplicationEntity ae, String studyUID, String[] seriesUID, String sopUID,
-            String[] retrieveAETs, String retrieveLocationUID, Availability availability);
+                         String[] retrieveAETs, String retrieveLocationUID, Availability availability);
 
     Attributes createXDSiManifest(ApplicationEntity ae, String studyUID,
                                   String[] retrieveAETs, String retrieveLocationUID,
-                                  Code conceptNameCode, int seriesNumber, int instanceNumber, Collection<Attributes> seriesAttrs);
+                                  Code conceptNameCode, int seriesNumber, int instanceNumber, Map<String, Attributes> seriesAttrs);
 
     Attributes createUPSInfo(ApplicationEntity ae, String studyIUID, String seriesIUID, String sopIUID,
                              ExporterDescriptor exporterDescriptor);

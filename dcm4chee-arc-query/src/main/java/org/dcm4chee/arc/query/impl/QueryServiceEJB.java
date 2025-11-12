@@ -357,11 +357,11 @@ public class QueryServiceEJB {
         return attrs;
     }
 
-    public enum SOPInstanceRefsType { IAN, KOS_IOCM, KOS_XDSI, STGCMT, UPS }
+    public enum SOPInstanceRefsType { IAN, KOS_IOCM, KOS_XDSI, STGCMT, UPS, FHIR_IMAGING_STUDY }
 
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             SOPInstanceRefsType type, String studyIUID, String seriesIUID, String objectUID, QueryRetrieveView qrView,
-            Collection<Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID) {
+            Map<String, Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID) {
         Attributes attrs = getStudyAttributes(studyIUID);
         if (attrs == null)
             return null;
@@ -375,7 +375,7 @@ public class QueryServiceEJB {
 
     public Attributes getSOPInstanceRefs(
             SOPInstanceRefsType type, String studyIUID, String objectUID, QueryRetrieveView qrView,
-            Collection<Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID,
+            Map<String, Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID,
             Availability availability, String... seriesUID) {
         Attributes refStudy = new Attributes(2);
         Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
@@ -386,7 +386,7 @@ public class QueryServiceEJB {
 
     public Attributes getSOPInstanceRefs(Attributes refStudy,
             SOPInstanceRefsType type, String studyIUID, String objectUID, QueryRetrieveView qrView,
-            Collection<Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID,
+            Map<String, Attributes> seriesAttrs, String[] retrieveAETs, String retrieveLocationUID,
             Availability availability, String... seriesUID) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
@@ -429,11 +429,12 @@ public class QueryServiceEJB {
                         refSeries.setString(Tag.RetrieveLocationUID, VR.UI, retrieveLocationUID);
                 }
                 refSOPSeq = refSeries.newSequence(Tag.ReferencedSOPSequence, 10);
-                refSeries.setString(Tag.SeriesInstanceUID, VR.UI, tuple.get(series.get(Series_.seriesInstanceUID)));
+                String seriesIUID = tuple.get(series.get(Series_.seriesInstanceUID));
+                refSeries.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
                 seriesMap.put(seriesPk, refSOPSeq);
                 refSeriesSeq.add(refSeries);
                 if (seriesAttrs != null)
-                    seriesAttrs.add(getSeriesAttributes(seriesPk));
+                    seriesAttrs.put(seriesIUID, getSeriesAttributes(seriesPk));
             }
             Attributes refSOP = new Attributes(4);
             if (type == SOPInstanceRefsType.IAN || type == SOPInstanceRefsType.UPS) {

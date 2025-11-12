@@ -501,6 +501,7 @@
     <module>dcm4chee-arc-export-dcm2hl7</module>
     <module>dcm4chee-arc-export-dcm2ups</module>
     <module>dcm4chee-arc-export-dicom</module>
+    <module>dcm4chee-arc-export-fhir</module>
     <module>dcm4chee-arc-export-impax-report</module>
     <module>dcm4chee-arc-export-jivex-report</module>
     <module>dcm4chee-arc-export-mgt</module>
@@ -511,7 +512,8 @@
     <module>dcm4chee-arc-export-stow</module>
     <module>dcm4chee-arc-export-wado</module>
     <module>dcm4chee-arc-export-xdsi</module>
-    <module>dcm4chee-arc-fhir</module>
+    <module>dcm4chee-arc-fhir-client</module>
+    <module>dcm4chee-arc-fhir-client-rs</module>
     <module>dcm4chee-arc-hl7</module>
     <module>dcm4chee-arc-hl7-psu</module>
     <module>dcm4chee-arc-hl7-rs</module>
