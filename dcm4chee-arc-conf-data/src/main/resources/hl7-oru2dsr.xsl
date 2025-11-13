@@ -287,7 +287,7 @@
     <xsl:param name="placerNo"/>
     <xsl:param name="fillerNo"/>
     <xsl:param name="sqTag"/>
-    <!--Referenced Request Sequence-->
+    <!--Request Attributes Sequence / Referenced Request Sequence-->
     <DicomAttribute tag="{$sqTag}" vr="SQ">
       <Item number="1">
         <!-- Study Instance UID -->
