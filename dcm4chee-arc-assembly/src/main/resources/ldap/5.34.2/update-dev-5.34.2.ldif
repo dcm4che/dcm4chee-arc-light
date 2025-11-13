@@ -51,3 +51,39 @@ dicomTransferSyntax: 1.2.840.10008.1.2.4.112
 objectClass: dcmImageWriter
 dcmImageWriteParam: compressionType=LOSSY
 dcmImageWriteParam: compressionQuality=0.85
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: hl7PSUTemplateParam
+hl7PSUTemplateParam: AccessionNumber={StudyInstanceUID,hash}
+-
+add: hl7PSUTemplateParam
+hl7PSUTemplateParam: AccessionNumber={StudyInstanceUID}
+-
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: hl7PSUTemplateParam
+hl7PSUTemplateParam: RequestedProcedureID={StudyInstanceUID,hash}
+-
+add: hl7PSUTemplateParam
+hl7PSUTemplateParam: RequestedProcedureID={StudyInstanceUID}
+-
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: hl7PSUTemplateParam
+hl7PSUTemplateParam: FillerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
+-
+add: hl7PSUTemplateParam
+hl7PSUTemplateParam: FillerOrderNumberImagingServiceRequest={StudyInstanceUID}
+-
+
+dn: dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: modify
+delete: hl7PSUTemplateParam
+hl7PSUTemplateParam: PlacerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}
+-
+add: hl7PSUTemplateParam
+hl7PSUTemplateParam: PlacerOrderNumberImagingServiceRequest={StudyInstanceUID}
+-
