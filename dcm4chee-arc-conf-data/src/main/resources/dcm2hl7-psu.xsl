@@ -42,14 +42,14 @@
             </xsl:if>
 
             <xsl:variable name="placerNoSer" select="DicomAttribute[@tag='00400275']/Item/DicomAttribute[@tag='00402016']/Value" />
-            <xsl:variable name="placerNoSqSer" select="DicomAttribute[@tag='00400275']/Item/DicomAttribute[@tag='00402026']/Value" />
+            <xsl:variable name="placerNoSqSer" select="DicomAttribute[@tag='00400275']/Item/DicomAttribute[@tag='00402026']/Item" />
             <xsl:variable name="placerNoInst" select="DicomAttribute[@tag='0040A370']/Item/DicomAttribute[@tag='00402016']/Value" />
-            <xsl:variable name="placerNoSqInst" select="DicomAttribute[@tag='0040A370']/Item/DicomAttribute[@tag='00402026']/Value" />
+            <xsl:variable name="placerNoSqInst" select="DicomAttribute[@tag='0040A370']/Item/DicomAttribute[@tag='00402026']/Item" />
 
             <xsl:variable name="fillerNoSer" select="DicomAttribute[@tag='00400275']/Item/DicomAttribute[@tag='00402017']/Value" />
-            <xsl:variable name="fillerNoSqSer" select="DicomAttribute[@tag='00400275']/Item/DicomAttribute[@tag='00402027']/Value" />
+            <xsl:variable name="fillerNoSqSer" select="DicomAttribute[@tag='00400275']/Item/DicomAttribute[@tag='00402027']/Item" />
             <xsl:variable name="fillerNoInst" select="DicomAttribute[@tag='0040A370']/Item/DicomAttribute[@tag='00402017']/Value" />
-            <xsl:variable name="fillerNoSqInst" select="DicomAttribute[@tag='0040A370']/Item/DicomAttribute[@tag='00402027']/Value" />
+            <xsl:variable name="fillerNoSqInst" select="DicomAttribute[@tag='0040A370']/Item/DicomAttribute[@tag='00402027']/Item" />
 
             <xsl:call-template name="ORC">
                 <xsl:with-param name="placerNoSer" select="$placerNoSer"/>
