@@ -41,6 +41,11 @@
                 <xsl:call-template name="PV1" />
             </xsl:if>
 
+            <xsl:variable name="placerNoMWL" select="DicomAttribute[@tag='00402016']/Value" />
+            <xsl:variable name="placerNoSqMWL" select="DicomAttribute[@tag='00402026']/Item" />
+            <xsl:variable name="fillerNoMWL" select="DicomAttribute[@tag='00402017']/Value" />
+            <xsl:variable name="fillerNoSqMWL" select="DicomAttribute[@tag='00402027']/Item" />
+
             <xsl:variable name="placerNoSer" select="DicomAttribute[@tag='00400275']/Item/DicomAttribute[@tag='00402016']/Value" />
             <xsl:variable name="placerNoSqSer" select="DicomAttribute[@tag='00400275']/Item/DicomAttribute[@tag='00402026']/Item" />
             <xsl:variable name="placerNoInst" select="DicomAttribute[@tag='0040A370']/Item/DicomAttribute[@tag='00402016']/Value" />
@@ -52,6 +57,10 @@
             <xsl:variable name="fillerNoSqInst" select="DicomAttribute[@tag='0040A370']/Item/DicomAttribute[@tag='00402027']/Item" />
 
             <xsl:call-template name="ORC">
+                <xsl:with-param name="placerNoMWL" select="$placerNoMWL"/>
+                <xsl:with-param name="placerNoSqMWL" select="$placerNoSqMWL"/>
+                <xsl:with-param name="fillerNoMWL" select="$fillerNoMWL"/>
+                <xsl:with-param name="fillerNoSqMWL" select="$fillerNoSqMWL"/>
                 <xsl:with-param name="placerNoSer" select="$placerNoSer"/>
                 <xsl:with-param name="placerNoSqSer" select="$placerNoSqSer"/>
                 <xsl:with-param name="placerNoInst" select="$placerNoInst"/>
@@ -62,6 +71,10 @@
                 <xsl:with-param name="fillerNoSqInst" select="$fillerNoSqInst"/>
             </xsl:call-template>
             <xsl:call-template name="OBR">
+                <xsl:with-param name="placerNoMWL" select="$placerNoMWL"/>
+                <xsl:with-param name="placerNoSqMWL" select="$placerNoSqMWL"/>
+                <xsl:with-param name="fillerNoMWL" select="$fillerNoMWL"/>
+                <xsl:with-param name="fillerNoSqMWL" select="$fillerNoSqMWL"/>
                 <xsl:with-param name="placerNoSer" select="$placerNoSer"/>
                 <xsl:with-param name="placerNoSqSer" select="$placerNoSqSer"/>
                 <xsl:with-param name="placerNoInst" select="$placerNoInst"/>
@@ -171,6 +184,10 @@
     </xsl:template>
 
     <xsl:template name="ORC">
+        <xsl:param name="placerNoMWL"/>
+        <xsl:param name="placerNoSqMWL"/>
+        <xsl:param name="fillerNoMWL"/>
+        <xsl:param name="fillerNoSqMWL"/>
         <xsl:param name="placerNoSer"/>
         <xsl:param name="placerNoSqSer"/>
         <xsl:param name="placerNoInst"/>
@@ -185,6 +202,8 @@
             </field>
             <field>
                 <xsl:call-template name="placer">
+                    <xsl:with-param name="placerNoMWL" select="$placerNoMWL"/>
+                    <xsl:with-param name="placerNoSqMWL" select="$placerNoSqMWL"/>
                     <xsl:with-param name="placerNoSer" select="$placerNoSer"/>
                     <xsl:with-param name="placerNoSqSer" select="$placerNoSqSer"/>
                     <xsl:with-param name="placerNoInst" select="$placerNoInst"/>
@@ -193,6 +212,8 @@
             </field>
             <field>
                 <xsl:call-template name="filler">
+                    <xsl:with-param name="fillerNoMWL" select="$fillerNoMWL"/>
+                    <xsl:with-param name="fillerNoSqMWL" select="$fillerNoSqMWL"/>
                     <xsl:with-param name="fillerNoSer" select="$fillerNoSer"/>
                     <xsl:with-param name="fillerNoSqSer" select="$fillerNoSqSer"/>
                     <xsl:with-param name="fillerNoInst" select="$fillerNoInst"/>
@@ -207,6 +228,10 @@
     </xsl:template>
 
     <xsl:template name="OBR">
+        <xsl:param name="placerNoMWL"/>
+        <xsl:param name="placerNoSqMWL"/>
+        <xsl:param name="fillerNoMWL"/>
+        <xsl:param name="fillerNoSqMWL"/>
         <xsl:param name="placerNoSer"/>
         <xsl:param name="placerNoSqSer"/>
         <xsl:param name="placerNoInst"/>
@@ -219,6 +244,8 @@
             <field/>
             <field>
                 <xsl:call-template name="placer">
+                    <xsl:with-param name="placerNoMWL" select="$placerNoMWL"/>
+                    <xsl:with-param name="placerNoSqMWL" select="$placerNoSqMWL"/>
                     <xsl:with-param name="placerNoSer" select="$placerNoSer"/>
                     <xsl:with-param name="placerNoSqSer" select="$placerNoSqSer"/>
                     <xsl:with-param name="placerNoInst" select="$placerNoInst"/>
@@ -227,6 +254,8 @@
             </field>
             <field>
                 <xsl:call-template name="filler">
+                    <xsl:with-param name="fillerNoMWL" select="$fillerNoMWL"/>
+                    <xsl:with-param name="fillerNoSqMWL" select="$fillerNoSqMWL"/>
                     <xsl:with-param name="fillerNoSer" select="$fillerNoSer"/>
                     <xsl:with-param name="fillerNoSqSer" select="$fillerNoSqSer"/>
                     <xsl:with-param name="fillerNoInst" select="$fillerNoInst"/>
@@ -322,11 +351,19 @@
     </xsl:template>
 
     <xsl:template name="placer">
+        <xsl:param name="placerNoMWL"/>
+        <xsl:param name="placerNoSqMWL"/>
         <xsl:param name="placerNoSer"/>
         <xsl:param name="placerNoSqSer"/>
         <xsl:param name="placerNoInst"/>
         <xsl:param name="placerNoSqInst"/>
         <xsl:choose>
+            <xsl:when test="string-length($placerNoMWL) > 0">
+                <xsl:value-of select="$placerNoMWL"/>
+                <xsl:call-template name="populateIssuer">
+                    <xsl:with-param name="issuer" select="$placerNoSqMWL"/>
+                </xsl:call-template>
+            </xsl:when>
             <xsl:when test="string-length($placerNoSer) > 0">
                 <xsl:value-of select="$placerNoSer"/>
                 <xsl:call-template name="populateIssuer">
@@ -346,11 +383,19 @@
     </xsl:template>
 
     <xsl:template name="filler">
+        <xsl:param name="fillerNoMWL"/>
+        <xsl:param name="fillerNoSqMWL"/>
         <xsl:param name="fillerNoSer"/>
         <xsl:param name="fillerNoSqSer"/>
         <xsl:param name="fillerNoInst"/>
         <xsl:param name="fillerNoSqInst"/>
         <xsl:choose>
+            <xsl:when test="string-length($fillerNoMWL) > 0">
+                <xsl:value-of select="$fillerNoMWL"/>
+                <xsl:call-template name="populateIssuer">
+                    <xsl:with-param name="issuer" select="$fillerNoSqMWL"/>
+                </xsl:call-template>
+            </xsl:when>
             <xsl:when test="string-length($fillerNoSer) > 0">
                 <xsl:value-of select="$fillerNoSer"/>
                 <xsl:call-template name="populateIssuer">
