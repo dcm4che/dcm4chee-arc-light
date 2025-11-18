@@ -472,6 +472,17 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getQStarVerificationMockAccessState(), null);
         writer.writeNotEmpty("dcmTrustedIssuerOfPatientID", arcDev.getTrustedIssuerOfPatientID());
         writer.writeNotEmpty("dcmTrustedPatientIDPattern", arcDev.getTrustedPatientIDPattern());
+        writer.writeNotNullOrDef("fhirPreferredAssigningAuthorityOfPatientID",
+                arcDev.getFhirPreferredAssigningAuthorityOfPatientID(), null);
+        writer.writeNotNullOrDef("fhirDefaultSystemOfPatientID",
+                arcDev.getFhirDefaultSystemOfPatientID(), null);
+        writer.writeNotNullOrDef("fhirDefaultSystemOfAccessionNumber",
+                arcDev.getFhirDefaultSystemOfAccessionNumber(), null);
+        writer.writeNotEmpty("fhirSystemOfPatientID", arcDev.getFhirSystemOfPatientID());
+        writer.writeNotEmpty("fhirSystemOfAccessionNumber", arcDev.getFhirSystemOfAccessionNumber());
+        writer.writeNotEmpty("fhirSystemByIssuerOfPatientID", arcDev.getFhirSystemByIssuerOfPatientID());
+        writer.writeNotEmpty("fhirSystemByLocalNamespaceEntityIDOfAccessionNumber",
+                arcDev.getFhirSystemByLocalNamespaceEntityIDOfAccessionNumber());
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -2316,6 +2327,29 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmTrustedPatientIDPattern":
                     arcDev.setTrustedPatientIDPattern(reader.stringArray());
+                    break;
+                case "fhirPreferredAssigningAuthorityOfPatientID":
+                    arcDev.setFhirPreferredAssigningAuthorityOfPatientID(toIssuer(reader.stringValue()));
+                    break;
+                case "fhirDefaultSystemOfPatientID":
+                    arcDev.setFhirDefaultSystemOfPatientID(reader.stringValue());
+                    break;
+                case "fhirDefaultSystemOfAccessionNumber":
+                    arcDev.setFhirDefaultSystemOfAccessionNumber(reader.stringValue());
+                    break;
+                case "fhirSystemOfPatientID":
+                    arcDev.setFhirSystemOfPatientID(
+                            reader.enumArray(ArchiveDeviceExtension.FHIRSystemFromDICOMIssuer.class));
+                    break;
+                case "fhirSystemOfAccessionNumber":
+                    arcDev.setFhirSystemOfAccessionNumber(
+                            reader.enumArray(ArchiveDeviceExtension.FHIRSystemFromDICOMIssuer.class));
+                    break;
+                case "fhirSystemByIssuerOfPatientID":
+                    arcDev.setFhirSystemByIssuerOfPatientID(reader.stringArray());
+                    break;
+                case "fhirSystemByLocalNamespaceEntityIDOfAccessionNumber":
+                    arcDev.setFhirSystemByLocalNamespaceEntityIDOfAccessionNumber(reader.stringArray());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

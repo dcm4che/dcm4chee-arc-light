@@ -2462,6 +2462,39 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.505 NAME 'dcmCheckIfAlreadyExistsOnDest
   EQUALITY booleanMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.7
   SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.506 NAME 'fhirPreferredAssigningAuthorityOfPatientID'
+  DESC 'Assigning Authority of preferred Patient ID in logical reference of Patients with multiple Patient IDs in outgoing FHIR messages. Format: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}].'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.507 NAME 'fhirDefaultSystemOfPatientID'
+  DESC 'Namespace (system) of the Patient ID in logical references of Patients in outgoing FHIR messages, if no value is derived from the Issuer of Patient ID or the Universal Entity ID according configured fhirSystemOfPatientID and fhirSystemByIssuerOfPatientID.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.508 NAME 'fhirDefaultSystemOfAccessionNumber'
+  DESC 'Namespace (system) of the Accession Number in logical references of Service Requests in outgoing FHIR messages, if no value is derived from the Local Namespace Entity ID or the Universal Entity ID according configured fhirSystemOfAccessionNumber and fhirSystemByLocalNamespaceEntityIDOfAccessionNumber.'
+  EQUALITY caseExactMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.509 NAME 'fhirSystemOfPatientID'
+  DESC 'Specifies if the Issuer of Patient ID (Local Namespace Entity ID) or the Universal Entity ID shall be used as namespace (system) of the Patient ID in logical references of Patients in outgoing FHIR messages. If both are specified, the Issuer of Patient ID will only be used if there is no the Universal Entity ID. Enumerated values: LocalNamespaceEntityID, UniversalEntityID.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.510 NAME 'fhirSystemOfAccessionNumber'
+  DESC 'Specifies if the Issuer (Local Namespace Entity ID) or the Universal Entity ID shall be used as namespace (system) of the Accession Number in logical references of Service Requests in outgoing FHIR messages. If both are specified, the Local Namespace Entity ID will only be used if there is no Universal Entity ID. Enumerated values: LocalNamespaceEntityID, UniversalEntityID.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.511 NAME 'fhirSystemByIssuerOfPatientID'
+  DESC 'Specifies mapping of Issuer of Patient ID to namespace (system) of the Patient ID in logical references of Patients in outgoing FHIR messages. Format: {Issuer of Patient ID}={system}. Required if fhirSystemOfPatientID includes LocalNamespaceEntityID.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.512 NAME 'fhirSystemByLocalNamespaceEntityIDOfAccessionNumber'
+  DESC 'Specifies Mapping of Local Namespace Entity ID to namespace (system) of the Accession Number in logical references of Service Requests in outgoing FHIR messages. Format: {Local Namespace Entity ID}={system}. Required if fhirSystemOfAccessionNumber includes LocalNamespaceEntityID.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2774,7 +2807,14 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     hl7ReferredMergedPatientPolicy $
     hl7DicomCharacterSet $
     hl7VeterinaryUsePatientName $
-    hl7PatientArrivalMessageType ) )
+    hl7PatientArrivalMessageType $
+    fhirPreferredAssigningAuthorityOfPatientID $
+    fhirDefaultSystemOfPatientID $
+    fhirDefaultSystemOfAccessionNumber $
+    fhirSystemOfPatientID $
+    fhirSystemOfAccessionNumber $
+    fhirSystemByIssuerOfPatientID $
+    fhirSystemByLocalNamespaceEntityIDOfAccessionNumber ) )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'
   SUP top AUXILIARY

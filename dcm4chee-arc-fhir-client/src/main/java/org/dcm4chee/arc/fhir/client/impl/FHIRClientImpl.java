@@ -40,22 +40,20 @@ package org.dcm4chee.arc.fhir.client.impl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
-import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
-import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.fhir.client.FHIRClient;
 import org.dcm4chee.arc.fhir.client.ImagingStudy;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.query.QueryService;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,13 +65,17 @@ import java.util.Map;
 public class FHIRClientImpl implements FHIRClient {
 
     @Inject
+    private Device device;
+
+    @Inject
     private QueryService queryService;
 
     @Inject
     private AccessTokenRequestor accessTokenRequestor;
 
     @Override
-    public Response create(ImagingStudy imagingStudy, ApplicationEntity ae, String studyUID, WebApplication webApp) {
+    public Response create(ApplicationEntity ae, String studyUID, WebApplication webApp) {
+        ImagingStudy imagingStudy = imagingStudy(webApp);
         String url = webApp.getServiceURL().append("/ImagingStudy").toString();
         Map<String, Attributes> seriesAttrs = new HashMap<>();
         Attributes info = queryService.getImagingStudyInfo(studyUID, ae, seriesAttrs);
@@ -84,10 +86,22 @@ public class FHIRClientImpl implements FHIRClient {
             if (token != null)
                 request.header("Authorization", token);
 
-            return request.post(imagingStudy.create(info, seriesAttrs));
+            Response response = request.post(imagingStudy.create(device, info, seriesAttrs));
+            if (response.getEntity() instanceof InputStream is) {
+                // to prevent java.net.SocketException: Socket closed caused by ResteasyClient.close()
+                response = Response.fromResponse(response)
+                        .entity(is.readAllBytes())
+                        .build();
+            }
+            return response;
         } catch (Exception e) {
-            throw new WebApplicationException(e);
+            return Response.status(Response.Status.BAD_GATEWAY).entity(e).build();
         }
+    }
+
+    private static ImagingStudy imagingStudy(WebApplication webApp) {
+        String imagingStudy = webApp.getProperty("ImagingStudy", null);
+        return imagingStudy != null ? ImagingStudy.valueOf(imagingStudy) : ImagingStudy.FHIR_R5_JSON;
     }
 
 }

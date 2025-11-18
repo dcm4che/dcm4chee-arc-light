@@ -403,6 +403,7 @@ public class QueryServiceEJB {
                         series.get(Series_.seriesInstanceUID),
                         iuidPath,
                         cuidPath,
+                        instance.get(Instance_.instanceNumber),
                         instance.get(Instance_.retrieveAETs),
                         instance.get(Instance_.availability)))
                 .getResultList();
@@ -444,6 +445,9 @@ public class QueryServiceEJB {
                         StringUtils.maskNull(availability, tuple.get(instance.get(Instance_.availability))).toString());
                 if (retrieveLocationUID != null)
                     refSOP.setString(Tag.RetrieveLocationUID, VR.UI, retrieveLocationUID);
+            }
+            if (type == SOPInstanceRefsType.FHIR_IMAGING_STUDY) {
+                refSOP.setInt(Tag.InstanceNumber, VR.IS, tuple.get(instance.get(Instance_.instanceNumber)));
             }
             setSOPRef(refSOP, tuple, cuidPath, iuidPath);
             refSOPSeq.add(refSOP);

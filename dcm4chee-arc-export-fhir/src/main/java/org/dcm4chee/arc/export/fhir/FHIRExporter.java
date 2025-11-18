@@ -47,7 +47,6 @@ import org.dcm4chee.arc.entity.Task;
 import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.fhir.client.FHIRClient;
-import org.dcm4chee.arc.fhir.client.ImagingStudy;
 import org.dcm4chee.arc.qmgt.Outcome;
 
 /**
@@ -76,7 +75,7 @@ public class FHIRExporter extends AbstractExporter {
             return new Outcome(Task.Status.WARNING,
                     "Destination webapp " + webAppName + " is not configured for FHIR web service");
         ApplicationEntity ae = device.getApplicationEntity(descriptor.getAETitle(), true);
-        return outcome(fhirClient.create(ImagingStudy.FHIR_R4_JSON, ae, ctx.getStudyInstanceUID(), webApp));
+        return outcome(fhirClient.create(ae, ctx.getStudyInstanceUID(), webApp));
     }
 
     private Outcome outcome(Response rsp) {

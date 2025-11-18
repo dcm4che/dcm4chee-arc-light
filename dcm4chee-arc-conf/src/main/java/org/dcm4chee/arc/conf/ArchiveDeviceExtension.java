@@ -315,6 +315,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Integer qStarVerificationMockAccessState;
     private volatile Issuer[] trustedIssuerOfPatientID = {};
     private volatile Pattern[] trustedPatientIDPattern = {};
+    private volatile String fhirDefaultSystemOfPatientID;
+    private volatile String fhirDefaultSystemOfAccessionNumber;
+    private volatile Issuer fhirPreferredAssigningAuthorityOfPatientID;
     private volatile Issuer hl7PrimaryAssigningAuthorityOfPatientID;
     private volatile HL7OtherPatientIDs hl7OtherPatientIDs = HL7OtherPatientIDs.OTHER;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
@@ -405,6 +408,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final Map<String, String> dicomCharsetNameMappings = new HashMap<>();
     private final Map<String, String> hl7CharsetNameMappings = new HashMap<>();
     private final Map<String, Integer> upsEventWebSocketQueueSizes = new HashMap<>();
+    private final EnumSet<FHIRSystemFromDICOMIssuer> fhirSystemOfPatientID = EnumSet.noneOf(FHIRSystemFromDICOMIssuer.class);
+    private final EnumSet<FHIRSystemFromDICOMIssuer> fhirSystemOfAccessionNumber = EnumSet.noneOf(FHIRSystemFromDICOMIssuer.class);
+    private final Map<String, String> fhirSystemByIssuerOfPatientID = new HashMap<>();
+    private final Map<String, String> fhirSystemByLocalNamespaceEntityIDOfAccessionNumber = new HashMap<>();
 
     private transient FuzzyStr fuzzyStr;
 
@@ -3408,6 +3415,113 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return filtered;
     }
 
+    public Issuer getFhirPreferredAssigningAuthorityOfPatientID() {
+        return fhirPreferredAssigningAuthorityOfPatientID;
+    }
+
+    public void setFhirPreferredAssigningAuthorityOfPatientID(Issuer fhirPreferredAssigningAuthorityOfPatientID) {
+        this.fhirPreferredAssigningAuthorityOfPatientID = fhirPreferredAssigningAuthorityOfPatientID;
+    }
+
+    public FHIRSystemFromDICOMIssuer[] getFhirSystemOfPatientID() {
+        return fhirSystemOfPatientID.toArray(new FHIRSystemFromDICOMIssuer[0]);
+    }
+
+    public void setFhirSystemOfPatientID(FHIRSystemFromDICOMIssuer... fhirSystemFromDICOMIssuers) {
+        this.fhirSystemOfPatientID.clear();
+        this.fhirSystemOfPatientID.addAll(Arrays.asList(fhirSystemFromDICOMIssuers));
+    }
+
+    public FHIRSystemFromDICOMIssuer[] getFhirSystemOfAccessionNumber() {
+        return fhirSystemOfAccessionNumber.toArray(new FHIRSystemFromDICOMIssuer[0]);
+    }
+
+    public void setFhirSystemOfAccessionNumber(FHIRSystemFromDICOMIssuer... fhirSystemFromDICOMIssuers) {
+        this.fhirSystemOfAccessionNumber.clear();
+        this.fhirSystemOfAccessionNumber.addAll(Arrays.asList(fhirSystemFromDICOMIssuers));
+    }
+
+    public Map<String, String> getFhirSystemByIssuerOfPatientID() {
+        return fhirSystemByIssuerOfPatientID;
+    }
+
+    public void setFhirSystemByIssuerOfPatientID(String[] ss) {
+        strs2map(ss, fhirSystemByIssuerOfPatientID, "FhirSystemByIssuerOfPatientID");
+    }
+
+    public Map<String, String> getFhirSystemByLocalNamespaceEntityIDOfAccessionNumber() {
+        return fhirSystemByLocalNamespaceEntityIDOfAccessionNumber;
+    }
+
+    public void setFhirSystemByLocalNamespaceEntityIDOfAccessionNumber(String[] ss) {
+        strs2map(ss, fhirSystemByLocalNamespaceEntityIDOfAccessionNumber, "FhirSystemByLocalNamespaceEntityIDOfAccessionNumber");
+    }
+
+    public String getFhirDefaultSystemOfPatientID() {
+        return fhirDefaultSystemOfPatientID;
+    }
+
+    public void setFhirDefaultSystemOfPatientID(String fhirDefaultSystemOfPatientID) {
+        this.fhirDefaultSystemOfPatientID = fhirDefaultSystemOfPatientID;
+    }
+
+    public String getFhirDefaultSystemOfAccessionNumber() {
+        return fhirDefaultSystemOfAccessionNumber;
+    }
+
+    public void setFhirDefaultSystemOfAccessionNumber(String fhirDefaultSystemOfAccessionNumber) {
+        this.fhirDefaultSystemOfAccessionNumber = fhirDefaultSystemOfAccessionNumber;
+    }
+
+    public String fhirSystemOfPatientID(Issuer issuer) {
+        return fhirSystem(issuer,
+                fhirSystemOfPatientID,
+                fhirSystemByIssuerOfPatientID,
+                fhirDefaultSystemOfPatientID);
+    }
+
+    public String fhirSystemOfAccessionNumber(Issuer issuer) {
+        return fhirSystem(issuer,
+                fhirSystemOfAccessionNumber,
+                fhirSystemByLocalNamespaceEntityIDOfAccessionNumber,
+                fhirDefaultSystemOfAccessionNumber);
+    }
+
+    private static void strs2map(String[] ss, Map<String, String> map, String prompt) {
+        map.clear();
+        for (String s : ss) {
+            int index = s.indexOf('=');
+            if (index < 0)
+                throw new IllegalArgumentException(prompt + " in incorrect format : " + s);
+            map.put(s.substring(0, index), s.substring(index+1));
+        }
+    }
+
+    private static String fhirSystem(
+            Issuer issuer,
+            EnumSet<FHIRSystemFromDICOMIssuer> fhirSystemFromDICOMIssuer,
+            Map<String, String> fhirSystemByLocalNamespaceEntityID,
+            String defaultSystem) {
+        if (issuer != null) {
+            if (fhirSystemFromDICOMIssuer.contains(FHIRSystemFromDICOMIssuer.UniversalEntityID)
+                && issuer.getUniversalEntityIDType() != null) {
+                switch (issuer.getUniversalEntityIDType()) {
+                    case "ISO":
+                        return "urn:oid:" + issuer.getUniversalEntityID();
+                    case "URI":
+                        return issuer.getUniversalEntityID();
+                    case "UUID":
+                        return "urn:uuid:" + issuer.getUniversalEntityID();
+                }
+            }
+            if (fhirSystemFromDICOMIssuer.contains(FHIRSystemFromDICOMIssuer.LocalNamespaceEntityID)
+                    && issuer.getLocalNamespaceEntityID() != null) {
+                return fhirSystemByLocalNamespaceEntityID.getOrDefault(issuer.getLocalNamespaceEntityID(), defaultSystem);
+            }
+        }
+        return defaultSystem;
+    }
+
     public Issuer getHL7PrimaryAssigningAuthorityOfPatientID() {
         return hl7PrimaryAssigningAuthorityOfPatientID;
     }
@@ -3987,6 +4101,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         validateUID = arcdev.validateUID;
         trustedIssuerOfPatientID = arcdev.trustedIssuerOfPatientID;
         trustedPatientIDPattern = arcdev.trustedPatientIDPattern;
+        fhirDefaultSystemOfPatientID = arcdev.fhirDefaultSystemOfPatientID;
+        fhirDefaultSystemOfAccessionNumber = arcdev.fhirDefaultSystemOfAccessionNumber;
+        fhirPreferredAssigningAuthorityOfPatientID = arcdev.fhirPreferredAssigningAuthorityOfPatientID;
         hl7PrimaryAssigningAuthorityOfPatientID = arcdev.hl7PrimaryAssigningAuthorityOfPatientID;
         hl7OtherPatientIDs = arcdev.hl7OtherPatientIDs;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
@@ -4111,5 +4228,18 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7CharsetNameMappings.putAll(arcdev.hl7CharsetNameMappings);
         upsEventWebSocketQueueSizes.clear();
         upsEventWebSocketQueueSizes.putAll(arcdev.upsEventWebSocketQueueSizes);
+        fhirSystemOfPatientID.clear();
+        fhirSystemOfPatientID.addAll(arcdev.fhirSystemOfPatientID);
+        fhirSystemOfAccessionNumber.clear();
+        fhirSystemOfAccessionNumber.addAll(arcdev.fhirSystemOfAccessionNumber);
+        fhirSystemByIssuerOfPatientID.clear();
+        fhirSystemByIssuerOfPatientID.putAll(arcdev.fhirSystemByIssuerOfPatientID);
+        fhirSystemByLocalNamespaceEntityIDOfAccessionNumber.clear();
+        fhirSystemByLocalNamespaceEntityIDOfAccessionNumber.putAll(arcdev.fhirSystemByLocalNamespaceEntityIDOfAccessionNumber);
+    }
+
+    public enum FHIRSystemFromDICOMIssuer {
+        LocalNamespaceEntityID,
+        UniversalEntityID
     }
 }

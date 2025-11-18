@@ -45,9 +45,11 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IWebApplicationCache;
+import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.fhir.client.FHIRClient;
 import org.dcm4chee.arc.fhir.client.ImagingStudy;
 import org.slf4j.Logger;
@@ -70,12 +72,6 @@ public class FHIRClientRS {
 
     @PathParam("aet")
     private String aet;
-
-    @QueryParam("_format")
-    private String format;
-
-    @QueryParam("fhirVersion")
-    private String fhirVersion;
 
     @Inject
     private FHIRClient fhirClient;
@@ -104,7 +100,7 @@ public class FHIRClientRS {
         }
         if (webApp == null)
             return errResponse("No such Web Application: " + webApp, Response.Status.NOT_FOUND);
-        return fhirClient.create(ImagingStudy.FHIR_R4_JSON, ae, studyUID, webApp);
+        return fhirClient.create(ae, studyUID, webApp);
     }
 
     private ApplicationEntity getApplicationEntity() {

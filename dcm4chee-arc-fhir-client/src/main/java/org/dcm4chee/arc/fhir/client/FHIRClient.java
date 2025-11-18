@@ -47,5 +47,5 @@ import org.dcm4che3.net.WebApplication;
  */
 public interface FHIRClient {
 
-    Response create(ImagingStudy imagingStudy, ApplicationEntity ae, String studyUID, WebApplication webApp);
+    Response create(ApplicationEntity ae, String studyUID, WebApplication webApp);
 }

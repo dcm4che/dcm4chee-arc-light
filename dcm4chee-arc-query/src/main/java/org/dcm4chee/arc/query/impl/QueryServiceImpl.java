@@ -450,7 +450,7 @@ class QueryServiceImpl implements QueryService {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
         return ejb.getStudyAttributesWithSOPInstanceRefs(
                 QueryServiceEJB.SOPInstanceRefsType.FHIR_IMAGING_STUDY, studyUID, null, null, qrView,
-                null, null, null);
+                seriesAttrs, null, null);
     }
 
     @Override
