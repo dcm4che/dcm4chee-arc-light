@@ -1250,10 +1250,10 @@ class ArchiveDeviceFactory {
     };
 
     static final String[] HL7PSU_PARAMS = {
-            "RequestedProcedureID={StudyInstanceUID,hash}",
-            "AccessionNumber={StudyInstanceUID,hash}",
-            "PlacerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}",
-            "FillerOrderNumberImagingServiceRequest={StudyInstanceUID,hash}"
+            "RequestedProcedureID={StudyInstanceUID}",
+            "AccessionNumber={StudyInstanceUID}",
+            "PlacerOrderNumberImagingServiceRequest={StudyInstanceUID}",
+            "FillerOrderNumberImagingServiceRequest={StudyInstanceUID}"
     };
 
     static final String AE_TITLE = "DCM4CHEE";

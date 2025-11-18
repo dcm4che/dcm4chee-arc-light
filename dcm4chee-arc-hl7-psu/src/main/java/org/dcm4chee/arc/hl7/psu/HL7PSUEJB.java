@@ -83,6 +83,8 @@ public class HL7PSUEJB {
     private static final String HL7PSU_MSG_ABORT = "Send HL7 Procedure Status Update notification aborted. ";
 
     //HL7v2.5 Ch4 OBR-25 ResultStatus
+    private static final String HL7PSU_RESULTS_STORED_PRELIMINARY = "P";
+    private static final String HL7PSU_RESULTS_NOT_AVAILABLE = "S";
     private static final String HL7PSU_RESULTS_STORED = "R";
     private static final String HL7PSU_PARTIAL_REJECT = "A";
     private static final String HL7PSU_COMPLETE_REJECT = "X";
@@ -264,7 +266,7 @@ public class HL7PSUEJB {
 
     private String resultStatus(Series series) {
         if (series == null)
-            return HL7PSU_RESULTS_STORED;
+            return HL7PSU_RESULTS_NOT_AVAILABLE;
 
         RejectionState rejectionState = series.getStudy().getRejectionState();
         switch (rejectionState) {
@@ -273,7 +275,7 @@ public class HL7PSUEJB {
             case COMPLETE:
                 return HL7PSU_COMPLETE_REJECT;
             default:
-                return HL7PSU_RESULTS_STORED;
+                return HL7PSU_RESULTS_STORED_PRELIMINARY;
         }
     }
 
