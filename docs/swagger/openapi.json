@@ -107,6 +107,10 @@
       "description": "Notify external IAN SCP about Availability of Instances"
     },
     {
+      "name": "FHIR-CLIENT-RS",
+      "description": "Invoke external FHIR Server"
+    },
+    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
     },
@@ -252,6 +256,9 @@
     },
     "/aets/{aet}/rs/studies/{study}/ian/dicom:{ianscp}": {
       "$ref": "paths/ian.json#/study"
+    },
+    "/aets/{aet}/rs/studies/{study}/fhir/{webAppName}": {
+      "$ref": "paths/fhir-client.json#/study"
     },
     "/aets/{aet}/rs/studies/{study}/stgcmt/dicom:{stgCmtSCP}": {
       "$ref": "paths/stgcmt.json#/study"

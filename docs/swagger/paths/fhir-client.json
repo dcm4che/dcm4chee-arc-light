@@ -1,0 +1,36 @@
+{
+  "study": {
+    "post": {
+      "tags": [
+        "FHIR-CLIENT-RS"
+      ],
+      "summary": "Create ImagingStudy",
+      "operationId": "createImagingStudy",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/studyPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/webAppPathParam"
+        }
+      ],
+      "responses": {
+        "201": {
+          "description": "ImageStudy resource at FHIR Server created."
+        },
+        "404": {
+          "description": "No such Archive AE Title or Web Application"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        },
+        "502": {
+          "description": "Failure to invoke POST request at FHIR Server."
+        }
+      }
+    }
+  }
+}

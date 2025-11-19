@@ -1754,12 +1754,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "fhirSystemOfPatientID",
                 aa.getFhirSystemOfPatientID(),
                 bb.getFhirSystemOfPatientID());
-        LdapUtils.storeDiff(ldapObj, mods, "fhirSystemOfPatientID",
+        LdapUtils.storeDiff(ldapObj, mods, "fhirSystemOfAccessionNumber",
                 aa.getFhirSystemOfAccessionNumber(),
                 bb.getFhirSystemOfAccessionNumber());
-        LdapUtils.storeDiff(ldapObj, mods, "fhirSystemOfPatientID",
-                aa.getFhirSystemOfPatientID(),
-                bb.getFhirSystemOfPatientID());
         LdapUtils.storeDiffProperties(ldapObj, mods, "fhirSystemByIssuerOfPatientID",
                 aa.getFhirSystemByIssuerOfPatientID(),
                 bb.getFhirSystemByIssuerOfPatientID());

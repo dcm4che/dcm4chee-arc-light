@@ -84,13 +84,8 @@ public enum ImagingStudy {
                 writeAccessionNumber(gen, IDWithIssuer.valueOf(kosAttrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence), arcdev);
                 writeNotNull(gen, "started", kosAttrs.getDate(Tag.StudyDateAndTime), ISO_DATE_TIME);
                 gen.write("numberOfSeries", refSeriesSeq.size());
-                gen.write("numberOfInstances", refSeriesSeq.stream()
-                        .mapToInt(refSeries -> refSeries.getSequence(Tag.ReferencedSOPSequence).size())
-                        .sum());
-                writeModalities(gen, seriesAttrsByIUID.values().stream()
-                        .map(attrs -> attrs.getString(Tag.Modality))
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toSet()));
+                gen.write("numberOfInstances", countInstances(refSeriesSeq));
+                writeModalities(gen, "modality", listModalities(seriesAttrsByIUID));
                 writeNotNull(gen, "description", kosAttrs.getString(Tag.StudyDescription));
                 gen.writeStartArray("series");
                 for (Attributes refSeries : refSeriesSeq) {
@@ -140,23 +135,108 @@ public enum ImagingStudy {
                 gen.writeStartArray("basedOn");
                 gen.writeStartObject();
                 gen.write("type", "ServiceRequest");
-                gen.writeStartObject("identifier");
-                gen.writeStartObject("type");
-                gen.writeStartArray("coding");
-                gen.writeStartObject();
-                gen.write("system", "http://terminology.hl7.org/CodeSystem/v2-0203");
-                gen.write("code", "ACSN");
-                gen.writeEnd();
-                gen.writeEnd();
-                gen.writeEnd();
-                writeNotNull(gen, "system", arcdev.fhirSystemOfAccessionNumber(idWithIssuer.getIssuer()));
-                gen.write("value", idWithIssuer.getID());
-                gen.writeEnd();
+                writeAccessionNumber(gen, "identifier", idWithIssuer, arcdev);
                 gen.writeEnd();
                 gen.writeEnd();
             }
         }
+    },
+    FHIR_R2_JSON {
+        @Override
+        public Entity<StreamingOutput> create(Device device, Attributes kosAttrs, Map<String, Attributes> seriesAttrs) {
+            return Entity.entity(
+                    out -> writeJSON(device, kosAttrs, seriesAttrs, out), MediaTypes.APPLICATION_FHIR_JSON_TYPE);
+        }
+
+        private void writeJSON(
+                Device device, Attributes kosAttrs, Map<String, Attributes> seriesAttrsByIUID, OutputStream out) {
+            ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+            Sequence refSeriesSeq = kosAttrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence)
+                    .getSequence(Tag.ReferencedSeriesSequence);
+            try (JsonGenerator gen = Json.createGenerator(out)) {
+                SimpleDateFormat ISO_DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+                gen.writeStartObject();
+                gen.write("resourceType", "ImagingStudy");
+                gen.write("uri", "urn:oid:" + kosAttrs.getString(Tag.StudyInstanceUID));
+                writePatientID(gen, preferredPatientID(IDWithIssuer.pidsOf(kosAttrs), arcdev), arcdev);
+                writeAccessionNumber(gen, IDWithIssuer.valueOf(kosAttrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence), arcdev);
+                writeNotNull(gen, "started", kosAttrs.getDate(Tag.StudyDateAndTime), ISO_DATE_TIME);
+                gen.write("numberOfSeries", refSeriesSeq.size());
+                gen.write("numberOfInstances", countInstances(refSeriesSeq));
+                writeModalities(gen, "modalityList", listModalities(seriesAttrsByIUID));
+                writeNotNull(gen, "description", kosAttrs.getString(Tag.StudyDescription));
+                gen.writeStartArray("series");
+                for (Attributes refSeries : refSeriesSeq) {
+                    String seriesIUID = refSeries.getString(Tag.SeriesInstanceUID);
+                    Attributes seriesAttrs = seriesAttrsByIUID.get(seriesIUID);
+                    Sequence refSOPSeq = refSeries.getSequence(Tag.ReferencedSOPSequence);
+                    gen.writeStartObject();
+                    gen.write("uid", "urn:oid:" + seriesIUID);
+                    gen.write("number", seriesAttrs.getInt(Tag.SeriesNumber, 0));
+                    writeModality(gen, seriesAttrs.getString(Tag.Modality));
+                    writeNotNull(gen, "description", seriesAttrs.getString(Tag.SeriesDescription));
+                    gen.write("numberOfInstances", refSOPSeq.size());
+                    gen.writeStartArray("instance");
+                    for (Attributes refSOP : refSOPSeq) {
+                        gen.writeStartObject();
+                        gen.write("uid", "urn:oid:" + refSOP.getString(Tag.ReferencedSOPInstanceUID));
+                        gen.write("sopClass", "urn:oid:" + refSOP.getString(Tag.ReferencedSOPClassUID));
+                        gen.write("number", refSOP.getInt(Tag.InstanceNumber, 0));
+                        gen.writeEnd();
+                    }
+                    gen.writeEnd();
+                    gen.writeEnd();
+                }
+                gen.writeEnd();
+                gen.writeEnd();
+            }
+        }
+
+        private void writePatientID(JsonGenerator gen, IDWithIssuer idWithIssuer, ArchiveDeviceExtension arcdev) {
+            if (idWithIssuer != null) {
+                gen.writeStartObject("patient");
+                gen.writeStartObject("identifier");
+                writeNotNull(gen, "system", arcdev.fhirSystemOfPatientID(idWithIssuer.getIssuer()));
+                gen.write("value", idWithIssuer.getID());
+                gen.writeEnd();
+                gen.writeEnd();
+            }
+        }
+
+        private void writeAccessionNumber(JsonGenerator gen, IDWithIssuer idWithIssuer, ArchiveDeviceExtension arcdev) {
+            if (idWithIssuer != null) {
+                writeAccessionNumber(gen, "accession", idWithIssuer, arcdev);
+            }
+        }
     };
+
+    private static int countInstances(Sequence refSeriesSeq) {
+        return refSeriesSeq.stream()
+                .mapToInt(refSeries -> refSeries.getSequence(Tag.ReferencedSOPSequence).size())
+                .sum();
+    }
+
+    static void writeAccessionNumber(JsonGenerator gen, String name, IDWithIssuer idWithIssuer, ArchiveDeviceExtension arcdev) {
+            gen.writeStartObject(name);
+            gen.writeStartObject("type");
+            gen.writeStartArray("coding");
+            gen.writeStartObject();
+            gen.write("system", "http://terminology.hl7.org/CodeSystem/v2-0203");
+            gen.write("code", "ACSN");
+            gen.writeEnd();
+            gen.writeEnd();
+            gen.writeEnd();
+            writeNotNull(gen, "system", arcdev.fhirSystemOfAccessionNumber(idWithIssuer.getIssuer()));
+            gen.write("value", idWithIssuer.getID());
+            gen.writeEnd();
+    }
+
+    private static Collection<String> listModalities(Map<String, Attributes> seriesAttrsByIUID) {
+        return seriesAttrsByIUID.values().stream()
+                .map(attrs -> attrs.getString(Tag.Modality))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
 
     private static IDWithIssuer preferredPatientID(Set<IDWithIssuer> idWithIssuers, ArchiveDeviceExtension arcdev) {
         switch (idWithIssuers.size()) {
@@ -181,9 +261,9 @@ public enum ImagingStudy {
     private static void writeNotNull(JsonGenerator gen, String name, String value) {
         if (value != null) gen.write(name, value);
     }
-    private static void writeModalities(JsonGenerator gen, Set<String> modalities) {
+    private static void writeModalities(JsonGenerator gen, String name, Collection<String> modalities) {
         if (!modalities.isEmpty()) {
-            gen.writeStartArray("modality");
+            gen.writeStartArray(name);
             for (String modality : modalities) {
                 gen.writeStartObject();
                 gen.write("system", "http://dicom.nema.org/resources/ontology/DCM");
