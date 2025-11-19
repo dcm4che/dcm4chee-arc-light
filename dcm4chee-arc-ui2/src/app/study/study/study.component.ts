@@ -2404,9 +2404,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     showNoFilterWarning(queryParameters){
         let param =  _.clone(queryParameters);
         // if (param['orderby'] == '-StudyDate,-StudyTime'){
-            if (_.hasIn(param, ['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'])){
-                delete param['ScheduledProcedureStepSequence.ScheduledProcedureStepStartDate'];
-            }
             if (_.hasIn(param, 'includefield')){
                 delete param['includefield'];
             }
