@@ -23,14 +23,16 @@ declare var DCM4CHE: any;
         CommonModule
     ],
     styles:[`
-        .active.sqiod:hover{
+        .active.sqiod:hover {
             background: rgba(0, 0, 0, 0.6);
             color: white;
-            input{
+
+            input {
                 color: black;
             }
         }
-        .add_multi_button{
+
+        .add_multi_button {
             float: right;
             width: 50px;
             height: 28px;
@@ -38,9 +40,19 @@ declare var DCM4CHE: any;
             color: #00000087;
             border: navajowhite;
             margin: 5px 20px;
-            &:hover{
+
+            &:hover {
                 background: #212121;
                 color: white;
+            }
+        }
+
+        .new_block {
+            float: right;
+            color: #CDCDCD;
+            &:hover {
+                color: black;
+                cursor: pointer;
             }
         }
     `],
@@ -51,6 +63,10 @@ export class IodFormGeneratorComponent implements OnInit {
     @Input() prefix;
     @Input() mode;
     @Input() iod;
+    @Input() parentObject;
+    @Input() parentKey:string|number;
+    @Input() valueArrayKey:number;
+    @Input() parentNewBlock:number;
     @Input() externalInternalAetMode;
     objectIsArray;
     hasValue;
@@ -114,27 +130,31 @@ export class IodFormGeneratorComponent implements OnInit {
                 break;
         }
     };
+    removeObject(object){
+        try{
+            this.parentObject[this.parentKey].Value.splice(this.valueArrayKey, 1);
+        }catch (e) {
+            console.warn(e);
+        }
+    }
     trackByFn(index, item) {
         return index; // or item.id
     }
     charChange(event){
         console.log("test in charchange",event);
     }
-    addPart(object,o, iod, i, io){
+    clonePart(object, o, iod, i, io){
         try{
             if(object[o] && _.hasIn(object[o], 'Value') && _.isArray(object[o].Value) && object[o].Value[i]){
                 let clonedObject = _.cloneDeep(object[o].Value[i])
                 j4care.traverse(clonedObject, (value, key,obj,savedKeys)=>{
-                    console.log("key",obj[key]);
-                    console.log("key",value[key]);
-                    console.log("test",obj);
-                    console.log("savedKeys",savedKeys);
                     if(key == "0" && savedKeys === "Value[Value]" && typeof value === "string"){
                         obj[key] = "";
                     }
                     return obj[key];
                 });
                 console.log("clonedObject",clonedObject);
+                clonedObject.newBlock = true;
                 object[o].Value.splice(i+1, 0, clonedObject);
             }
         }catch (e) {

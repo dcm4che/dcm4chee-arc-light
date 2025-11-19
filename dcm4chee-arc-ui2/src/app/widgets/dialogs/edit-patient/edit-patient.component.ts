@@ -342,6 +342,10 @@ export class EditPatientComponent {
         console.log("mo",this.simpleForm.model)
         return undefined;
     }
+    onSaveClick(patient){
+        j4care.removeKeyFromObject(patient, "newBlock");
+        this.dialogRef.close(patient)
+    }
 
 
     changeFormMode(mode: string) {

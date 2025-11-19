@@ -302,4 +302,9 @@ export class EditMwlComponent {
                 break;
         }
     };
+
+    onSaveClick(mwl){
+        j4care.removeKeyFromObject(mwl, "newBlock");
+        this.dialogRef.close(mwl)
+    }
 }
