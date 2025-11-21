@@ -35,6 +35,9 @@
                       <a class="pointer dicom_table_buttons" *ngIf="(!action.showIf || action.showIf(patient, config))" (click)="$event.preventDefault();action.click(patient,'patient')" title="{{action.title || ''}}">
                           <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                           <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                          @if(action.icon.svg && action.icon.svg != ''){
+                              <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                          }
                       </a>
                     </ng-container>
                 </ng-container>
@@ -49,6 +52,9 @@
                             <a *ngIf="(!action.showIf || action.showIf(patient, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient,'patient')" title="{{action.title || ''}}">
                                 <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                 <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                @if(action.icon.svg && action.icon.svg != ''){
+                                    <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                }
                             </a>
                         </ng-container>
                     </mat-menu>
@@ -95,6 +101,10 @@
                                 <a *ngIf="(!action.showIf || action.showIf(study, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(study,'study')" title="{{action.title || ''}}">
                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                        {{action.icon.svg|json}}
+                                    @if(action.icon.svg && action.icon.svg != ''){
+                                        <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                    }
                                 </a>
                             </ng-container>
                         </ng-container>
@@ -118,7 +128,11 @@
                                     <a *ngIf="(!action.showIf || action.showIf(study, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study,'study')" title="{{action.title || ''}}">
                                         <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                        @if(action.icon.svg && action.icon.svg != ''){
+                                            <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                        }
                                     </a>
+
                                 </ng-container>
                             </mat-menu>
                         </ng-container>
@@ -166,6 +180,9 @@
                                         <a *ngIf="(!action.showIf || action.showIf(serie, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
                                             <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                             <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                            @if(action.icon.svg && action.icon.svg != ''){
+                                                <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                            }
                                         </a>
                                     </ng-container>
                                 </ng-container>
@@ -180,6 +197,9 @@
                                             <a *ngIf="(!action.showIf || action.showIf(serie, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
                                                 <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                                 <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                @if(action.icon.svg && action.icon.svg != ''){
+                                                    <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                }
                                             </a>
                                         </ng-container>
                                     </mat-menu>
@@ -228,9 +248,13 @@
                                         </ng-container>-->
                                         <ng-container *ngSwitchCase="'actions'">
                                             <ng-container *ngFor="let action of instance_table.actions">
+                                                {{action.title}}
                                                 <a *ngIf="(!action.showIf || action.showIf(instance, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
                                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                                    @if(action.icon.svg && action.icon.svg != ''){
+                                                        <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                    }
                                                 </a>
                                             </ng-container>
                                         </ng-container>
@@ -245,6 +269,9 @@
                                                     <a *ngIf="(!action.showIf || action.showIf(instance, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
                                                         <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                        @if(action.icon.svg && action.icon.svg != ''){
+                                                            <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                        }
                                                     </a>
                                                 </ng-container>
                                             </mat-menu>
@@ -367,6 +394,9 @@
                                 <a *ngIf="(!action.showIf || action.showIf(mwl, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(mwl,'mwl')" title="{{action.title || ''}}">
                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                    @if(action.icon.svg && action.icon.svg != ''){
+                                        <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                    }
                                 </a>
                             </ng-container>
                         </ng-container>
@@ -377,6 +407,9 @@
                                     <a *ngIf="(!action.showIf || action.showIf(mwl, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(mwl,'mwl')" title="{{action.title || ''}}">
                                         <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                        @if(action.icon.svg && action.icon.svg != ''){
+                                            <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                        }
                                     </a>
                                 </ng-container>
                             </mat-menu>
@@ -420,6 +453,9 @@
                                 <a *ngIf="(!action.showIf || action.showIf(uwl, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(uwl,'uwl')" title="{{action.title || ''}}">
                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                    @if(action.icon.svg && action.icon.svg != ''){
+                                        <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                    }
                                 </a>
                             </ng-container>
                         </ng-container>
@@ -430,6 +466,9 @@
                                     <a *ngIf="(!action.showIf || action.showIf(uwl, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(uwl,'uwl')" title="{{action.title || ''}}">
                                         <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                        @if(action.icon.svg && action.icon.svg != ''){
+                                            <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                        }
                                     </a>
                                 </ng-container>
                             </mat-menu>
@@ -469,6 +508,9 @@
                                 <a *ngIf="(!action.showIf || action.showIf(mpps, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(mpps,'mpps')" title="{{action.title || ''}}">
                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                    @if(action.icon.svg && action.icon.svg != ''){
+                                        <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                    }
                                 </a>
                             </ng-container>
                         </ng-container>
@@ -479,6 +521,9 @@
                                     <a *ngIf="(!action.showIf || action.showIf(mpps, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(mpps,'mpps')" title="{{action.title || ''}}">
                                         <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                        @if(action.icon.svg && action.icon.svg != ''){
+                                            <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                        }
                                     </a>
                                 </ng-container>
                             </mat-menu>
@@ -518,6 +563,9 @@
                                 <a *ngIf="(!action.showIf || action.showIf(diff, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                    @if(action.icon.svg && action.icon.svg != ''){
+                                        <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                    }
                                 </a>
                             </ng-container>
                         </ng-container>
@@ -528,6 +576,9 @@
                                     <a *ngIf="(!action.showIf || action.showIf(diff, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
                                         <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                        @if(action.icon.svg && action.icon.svg != ''){
+                                            <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                        }
                                     </a>
                                 </ng-container>
                             </mat-menu>
@@ -620,6 +671,9 @@
                                         <a *ngIf="(!action.showIf || action.showIf(serie, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
                                             <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                             <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                            @if(action.icon.svg && action.icon.svg != ''){
+                                                <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                            }
                                         </a>
                                     </ng-container>
                                 </ng-container>
@@ -634,6 +688,9 @@
                                             <a *ngIf="(!action.showIf || action.showIf(serie, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
                                                 <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                                 <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                @if(action.icon.svg && action.icon.svg != ''){
+                                                    <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                }
                                             </a>
                                         </ng-container>
                                     </mat-menu>
@@ -684,6 +741,9 @@
                                                 <a *ngIf="(!action.showIf || action.showIf(instance, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
                                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                                    @if(action.icon.svg && action.icon.svg != ''){
+                                                        <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                    }
                                                 </a>
                                             </ng-container>
                                         </ng-container>
@@ -698,6 +758,9 @@
                                                     <a *ngIf="(!action.showIf || action.showIf(instance, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
                                                         <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
                                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                        @if(action.icon.svg && action.icon.svg != ''){
+                                                            <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                        }
                                                     </a>
                                                 </ng-container>
                                             </mat-menu>

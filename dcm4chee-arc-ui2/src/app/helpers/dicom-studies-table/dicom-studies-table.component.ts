@@ -14,6 +14,7 @@ import {MatMenu, MatMenuTrigger} from '@angular/material/menu';
 import {AttributeListComponent} from '../attribute-list/attribute-list.component';
 import {CustomAttributeListComponent} from '../custom-attribute-list/custom-attribute-list.component';
 import {SearchDicomPipe} from '../../pipes/search-dicom.pipe';
+import {SvgDirective} from '../svg/svg.directive';
 
 @Component({
     selector: 'dicom-studies-table',
@@ -29,7 +30,8 @@ import {SearchDicomPipe} from '../../pipes/search-dicom.pipe';
         AttributeListComponent,
         CustomAttributeListComponent,
         CommonModule,
-        SearchDicomPipe
+        SearchDicomPipe,
+        SvgDirective
     ],
     standalone: true
 })
