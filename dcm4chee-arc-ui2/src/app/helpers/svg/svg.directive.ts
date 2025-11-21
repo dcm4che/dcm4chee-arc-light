@@ -23,8 +23,6 @@ export class SvgDirective implements OnInit{
     }
   private createSvg(){
       let img = this.parser.parseFromString(this.svg, 'image/svg+xml');
-      console.log("svg img",img);
-      console.log("nativeElement",this.el.nativeElement);
       if(this.svgWidth){
         img.documentElement.setAttribute("width",this.svgWidth);
       }
