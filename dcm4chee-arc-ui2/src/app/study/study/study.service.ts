@@ -55,6 +55,7 @@ import {CustomDatePipe} from "../../pipes/custom-date.pipe";
 import {SeriesDicom} from "../../models/series-dicom";
 import {StudyDicom} from "../../models/study-dicom";
 import {AppRequestsService} from "../../app-requests.service";
+import {environment} from "../../../environments/environment";
 
 @Injectable()
 export class StudyService {
@@ -902,6 +903,9 @@ export class StudyService {
         if(dcmWebApp){
             try {
                 let url = j4care.getUrlFromDcmWebApplication(dcmWebApp, this.appService.baseUrl);
+                if (url.endsWith("/")) {
+                    url = url.slice(0, -1);
+                }
                 if(url){
                     switch (mode) {
                         case "patient":
@@ -2182,7 +2186,8 @@ export class StudyService {
                                     id: 'action-studies-verify_storage_commitment',
                                     param: 'visible'
                                 }
-                            },{
+                            }
+                            ,{
                                 icon: {
                                     tag: 'span',
                                     cssClass: 'glyphicon glyphicon-eye-open',
@@ -2204,6 +2209,30 @@ export class StudyService {
                                 showIf: (e, config) => {
                                     return _.hasIn(options,"selectedWebService.IID_STUDY_URL");
                                 }
+                            }
+                            ,{
+                                icon: {
+                                    svg: `<svg width="25" height="25" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M24.6503 26.3611C19.0306 32.0027 19.7237 37.6552 22.2761 41.9121C16.4125 39.4121 11 29.5 18.5 20.5C26.5 12.5 25 9 25 6C27.5 10.5 31.4056 19.5794 24.6503 26.3611Z" fill="currentColor"/>
+                                                <path d="M23.4963 42C22.2997 39.4068 21.0522 33.1354 24.6754 29.5003C31.2042 22.7706 30.156 16.8728 30.0108 16.517C30.0037 16.5057 30 16.5 30 16.5C30.0025 16.5 30.0062 16.5057 30.0108 16.517C30.2787 16.9411 35.3998 25.2461 31.6314 34.5C33.8055 33.2442 34.7301 31.5286 35 31C33.8743 40.1244 28.1182 41.6255 23.4963 42Z" fill="currentColor"/>
+                                                <path d="M21.5001 15.5C18.5001 17.3333 11.7183 22 11.3183 28C10.9183 34 14.3183 36.5 16.3183 38.5C15.3183 37 13.3183 33.3 13.3183 28.5C13.3183 23.7 18.8334 17.6667 21.5001 15.5Z" fill="currentColor"/>
+                                           </svg>
+                                          `
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "create_fhir"
+                                    }, e);
+                                },
+                                id: "create_fhir",
+                                title: $localize `:@@create_FHIR_ImagingStudy:Create FHIR Imaging Study`
+/*                                ,
+                                permission: {
+                                    id: 'action-studies-create-fhir',
+                                    param: 'visible'
+                                }*/
                             }
                         ]
                     },
@@ -5003,6 +5032,8 @@ export class StudyService {
         )
     }
 
+
+
     createUPSMatchingStudies(webApp: DcmWebApp, params:any){
         return this.$http.post(
             `${this.getDicomURL("study", webApp)}/workitems${j4care.param(params)}`,
@@ -5479,6 +5510,14 @@ export class StudyService {
         if(dicomLevel === "series"){
             return this.$http.put(`${this.getSeriesUrl(dcmWebApp,<SeriesDicom> dicomObject)}/request`, object, new HttpHeaders({'Content-Type': 'application/dicom+json'}),undefined,dcmWebApp);
         }
+    }
+
+    createFHIRImageStudy(dcmWebApp:DcmWebApp, studyInstanceUID){
+        if(!environment.production){
+            dcmWebApp.dcmWebServicePath = "/615f89f8-f3e5-4d32-8e3c-3c6b31b7af23";
+            return this.$http.post("",{},this.jsonHeader,undefined, dcmWebApp, {}, true);
+        }
+        return this.$http.post(`${this.getDicomURL("study", dcmWebApp)}${studyInstanceUID}/fhir/${dcmWebApp.dcmWebAppName}`,undefined,new HttpHeaders({'Content-Type': 'application/fhir+json', 'Accept': 'application/fhir+json'}),undefined,dcmWebApp);
     }
 
     getRequestSchema(){

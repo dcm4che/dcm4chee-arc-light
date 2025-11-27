@@ -312,6 +312,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         "false":undefined
     }
     filterTemplate;
+    fhirWebAppsSelectDropdowns:StudyWebService;
     constructor(
         private route:ActivatedRoute,
         private service:StudyService,
@@ -1129,6 +1130,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "open_viewer"){
                 this.openViewer(model.attrs, id.level);
             }
+            if(id.action === "create_fhir"){
+                this.createFHIRImageStudy(model, id.level);
+            }
             if(id.action === "upload_file"){
 /*                switch (id.level) {
                     case "patient":
@@ -1428,6 +1432,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     $this.service.appendPatientIdTo(patient.attrs, local);
 
                     _.forEach(mwlFiltered.attrs, function(m, i){
+
                         if (res[i]){
                             local[i] = m;
                         }
@@ -1457,7 +1462,41 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             console.log('error', err);
         });
     }
-
+    createFHIRImageStudy(study:StudyDicom, level:DicomLevel){
+        //this.cfpLoadingBar.start();
+        this.confirm({
+            content: $localize `:@@study.confirm_create_fhir_image_study:Are you sure you want to create FHIR Imaging Study?`,
+            doNotSave: true,
+            form_schema:[[
+                [
+                    {
+                        tag:"label",
+                        text:$localize `:@@web_app_service:Web App Service`
+                    },
+                    {
+                        tag:"select",
+                        type:"text",
+                        options:this.fhirWebAppsSelectDropdowns.selectDropdownWebServices,
+                        filterKey:"webApp",
+                        description:$localize `:@@web_app_service:Web App Service`,
+                        placeholder:$localize `:@@web_app_service:Web App Service`
+                    }
+                ]
+            ]],
+            result: {
+                schema_model: {}
+            },
+            saveButton: $localize `:@@SAVE:SAVE`
+        }).subscribe((save)=>{
+            if(save){
+                this.service.createFHIRImageStudy(save.schema_model.webApp, this.service.getStudyInstanceUID(study.attrs)).subscribe((res)=>{
+                    console.log(res);
+                },err=>{
+                    console.error(err);
+                });
+            }
+        });
+    }
     importMatchingSPS() {
         this.confirm({
             content: $localize `:@@mwl.import_matching_sps:Import matching Scheduled Procedure Steps to archive`,
@@ -6813,6 +6852,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     initWebApps(){
         this.setSchema();
         let aetsTemp;
+        let fhirWebApps;
         let aesTemp;
         let webAppsTemp:DcmWebApp[];
         this.service.getAets().pipe(
@@ -6831,6 +6871,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }),
             switchMap((webApps:DcmWebApp[])=>{
                 webAppsTemp = webApps;
+                let filter = {
+                    dcmWebServiceClass: "FHIR"
+                };
+                return this.service.getWebApps(filter)
+            }),
+            switchMap((webApps:DcmWebApp[])=>{
+                fhirWebApps = webApps;
                 let filter = {
                     dcmWebServiceClass: this.currentWebAppClass
                 };
@@ -6860,6 +6907,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
                     this.applicationEntities.aes = aesTemp.map((ae:Aet)=>{
                         return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
+                    });
+/*                    this.fhirWebAppsSelectDropdowns = fhirWebApps.map((webApp:DcmWebApp)=>{
+                        return new SelectDropdown(webApp.dcmWebAppName, webApp.dcmWebAppName, webApp.dicomDescription,undefined, undefined, webApp);
+                    })*/
+                    this.fhirWebAppsSelectDropdowns = new StudyWebService({
+                        webServices: fhirWebApps,
+                        allWebServices:fhirWebApps
                     });
                     this.setTemplateToFilter();
                     this.initExporters(2);

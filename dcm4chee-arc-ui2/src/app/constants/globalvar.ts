@@ -3988,6 +3988,13 @@ export class Globalvar {
                 "visible":undefined,
                 }
             },
+            "action-studies-create-fhir":{
+                type:"action",
+                title: $localize  `:@@action_studies_create_fhir_imaging_study:Action - Studies - Create FHIR Imaging Study`,
+                params:{
+                 "visible":undefined,
+                }
+            },
             "action-studies-verify_storage_commitment":{
                 type:"action",
                 title:"Action - Studies - Verify Storage Commitment",
