@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ *** BEGIN LICENSE BLOCK *****
   ~ Version: MPL 1.1/GPL 2.0/LGPL 2.1
   ~
   ~ The contents of this file are subject to the Mozilla Public License Version
@@ -18,7 +17,7 @@
   ~
   ~ The Initial Developer of the Original Code is
   ~ J4Care.
-  ~ Portions created by the Initial Developer are Copyright (C) 2016
+  ~ Portions created by the Initial Developer are Copyright (C) 2015-2018
   ~ the Initial Developer. All Rights Reserved.
   ~
   ~ Contributor(s):
@@ -35,21 +34,19 @@
   ~ and other provisions required by the GPL or the LGPL. If you do not delete
   ~ the provisions above, a recipient may use your version of this file under
   ~ the terms of any one of the MPL, the GPL or the LGPL.
-  ~
-  ~ *** END LICENSE BLOCK *****
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>dcm4chee-arc-parent</artifactId>
         <groupId>org.dcm4che.dcm4chee-arc</groupId>
+        <artifactId>dcm4chee-arc-parent</artifactId>
         <version>5.34.2</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>dcm4chee-arc-storage-emc-ecs</artifactId>
+    <artifactId>dcm4chee-arc-storage-aws-s3</artifactId>
 
     <dependencies>
         <dependency>
@@ -71,11 +68,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.emc.ecs</groupId>
-            <artifactId>object-client</artifactId>
-            <version>${ecs-object-client.version}</version>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>${awssdk.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
 </project>

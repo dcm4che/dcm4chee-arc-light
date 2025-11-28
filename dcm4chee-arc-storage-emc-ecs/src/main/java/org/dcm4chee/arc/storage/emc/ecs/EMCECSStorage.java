@@ -56,6 +56,7 @@ import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.AbstractStorage;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.WriteContext;
+import org.dcm4chee.arc.storage.UploadTaskWriteContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,7 +119,7 @@ public class EMCECSStorage extends AbstractStorage {
 
     @Override
     public WriteContext createWriteContext(String storagePath) {
-        EMCECSWriteContext writeContext = new EMCECSWriteContext(this);
+        UploadTaskWriteContext writeContext = new UploadTaskWriteContext(this);
         writeContext.setStoragePath(storagePath);
         return writeContext;
     }
@@ -142,7 +143,16 @@ public class EMCECSStorage extends AbstractStorage {
     @Override
     protected OutputStream openOutputStreamA(final WriteContext ctx) throws IOException {
         final PipedInputStream in = new PipedInputStream();
-        copy(in, ctx);
+        FutureTask<Void> task = new FutureTask<>(() -> {
+            try {
+                upload(ctx, in);
+            } finally {
+                in.close();
+            }
+            return null;
+        });
+        ((UploadTaskWriteContext) ctx).setUploadTask(task);
+        device.execute(task);
         return new PipedOutputStream(in);
     }
 
@@ -153,7 +163,7 @@ public class EMCECSStorage extends AbstractStorage {
 
     @Override
     protected void afterOutputStreamClosed(WriteContext ctx) throws IOException {
-        FutureTask<Void> task = ((EMCECSWriteContext) ctx).getUploadTask();
+        FutureTask<Void> task = ((UploadTaskWriteContext) ctx).getUploadTask();
         try {
             task.get();
         } catch (InterruptedException e) {

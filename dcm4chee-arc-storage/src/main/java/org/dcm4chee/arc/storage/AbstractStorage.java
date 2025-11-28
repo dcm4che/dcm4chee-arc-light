@@ -211,6 +211,7 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public void copy(InputStream in, WriteContext ctx) throws IOException {
+        checkAccessable();
         long startTime = System.nanoTime();
         copyA(in, ctx);
         metricsService.acceptDataRate("write-to-" + descriptor.getStorageID(),

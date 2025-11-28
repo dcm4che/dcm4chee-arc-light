@@ -47,6 +47,7 @@ import org.dcm4chee.arc.conf.StorageDescriptor;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.AbstractStorage;
 import org.dcm4chee.arc.storage.ReadContext;
+import org.dcm4chee.arc.storage.UploadTaskWriteContext;
 import org.dcm4chee.arc.storage.WriteContext;
 import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.BlobStore;
@@ -64,7 +65,6 @@ import java.nio.file.NoSuchFileException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadLocalRandom;
@@ -98,7 +98,7 @@ public class CloudStorage extends AbstractStorage {
 
     @Override
     public WriteContext createWriteContext(String storagePath) {
-        CloudWriteContext writeContext = new CloudWriteContext(this);
+        UploadTaskWriteContext writeContext = new UploadTaskWriteContext(this);
         writeContext.setStoragePath(storagePath);
         return writeContext;
     }
@@ -143,18 +143,15 @@ public class CloudStorage extends AbstractStorage {
     protected OutputStream openOutputStreamA(final WriteContext ctx) throws IOException {
         final PipedInputStream in = new PipedInputStream();
         PipedOutputStream out = new PipedOutputStream(in);
-        FutureTask<Void> task = new FutureTask<>(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                try {
-                    upload(ctx, in);
-                } finally {
-                    in.close();
-                }
-                return null;
+        FutureTask<Void> task = new FutureTask<>(() -> {
+            try {
+                upload(ctx, in);
+            } finally {
+                in.close();
             }
+            return null;
         });
-        ((CloudWriteContext) ctx).setUploadTask(task);
+        ((UploadTaskWriteContext) ctx).setUploadTask(task);
         device.execute(task);
         return out;
     }
@@ -166,7 +163,7 @@ public class CloudStorage extends AbstractStorage {
 
     @Override
     protected void afterOutputStreamClosed(WriteContext ctx) throws IOException {
-        FutureTask<Void> task = ((CloudWriteContext) ctx).getUploadTask();
+        FutureTask<Void> task = ((UploadTaskWriteContext) ctx).getUploadTask();
         try {
             task.get();
         } catch (InterruptedException e) {

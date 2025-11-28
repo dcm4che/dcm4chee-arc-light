@@ -1,5 +1,4 @@
 /*
- * ** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * The contents of this file are subject to the Mozilla Public License Version
@@ -17,7 +16,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2016
+ * Portions created by the Initial Developer are Copyright (C) 2015-2018
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -34,34 +33,35 @@
  * and other provisions required by the GPL or the LGPL. If you do not delete
  * the provisions above, a recipient may use your version of this file under
  * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * ** END LICENSE BLOCK *****
  */
 
-package org.dcm4chee.arc.storage.emc.ecs;
+package org.dcm4chee.arc.storage.awss3;
 
-import org.dcm4chee.arc.storage.DefaultWriteContext;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import org.dcm4che3.net.Device;
+import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.storage.Storage;
-
-import java.util.concurrent.FutureTask;
+import org.dcm4chee.arc.storage.StorageProvider;
 
 /**
- * @author Gunter Zeilinger <gunterze@gmail.com>
- * @since Oct 2015
+ * @author Gunter Zeilinger <gunterze@protonmail.com>
+ * @since Nov 2025
  */
-public class EMCECSWriteContext extends DefaultWriteContext {
+@ApplicationScoped
+@Named("aws-s3")
+public class AWSS3StorageProvider implements StorageProvider {
 
-    private FutureTask<Void> uploadTask;
+    @Inject
+    private Device device;
 
-    public EMCECSWriteContext(Storage storage) {
-        super(storage);
-    }
+    @Inject
+    private MetricsService metricsService;
 
-    public FutureTask<Void> getUploadTask() {
-        return uploadTask;
-    }
-
-    public void setUploadTask(FutureTask<Void> uploadTask) {
-        this.uploadTask = uploadTask;
+    @Override
+    public Storage openStorage(StorageDescriptor descriptor) {
+        return new AWSS3Storage(descriptor, metricsService, device);
     }
 }

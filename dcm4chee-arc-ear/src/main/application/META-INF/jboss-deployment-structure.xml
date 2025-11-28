@@ -72,6 +72,8 @@
             <module name="org.wildfly.security.elytron-http-oidc" export="TRUE"/>
             <!-- apache-cxf modules -->
             <module name="org.apache.cxf.impl" export="TRUE"/>
+            <!-- amazon-awssdk-s3 modules -->
+            <module name="software.amazon.awssdk.s3" export="TRUE"/>
             <!-- jclouds module -->
             <module name="org.apache.jclouds" export="TRUE" services="export"/>
             <!-- keycloak modules -->

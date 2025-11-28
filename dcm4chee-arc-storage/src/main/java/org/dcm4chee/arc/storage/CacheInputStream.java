@@ -56,7 +56,9 @@ public class CacheInputStream extends InputStream {
     private final ArrayList<byte[]> buffers = new ArrayList<>();
     private int pos;
     private int count;
+    private int markPos;
 
+    @Override
     public int available() {
         return count - pos;
     }
@@ -91,6 +93,21 @@ public class CacheInputStream extends InputStream {
         System.arraycopy(src, srcOff, b, 0, len);
         pos += len;
         return len;
+    }
+
+    @Override
+    public void mark(int readlimit) {
+        markPos = pos;
+    }
+
+    @Override
+    public void reset() throws IOException {
+        pos = markPos;
+    }
+
+    @Override
+    public boolean markSupported() {
+        return true;
     }
 
     public boolean fillBuffers(InputStream in) throws IOException {
