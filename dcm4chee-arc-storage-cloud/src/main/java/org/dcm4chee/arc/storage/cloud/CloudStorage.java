@@ -94,7 +94,7 @@ public class CloudStorage extends AbstractStorage {
     private final BlobStoreContext context;
     private final boolean streamingUpload;
     private final long maxPartSize;
-    private int count;
+    private boolean createBucket;
 
     @Override
     public WriteContext createWriteContext(String storagePath) {
@@ -107,7 +107,7 @@ public class CloudStorage extends AbstractStorage {
         super(descriptor, metricsService);
         this.device = device;
         container = descriptor.getProperty("container", DEFAULT_CONTAINER);
-        if (Boolean.parseBoolean(descriptor.getProperty("containerExists", null))) count++;
+        createBucket = !(Boolean.parseBoolean(descriptor.getProperty("containerExists", null)));
         String api = descriptor.getStorageURI().getSchemeSpecificPart();
         String endpoint = null;
         int endApi = api.indexOf(':');
@@ -141,6 +141,10 @@ public class CloudStorage extends AbstractStorage {
 
     @Override
     protected OutputStream openOutputStreamA(final WriteContext ctx) throws IOException {
+        if (createBucket) ensureBucketExists();
+        if (!ensureStoragePathNotExists(ctx)) {
+            return OutputStream.nullOutputStream();
+        }
         final PipedInputStream in = new PipedInputStream();
         PipedOutputStream out = new PipedOutputStream(in);
         FutureTask<Void> task = new FutureTask<>(() -> {
@@ -158,6 +162,9 @@ public class CloudStorage extends AbstractStorage {
 
     @Override
     protected void copyA(InputStream in, WriteContext ctx) throws IOException {
+        if (createBucket) ensureBucketExists();
+        if (ensureStoragePathNotExists(ctx))
+            upload(ctx, in);
         upload(ctx, in);
     }
 
@@ -185,20 +192,39 @@ public class CloudStorage extends AbstractStorage {
             upload(in, ctx);
     }
 
-    private void upload(InputStream in, WriteContext ctx) throws IOException {
+    private void ensureBucketExists() {
+        BlobStore blobStore = context.getBlobStore();
+        if (!blobStore.containerExists(container))
+            blobStore.createContainerInLocation(null, container);
+        createBucket = false;
+    }
+
+    private boolean ensureStoragePathNotExists(WriteContext ctx) throws IOException {
         BlobStore blobStore = context.getBlobStore();
         String storagePath = ctx.getStoragePath();
-        if (count++ == 0 && !blobStore.containerExists(container))
-            blobStore.createContainerInLocation(null, container);
-        else {
-            while (blobStore.blobExists(container, storagePath))
-                ctx.setStoragePath(storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
-                        .concat(String.format("%08X", ThreadLocalRandom.current().nextInt())));
+        if (blobStore.blobExists(container, storagePath)) {
+            switch (descriptor.getOnStoragePathAlreadyExists()) {
+                case NOOP:
+                    ctx.setDeletionLock(true);
+                    return false;
+                case FAILURE:
+                    ctx.setDeletionLock(true);
+                    throw alreadyExists(storagePath);
+                default: // case RANDOM_PATH
+                    do {
+                        ctx.setStoragePath(storagePath = storagePath.substring(0, storagePath.lastIndexOf('/') + 1)
+                                .concat(String.format("%08X", ThreadLocalRandom.current().nextInt())));
+                    } while (blobStore.blobExists(container, storagePath));
+            }
         }
+        return true;
+    }
+
+    private void upload(InputStream in, WriteContext ctx) throws IOException {
         long length = ctx.getContentLength();
         Uploader uploader = streamingUpload || length >= 0 && length <= maxPartSize
                 ? STREAMING_UPLOADER : new S3Uploader();
-        uploader.upload(context, in, length, blobStore, container, storagePath);
+        uploader.upload(context, in, length, context.getBlobStore(), container, ctx.getStoragePath());
     }
 
     private boolean isSynchronizeUpload() {
@@ -253,6 +279,11 @@ public class CloudStorage extends AbstractStorage {
         return new NoSuchFileException("No Object[" + storagePath
                 + "] in Container[" + container
                 + "] on " + getStorageDescriptor());
+    }
+
+    private IOException alreadyExists(String storagePath) {
+        return new IOException("Object[" + storagePath
+                + "] on " + getStorageDescriptor() + " already exists");
     }
 
     @Override
