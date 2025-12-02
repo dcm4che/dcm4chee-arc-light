@@ -67,7 +67,7 @@
     <awssdk.version>2.30.32</awssdk.version>
     <apache-commons-csv.version>1.11.0</apache-commons-csv.version>
     <apache-commons-compress.version>1.27.1</apache-commons-compress.version>
-    <jclouds.version>2.6.0</jclouds.version>
+    <jclouds.version>2.7.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
 
     <!-- JPA -->
