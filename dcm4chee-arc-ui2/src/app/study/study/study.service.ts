@@ -5512,12 +5512,22 @@ export class StudyService {
         }
     }
 
-    createFHIRImageStudy(dcmWebApp:DcmWebApp, studyInstanceUID){
-        if(!environment.production){
-            dcmWebApp.dcmWebServicePath = "/615f89f8-f3e5-4d32-8e3c-3c6b31b7af23";
-            return this.$http.post("",{},this.jsonHeader,undefined, dcmWebApp, {}, true);
-        }
-        return this.$http.post(`${this.getDicomURL("study", dcmWebApp)}${studyInstanceUID}/fhir/${dcmWebApp.dcmWebAppName}`,undefined,new HttpHeaders({'Content-Type': 'application/fhir+json', 'Accept': 'application/fhir+json'}),undefined,dcmWebApp);
+    createFHIRImageStudy(dcmWebApp:DcmWebApp, studyInstanceUID,studyWebApp:DcmWebApp){
+        return this.$http.post(
+            `${this.appService.baseUrl}${studyWebApp.dcmWebServicePath}/studies/${studyInstanceUID}/fhir/${dcmWebApp.dcmWebAppName}`
+                .replace(/dcm4chee-arc\/dcm4chee-arc/gi, "dcm4chee-arc")
+                .replace(/\/\//gi, "/")
+                .replace(/(http:\/)(\w)(.*)/gm, function(g1,g2,g3,g4){
+                    if(g3 != "/"){
+                        return g2+'/'+g3+g4;
+                    }else{
+                        return g2+g3+g4;
+                    }
+                })
+            ,
+            {},
+            new HttpHeaders({'Content-Type': 'application/fhir+json', 'Accept': 'application/fhir+json'})
+        );
     }
 
     getRequestSchema(){
