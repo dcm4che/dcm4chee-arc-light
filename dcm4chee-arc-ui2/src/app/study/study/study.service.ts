@@ -5513,6 +5513,22 @@ export class StudyService {
     }
 
     createFHIRImageStudy(dcmWebApp:DcmWebApp, studyInstanceUID,studyWebApp:DcmWebApp){
+        console.log("baseUrl", this.appService.baseUrl)
+        console.log("dcmWebServicePath", studyWebApp.dcmWebServicePath)
+        console.log("combined path=", `${this.appService.baseUrl}${studyWebApp.dcmWebServicePath}/studies/${studyInstanceUID}/fhir/${dcmWebApp.dcmWebAppName}`
+            .replace(/dcm4chee-arc\/dcm4chee-arc/gi, "dcm4chee-arc")
+            .replace(/\/\//gi, "/")
+            .replace(/(http:\/)(\w)(.*)/gm, function(g1,g2,g3,g4){
+                if(g3 != "/"){
+                    return g2+'/'+g3+g4;
+                }else{
+                    return g2+g3+g4;
+                }
+            }));
+        console.log("combined without replace=", `${this.appService.baseUrl}${studyWebApp.dcmWebServicePath}/studies/${studyInstanceUID}/fhir/${dcmWebApp.dcmWebAppName}`);
+        console.log("dcmWebApp", dcmWebApp);
+        console.log("studyWebApp", studyWebApp);
+
         return this.$http.post(
             `${this.appService.baseUrl}${studyWebApp.dcmWebServicePath}/studies/${studyInstanceUID}/fhir/${dcmWebApp.dcmWebAppName}`
                 .replace(/dcm4chee-arc\/dcm4chee-arc/gi, "dcm4chee-arc")
