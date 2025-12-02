@@ -1489,7 +1489,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             saveButton: $localize `:@@SAVE:SAVE`
         }).subscribe((save)=>{
             if(save){
-                if(save.schema_model.webApp)
+                if(save.schema_model.webApp){
                     this.service.createFHIRImageStudy(save.schema_model.webApp, this.service.getStudyInstanceUID(study.attrs), this.studyWebService.selectedWebService).subscribe((res)=>{
                         console.log(res);
                         this.appService.showMsg($localize `:@@fhir_imaging_successfully:FHIR Imaging Study created successfully`);
@@ -1497,7 +1497,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         console.error(err);
                         this.appService.showError($localize `:@@fhir_imaging_fail:Create FHIR Imaging Study failed`);
                     });
-                else{
+                }else{
                     this.appService.showError($localize `:@@no_webapp_selected:No webApp selected`);
                 }
             }
