@@ -5530,6 +5530,7 @@ export class StudyService {
         console.log("studyWebApp", studyWebApp);
 
         let webAppTemp = _.cloneDeep(studyWebApp);
+        console.log("webAppTemp", webAppTemp);
         webAppTemp.dcmWebServicePath = webAppTemp.dcmWebServicePath + `/studies/${studyInstanceUID}/fhir/${dcmWebApp.dcmWebAppName}`;
         return this.$http.post(
             '',
