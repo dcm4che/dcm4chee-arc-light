@@ -5529,22 +5529,14 @@ export class StudyService {
         console.log("dcmWebApp", dcmWebApp);
         console.log("studyWebApp", studyWebApp);
 
+        let webAppTemp = _.cloneDeep(studyWebApp);
+        webAppTemp.dcmWebServicePath = webAppTemp.dcmWebServicePath + `/studies/${studyInstanceUID}/fhir/${dcmWebApp.dcmWebAppName}`;
         return this.$http.post(
-            `${this.appService.baseUrl}${studyWebApp.dcmWebServicePath}/studies/${studyInstanceUID}/fhir/${dcmWebApp.dcmWebAppName}`
-                .replace(/dcm4chee-arc\/dcm4chee-arc/gi, "dcm4chee-arc")
-                .replace(/\/\//gi, "/")
-                .replace(/(http:\/)(\w)(.*)/gm, function(g1,g2,g3,g4){
-                    if(g3 != "/"){
-                        return g2+'/'+g3+g4;
-                    }else{
-                        return g2+g3+g4;
-                    }
-                })
-            ,
+            '',
             {},
             new HttpHeaders({'Content-Type': 'application/fhir+json', 'Accept': 'application/fhir+json'}),
             undefined,
-            studyWebApp
+            webAppTemp
         );
     }
 
