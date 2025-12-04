@@ -37,7 +37,7 @@
                 </div>
             </div>
         </div>
-        <div class="inputpart" *ngIf="!hideAdditionalParams">
+        <div class="inputpart" *ngIf="!hideAdditionalParams && mode === 'edit'">
             <div class="form_input">
                 <label i18n="@@reason_for_modification_label">Reason for modification:</label>
                 <dcm-drop-down [options]="reasonForModification" [(model)]="patientResults.reasonForModificationResult"
