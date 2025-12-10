@@ -1,0 +1,60 @@
+<div class="vex vex-theme-os clone" xmlns="http://www.w3.org/1999/html">
+    <div class="vex-dialog-form">
+        <h5 i18n="@@study.confirm_create_fhir_image_study">Creating a FHIR Imaging Study</h5>
+        <div class="content">
+            <div class="filter">
+                <div class="filter_block">
+                    <div class="line">
+                        <label i18n="@@web_app_service">Web App Service</label>
+                        <dcm-drop-down [options]="fhirWebAppsSelectDropdowns.selectDropdownWebServices" [(model)]="fhirWebAppsSelectDropdowns.selectedWebService"
+                                       [editable]="false" [showSearchField]="false" [multiSelectMode]="false" [showStar]="false"
+                                       (modelChange)="fhirWebAppsSelectDropdowns.selectedWebService = $event">
+                        </dcm-drop-down>
+                    </div>
+                </div>
+            </div>
+            @if (response) {
+                <div class="form_input response_block">
+                    <div class="response_switch_buttons">
+<!--
+                        <button class="btn-default" [ngClass]="{'active':responseButton==='table'}" (click)="responseButton =  'table'">TABLE RESPONSE</button>
+-->
+                        <button class="btn-default" [ngClass]="{'active':responseButton==='json'}" (click)="responseButton =  'json'">JSON</button>
+                        <button class="btn-default" [ngClass]="{'active':responseButton==='headers'}" (click)="responseButton =  'headers'">HEADERS</button>
+                    </div>
+                    <div class="response_content">
+                        @switch (responseButton) {
+<!--                            @case ("table") {
+                                <div>{{ tableResponse|json }}</div>
+                            }-->
+                            @case ("json") {
+                                <pre class="json_response">
+                                    {{response}};
+                                </pre>
+                            }
+                            @case ("headers") {
+                                <table>
+                                    <tr>
+                                        <th>Header key</th>
+                                        <th>Header value</th>
+                                    </tr>
+                                    @for (header of headers; track header.key){
+                                        <tr>
+                                            <td>{{header.key}}:</td>
+                                            <td>{{header.value}}</td>
+                                        </tr>
+                                    }
+                                </table>
+                            }
+                        }
+                    </div>
+
+                </div>
+            }
+        </div>
+        <div class="dialogbuttons">
+            <button [disabled]="response" class="save" type="button" (click)="save()" i18n="@@SAVE">SAVE</button>
+            <button class="cancle" type="button" (click)="dialogRef.close(null)" i18n="@@CLOSE">CLOSE</button>
+        </div>
+    </div>
+</div>

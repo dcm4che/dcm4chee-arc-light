@@ -71,15 +71,15 @@ export class J4careHttpService{
             return this.request.apply(this,['head', {url:(doNotEncode ? url : encodeURI(url)), header:header}]);
         }
     }
-    post(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any, dontSetToken?:boolean){
+    post(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any, dontSetToken?:boolean, observe?:string){
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
             url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp, this.mainservice.baseUrl);
-            return this.dcmWebAppRequest.apply(this,['post', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params}]);
+            return this.dcmWebAppRequest.apply(this,['post', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params, observe:observe}]);
         }else{
             if(dcmWebApp){
                 url = url || this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
             }
-            return this.request.apply(this,['post', {url:(doNotEncode ? url : encodeURI(url)), data:data, header:header}, undefined, dontSetToken]);
+            return this.request.apply(this,['post', {url:(doNotEncode ? url : encodeURI(url)), data:data, header:header, observe:observe}, undefined, dontSetToken]);
         }
     }
     put(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
@@ -145,6 +145,9 @@ export class J4careHttpService{
                 return throwError(res);
             }),
             map((res:any)=>{
+                if(_.hasIn(param, 'observe') && param.observe === 'response'){
+                    return res;
+                }
                if(_.hasIn(res,"body")){
                    if(_.hasIn(res,"headers")){
                        try{
@@ -168,12 +171,13 @@ export class J4careHttpService{
             "data",
             "header",
             "params",
-            "responseType"
+            "responseType",
+            "observe"
         ].forEach(key=>{
             if(_.hasIn(param,key)){
-                if(key === "responseType"){
+                if(key === "responseType" || key === "observe"){
                     let headerObject = httpParam[1] || {};
-                    headerObject["responseType"] = param[key];
+                    headerObject[key] = param[key];
                     httpParam[1] = headerObject;
                     // httpParam.push({responseType:param[key]});
                 }else{

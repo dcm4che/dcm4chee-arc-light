@@ -1,0 +1,45 @@
+.json_response{
+  overflow: auto;
+  max-height: 300px;
+}
+.filter{
+  width: 100%;
+  .filter_block{
+    width: 100%;
+  }
+}
+.response_block{
+  border: 1px solid #ccc;
+  display: block;
+  float: left;
+  width: 100%;
+  padding: 20px;
+  margin-top: 20px;
+}
+.response_switch_buttons button{
+  min-width: 150px;
+  float:left;
+  margin-right:2px;
+  background: #ccc;
+  border:none;
+  color:black;
+  &.active{
+    background: var(--backgroundColor);
+    color:var(--backgroundColorWhite);
+    &:hover{
+      background: var(--backgroundColorHover);
+    }
+  }
+}
+.response_content{
+  float:left;
+  width:100%;
+  background: #f9f9f9;
+  padding: 20px;
+  table{
+    td,th{
+      padding: 2px 5px;
+      border: 1px solid #ccc;
+    }
+  }
+}

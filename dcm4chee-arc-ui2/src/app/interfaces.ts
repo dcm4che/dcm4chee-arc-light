@@ -292,6 +292,7 @@ export interface DcmWebAppRequestParam {
     dcmWebApp:DcmWebApp;
     params:any;
     data:any;
+    observe:string;
 }
 
 export interface MetricsDescriptors{

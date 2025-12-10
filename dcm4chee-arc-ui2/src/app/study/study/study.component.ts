@@ -89,6 +89,7 @@ import {ClickOutsideDirective} from '../../helpers/click-outside.directive';
 import {DicomStudiesTableComponent} from '../../helpers/dicom-studies-table/dicom-studies-table.component';
 import {SelectionsDicomViewComponent} from './selections-dicom-view/selections-dicom-view.component';
 import {StudyTabComponent} from '../study-tab.component';
+import {FhirDialogComponent} from "../../widgets/dialogs/fhir-dialog/fhir-dialog.component";
 
 declare var DCM4CHE: any;
 
@@ -1464,7 +1465,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     createFHIRImageStudy(study:StudyDicom, level:DicomLevel){
         //this.cfpLoadingBar.start();
-        this.confirm({
+        //FhirDialogComponent
+        this.dialogRef = this.dialog.open(FhirDialogComponent, {
+            height: 'auto',
+            width: '50vw'
+        });
+
+        this.dialogRef.componentInstance.fhirWebAppsSelectDropdowns = this.fhirWebAppsSelectDropdowns;
+        this.dialogRef.componentInstance.selectedWebService = this.studyWebService.selectedWebService;
+        this.dialogRef.componentInstance.study = study.attrs;
+/*        this.confirm({
             content: $localize `:@@study.confirm_create_fhir_image_study:Are you sure you want to create FHIR Imaging Study?`,
             doNotSave: true,
             form_schema:[[
@@ -1501,7 +1511,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.appService.showError($localize `:@@no_webapp_selected:No webApp selected`);
                 }
             }
-        });
+        });*/
     }
     importMatchingSPS() {
         this.confirm({
