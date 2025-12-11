@@ -60,8 +60,22 @@ public class CorsFilter implements ContainerResponseFilter {
                        ContainerResponseContext responseContext) throws IOException {
         responseContext.getHeaders().add("Access-Control-Allow-Origin", "*");
         responseContext.getHeaders().add("Access-Control-Allow-Credentials", "true");
-        responseContext.getHeaders().add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization");
-        responseContext.getHeaders().add("Access-Control-Expose-Headers", "content-type, warning");
+        responseContext.getHeaders().add("Access-Control-Allow-Headers",
+                getSystemPropertyOrEnv(
+                        "Access-Control-Allow-Headers",
+                        "ACCESS_CONTROL_ALLOW_HEADERS",
+                        "origin, content-type, accept, authorization"));
+        responseContext.getHeaders().add("Access-Control-Expose-Headers",
+                getSystemPropertyOrEnv(
+                        "Access-Control-Expose-Headers",
+                        "ACCESS_CONTROL_EXPOSE_HEADERS",
+                        "content-type, warning, location, content-location"));
         responseContext.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+    }
+
+    private static String getSystemPropertyOrEnv(String key, String env, String defaultValue) {
+        String value = System.getProperty(key);
+        if (value == null) value = System.getenv(env);
+        return value != null ? value : defaultValue;
     }
 }
