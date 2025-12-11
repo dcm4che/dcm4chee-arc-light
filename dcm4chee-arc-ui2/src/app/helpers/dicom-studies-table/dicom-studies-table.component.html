@@ -76,6 +76,8 @@
                 </ng-container>
             </div>
             <attribute-list *ngIf="patient.showAttributes" [attrs]="patient.attrs"></attribute-list>
+            <label class="padding-left" *ngIf="patient.showAttributes && patient.xroad" i18n="@@pdw_response:">PDQs Response:</label>
+            <attribute-list *ngIf="patient.showAttributes && patient.xroad" [attrs]="patient.xroad"></attribute-list>
             <custom-attribute-list *ngIf="patient && patient.showCustomAttributes" [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute"  [attributesHook]="config.attributesHook" [attributes]="patient"></custom-attribute-list>
         </div>
 

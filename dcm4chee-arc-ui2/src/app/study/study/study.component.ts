@@ -7064,6 +7064,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }else{
                 console.log("global",this.appService.global);
                 this.cfpLoadingBar.start();
+                //patientId.xroad = _.cloneDeep(patientId.attrs) //TODO remove!
                 this.service.queryNationalPatientRegister(this.service.getPatientId(patientId.attrs)).subscribe((xroadAttr)=>{
                     patientId.xroad = xroadAttr;
                     this.cfpLoadingBar.complete();
