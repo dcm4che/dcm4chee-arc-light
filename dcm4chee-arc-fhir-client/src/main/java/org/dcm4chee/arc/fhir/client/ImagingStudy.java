@@ -45,6 +45,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.text.DateFormat;
@@ -85,7 +86,7 @@ public enum ImagingStudy {
                 writeNotNull(gen, "started", kosAttrs.getDate(Tag.StudyDateAndTime), ISO_DATE_TIME);
                 gen.write("numberOfSeries", refSeriesSeq.size());
                 gen.write("numberOfInstances", countInstances(refSeriesSeq));
-                writeModalities(gen, "modality", listModalities(seriesAttrsByIUID));
+                writeModalities(gen, listModalities(seriesAttrsByIUID));
                 writeNotNull(gen, "description", kosAttrs.getString(Tag.StudyDescription));
                 gen.writeStartArray("series");
                 for (Attributes refSeries : refSeriesSeq) {
@@ -115,6 +116,9 @@ public enum ImagingStudy {
                 }
                 gen.writeEnd();
                 gen.writeEnd();
+            } catch (RuntimeException e) {
+                LoggerFactory.getLogger(ImagingStudy.class).error("Failed to write JSON", e);
+                throw e;
             }
         }
 
@@ -140,6 +144,35 @@ public enum ImagingStudy {
                 gen.writeEnd();
             }
         }
+
+        private void writeModalities(JsonGenerator gen, Collection<String> modalities) {
+            if (!modalities.isEmpty()) {
+                gen.writeStartArray("modality");
+                for (String modality : modalities) {
+                    gen.writeStartObject();
+                    writeModalityCoding(gen, modality);
+                    gen.writeEnd();
+                }
+                gen.writeEnd();
+            }
+        }
+
+        private void writeModality(JsonGenerator gen, String modality) {
+            if (modality != null) {
+                gen.writeStartObject("modality");
+                writeModalityCoding(gen, modality);
+                gen.writeEnd();
+            }
+        }
+
+        private void writeModalityCoding(JsonGenerator gen, String modality) {
+            gen.writeStartArray("coding");
+            gen.writeStartObject();
+            gen.write("system", "http://dicom.nema.org/resources/ontology/DCM");
+            gen.write("code", modality);
+            gen.writeEnd();
+            gen.writeEnd();
+        }
     },
     FHIR_R2_JSON {
         @Override
@@ -163,7 +196,7 @@ public enum ImagingStudy {
                 writeNotNull(gen, "started", kosAttrs.getDate(Tag.StudyDateAndTime), ISO_DATE_TIME);
                 gen.write("numberOfSeries", refSeriesSeq.size());
                 gen.write("numberOfInstances", countInstances(refSeriesSeq));
-                writeModalities(gen, "modalityList", listModalities(seriesAttrsByIUID));
+                writeModalities(gen, listModalities(seriesAttrsByIUID));
                 writeNotNull(gen, "description", kosAttrs.getString(Tag.StudyDescription));
                 gen.writeStartArray("series");
                 for (Attributes refSeries : refSeriesSeq) {
@@ -189,6 +222,9 @@ public enum ImagingStudy {
                 }
                 gen.writeEnd();
                 gen.writeEnd();
+            } catch (RuntimeException e) {
+                LoggerFactory.getLogger(ImagingStudy.class).error("Failed to write JSON", e);
+                throw e;
             }
         }
 
@@ -206,6 +242,28 @@ public enum ImagingStudy {
         private void writeAccessionNumber(JsonGenerator gen, IDWithIssuer idWithIssuer, ArchiveDeviceExtension arcdev) {
             if (idWithIssuer != null) {
                 writeAccessionNumber(gen, "accession", idWithIssuer, arcdev);
+            }
+        }
+
+        private void writeModalities(JsonGenerator gen, Collection<String> modalities) {
+            if (!modalities.isEmpty()) {
+                gen.writeStartArray("modalityList");
+                for (String modality : modalities) {
+                    gen.writeStartObject();
+                    gen.write("system", "http://dicom.nema.org/resources/ontology/DCM");
+                    gen.write("code", modality );
+                    gen.writeEnd();
+                }
+                gen.writeEnd();
+            }
+        }
+
+        private void writeModality(JsonGenerator gen, String modality) {
+            if (modality != null) {
+                gen.writeStartObject("modality");
+                gen.write("system", "http://dicom.nema.org/resources/ontology/DCM");
+                gen.write("code", modality );
+                gen.writeEnd();
             }
         }
     };
@@ -260,26 +318,6 @@ public enum ImagingStudy {
     }
     private static void writeNotNull(JsonGenerator gen, String name, String value) {
         if (value != null) gen.write(name, value);
-    }
-    private static void writeModalities(JsonGenerator gen, String name, Collection<String> modalities) {
-        if (!modalities.isEmpty()) {
-            gen.writeStartArray(name);
-            for (String modality : modalities) {
-                gen.writeStartObject();
-                gen.write("system", "http://dicom.nema.org/resources/ontology/DCM");
-                gen.write("code", modality );
-                gen.writeEnd();
-            }
-            gen.writeEnd();
-        }
-    }
-    private static void writeModality(JsonGenerator gen, String modality) {
-        if (modality != null) {
-            gen.writeStartObject("modality");
-            gen.write("system", "http://dicom.nema.org/resources/ontology/DCM");
-            gen.write("code", modality );
-            gen.writeEnd();
-        }
     }
 
     public abstract Entity<StreamingOutput> create(
