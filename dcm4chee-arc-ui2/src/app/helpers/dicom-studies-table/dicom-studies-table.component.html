@@ -103,7 +103,6 @@
                                 <a *ngIf="(!action.showIf || action.showIf(study, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(study,'study')" title="{{action.title || ''}}">
                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-                                        {{action.icon.svg|json}}
                                     @if(action.icon.svg && action.icon.svg != ''){
                                         <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                     }
@@ -250,7 +249,6 @@
                                         </ng-container>-->
                                         <ng-container *ngSwitchCase="'actions'">
                                             <ng-container *ngFor="let action of instance_table.actions">
-                                                {{action.title}}
                                                 <a *ngIf="(!action.showIf || action.showIf(instance, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
                                                     <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
                                                     <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
