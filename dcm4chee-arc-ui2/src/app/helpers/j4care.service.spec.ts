@@ -1117,4 +1117,19 @@ describe('j4care', () => {
         expect(j4care.sliceArrayFromRightUntilNotEmpty(undefined)).toEqual(undefined);
         expect(j4care.sliceArrayFromRightUntilNotEmpty(<any>'')).toEqual('');
     });
+    it('Should extract the properties of WebApp and put them in an object',()=>{
+       expect(j4care.extractPropertiesFromWebApp(<DcmWebApp>{
+           dcmProperty:['key1=value1','key2=value2','key3=value3']
+       })).toEqual({
+           key1:'value1',
+           key2:'value2',
+           key3:'value3'
+       });
+       expect(j4care.extractPropertiesFromWebApp(<DcmWebApp>{
+           dcmProperty:['ImagingStudy=FHIR_R5_XML','roles=role1, role2']
+       })).toEqual({
+           ImagingStudy:'FHIR_R5_XML',
+           roles:'role1, role2'
+       });
+    });
 });

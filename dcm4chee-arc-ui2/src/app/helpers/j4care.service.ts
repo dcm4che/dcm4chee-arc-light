@@ -1945,4 +1945,19 @@ export class j4care {
         }
         return "";
     }
+
+    static extractPropertiesFromWebApp(webApp:DcmWebApp){
+        try{
+            let properties = {};
+            if(webApp && webApp.dcmProperty && this.isSet(webApp.dcmProperty)){
+                webApp.dcmProperty.forEach((prop:string)=>{
+                    const propertieParts:string[] = prop.split('=');
+                    properties[propertieParts[0]] = propertieParts[1];
+                });
+            }
+            return properties;
+        }catch (e) {
+            return {};
+        }
+    }
 }

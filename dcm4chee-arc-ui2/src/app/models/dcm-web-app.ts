@@ -4,19 +4,19 @@ import {Aet} from "./aet";
 export type WebServiceClass = "QIDO_RS" | "STOW_RS" | "WADO_RS" | "WADO_URI" | "UPS_RS" | "MOVE" |"DCM4CHEE_ARC" | "DCM4CHEE_ARC_AET"|string;
 
 export class DcmWebApp{
-    private _dcmWebAppName:string;
-    private _dicomNetworkConnectionReference:any[];
-    private _dicomNetworkConnection:any[];
-    private _dicomDescription:string;
-    private _dcmWebServicePath:string;
-    private _dcmWebServiceClass:WebServiceClass[];
-    private _dicomAETitle:string;
-    private _dicomApplicationCluster:any[]
-    private _dicomInstalled:boolean;
-    private _dcmKeycloakClientID:string;
-    private _dicomDeviceName:string;
-    private _dcmProperty:string[];
-    private _dicomAETitleObject:Aet;
+    private _dcmWebAppName?:string;
+    private _dicomNetworkConnectionReference?:any[];
+    private _dicomNetworkConnection?:any[];
+    private _dicomDescription?:string;
+    private _dcmWebServicePath?:string;
+    private _dcmWebServiceClass?:WebServiceClass[];
+    private _dicomAETitle?:string;
+    private _dicomApplicationCluster?:any[]
+    private _dicomInstalled?:boolean;
+    private _dcmKeycloakClientID?:string;
+    private _dicomDeviceName?:string;
+    private _dcmProperty?:string[];
+    private _dicomAETitleObject?:Aet;
 
     constructor(
         webApp:{

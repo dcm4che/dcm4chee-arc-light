@@ -11,21 +11,37 @@ import * as _ from 'lodash-es'
 export class FhirDialogService {
 
   constructor(
-      private $http:J4careHttpService,
-      private appService:AppService,
+      private $http:J4careHttpService
   ) { }
-  createFHIRImageStudy(dcmWebApp:DcmWebApp, studyInstanceUID:string,studyWebApp:DcmWebApp){
+  createFHIRImageStudy(dcmWebApp:DcmWebApp, studyInstanceUID:string,studyWebApp:DcmWebApp, responseHeaderType:string = 'json'){
     let webAppTemp = _.cloneDeep(studyWebApp);
     webAppTemp.dcmWebServicePath = webAppTemp.dcmWebServicePath + `/studies/${studyInstanceUID}/fhir/${dcmWebApp.dcmWebAppName}`;
-    return this.$http.post(
-        '',
-        {},
-        new HttpHeaders({'Content-Type': 'application/fhir+json', 'Accept': 'application/fhir+json'}),
-        undefined,
-        webAppTemp,
-        {},
-        false,
-        'response'
-    );
+    let headers = new HttpHeaders()
+        .set('Content-Type', 'application/fhir+'+responseHeaderType)
+        .set('Accept', 'application/fhir+'+responseHeaderType);
+    if(responseHeaderType === 'json'){
+      return this.$http.post(
+          '',
+          {},
+          headers,
+          undefined,
+          webAppTemp,
+          {},
+          false,
+          'response'
+      );
+    }else{
+      return this.$http.post(
+          '',
+          {},
+          headers,
+          undefined,
+          webAppTemp,
+          {},
+          false,
+          undefined,
+          "text"
+      );
+    }
   }
 }

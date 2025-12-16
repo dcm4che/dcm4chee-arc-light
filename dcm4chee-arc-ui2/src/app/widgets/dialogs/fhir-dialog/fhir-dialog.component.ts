@@ -11,6 +11,7 @@ import {DcmWebApp} from "../../../models/dcm-web-app";
 import {JsonPipe, NgClass} from "@angular/common";
 import {DcmDropDownComponent} from "../../dcm-drop-down/dcm-drop-down.component";
 import {j4care} from "../../../helpers/j4care.service";
+import {SelectDropdown} from "../../../interfaces";
 
 @Component({
   selector: 'app-fhir-dialog',
@@ -31,10 +32,9 @@ export class FhirDialogComponent {
   selectedWebService:DcmWebApp;
   study:any;
   response:any;
-  showResponse = false;
-  responseButton = 'json';
-  tableResponse;
+  responseButton = 'headers';
   headers;
+  responseHeaderType:string = 'json';
   constructor(
       public dialogRef: MatDialogRef<FhirDialogComponent>,
       private service:FhirDialogService,
@@ -43,20 +43,31 @@ export class FhirDialogComponent {
   ) { }
   save(){
     if(!this.response){
-      this.service.createFHIRImageStudy(this.fhirWebAppsSelectDropdowns.selectedWebService, this.studyService.getStudyInstanceUID(this.study), this.selectedWebService).subscribe((res)=>{
-        console.log('Respons:',res);
-        this.response = JSON.stringify(res.body, null, 2);
-        console.log('headers2:',res.headers.headers);
-        console.log('keys:',res.headers.keys());
-        console.log('location:',res.headers.get('Location'));
-        console.log('content-location::',res.headers.get('content-location'));
+      this.service.createFHIRImageStudy(this.fhirWebAppsSelectDropdowns.selectedWebService, this.studyService.getStudyInstanceUID(this.study), this.selectedWebService, this.responseHeaderType).subscribe((res)=>{
+        if(this.responseHeaderType === 'json'){
+          this.response = JSON.stringify(res.body, null, 2);
+        }else{
+          this.response = res.body;
+        }
         this.headers = res.headers.keys().map(key=>({key:key,value:res.headers.get(key)}));
-        //this.tableResponse = j4care.stringifyArrayOrObject(res,[]);
         this.appService.showMsg($localize `:@@fhir_imaging_successfully:FHIR Imaging Study created successfully`);
       },err=>{
         console.error(err);
         this.appService.showError($localize `:@@fhir_imaging_fail:Create FHIR Imaging Study failed`);
       });
+    }
+  }
+
+  protected webAppModelChange($event: any) {
+    this.fhirWebAppsSelectDropdowns.selectedWebService = $event;
+    console.log("selected",this.fhirWebAppsSelectDropdowns.selectedWebService);
+    const properties = j4care.extractPropertiesFromWebApp(this.fhirWebAppsSelectDropdowns.selectedWebService);
+    if(j4care.hasSet(properties,"ImagingStudy")){
+      if(properties['ImagingStudy'] === 'FHIR_R5_XML' || properties['ImagingStudy'] === 'LTNHR_V1_XML' ){
+        this.responseHeaderType = 'xml';
+      }else{
+        this.responseHeaderType = 'json';
+      }
     }
   }
 }

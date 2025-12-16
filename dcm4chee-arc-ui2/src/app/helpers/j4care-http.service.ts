@@ -71,15 +71,23 @@ export class J4careHttpService{
             return this.request.apply(this,['head', {url:(doNotEncode ? url : encodeURI(url)), header:header}]);
         }
     }
-    post(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any, dontSetToken?:boolean, observe?:string){
+    post(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any, dontSetToken?:boolean, observe?:string, responseType?:string){
         if(dcmWebApp && _.hasIn(dcmWebApp,"dcmKeycloakClientID")){
             url = url || j4care.getUrlFromDcmWebApplication(dcmWebApp, this.mainservice.baseUrl);
-            return this.dcmWebAppRequest.apply(this,['post', {url:(doNotEncode ? url : encodeURI(url)), doNotEncode:doNotEncode,header:header, dcmWebApp:dcmWebApp, params:params, observe:observe}]);
+            return this.dcmWebAppRequest.apply(this,['post', {
+                url:(doNotEncode ? url : encodeURI(url)),
+                doNotEncode:doNotEncode,
+                header:header,
+                dcmWebApp:dcmWebApp,
+                params:params,
+                observe:observe,
+                responseType:responseType
+            }]);
         }else{
             if(dcmWebApp){
                 url = url || this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
             }
-            return this.request.apply(this,['post', {url:(doNotEncode ? url : encodeURI(url)), data:data, header:header, observe:observe}, undefined, dontSetToken]);
+            return this.request.apply(this,['post', {url:(doNotEncode ? url : encodeURI(url)), data:data, header:header, observe:observe, responseType:responseType}, undefined, dontSetToken]);
         }
     }
     put(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
@@ -145,7 +153,7 @@ export class J4careHttpService{
                 return throwError(res);
             }),
             map((res:any)=>{
-                if(_.hasIn(param, 'observe') && param.observe === 'response'){
+                if((_.hasIn(param, 'observe') && param.observe === 'response') || (_.hasIn(param, 'responseType') && param.responseType === 'text')){
                     return res;
                 }
                if(_.hasIn(res,"body")){
@@ -175,10 +183,15 @@ export class J4careHttpService{
             "observe"
         ].forEach(key=>{
             if(_.hasIn(param,key)){
-                if(key === "responseType" || key === "observe"){
+                if(key === "responseType"){
                     let headerObject = httpParam[1] || {};
-                    headerObject[key] = param[key];
-                    httpParam[1] = headerObject;
+                    if(requestFunctionName === "post" && key === "responseType") {
+                        httpParam[2] = httpParam[2] || {};
+                        httpParam[2][key] = param[key];
+                    }else{
+                        headerObject[key] = param[key];
+                        httpParam[1] = headerObject;
+                    }
                     // httpParam.push({responseType:param[key]});
                 }else{
                     if(key=== "header"){

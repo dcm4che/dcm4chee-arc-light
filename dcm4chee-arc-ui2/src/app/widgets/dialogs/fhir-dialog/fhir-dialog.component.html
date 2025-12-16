@@ -8,7 +8,7 @@
                         <label i18n="@@web_app_service">Web App Service</label>
                         <dcm-drop-down [options]="fhirWebAppsSelectDropdowns.selectDropdownWebServices" [(model)]="fhirWebAppsSelectDropdowns.selectedWebService"
                                        [editable]="false" [showSearchField]="false" [multiSelectMode]="false" [showStar]="false"
-                                       (modelChange)="fhirWebAppsSelectDropdowns.selectedWebService = $event">
+                                       (modelChange)="webAppModelChange($event)">
                         </dcm-drop-down>
                     </div>
                 </div>
@@ -16,27 +16,26 @@
             @if (response) {
                 <div class="form_input response_block">
                     <div class="response_switch_buttons">
-<!--
-                        <button class="btn-default" [ngClass]="{'active':responseButton==='table'}" (click)="responseButton =  'table'">TABLE RESPONSE</button>
--->
-                        <button class="btn-default" [ngClass]="{'active':responseButton==='json'}" (click)="responseButton =  'json'">JSON</button>
+                        @if (responseHeaderType === 'xml') {
+                            <button class="btn-default" [ngClass]="{'active':responseButton==='xml'}" (click)="responseButton =  'xml'">XML</button>
+                        } @else if (responseHeaderType === 'json') {
+                            <button class="btn-default" [ngClass]="{'active':responseButton==='json'}" (click)="responseButton =  'json'">JSON</button>
+                        }
                         <button class="btn-default" [ngClass]="{'active':responseButton==='headers'}" (click)="responseButton =  'headers'">HEADERS</button>
                     </div>
                     <div class="response_content">
                         @switch (responseButton) {
-<!--                            @case ("table") {
-                                <div>{{ tableResponse|json }}</div>
-                            }-->
+                            @case ("xml") {
+                                <pre class="json_response">{{response}}</pre>
+                            }
                             @case ("json") {
-                                <pre class="json_response">
-                                    {{response}};
-                                </pre>
+                                <pre class="json_response">{{response}}</pre>
                             }
                             @case ("headers") {
                                 <table>
                                     <tr>
-                                        <th>Header key</th>
-                                        <th>Header value</th>
+                                        <th i18n="@@header_key">Header key</th>
+                                        <th i18n="@@header_value">Header value</th>
                                     </tr>
                                     @for (header of headers; track header.key){
                                         <tr>
