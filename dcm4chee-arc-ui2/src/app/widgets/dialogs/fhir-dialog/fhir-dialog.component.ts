@@ -60,7 +60,6 @@ export class FhirDialogComponent {
 
   protected webAppModelChange($event: any) {
     this.fhirWebAppsSelectDropdowns.selectedWebService = $event;
-    console.log("selected",this.fhirWebAppsSelectDropdowns.selectedWebService);
     const properties = j4care.extractPropertiesFromWebApp(this.fhirWebAppsSelectDropdowns.selectedWebService);
     if(j4care.hasSet(properties,"ImagingStudy")){
       if(properties['ImagingStudy'] === 'FHIR_R5_XML' || properties['ImagingStudy'] === 'LTNHR_V1_XML' ){
