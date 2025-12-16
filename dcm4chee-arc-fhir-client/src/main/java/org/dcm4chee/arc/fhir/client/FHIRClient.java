@@ -37,6 +37,7 @@
 
 package org.dcm4chee.arc.fhir.client;
 
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.WebApplication;
@@ -47,5 +48,5 @@ import org.dcm4che3.net.WebApplication;
  */
 public interface FHIRClient {
 
-    Response create(ApplicationEntity ae, String studyUID, WebApplication webApp);
+    Response create(ApplicationEntity ae, String studyUID, WebApplication webApp, MediaType... acceptableMediaTypes);
 }

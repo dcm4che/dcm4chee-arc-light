@@ -42,6 +42,8 @@ import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IWebApplicationCache;
@@ -79,6 +81,9 @@ public class FHIRClientRS {
     @Context
     private HttpServletRequest request;
 
+    @Context
+    private HttpHeaders headers;
+
     @POST
     @Path("/studies/{StudyInstanceUID}/fhir/{webAppName}")
     public Response createImagingStudy(
@@ -100,7 +105,7 @@ public class FHIRClientRS {
         }
         if (webApp == null)
             return errResponse("No such Web Application: " + webApp, Response.Status.NOT_FOUND);
-        return fhirClient.create(ae, studyUID, webApp);
+        return fhirClient.create(ae, studyUID, webApp, headers.getAcceptableMediaTypes().toArray(new MediaType[0]));
     }
 
     private ApplicationEntity getApplicationEntity() {

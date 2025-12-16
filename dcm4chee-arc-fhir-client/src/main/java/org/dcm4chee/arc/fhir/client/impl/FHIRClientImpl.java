@@ -41,6 +41,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
@@ -54,6 +55,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -73,7 +75,8 @@ public class FHIRClientImpl implements FHIRClient {
     private AccessTokenRequestor accessTokenRequestor;
 
     @Override
-    public Response create(ApplicationEntity ae, String studyUID, WebApplication webApp) {
+    public Response create(ApplicationEntity ae, String studyUID, WebApplication webApp,
+                           MediaType... acceptableMediaTypes) {
         ImagingStudy imagingStudy = imagingStudy(webApp);
         String url = webApp.getServiceURL().append("/ImagingStudy").toString();
         Map<String, Attributes> seriesAttrs = new HashMap<>();
@@ -81,6 +84,8 @@ public class FHIRClientImpl implements FHIRClient {
         try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, webApp).build()) {
             WebTarget target = client.target(url);
             Invocation.Builder request = target.request();
+            if (acceptableMediaTypes.length > 0)
+                request.accept(acceptableMediaTypes);
             String token = accessTokenRequestor.authorizationHeader(webApp);
             if (token != null)
                 request.header("Authorization", token);
