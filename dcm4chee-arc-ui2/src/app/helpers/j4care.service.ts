@@ -1,12 +1,14 @@
 import {Injectable} from '@angular/core';
-import {Subscriber, Observable} from "rxjs";
+import {Subscriber, Observable} from 'rxjs';
 declare var DCM4CHE: any;
 import * as _ from 'lodash-es';
-import {DatePipe} from "@angular/common";
-import {WindowRefService} from "./window-ref.service";
-//import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
-import {ConfirmComponent} from "../widgets/dialogs/confirm/confirm.component";
-import {Router} from "@angular/router";
+import {DatePipe} from '@angular/common';
+import {WindowRefService} from './window-ref.service';
+// import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
+/*
+import {ConfirmComponent} from '../widgets/dialogs/confirm/confirm.component';
+*/
+import {Router} from '@angular/router';
 import {
     ConfiguredDateTameFormatObject,
     J4careDateTime,
@@ -15,18 +17,18 @@ import {
     RangeObject,
     RangeUnit, SelectDropdown,
     StudyDateMode
-} from "../interfaces";
-import {TableSchemaElement} from "../models/dicom-table-schema-element";
-import {DicomNetworkConnection} from "../interfaces";
-import {DcmWebApp} from "../models/dcm-web-app";
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+} from '../interfaces';
+import {TableSchemaElement} from '../models/dicom-table-schema-element';
+import {DicomNetworkConnection} from '../interfaces';
+import {DcmWebApp} from '../models/dcm-web-app';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { v4 as uuidv4 } from 'uuid';
 
-import {User} from "../models/user";
+import {User} from '../models/user';
 import {DomSanitizer, SafeUrl} from "@angular/platform-browser";
-import {Aet} from "../models/aet";
-import {Device} from "../models/device";
-import {MatDialog, MatDialogRef} from "@angular/material/dialog";
+import {Aet} from '../models/aet';
+import {Device} from '../models/device';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {DynamicPipePipe} from '../pipes/dynamic-pipe.pipe';
 
 declare const bigInt:Function;
@@ -48,7 +50,7 @@ export class j4care {
         }
         for(let key in object){
             if(object.hasOwnProperty(key) && key) {
-                if(typeof object[key] === "object"){
+                if(typeof object[key] === 'object'){
                     this.traverse(object[key],func, key);
                 }else{
                     object[key] = func.apply(object,[object[key],key,object, savedKeys]);
@@ -81,7 +83,7 @@ export class j4care {
             }
         }
         for(let key in object){
-            if(typeof object[key] === "object"){
+            if(typeof object[key] === 'object'){
                 this.removeKeyFromObject(object[key], toRemoveKey);
             }
         }
@@ -89,7 +91,7 @@ export class j4care {
     }
     static getPath(obj, searchKey:string, value:string) {
         for(let key in obj) {
-            if(obj[key] && typeof obj[key] === "object") {
+            if(obj[key] && typeof obj[key] === 'object') {
 
                 let result = this.getPath(obj[key], searchKey, value);
                 if(result) {
@@ -122,7 +124,7 @@ export class j4care {
                 link.click();
                 document.body.removeChild(link);
             }catch (e) {
-                this.log("On DownloadFile",e);
+                this.log('On DownloadFile',e);
                 WindowRefService.nativeWindow.open(url);
             }
         }else{
@@ -136,10 +138,17 @@ export class j4care {
         return str && str[0].toLowerCase() + str.slice(1);
     }
     static isSet(value){
-        if((value === undefined || value === null || (_.isObject(value) && _.isEmpty(value))) && (value != 0 && value != "") && !_.isDate(value) && !_.isBoolean(value)){
+        if((value === undefined || value === null || (_.isObject(value) && _.isEmpty(value))) && (value != 0 && value != '') && !_.isDate(value) && !_.isBoolean(value)){
             return false;
         }
         return true;
+    }
+    static isArraySet(array){
+        try{
+            return array && array.length > 0
+        }catch (e) {
+            return false;
+        }
     }
     static hasSet(obj, path){
         return (_.hasIn(obj,path) && j4care.isSet(_.get(obj,path)))
@@ -147,13 +156,13 @@ export class j4care {
 
     static appendStringIfExist(txt:string, suffix:string){
         try {
-            if(txt && txt != ""){
+            if(txt && txt != ''){
                 return txt + suffix
             }
         }catch (e){
-            return  ""
+            return  ''
         }
-        return "";
+        return '';
     }
     static getOrNone(obj,path,defaultReturn?){
         if(this.hasSet(obj,path)){
@@ -162,7 +171,7 @@ export class j4care {
             if(defaultReturn != undefined){
                 return defaultReturn;
             }
-            return "";
+            return '';
         }
     }
     static hasBiggerAs(obj,path,value){
@@ -181,8 +190,8 @@ export class j4care {
         }
     }
 
-    //Will merge multiple elements in the array at the position "position"
-    static mergeArrayAtPosition(array:any[], position:number, placesToMerge:number = 1, joinSpace:string = ""){
+    //Will merge multiple elements in the array at the position 'position'
+    static mergeArrayAtPosition(array:any[], position:number, placesToMerge:number = 1, joinSpace:string = ''){
         try{
             return [array.slice(position, placesToMerge+1).join(joinSpace),...array.slice(position + placesToMerge + 1, array.length)]
         }catch (e) {}
@@ -207,7 +216,7 @@ export class j4care {
     }
     static isDate(input){
         try{
-            if(input && !isNaN((new Date(input)).getTime()) && typeof input != "number"){
+            if(input && !isNaN((new Date(input)).getTime()) && typeof input != 'number'){
                 console.log("date=",new Date(input));
                 return _.isDate(new Date(input));
             }
@@ -278,9 +287,9 @@ export class j4care {
         }
     }
 
-    static filtersExists(filters:any, keys:string[], mode?:("or"|"and")){
+    static filtersExists(filters:any, keys:string[], mode?:('or'|'and')){
         try{
-            mode = mode || "or";
+            mode = mode || 'or';
             let allExist = true;
             let elementsFound = 0;
             keys.forEach(key=>{
@@ -290,7 +299,7 @@ export class j4care {
 
                 }
             });
-            if(mode === "and"){
+            if(mode === 'and'){
                 return allExist;
             }else{
                 return elementsFound > 0;
@@ -339,7 +348,7 @@ export class j4care {
         let aliases = [];
         let usedAliasNames = [];
         aet.forEach((a)=>{
-            if(_.hasIn(a,"dcmOtherAETitle")){
+            if(_.hasIn(a,'dcmOtherAETitle')){
                 let clone = _.cloneDeep(a);
                 a.dcmOtherAETitle.forEach(alias=>{
                     clone.dicomAETitle = alias;
@@ -354,7 +363,7 @@ export class j4care {
     }
 
     static extendAetObjectWithAliasFromSameObject(aet){
-        const aliasPath = "dcmNetworkAE.dcmOtherAETitle";
+        const aliasPath = 'dcmNetworkAE.dcmOtherAETitle';
         let aetExtended = [];
         aet.forEach((a)=>{
             aetExtended.push(a);
@@ -368,7 +377,7 @@ export class j4care {
                         }
                     });
                 }catch (e) {
-                    this.log("Trying to get aliases from same path",e);
+                    this.log('Trying to get aliases from same path',e);
                 }
             }
         });
@@ -416,7 +425,7 @@ export class j4care {
                         week = parseInt(match[3]);
                         break;
                     case (this.isEqual(match[4],'M') || this.isEqual(match[4],'m')):
-                        if(mode === "T" || mode === "t"){
+                        if(mode === 'T' || mode === 't'){
                             minute = parseInt(match[3]);
                         }else{
                             month = parseInt(match[3]);
@@ -448,13 +457,70 @@ export class j4care {
         }
     }
 
+    static extractAllValuesFromAnArray(array:any[], key:string):string[]{
+        try{
+            let tempArray:string[] = [];
+            array.forEach(obj=>{
+                tempArray = [...tempArray,...obj[key]];
+            });
+            return _.uniq(tempArray);
+        }catch (e) {
+            return;
+        }
+    }
+
+    static extractMWLWorklistLabels(mwlLabels:string[], roles:string|string[]):string[]{
+        try{
+            if(roles && roles != '' && mwlLabels && mwlLabels.length > 0){
+                return mwlLabels.map(label=>{
+                    if(label && label.indexOf("|") === -1){
+                        return label;
+                    }else{
+                        const splitObject = label.split("|");
+                        const onlyLabel = splitObject[0];
+                        if(splitObject[1] && splitObject[1].indexOf("roles=") > -1){
+                            const labelRoles = splitObject[1].split("roles=")[1];
+                            let valid = false;
+                            let userRoles;
+                            if(typeof roles === 'string'){
+                                userRoles = roles.split(",");
+
+                            }else{
+                                userRoles = roles;
+                            }
+                            userRoles.forEach(role=>{
+                                if(labelRoles.indexOf(role.trim())> -1){
+                                    valid = true;
+                                }
+                            });
+                            if(valid){
+                                return onlyLabel;
+                            }
+                            return;
+                        }else{
+                            return onlyLabel;
+                        }
+                    }
+                }).filter(label=>label);
+            }else{
+                return mwlLabels.map(label=>{
+                    if(label.indexOf("|") > -1){
+                        return label.split("|")[0];
+                    }
+                    return label;
+                });
+            }
+        }catch (e) {
+            return mwlLabels;
+        }
+    }
     static filterObjectBasedOnUIConfigAndRole(arrayObject:SelectDropdown<any>[], uiConfigLimitedArray:string[], currentRoles:string|string[],  validRoles:string|string[]):SelectDropdown<any>[]{
         try{
             let newArray:SelectDropdown<any>[] = [];
-            if(typeof currentRoles == "string"){
+            if(typeof currentRoles == 'string'){
                 currentRoles = currentRoles.split(",").map(el=>el.trim());
             }
-            if(typeof validRoles == "string"){
+            if(typeof validRoles == 'string'){
                 validRoles = validRoles.split(",").map(el=>el.trim());
             }
             if(currentRoles && validRoles && this.isAtLeastOneElementOfArrayInArray(validRoles,currentRoles)){
@@ -469,12 +535,12 @@ export class j4care {
     }
     static extractUIConfigsByRoles(configs:any[], roleKey:string, currentRoles:string|string[], strictMode?:boolean){
         try{
-            if(typeof currentRoles === "string"){
+            if(typeof currentRoles === 'string'){
                 currentRoles = currentRoles.split(",").map(el=>el.trim());
             }
             return configs.filter(config=>{
                 let keyValue = config[roleKey];
-                if(keyValue && typeof keyValue  === "string"){
+                if(keyValue && typeof keyValue  === 'string'){
                     keyValue = [keyValue];
                 }
                 if(strictMode){
@@ -492,7 +558,7 @@ export class j4care {
     *Removes the last empty elements until it finds one that is not empty
     *Example:
     * input: ['test', 'selam', '', 'hb', '', '']
-    * output:["test", "selam", "", "hb"]
+    * output:['test', 'selam', '', 'hb']
     * */
     static removeLastEmptyStringsFromArray(arr:string[]) {
         try{
@@ -570,7 +636,7 @@ export class j4care {
    * Example:
    * input: "DATE=yyyy-MM-dd, TIME=HH:mm,DATE-TIME=yyyy-MM-dd HH:mm"
    * Output:{
-            dateFormat:"yyyy-MM-dd",
+            dateFormat:'yyyy-MM-dd',
             timeFormat:"HH:mm",
             dateTimeFormat:"yyyy-MM-dd HH:mm"
         }
@@ -591,15 +657,15 @@ export class j4care {
                     regex.lastIndex++;
                 }
                 switch (match[1].toUpperCase()){
-                    case "DATE":{
+                    case 'DATE':{
                         configuredFormats.dateFormat = match[2];
                         break;
                     }
-                    case "TIME":{
+                    case 'TIME':{
                         configuredFormats.timeFormat = match[2];
                         break;
                     }
-                    case "DATE-TIME":{
+                    case 'DATE-TIME':{
                         configuredFormats.dateTimeFormat = match[2];
                         break;
                     }
@@ -608,13 +674,13 @@ export class j4care {
             if(configuredFormats.dateFormat && configuredFormats.timeFormat && !configuredFormats.dateTimeFormat){
                 configuredFormats.dateTimeFormat = `${configuredFormats.dateFormat} ${configuredFormats.timeFormat}`;
             }
-            configuredFormats.dateFormat = configuredFormats.dateFormat || "yyyyMMdd";
+            configuredFormats.dateFormat = configuredFormats.dateFormat || 'yyyyMMdd';
             configuredFormats.timeFormat = configuredFormats.timeFormat || "HH:mm";
             configuredFormats.dateTimeFormat = configuredFormats.dateTimeFormat || "yyyyMMdd HH:mm";
             return configuredFormats;
         }catch (e){
             return {
-                dateFormat:"yyyyMMdd",
+                dateFormat:'yyyyMMdd',
                 timeFormat:"HH:mm",
                 dateTimeFormat:"yyyyMMdd HH:mm"
             }
@@ -639,7 +705,7 @@ export class j4care {
             }
             if(resultArray.length === 2){
                 if(resultArray[0][8] ==='-' || resultArray[0][16] ==='-')
-                    mode = "range";
+                    mode = 'range';
                 firstDateTime = {
                     FullYear:resultArray[0][2],
                     Month:resultArray[0][3],
@@ -659,7 +725,7 @@ export class j4care {
             }
             if(resultArray.length === 1){
                 if(resultArray[0][1] ==='-' || resultArray[0][9] ==='-'){
-                    mode = "leftOpen";
+                    mode = 'leftOpen';
                     secondDateTime = {
                         FullYear:resultArray[0][2],
                         Month:resultArray[0][3],
@@ -670,9 +736,9 @@ export class j4care {
                     };
                 }else{
                     if(resultArray[0][8] ==='-' || resultArray[0][16] ==='-')
-                        mode = "rightOpen";
+                        mode = 'rightOpen';
                     else
-                        mode = "single";
+                        mode = 'single';
                     firstDateTime = {
                         FullYear:resultArray[0][2],
                         Month:resultArray[0][3],
@@ -684,10 +750,10 @@ export class j4care {
                 }
             }
             if(firstDateTime){
-                firstDateTime["dateObject"] = this.getDateFromJ4careDateTime(firstDateTime);
+                firstDateTime['dateObject'] = this.getDateFromJ4careDateTime(firstDateTime);
             }
             if(secondDateTime){
-                secondDateTime["dateObject"] = this.getDateFromJ4careDateTime(secondDateTime);
+                secondDateTime['dateObject'] = this.getDateFromJ4careDateTime(secondDateTime);
             }
             return {
                 mode:mode,
@@ -698,7 +764,7 @@ export class j4care {
         try{
             let date = new Date(str);
             if(!isNaN(date.getTime())){
-                mode = "single";
+                mode = 'single';
                 firstDateTime = {
                     FullYear:date.getFullYear().toString(),
                     Month:(date.getMonth()+1).toString(),
@@ -738,7 +804,7 @@ export class j4care {
     }
     static splitRange(range:string, splitCount?:number):any{
         let rangeObject:RangeObject = j4care.extractDateTimeFromString(range);
-        let diff:number = rangeObject && rangeObject.mode === "range" ? rangeObject.secondDateTime.dateObject.getTime() - rangeObject.firstDateTime.dateObject.getTime() : 0;
+        let diff:number = rangeObject && rangeObject.mode === 'range' ? rangeObject.secondDateTime.dateObject.getTime() - rangeObject.firstDateTime.dateObject.getTime() : 0;
         let block = diff/(splitCount||31);
         const DAY_IN_MSC = 86400000;
         if(diff > 0){
@@ -754,12 +820,12 @@ export class j4care {
     static rangeObjectToString(range:RangeObject):string{
         let firstDateTime = '';
         let secondDateTime = '';
-        let minus = range.mode != "single" ? '-': '';
-        if(range.mode === "range" || range.mode === "rightOpen" || range.mode === "single"){
-            firstDateTime = this.formatDate(range.firstDateTime.dateObject,"yyyyMMdd");
+        let minus = range.mode != 'single' ? '-': '';
+        if(range.mode === 'range' || range.mode === 'rightOpen' || range.mode === 'single'){
+            firstDateTime = this.formatDate(range.firstDateTime.dateObject,'yyyyMMdd');
         }
-        if(range.mode === "range" || range.mode === "leftOpen"){
-            secondDateTime = this.formatDate(range.secondDateTime.dateObject,"yyyyMMdd");
+        if(range.mode === 'range' || range.mode === 'leftOpen'){
+            secondDateTime = this.formatDate(range.secondDateTime.dateObject,'yyyyMMdd');
         }
         return `${firstDateTime}${minus}${secondDateTime}`;
     }
@@ -767,10 +833,10 @@ export class j4care {
         let endDate = [];
         let endDatePare = [];
         if(!diff){
-            diff = range && range.mode === "range" ? range.secondDateTime.dateObject.getTime() - range.firstDateTime.dateObject.getTime() : 0;
+            diff = range && range.mode === 'range' ? range.secondDateTime.dateObject.getTime() - range.firstDateTime.dateObject.getTime() : 0;
         }
         if(diff > block){
-            endDate.push(this.formatDate(range.firstDateTime.dateObject,"yyyyMMdd"));
+            endDate.push(this.formatDate(range.firstDateTime.dateObject,'yyyyMMdd'));
             let daysInDiff = diff/block;
             let dateStep = range.firstDateTime.dateObject.getTime();
             while(daysInDiff > 0){
@@ -823,7 +889,7 @@ export class j4care {
         if(
             time.Hours && time.Hours < 25 &&
             time.Minutes && time.Minutes < 60 &&
-            ((time.Seconds && time.Seconds < 60) || !time.Seconds || time.Seconds === "" || time.Seconds === "00")
+            ((time.Seconds && time.Seconds < 60) || !time.Seconds || time.Seconds === '' || time.Seconds === '00')
         )
             return true;
         return false;
@@ -855,24 +921,24 @@ export class j4care {
         if(string)
             return {
                 time:string,
-                timeZone:""
+                timeZone:''
             };
         return string;
     }
     static redirectOnAuthResponse(res){
         let resjson;
         try{
-/*            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
-            if(pattern.exec(res.url)){
-                // WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";
-                console.log("onredirectOnAuthResponse",res);
-                location.reload(true);
-            }*/
+            /*            let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/");
+                        if(pattern.exec(res.url)){
+                            // WindowRefService.nativeWindow.location = '/dcm4chee-arc/ui2/';
+                            console.log('onredirectOnAuthResponse',res);
+                            location.reload(true);
+                        }*/
             // resjson = res.json();
             // resjson = res;
             resjson = res
         }catch (e){
-            if(typeof res === "object"){
+            if(typeof res === 'object'){
                 resjson = res;
             }else{
                 resjson = [];
@@ -945,39 +1011,39 @@ export class j4care {
             return defaultVal || '';
     }
 
-/*    download(url){
-        this.httpJ4car.refreshToken().subscribe((res)=>{
-            let token;
-            let a = document.createElement('a');
+    /*    download(url){
+            this.httpJ4car.refreshToken().subscribe((res)=>{
+                let token;
+                let a = document.createElement('a');
 
-            if(res.length && res.length > 0){
-                this.httpJ4car.resetAuthenticationInfo(res);
-                token = res.token;
-            }else{
-                token = this.mainservice.global.authentication.token;
-            }
-            this.header.append('Authorization', `Bearer ${token}`);
-            this.ngHttp.get(url,{
-                        headers:this.header,
-                        responseType: ResponseContentType.Blob
+                if(res.length && res.length > 0){
+                    this.httpJ4car.resetAuthenticationInfo(res);
+                    token = res.token;
+                }else{
+                    token = this.mainservice.global.authentication.token;
+                }
+                this.header.append('Authorization', `Bearer ${token}`);
+                this.ngHttp.get(url,{
+                            headers:this.header,
+                            responseType: ResponseContentType.Blob
+                        })
+                    .map(res => {
+                            return new Blob([res['_body']], {
+                                type: res.headers.get('Content-Type')
+                            });
                     })
-                .map(res => {
-                        return new Blob([res['_body']], {
-                            type: res.headers.get("Content-Type")
-                        });
-                })
-                .subscribe((myBlob)=> {
-                a.href = window.URL.createObjectURL(myBlob);
-                let attr = document.createAttribute("download");
-                a.setAttributeNode(attr);
-                // a.download = filename; // Set the file name.
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
+                    .subscribe((myBlob)=> {
+                    a.href = window.URL.createObjectURL(myBlob);
+                    let attr = document.createAttribute('download');
+                    a.setAttributeNode(attr);
+                    // a.download = filename; // Set the file name.
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                });
             });
-        });
-    }*/
+        }*/
     static convertBtoHumanReadable(value,mantissa?){
         let mantissaValue = 1000;
         if(mantissa == 0){
@@ -1007,7 +1073,7 @@ export class j4care {
     }
     static clearEmptyObject(obj){
         _.forEach(obj,(m,i)=>{
-            if(((!m || m === "" || m === undefined) && m != 0) || (m instanceof Array && m.length === 0)){
+            if(((!m || m === '' || m === undefined) && m != 0) || (m instanceof Array && m.length === 0)){
                 delete obj[i];
             }
         });
@@ -1016,7 +1082,7 @@ export class j4care {
 
     static trimFilterObject(object){
         Object.keys(object).forEach(key=>{
-            if(typeof object[key] === "string"){
+            if(typeof object[key] === 'string'){
                 object[key] = object[key].trim();
             }else{
                 object[key] = this.trimFilterObject(object[key]);
@@ -1031,19 +1097,23 @@ export class j4care {
     static objToUrlParams(filter, addQuestionMarktPrefix?:boolean){
         try{
             if(filter){
-                let filterMapped = Object.keys(filter).map((key) => {
-                    if (filter[key] || filter[key] === false || filter[key] === 0){
-                        console.log("trimmed",filter[key]);
-                        return key + '=' + (typeof filter[key] === "string" ? filter[key].trim() : filter[key]);
-                    }
-                });
-                let filterCleared = _.compact(filterMapped);
-                return (addQuestionMarktPrefix && filterCleared && filterCleared.length > 0 ? "?" : "") + filterCleared.join('&');
+                if(typeof filter === 'string'){
+                    return (addQuestionMarktPrefix ? "?" : '') + filter;
+                }else{
+                    let filterMapped = Object.keys(filter).map((key) => {
+                        if (filter[key] || filter[key] === false || filter[key] === 0){
+                            console.log('trimmed',filter[key]);
+                            return key + '=' + (typeof filter[key] === 'string' ? filter[key].trim() : filter[key]);
+                        }
+                    });
+                    let filterCleared = _.compact(filterMapped);
+                    return (addQuestionMarktPrefix && filterCleared && filterCleared.length > 0 ? "?" : '') + filterCleared.join('&');
+                }
             }
-            return "";
+            return '';
         }catch (e) {
             console.error(e);
-            return "";
+            return '';
         }
     }
     static param(filter){
@@ -1056,7 +1126,7 @@ export class j4care {
             this.$httpClient
                 .get(url, {
                     headers:this.header,
-                    responseType: "blob"
+                    responseType: 'blob'
                 })
                 .subscribe(m => {
                     objectUrl = URL.createObjectURL(m);
@@ -1095,7 +1165,7 @@ export class j4care {
         return this.convertToDatePareString(firstDate,new Date());
     }
     static convertToDatePareString(firstDate,secondDate):string{
-        if(j4care.isSet(firstDate) && firstDate != "" && j4care.isSet(secondDate) && secondDate != ""){
+        if(j4care.isSet(firstDate) && firstDate != '' && j4care.isSet(secondDate) && secondDate != ''){
             let firstDateConverted = new Date(firstDate);
             let secondDateConverted = new Date(secondDate);
 
@@ -1114,7 +1184,7 @@ export class j4care {
         return undefined;
     }
     static flatten(data) {
-        var result = {};
+        let result = {};
         function recurse(cur, prop) {
             if (Object(cur) !== cur) {
                 result[prop] = cur;
@@ -1123,15 +1193,15 @@ export class j4care {
                     recurse(cur[i], prop + "[" + i + "]");
                 if (l == 0) result[prop] = [];
             } else {
-                var isEmpty = true;
-                for (var p in cur) {
+                let isEmpty = true;
+                for (let p in cur) {
                     isEmpty = false;
-                    recurse(cur[p], prop ? prop + "." + p : p);
+                    recurse(cur[p], prop ? prop + '.' + p : p);
                 }
-                if (isEmpty && prop) result[prop] = {};
+                if (isEmpty && prop) result[prop] = '';
             }
         }
-        recurse(data, "");
+        recurse(data, '');
         return result;
     };
     static calculateWidthOfTable(table:(TableSchemaElement[]|any)){
@@ -1140,7 +1210,7 @@ export class j4care {
             let pxWidths = 0;
             let check = 0;
             table.forEach((m)=>{
-                if(m){
+                if(m && !(m.type && m.type === 'sub-table')){
                     if(_.hasIn(m,'pxWidth') && m.pxWidth){
                         pxWidths += m.pxWidth;
                     }else{
@@ -1152,10 +1222,10 @@ export class j4care {
                 pxWidths += 1;
             }
             table.forEach((m)=>{
-                if(m){
+                if(m && !(m.type && m.type === 'sub-table')){
                     let procentualPart = (m.widthWeight * 100)/sum;
                     if(pxWidths > 0){
-                        if(_.hasIn(m, "pxWidth") && m.pxWidth){
+                        if(_.hasIn(m, 'pxWidth') && m.pxWidth){
                             m.calculatedWidth = `${m.pxWidth}px`;
                         }else{
                             let pxPart = (procentualPart * 0.01 * pxWidths);
@@ -1169,7 +1239,7 @@ export class j4care {
             });
             return table;
         }catch (e){
-            this.log("Error on calculating width of table",e);
+            this.log('Error on calculating width of table',e);
             return table;
         }
 
@@ -1186,8 +1256,8 @@ export class j4care {
     static round(number:any, decimal?:number, asNumber?:boolean){
         decimal = decimal || 2;
         try{
-            if(number && number != ""){
-                if(typeof number === "number"){
+            if(number && number != ''){
+                if(typeof number === 'number'){
                     if(asNumber)
                         return parseFloat(number.toFixed(decimal));
                     else
@@ -1205,7 +1275,7 @@ export class j4care {
 
     static encode64(inputStr) {
         let b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-        let outputStr = "";
+        let outputStr = '';
         let i = 0;
 
         while (i < inputStr.length) {
@@ -1283,10 +1353,10 @@ export class j4care {
                         return `${date.getMilliseconds()}`;
                 }) + (appendTimezoneOffset ? j4care.getTimezoneOffset(date) : '');
             }
-            return "";
+            return '';
         }catch (e) {
             this.log(`Error on formatting date, date=${date}, format=${format}`,e);
-            return "";
+            return '';
         }
     }
     /*
@@ -1306,13 +1376,13 @@ export class j4care {
     * */
     static formatRangeString(range:string, format?:string):string{
         let localFormatRange = "yyyy-MM-dd HH:mm:ss";
-        let singleFormat = "yyyy-MM-dd";
+        let singleFormat = 'yyyy-MM-dd';
         let rangeObject:RangeObject = this.extractDateTimeFromString(range);
         if(rangeObject){
-            if(rangeObject.mode === "range"){
+            if(rangeObject.mode === 'range'){
                 return `${this.formatDate(rangeObject.firstDateTime.dateObject,format || localFormatRange)} - ${this.formatDate(rangeObject.secondDateTime.dateObject,format || localFormatRange)}`;
             }
-            if(rangeObject.mode === "single"){
+            if(rangeObject.mode === 'single'){
                 return `${this.formatDate(rangeObject.firstDateTime.dateObject,format || singleFormat)}`;
             }
         }
@@ -1323,7 +1393,7 @@ export class j4care {
     */
     static setZeroPrefix(str){
         try{
-            if(typeof str === "number"){
+            if(typeof str === 'number'){
                 str = str.toString();
             }
             return str.replace(/(\d*)(\d{1})/g,(g1, g2, g3)=>{
@@ -1376,19 +1446,26 @@ export class j4care {
         }
     }
 
-    static getDifferenceTime(starttime, endtime, mode?){
-        let start = new Date(starttime).getTime();
-        let end = new Date(endtime).getTime();
-        if (!start || !end || end < start){
-            return null;
-        }else{
-            return this.msToTimeSimple(new Date(endtime).getTime() - new Date(starttime).getTime(),mode);
+    static getDifferenceTime(starttime, endtime,mode?, hideMs?:boolean){
+        try{
+            let start = new Date(starttime).getTime();
+            let end = new Date(endtime).getTime();
+            if (!start || !end || end < start){
+                return null;
+            }else{
+                if(mode){
+                    return this.msToTimeSimple(new Date(endtime).getTime() - new Date(starttime).getTime(),mode);
+                }
+                return this.msToTime(new Date(endtime).getTime() - new Date(starttime).getTime(), hideMs);
+            }
+        }catch (e){
+            return '';
         }
     };
 
     static msToTimeSimple(duration,mode?) {
         if(mode){
-            if(mode === "sec")
+            if(mode === 'sec')
                 return ((duration*6 / 6000).toFixed(4)).toString() + ' s';
             else
                 return ((duration / 60000).toFixed(4)).toString() + ' min';
@@ -1396,25 +1473,29 @@ export class j4care {
             return this.msToTime(duration);
         }
     }
-    static msToTime(duration) {
+    static msToTime(duration, hideMs?:boolean) {
         if (duration > 999){
             let milliseconds: any = parseInt((((duration % 1000))).toString());
             let seconds: any = parseInt(((duration / 1000) % 60).toString());
             let minutes: any = parseInt(((duration / (1000 * 60)) % 60).toString());
             let hours: any = parseInt(((duration / (1000 * 60 * 60))).toString());
-
             if (hours === 0){
                 if (minutes === 0){
                     return seconds.toString() + '.' + milliseconds.toString() + $localize `:@@storage-commitment._sec: sec`;
                 }else{
                     seconds = (seconds < 10) ? '0' + seconds : seconds;
+                    if(hideMs){
+                        return minutes.toString() + ':' + seconds.toString() + $localize `:@@storage-commitment._min: min`;
+                    }
                     return minutes.toString() + ':' + seconds.toString() + '.' + milliseconds.toString() + $localize `:@@storage-commitment._min: min`;
                 }
             }else{
                 hours = (hours < 10) ? '0' + hours : hours;
                 minutes = (minutes < 10) ? '0' + minutes : minutes;
                 seconds = (seconds < 10) ? '0' + seconds : seconds;
-
+                if(hideMs){
+                    return hours.toString() + ':' + minutes.toString() + ':' + seconds.toString() + $localize `:@@storage-commitment._h: h`;
+                }
                 return hours.toString() + ':' + minutes.toString() + ':' + seconds.toString() + '.' + milliseconds.toString() + $localize `:@@storage-commitment._h: h`;
             }
         }else{
@@ -1422,16 +1503,16 @@ export class j4care {
         }
     }
 
-    modal(schema, callBack){
+/*    modal(schema, callBack){
         this.openDialog(schema).subscribe(callBack);
-    }
+    }*/
     // getDevices = ()=>this.httpJ4car.get('./rs/devices');
 
     static mapDevicesToDropdown(devices:Device[], schema?:Function):SelectDropdown<Device>[]|any{
         try{
             console.log("devices[0] instanceof SelectDropdown)", devices[0] instanceof SelectDropdown);
             if(devices && devices.length && devices.length > 0 && !(devices[0] instanceof SelectDropdown)){
-                if(_.hasIn(devices, "0.value")){
+                if(_.hasIn(devices, '0.value')){
                     return devices.map((device:any)=>new SelectDropdown(device.value, device.text));
                 }else{
                     if(schema){
@@ -1450,10 +1531,10 @@ export class j4care {
     static mapAetToDropdown(aets:Aet[]):SelectDropdown<Aet>[]|any{
         try{
             console.log("aet[0] instanceof SelectDropdown)", aets[0] instanceof SelectDropdown);
-            if(aets && aets.length && aets.length > 0 && !(aets[0] instanceof SelectDropdown)){
-                if(_.hasIn(aets, "0.value")){
+            if (aets && aets.length && aets.length > 0 && !(aets[0] instanceof SelectDropdown)) {
+                if (_.hasIn(aets, '0.value')) {
                     return aets.map((device:any)=>new SelectDropdown(device.value, device.text));
-                }else{
+                } else {
                     return aets.map((device:Aet)=>new SelectDropdown(device.dicomAETitle,device.dicomAETitle,device.dicomDescription));
                 }
             }
@@ -1464,14 +1545,14 @@ export class j4care {
         }
     }
 
-    openDialog(parameters, width?, height?){
+/*    openDialog(parameters, width?, height?){
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: height || 'auto',
-            width: width || '500px'
+            width: width || '510px'
         });
         this.dialogRef.componentInstance.parameters = parameters;
         return this.dialogRef.afterClosed();
-    };
+    };*/
     static log(txt:string, e?:any){
         console.groupCollapsed(txt);
         console.trace();
@@ -1494,32 +1575,36 @@ export class j4care {
 
     static getDateFromString(dateString:string):any|Date{
         let date:RangeObject = j4care.extractDateTimeFromString(dateString);
-        if(date.mode === "single" || date.mode === "rightOpen"){
+        if(date.mode === 'single' || date.mode === 'rightOpen'){
             return date.firstDateTime.dateObject;
         }
-        if(date.mode === "range"){
+        if(date.mode === 'range'){
             return new Date((date.firstDateTime.dateObject.getTime() + (date.secondDateTime.dateObject.getTime() - date.firstDateTime.dateObject.getTime()) / 2))
         }
 
-        if(date.mode === "leftOpen"){
+        if(date.mode === 'leftOpen'){
             return date.secondDateTime.dateObject
         }
         return dateString;
     }
     static convertFilterValueToRegex(value){
-        return value ? `^${value.replace(/(\*|\?)/g,(match, p1)=>{
-            if(p1 === "*"){
-                return ".*";
-            }
-            if(p1 === "?")
-                return ".";
-        })}$`: '';
+        try {
+            return value ? `^${value.replace(/(\*|\?)/g,(match, p1)=>{
+                if(p1 === "*"){
+                    return ".*";
+                }
+                if(p1 === "?")
+                    return '.';
+            })}$`: '';
+        }catch (e) {
+            return '';
+        }
     }
 
 
     /*
     * Extending Array.join function so you can add to the last element a different join string
-    * example: ["test1","test2","test3"] => "test1, test2 and test3" by calling join(["test1","test2","test3"],', ', " and ")
+    * example: ['test1','test2','test3'] => "test1, test2 and test3" by calling join(['test1','test2','test3'],', ', ' and ')
     * */
     static join(array:string[],joinString:string, lastJoinString?:string){
         try{
@@ -1540,7 +1625,7 @@ export class j4care {
 
     /*
     * get DicomNetworkConnection from reference
-    * input:reference:string ("/dicomNetworkConnection/1"), dicomNetworkConnections[] (dicomNetworkConnections of a device)
+    * input:reference:string ('/dicomNetworkConnection/1'), dicomNetworkConnections[] (dicomNetworkConnections of a device)
     * return one dicomNetworkConnection
     * */
     static getConnectionFromReference(reference:string, connections:DicomNetworkConnection[]):(DicomNetworkConnection|string){
@@ -1552,7 +1637,7 @@ export class j4care {
             }
             return reference;
         }catch (e) {
-            this.log("Something went wrong on getting the connection from references",e);
+            this.log('Something went wrong on getting the connection from references',e);
             return reference;
         }
     }
@@ -1565,14 +1650,28 @@ export class j4care {
             if(withoutServicePath){
                 return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || ''}`;
             }
-            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || (baseUrl === "../" ? '': baseUrl)}${dcmWebApp.dcmWebServicePath}`.replace("/dcm4chee-arc/dcm4chee-arc","/dcm4chee-arc");
+            return `${this.getBaseUrlFromDicomNetworkConnection(dcmWebApp.dicomNetworkConnection || dcmWebApp.dicomNetworkConnectionReference) || (baseUrl === '../' ? '': baseUrl)}${dcmWebApp.dcmWebServicePath}`.replace('/dcm4chee-arc/dcm4chee-arc','/dcm4chee-arc');
         }catch (e) {
-            this.log("Error on getting Url from DcmWebApplication",e);
+            this.log('Error on getting Url from DcmWebApplication',e);
             this.logObject("getUrlFromDcmWebApplication input:",{
                 dcmWebApp:dcmWebApp,
                 baseUrl:baseUrl,
                 withoutServicePath:withoutServicePath
             });
+        }
+    }
+
+
+    static appendUrlToWebApplicationServicePath(dcmWebApp:DcmWebApp, url:string, addSlashInBetweenIfMissing?:boolean):DcmWebApp{
+        try{
+            const tempDcmWebApp = _.cloneDeep(dcmWebApp);
+            if(addSlashInBetweenIfMissing && !_.endsWith(tempDcmWebApp.dcmWebServicePath, '/')){
+                tempDcmWebApp.dcmWebServicePath += '/';
+            }
+            tempDcmWebApp.dcmWebServicePath += url;
+            return tempDcmWebApp;
+        }catch (e) {
+            return dcmWebApp;
         }
     }
 
@@ -1596,18 +1695,21 @@ export class j4care {
             //If there are more than 1 than check if there is one with https protocol and return the first what you find.
             if(filteredConnections.length > 1){
                 selectedConnection = filteredConnections.filter(conn=>{
-                    return this.getHTTPProtocolFromDicomNetworkConnection(conn) === "https" && !(_.hasIn(conn,"dicomInstalled") && conn.dicomInstalled === false);
+                    return this.getHTTPProtocolFromDicomNetworkConnection(conn) === 'https' && !(_.hasIn(conn,'dicomInstalled') && conn.dicomInstalled === false);
                 })[0];
             }
-            selectedConnection = selectedConnection || filteredConnections.filter(conn=>!(_.hasIn(conn,"dicomInstalled") && conn.dicomInstalled === false))[0];
-            if(selectedConnection && _.hasIn(selectedConnection,"dicomHostname") && _.hasIn(selectedConnection, "dicomPort")){
+            selectedConnection = selectedConnection || filteredConnections.filter(conn=>!(_.hasIn(conn,'dicomInstalled') && conn.dicomInstalled === false))[0];
+            if(selectedConnection && _.hasIn(selectedConnection,'dicomHostname') && _.hasIn(selectedConnection, 'dicomPort')){
                 return `${this.getHTTPProtocolFromDicomNetworkConnection(selectedConnection)}://${selectedConnection.dicomHostname}:${selectedConnection.dicomPort}`;
             }else{
-                return "";
+                if(selectedConnection && _.hasIn(selectedConnection,'dicomHostname')){
+                    return `${this.getHTTPProtocolFromDicomNetworkConnection(selectedConnection)}://${selectedConnection.dicomHostname}`;
+                }
+                return '';
             }
         }catch (e) {
-            this.log("Something went wrong on getting base url from a dicom network connections",e);
-            return "";
+            this.log('Something went wrong on getting base url from a dicom network connections',e);
+            return '';
         }
     }
 
@@ -1618,7 +1720,7 @@ export class j4care {
         try{
             return `${this.getHTTPProtocolFromDicomNetworkConnection(conns)||'http'}://${conns.dicomHostname}:${conns.dicomPort}`;
         }catch (e) {
-            return "";
+            return '';
         }
     }
 
@@ -1628,19 +1730,19 @@ export class j4care {
     static getHTTPProtocolFromDicomNetworkConnection(conn:DicomNetworkConnection):string{
         try{
             let pathToConn = '';
-            if(_.hasIn(conn, "dcmNetworkConnection.dicomHostname")){
-                pathToConn = "dcmNetworkConnection.";
+            if(_.hasIn(conn, 'dcmNetworkConnection.dicomHostname')){
+                pathToConn = 'dcmNetworkConnection.';
             }
-            if((_.hasIn(conn,`${pathToConn}dcmProtocol`) && _.get(conn,`${pathToConn}dcmProtocol`) === "HTTP") || !_.hasIn(conn,`${pathToConn}dcmProtocol`)){
+            if((_.hasIn(conn,`${pathToConn}dcmProtocol`) && _.get(conn,`${pathToConn}dcmProtocol`) === 'HTTP') || !_.hasIn(conn,`${pathToConn}dcmProtocol`)){
                 if(_.hasIn(conn, `${pathToConn}dicomTLSCipherSuite`) && _.isArray(<any[]>_.get(conn, `${pathToConn}dicomTLSCipherSuite`)) && (<any[]>_.get(conn, `${pathToConn}dicomTLSCipherSuite`)).length > 0){
-                    return "https";
+                    return 'https';
                 }else{
-                    return "http";
+                    return 'http';
                 }
             }
             return '';
         }catch (e) {
-            this.log("Something went wrong on getting the protocol from a connection",e);
+            this.log('Something went wrong on getting the protocol from a connection',e);
             return '';
         }
     }
@@ -1648,14 +1750,14 @@ export class j4care {
     /*
     * get string with prefix and suffix if exist otherwise return empty string
     * */
-    static meyGetString(object, path:string, prefix:string = "", suffix:string = "",showPrefixSuffixEvenIfEmpty?:boolean){
+    static meyGetString(object, path:string, prefix:string = '', suffix:string = '',showPrefixSuffixEvenIfEmpty?:boolean){
         if(_.hasIn(object, path)){
             return `${prefix}${_.get(object,path)}${suffix}`;
         }
         if(showPrefixSuffixEvenIfEmpty){
             return `${prefix}${suffix}`;
         }
-        return "";
+        return '';
     }
 
     static changed(object, base, ignoreEmpty?:boolean) {
@@ -1666,7 +1768,7 @@ export class j4care {
                         if(_.isObject(value) && base && key && _.isObject(base[key])){
                             result[key] = changes(value, base[key])
                         }else{
-                            if(!(_.isArray(value) && value.length === 0) && !(_.isObject(value) && Object.keys(value).length === 0) && value != undefined && value != "" && value[0] != ""){
+                            if(!(_.isArray(value) && value.length === 0) && !(_.isObject(value) && Object.keys(value).length === 0) && value != undefined && value != '' && value[0] != ''){
                                 result[key] = value;
                             }
                         }
@@ -1707,17 +1809,17 @@ export class j4care {
 
     static generateOIDFromUUID(){
         let guid = uuidv4();                            //Generate UUID
-        let guidBytes = `0${guid.replace(/-/g, "")}`; //add prefix 0 and remove `-`
+        let guidBytes = `0${guid.replace(/-/g, '')}`; //add prefix 0 and remove `-`
         return `2.25.${bigInt(guidBytes,16).toString()}`;       //Output the previous parsed integer as string by adding `2.25.` as prefix
     }
 
-    static position(element, behavior?:("auto"  | "smooth")){
+    static position(element, behavior?:('auto'  | 'smooth')){
         let pos = {};
         if(behavior)
-            pos["behavior"] = behavior;
-        pos["top"] = element.offsetTop;
-        pos["left"] = element.offsetLeft;
-        console.log("pos",pos);
+            pos['behavior'] = behavior;
+        pos['top'] = element.offsetTop;
+        pos['left'] = element.offsetLeft;
+        console.log('pos',pos);
         return pos;
     };
 
@@ -1732,45 +1834,45 @@ export class j4care {
     static prepareCountMessageUpdateMatching(preMessage:string, returnedObject:any) {
         let msg = "<br>\n";
         try{
-            if(_.hasIn(returnedObject,"updated")){
+            if(_.hasIn(returnedObject,'updated')){
                 msg += $localize `:@@preparemsg.updated:- updated successfully for \:${returnedObject.updated}:updated:<br>\n`;
             }
-            if(_.hasIn(returnedObject,"failed")){
+            if(_.hasIn(returnedObject,'failed')){
                 msg += $localize `:@@preparemsg.failed:- failed to update for \:${returnedObject.failed}:failed:<br>\n`;
             }
-            if(_.hasIn(returnedObject,"count")
-                && !(_.hasIn(returnedObject,"failed"))
-                    && !(_.hasIn(returnedObject,"updated"))) {
+            if(_.hasIn(returnedObject,'count')
+                && !(_.hasIn(returnedObject,'failed'))
+                    && !(_.hasIn(returnedObject,'updated'))) {
                 msg += $localize `:@@preparemsg.noop:- resulted in No Op for:${returnedObject.count}:updated:<br>\n`;
             }
-            if(_.hasIn(returnedObject,"error")){
+            if(_.hasIn(returnedObject,'error')){
                 msg += $localize `:@@preparemsg.error:Error\:${returnedObject.error}:error:<br>\n`;
             }
         }catch (e) {
-            msg = "";
+            msg = '';
         }
-        return `${preMessage}${msg != "" ? ':':''}${msg}`;
+        return `${preMessage}${msg != '' ? ':':''}${msg}`;
     }
 
     static prepareCountMessage(preMessage:string, returnedObject:any){
         let msg = "<br>\n";
         try{
-            if(_.hasIn(returnedObject,"count")){
+            if(_.hasIn(returnedObject,'count')){
                 msg += $localize `:@@preparemsg.count:Count\:${returnedObject.count}:count:<br>\n`;
             }
-            if(_.hasIn(returnedObject,"warning")){
+            if(_.hasIn(returnedObject,'warning')){
                 msg += $localize `:@@preparemsg.warning:Warning\:${returnedObject.warning}:warning:<br>\n`;
             }
-            if(_.hasIn(returnedObject,"reject")){
+            if(_.hasIn(returnedObject,'reject')){
                 msg += $localize `:@@preparemsg.reject:Reject\:${returnedObject.reject}:reject:<br>\n`;
             }
-            if(_.hasIn(returnedObject,"error")){
+            if(_.hasIn(returnedObject,'error')){
                 msg += $localize `:@@preparemsg.error:Error\:${returnedObject.error}:error:<br>\n`;
             }
         }catch (e) {
-            msg = "";
+            msg = '';
         }
-        return `${preMessage}${msg != "" ? ':':''}${msg}`;
+        return `${preMessage}${msg != '' ? ':':''}${msg}`;
     }
 
     static extractLanguageDataFromString(ldapLanguageString:string){
@@ -1794,10 +1896,10 @@ export class j4care {
     static getDefaultLanguageFromProfile(languageConfig:LanguageConfig,user:User){
         try{
             let validProfiles:LanguageProfile[] = languageConfig.dcmuiLanguageProfileObjects.filter((profile:LanguageProfile)=>{
-                if(_.hasIn(profile, "dcmuiLanguageProfileUsername") && profile.dcmuiLanguageProfileUsername === user.user){
+                if(_.hasIn(profile, 'dcmuiLanguageProfileUsername') && profile.dcmuiLanguageProfileUsername === user.user){
                     return true;
                 }
-                if(_.hasIn(profile, "dcmuiLanguageProfileRole")){
+                if(_.hasIn(profile, 'dcmuiLanguageProfileRole')){
                     let valid = false;
                     profile.dcmuiLanguageProfileRole.forEach(role=>{
                         if(user.roles.indexOf(role) > -1){
@@ -1812,28 +1914,47 @@ export class j4care {
                 return validProfiles[0].dcmDefaultLanguage;
             }
         }catch (e) {
-            this.log("GetLanguageProfile in catch",e);
+            this.log('GetLanguageProfile in catch',e);
             if (_.hasIn(languageConfig,"dcmLanguages[0]")){
                 return languageConfig.dcmLanguages[0];
             }
         }
     }
 
+
+    static getWebAppClone(dcmWebApp:DcmWebApp, url?:string){
+        let webApp = _.clone(dcmWebApp);
+        if(url){
+            _.set(webApp,'dcmWebServicePath', url);
+        }
+        return webApp;
+    }
+
+    static setTimeStringToMidnight(time:string){
+        try{
+            return  time.replace(/T(\d{2}):(\d{2}):(\d{2}).(\d)*/, replacer);
+        }catch (e) {
+            return time;
+        }
+        function replacer(match, p1, p2, p3, offset, string){
+            return "T00:00:00.000";
+        }
+    }
     static extractMessageFromWarningHeader(header:HttpHeaders){
         const regex = /(\d{3}) ([\w:\/-]*) (.*)/;
         let m;
         try{
-            let warningMessage = header.get("Warning");
+            let warningMessage = header.get('Warning');
             if ((m = regex.exec(warningMessage)) !== null) {
                 return m[3];
             }
         }catch (e) {
-            return "";
+            return '';
         }
     }
     static is(object,path, value?){
         try{
-            if(value && _.hasIn(object,path)){
+            if(value != undefined && _.hasIn(object,path)){
                 return value === _.get(object,path);
             }else{
                 return _.hasIn(object,path) && _.get(object,path);
@@ -1856,8 +1977,15 @@ export class j4care {
     }
 
     static addLastSlash(url){
-        if(_.last(url) != "/"){
+        if(_.last(url) != '/'){
             return `${url}/`;
+        }else{
+            return url;
+        }
+    }
+    static addFirstSlash(url){
+        if(typeof url === 'string' && url[0] != '/'){
+            return `/${url}`;
         }else{
             return url;
         }
@@ -1922,6 +2050,84 @@ export class j4care {
             return array.slice(0, (lastNotEmptyElementIndex + 1));
         }catch (e) {
             return array;
+        }
+    }
+
+    static extractIodTreeFromAttributeTag(iod, attrs, treeKey?:string){
+        try{
+            let extractedIod = {};
+            attrs.forEach(attr=>{
+               Object.keys(iod).forEach(iodAttr=>{
+                   if(iodAttr === attr || JSON.stringify(iod[iodAttr]).indexOf(attr) > -1){
+                       if(iod[iodAttr].vr === 'SQ' && iodAttr != attr){
+                            extractedIod[iodAttr] = _.cloneDeep(iod[iodAttr]);
+                            if(treeKey === 'Value'){
+                                _.set(extractedIod,`${iodAttr}.${treeKey}[0]`, j4care.extractIodTreeFromAttributeTag(iod[iodAttr][treeKey][0], attrs));
+                            }else{
+                                _.set(extractedIod,`${iodAttr}.${treeKey}`, j4care.extractIodTreeFromAttributeTag(iod[iodAttr][treeKey], attrs));
+                            }
+                       }else{
+                           extractedIod[attr] = _.cloneDeep(iod[iodAttr]);
+                       }
+                   }
+               });
+            });
+            console.log('extractedIod',extractedIod);
+            return extractedIod;
+        }catch(e){
+            j4care.log('Could not generate iod block part from tags',e);
+        }
+    }
+
+    static selectiveClone(toCloneObject:any, excludeKeys:string[], includeOnlyKeys?:string[]){
+        try{
+            let object:any;
+            if(includeOnlyKeys && !excludeKeys){
+                Object.keys(toCloneObject).forEach(key=>{
+                    if(includeOnlyKeys.indexOf(key) > -1){
+                        object ??= {};
+                        object[key] = toCloneObject[key];
+                    }
+                });
+            }else{
+                object = _.clone(toCloneObject);
+                excludeKeys.forEach(key=>{
+                   delete object[key];
+                });
+            }
+            return object;
+        }catch (e){
+            this.log('Error on selectively cloning an object',e);
+            return toCloneObject;
+        }
+    }
+
+    static storeInstanceResponseFailureReasonCodeToText(code){
+        try{
+            if(code){
+                code = _.toNumber(code);
+                if(code == '272'){
+                    return $localize `:@@failure_272:Processing failure`;
+                }
+                if(code == '290'){
+                    return $localize `:@@failure_290:Referenced SOP Class not supported`;
+                }
+                if(code == '49442'){
+                    return $localize `:@@failure_49442:Referenced Transfer Syntax not supported`;
+                }
+                if(code >= 49152 || code <= 53247){
+                    return $localize `:@@failure_49152-53247:Error: Cannot understand`;
+                }
+                if(code >= 43264 || code <= 43519){
+                    return $localize `:@@failure_43264-43519:Error: Data Set does not match SOP Class`;
+                }
+                if(code >= 42752 || code <= 43007){
+                    return $localize `:@@failure_42752-43007:Refused out of Resources`;
+                }
+            }
+            return code || '';
+        }catch (e){
+            return code;
         }
     }
 
