@@ -63,12 +63,16 @@
                         <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@edit_device" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
                             <span class="glyphicon glyphicon-pencil"></span>
                         </a>
-                        <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.delete_device" title="Delete device" href="" (click)="$event.preventDefault();deleteDevice(device)">
-                            <span class="glyphicon glyphicon-remove"></span>
-                        </a>
                         <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.clone_device" title="Clone device" href="" (click)="$event.preventDefault();cloneDevice(device)">
                             <span class="glyphicon glyphicon-duplicate"></span>
                         </a>
+                        @if (!device['hasArcDevExt']){
+                            <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.delete_device" title="Delete device" href="" (click)="$event.preventDefault();deleteDevice(device)">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                        } @else {
+                            <div class="table_btn"></div>
+                        }
                     </td>
                     <td><div *ngIf="device['dicomDeviceName']" >
                         <a i18n-title="@@title.devices.edit_param" title="Edit {{device['dicomDeviceName']}}" href="" (click)="$event.preventDefault();editDevice(device['dicomDeviceName'])">
