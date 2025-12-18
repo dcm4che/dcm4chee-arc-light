@@ -1,0 +1,401 @@
+/*
+ * *** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is part of dcm4che, an implementation of DICOM(TM) in
+ * Java(TM), hosted at https://github.com/dcm4che.
+ *
+ * The Initial Developer of the Original Code is
+ * J4Care.
+ * Portions created by the Initial Developer are Copyright (C) 2017-2019
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ * See @authors listed below
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU General Public License Version 2 or later (the "GPL"), or
+ * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * *** END LICENSE BLOCK *****
+ */
+
+package org.dcm4chee.arc.stgcmt.rs;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.stream.JsonGenerator;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Pattern;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Sequence;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.json.JSONWriter;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4che3.net.Device;
+import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
+import org.dcm4che3.util.StringUtils;
+import org.dcm4che3.util.UIDUtils;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
+import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.keycloak.KeycloakContext;
+import org.dcm4chee.arc.stgcmt.StgCmtContext;
+import org.dcm4chee.arc.stgcmt.StgCmtManager;
+import org.dcm4chee.arc.validation.ParseDateTime;
+import org.dcm4chee.arc.validation.constraints.ValidValueOf;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Dec 2025
+ */
+@RequestScoped
+@Path("aets/{aet}/rs")
+public class StgVerCSVRS {
+    private static final Logger LOG = LoggerFactory.getLogger(StgVerCSVRS.class);
+    private static final String SUPER_USER_ROLE = "super-user-role";
+
+    @Inject
+    private Device device;
+
+    @Inject
+    private StgCmtManager stgCmtMgr;
+
+    @Inject
+    private Event<StgCmtContext> stgCmtEvent;
+
+    @Context
+    private UriInfo uriInfo;
+
+    @PathParam("aet")
+    private String aet;
+
+    @Context
+    private HttpServletRequest request;
+
+    @QueryParam("storageVerificationPolicy")
+    @Pattern(regexp = "DB_RECORD_EXISTS|OBJECT_EXISTS|OBJECT_SIZE|OBJECT_FETCH|OBJECT_CHECKSUM|S3_MD5SUM")
+    private String storageVerificationPolicy;
+
+    @QueryParam("storageVerificationUpdateLocationStatus")
+    @Pattern(regexp = "true|false")
+    private String storageVerificationUpdateLocationStatus;
+
+    @QueryParam("storageVerificationStorageID")
+    private List<String> storageVerificationStorageIDs;
+
+    @QueryParam("batchID")
+    private String batchID;
+
+    @QueryParam("scheduledTime")
+    @ValidValueOf(type = ParseDateTime.class)
+    private String scheduledTime;
+
+    @HeaderParam("Content-Type")
+    private MediaType contentType;
+
+    @Override
+    public String toString() {
+        String requestURI = request.getRequestURI();
+        String queryString = request.getQueryString();
+        return queryString == null ? requestURI : requestURI + '?' + queryString;
+    }
+
+    @POST
+    @Path("/studies/csv:{studyUIDField}/stgver")
+    @Consumes("text/csv")
+    @Produces("application/json")
+    public Response studyStorageCommit(
+            @PathParam("studyUIDField") int studyUIDField,
+            InputStream in) {
+        return storageCommit(studyUIDField, null, in);
+    }
+
+    @POST
+    @Path("/studies/csv:{studyUIDField}/series/csv:{seriesUIDField}/stgver")
+    @Consumes("text/csv")
+    @Produces("application/json")
+    public Response studyStorageCommit(
+            @PathParam("studyUIDField") int studyUIDField,
+            @PathParam("seriesUIDField") int seriesUIDField,
+            InputStream in) {
+        return storageCommit(studyUIDField, seriesUIDField, in);
+    }
+
+    private Response storageCommit(int studyUIDField, Integer seriesUIDField, InputStream in) {
+        logRequest();
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
+
+        validateAcceptedUserRoles(arcAE);
+        ApplicationEntity ae = arcAE.getApplicationEntity();
+        if (aet.equals(ae.getAETitle()))
+            validateWebAppServiceClass();
+
+        Response.Status status = Response.Status.BAD_REQUEST;
+        try {
+            if (studyUIDField < 1)
+                return errResponse("CSV field for Study Instance UID should be greater than or equal to 1", status);
+
+            if (seriesUIDField != null) {
+                if (studyUIDField == seriesUIDField)
+                    return errResponse("CSV fields for Study and Series Instance UIDs should be different", status);
+
+                if (seriesUIDField < 1)
+                    return errResponse("CSV field for Series Instance UID should be greater than or equal to 1", status);
+            }
+
+            ArchiveDeviceExtension arcDev = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
+            int count = 0;
+            String warning = null;
+            int csvUploadChunkSize = arcDev.getCSVUploadChunkSize();
+            List<StudySeriesInfo> studySeries = new ArrayList<>();
+            HttpServletRequestInfo httpServletRequestInfo = HttpServletRequestInfo.valueOf(request);
+            try (
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.builder()
+                            .setDelimiter(csvDelimiter())
+                            .build())
+            ) {
+                boolean header = true;
+                for (CSVRecord csvRecord : parser) {
+                    if (csvRecord.size() == 0 || csvRecord.get(0).isEmpty())
+                        continue;
+
+                    String studyUID = csvRecord.get(studyUIDField - 1).replaceAll("\"", "");
+                    if (header && studyUID.chars().allMatch(Character::isLetter)) {
+                        header = false;
+                        continue;
+                    }
+
+                    if (!arcDev.isValidateUID() || validateUID(studyUID)) {
+                        StudySeriesInfo studySeriesInfo = new StudySeriesInfo(studyUID);
+                        addSeriesUID(studySeriesInfo, csvRecord, seriesUIDField, arcDev);
+                        studySeries.add(studySeriesInfo);
+                    }
+
+                    if (studySeries.size() == csvUploadChunkSize) {
+                        count += scheduleStgVerTasks(httpServletRequestInfo, studySeries, scheduledTime());
+                        studySeries.clear();
+                    }
+                }
+
+                if (!studySeries.isEmpty())
+                    count += scheduleStgVerTasks(httpServletRequestInfo, studySeries, scheduledTime());
+
+                if (count == 0) {
+                    warning = "Empty file or Incorrect field position or Not a CSV file or Invalid UIDs.";
+                    status = Response.Status.NO_CONTENT;
+                }
+            } catch (Exception e) {
+                warning = e.getMessage();
+                status = Response.Status.INTERNAL_SERVER_ERROR;
+            }
+            if (warning == null && count > 0)
+                return Response.accepted(count(count)).build();
+
+            LOG.info("Response {} caused by {}", status, warning);
+            Response.ResponseBuilder builder = Response.status(status)
+                    .header("Warning", warning);
+            if (count > 0)
+                builder.entity(count(count));
+            return builder.build();
+        } catch (Exception e) {
+            return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private int scheduleStgVerTasks(
+            HttpServletRequestInfo httpServletRequestInfo, List<StudySeriesInfo> studySeriesInfos, Date scheduledTime) {
+        for (StudySeriesInfo studySeriesInfo : studySeriesInfos) {
+            String seriesIUID = studySeriesInfo.getSeriesUID();
+            stgCmtMgr.scheduleStgVerTask(aet,
+                    seriesIUID == null ? QueryRetrieveLevel2.STUDY : QueryRetrieveLevel2.SERIES,
+                    httpServletRequestInfo,
+                    studySeriesInfo.getStudyUID(),
+                    seriesIUID,
+                    null,
+                    batchID,
+                    scheduledTime,
+                    storageVerificationPolicy != null ? StorageVerificationPolicy.valueOf(storageVerificationPolicy) : null,
+                    storageVerificationUpdateLocationStatus != null ? Boolean.valueOf(storageVerificationUpdateLocationStatus) : null,
+                    storageVerificationStorageIDs.toArray(StringUtils.EMPTY_STRING));
+        }
+        return studySeriesInfos.size();
+    }
+
+    private static String count(int count) {
+        return "{\"count\":" + count + '}';
+    }
+
+    private char csvDelimiter() {
+        return ("semicolon".equals(contentType.getParameters().get("delimiter"))) ? ';' : ',';
+    }
+
+    private boolean validateUID(String uid) {
+        boolean valid = UIDUtils.isValid(uid);
+        if (!valid)
+            LOG.info("Invalid UID in CSV file: " + uid);
+        return valid;
+    }
+
+    private void addSeriesUID(StudySeriesInfo studySeriesInfo, CSVRecord csvRecord, Integer seriesUIDField,
+                              ArchiveDeviceExtension arcDev) {
+        if (seriesUIDField == null)
+            return;
+
+        String seriesUID = csvRecord.get(seriesUIDField - 1).replaceAll("\"", "");
+        if (arcDev.isValidateUID() && !validateUID(seriesUID)) {
+            LOG.info("Invalid Series[uid={}] of valid Study[uid={}] present in CSV file",
+                    seriesUID, studySeriesInfo.getStudyUID());
+            return;
+        }
+
+        studySeriesInfo.setSeriesUID(seriesUID);
+    }
+
+    static class StudySeriesInfo {
+        private final String studyUID;
+        private String seriesUID = "*";
+
+        StudySeriesInfo(String studyUID) {
+            this.studyUID = studyUID;
+        }
+
+        String getStudyUID() {
+            return studyUID;
+        }
+
+        String getSeriesUID() {
+            return seriesUID;
+        }
+
+        void setSeriesUID(String seriesUID) {
+            this.seriesUID = seriesUID;
+        }
+    }
+
+    private void logRequest() {
+        LOG.info("Process {} {} from {}@{}",
+                request.getMethod(),
+                toString(),
+                request.getRemoteUser(),
+                request.getRemoteHost());
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.warn("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
+                .type("text/plain")
+                .build();
+    }
+
+    private String exceptionAsString(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        return sw.toString();
+    }
+
+    private Response errResponse(String errorMessage, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + errorMessage + "\"}", status);
+    }
+
+    private Response.Status toStatus(Attributes eventInfo) {
+        int completed = sizeOf(eventInfo.getSequence(Tag.ReferencedSOPSequence));
+        int failed = sizeOf(eventInfo.getSequence(Tag.FailedSOPSequence));
+        return failed == 0 ? Response.Status.OK
+                : completed == 0 ? Response.Status.CONFLICT
+                : Response.Status.ACCEPTED;
+    }
+
+    private int sizeOf(Sequence seq) {
+        return seq != null ? seq.size() : 0;
+    }
+
+    private Date scheduledTime() {
+        if (scheduledTime != null)
+            try {
+                return new SimpleDateFormat("yyyyMMddhhmmss").parse(scheduledTime);
+            } catch (Exception e) {
+                LOG.info(e.getMessage());
+            }
+
+        return new Date();
+    }
+
+    private StreamingOutput toStreamingOutput(Attributes eventInfo, ApplicationEntity ae) {
+        return out -> {
+            try (JsonGenerator gen = Json.createGenerator(out)) {
+                JSONWriter writer = ae.getAEExtensionNotNull(ArchiveAEExtension.class)
+                                      .encodeAsJSONNumber(new JSONWriter(gen));
+                gen.writeStartArray();
+                writer.write(eventInfo);
+                gen.writeEnd();
+            }
+        };
+    }
+
+    private void validateAcceptedUserRoles(ArchiveAEExtension arcAE) {
+        KeycloakContext keycloakContext = KeycloakContext.valueOf(request);
+        if (keycloakContext.isSecured() && !keycloakContext.isUserInRole(System.getProperty(SUPER_USER_ROLE))) {
+            if (!arcAE.isAcceptedUserRole(keycloakContext.getRoles()))
+                throw new WebApplicationException(
+                        "Application Entity " + arcAE.getApplicationEntity().getAETitle() + " does not list role of accessing user",
+                        Response.Status.FORBIDDEN);
+        }
+    }
+
+    private void validateWebAppServiceClass() {
+        device.getWebApplications().stream()
+                .filter(webApp -> request.getRequestURI().startsWith(webApp.getServicePath())
+                        && Arrays.asList(webApp.getServiceClasses())
+                        .contains(WebApplication.ServiceClass.DCM4CHEE_ARC_AET))
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(errResponse(
+                        "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
+                        Response.Status.NOT_FOUND)));
+    }
+
+    private ArchiveAEExtension getArchiveAE() {
+        ApplicationEntity ae = device.getApplicationEntity(aet, true);
+        return ae == null || !ae.isInstalled() ? null : ae.getAEExtension(ArchiveAEExtension.class);
+    }
+}

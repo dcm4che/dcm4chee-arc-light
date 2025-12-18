@@ -239,6 +239,12 @@
     "/aets/{aet}/rs/studies/csv:{studyUIDField}/series/csv:{seriesUIDField}/export/{exporterID}": {
       "$ref": "paths/export.json#/series.csv"
     },
+    "/aets/{aet}/rs/studies/csv:{studyUIDField}/stgver": {
+      "$ref": "paths/stgver.json#/studies.csv"
+    },
+    "/aets/{aet}/rs/studies/csv:{studyUIDField}/series/csv:{seriesUIDField}/stgver": {
+      "$ref": "paths/stgver.json#/series.csv"
+    },
     "/aets/{aet}/rs/studies/csv:{field}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/study.reject.csv"
     },
