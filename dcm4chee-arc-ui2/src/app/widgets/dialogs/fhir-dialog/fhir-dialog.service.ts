@@ -13,13 +13,13 @@ export class FhirDialogService {
   constructor(
       private $http:J4careHttpService
   ) { }
-  createFHIRImageStudy(dcmWebApp:DcmWebApp, studyInstanceUID:string,studyWebApp:DcmWebApp, responseHeaderType:string = 'json'){
+  createFHIRImageStudy(dcmWebApp:DcmWebApp, studyInstanceUID:string,studyWebApp:DcmWebApp, responseHeaderType:string = '*/*',responseType:string = 'json'){
     let webAppTemp = _.cloneDeep(studyWebApp);
     webAppTemp.dcmWebServicePath = webAppTemp.dcmWebServicePath + `/studies/${studyInstanceUID}/fhir/${dcmWebApp.dcmWebAppName}`;
     let headers = new HttpHeaders()
-        .set('Content-Type', 'application/fhir+'+responseHeaderType)
-        .set('Accept', 'application/fhir+'+responseHeaderType);
-    if(responseHeaderType === 'json'){
+        .set('Content-Type', 'application/fhir+'+responseType)
+        .set('Accept', responseHeaderType);
+    if(responseType === 'json'){
       return this.$http.post(
           '',
           {},

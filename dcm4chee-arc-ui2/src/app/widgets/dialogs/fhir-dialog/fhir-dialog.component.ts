@@ -34,7 +34,13 @@ export class FhirDialogComponent {
   response:any;
   responseButton = 'headers';
   headers;
-  responseHeaderType:string = 'json';
+  responseTypeHeaderDropdowns:SelectDropdown<string>[] = [
+    new SelectDropdown('application/fhir+json', 'application/fhir+json'),
+    new SelectDropdown('application/fhir+xml', 'application/fhir+xml'),
+    new SelectDropdown('*/*', '*/*'),
+  ];
+  responseHeaderType:string = '*/*';
+  responseType = 'json';
   constructor(
       public dialogRef: MatDialogRef<FhirDialogComponent>,
       private service:FhirDialogService,
@@ -43,8 +49,14 @@ export class FhirDialogComponent {
   ) { }
   save(){
     if(!this.response){
-      this.service.createFHIRImageStudy(this.fhirWebAppsSelectDropdowns.selectedWebService, this.studyService.getStudyInstanceUID(this.study), this.selectedWebService, this.responseHeaderType).subscribe((res)=>{
-        if(this.responseHeaderType === 'json'){
+      this.service.createFHIRImageStudy(
+          this.fhirWebAppsSelectDropdowns.selectedWebService,
+          this.studyService.getStudyInstanceUID(this.study),
+          this.selectedWebService,
+          this.responseHeaderType,
+          this.responseType
+      ).subscribe((res)=>{
+        if(this.responseType === 'json'){
           this.response = JSON.stringify(res.body, null, 2);
         }else{
           this.response = res.body;
@@ -63,9 +75,9 @@ export class FhirDialogComponent {
     const properties = j4care.extractPropertiesFromWebApp(this.fhirWebAppsSelectDropdowns.selectedWebService);
     if(j4care.hasSet(properties,"ImagingStudy")){
       if(properties['ImagingStudy'] === 'FHIR_R5_XML' || properties['ImagingStudy'] === 'LTNHR_V1_XML' ){
-        this.responseHeaderType = 'xml';
+        this.responseType = 'xml';
       }else{
-        this.responseHeaderType = 'json';
+        this.responseType = 'json';
       }
     }
   }

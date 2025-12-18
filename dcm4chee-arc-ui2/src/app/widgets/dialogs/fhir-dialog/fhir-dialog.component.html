@@ -11,14 +11,21 @@
                                        (modelChange)="webAppModelChange($event)">
                         </dcm-drop-down>
                     </div>
+                    <div class="line">
+                        <label i18n="@@accpet_header">Accept Header</label>
+                        <dcm-drop-down [options]="responseTypeHeaderDropdowns" [(model)]="responseHeaderType"
+                                       [editable]="false" [showSearchField]="false" [multiSelectMode]="false" [showStar]="false"
+                                       (modelChange)="responseHeaderType = $event">
+                        </dcm-drop-down>
+                    </div>
                 </div>
             </div>
             @if (response) {
                 <div class="form_input response_block">
                     <div class="response_switch_buttons">
-                        @if (responseHeaderType === 'xml') {
+                        @if (responseType === 'xml') {
                             <button class="btn-default" [ngClass]="{'active':responseButton==='xml'}" (click)="responseButton =  'xml'">XML</button>
-                        } @else if (responseHeaderType === 'json') {
+                        } @else if (responseType === 'json') {
                             <button class="btn-default" [ngClass]="{'active':responseButton==='json'}" (click)="responseButton =  'json'">JSON</button>
                         }
                         <button class="btn-default" [ngClass]="{'active':responseButton==='headers'}" (click)="responseButton =  'headers'">HEADERS</button>
