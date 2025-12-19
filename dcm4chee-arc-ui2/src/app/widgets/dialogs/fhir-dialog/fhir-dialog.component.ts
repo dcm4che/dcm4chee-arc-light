@@ -16,10 +16,7 @@ import {SelectDropdown} from "../../../interfaces";
 @Component({
   selector: 'app-fhir-dialog',
   imports: [
-    MatOption,
-    MatSelect,
     FormsModule,
-    JsonPipe,
     DcmDropDownComponent,
     NgClass
   ],

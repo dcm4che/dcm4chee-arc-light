@@ -16,7 +16,6 @@ import {DynamicPipePipe} from '../../../pipes/dynamic-pipe.pipe';
     imports: [
         NgStyle,
         NgSwitch,
-        DynamicPipePipe,
         UpperCasePipe,
         CommonModule,
     ],
