@@ -87,7 +87,14 @@ export class J4careHttpService{
             if(dcmWebApp){
                 url = url || this.getUrlFromDcmWebAppAndParams(dcmWebApp, params);
             }
-            return this.request.apply(this,['post', {url:(doNotEncode ? url : encodeURI(url)), data:data, header:header, observe:observe, responseType:responseType}, undefined, dontSetToken]);
+            return this.request.apply(this,['post', {
+                url:(doNotEncode ? url : encodeURI(url)),
+                doNotEncode:doNotEncode,
+                data:data,
+                header:header,
+                params:params,
+                observe:observe, responseType:responseType
+            }, undefined, dontSetToken]);
         }
     }
     put(url:string,data:any,header?, doNotEncode?:boolean, dcmWebApp?:DcmWebApp, params?:any){
@@ -139,7 +146,11 @@ export class J4careHttpService{
         return $this.refreshToken().pipe(
             flatMap((response)=>{
                 $this.setHeader(param.header, dcmWebApp, dontSetToken);
-                param.header = {headers:this.header};
+                if(!(_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure) && this.token && Object.keys(this.token).length > 0){
+                    param.header = {headers:this.header};
+                }else{
+                    param.header = {headers:param.header};
+                }
                 return $this.$httpClient[requestFunctionName].apply($this.$httpClient , this.getParamAsArray(param, requestFunctionName));
             }),
             catchError(res=>{
@@ -308,10 +319,12 @@ export class J4careHttpService{
     }
     setHeader(header, dcmWebApp?:DcmWebApp, dontSetToken?:boolean){
         let token;
-        if(dcmWebApp && dcmWebApp.dcmKeycloakClientID){
-            token = this.token[dcmWebApp.dcmWebAppName];
-        }else{
-            token = this.token["UI"];
+        if(this.token){
+            if(dcmWebApp && dcmWebApp.dcmKeycloakClientID){
+                token = this.token[dcmWebApp.dcmWebAppName];
+            }else{
+                token = this.token["UI"];
+            }
         }
         if(header){
             if(token && !dontSetToken){
