@@ -56,7 +56,7 @@ export class FhirDialogComponent {
         let extractedType:string = '';
         this.headers = res.headers.keys().map(key=>{
           const value = res.headers.get(key);
-          if(key === 'Content-Type'){
+          if(key.toLowerCase() === 'content-type'){
             if(value.includes('json')){
               extractedType = 'json';
             }else if(value.includes('xml')){
@@ -66,9 +66,13 @@ export class FhirDialogComponent {
           return {key:key,value:value};
         });
         extractedType = this.extractTypeFromResponse(extractedType, res) || this.responseType;
-
+        this.responseType = extractedType;
         if(this.responseType === 'json'){
-          this.response = JSON.stringify(res.body, null, 2);
+          if(res.body.indexOf('\n') === -1 || res.body.indexOf(' ') === -1){
+            this.response = JSON.stringify(res.body, null, 2);
+          }else{
+            this.response = res.body;
+          }
         }else{
           this.response = res.body;
         }
