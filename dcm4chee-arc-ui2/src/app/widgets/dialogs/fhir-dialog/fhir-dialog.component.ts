@@ -53,30 +53,34 @@ export class FhirDialogComponent {
           this.responseHeaderType,
           this.responseType
       ).subscribe((res)=>{
-        let extractedType:string = '';
-        this.headers = res.headers.keys().map(key=>{
-          const value = res.headers.get(key);
-          if(key.toLowerCase() === 'content-type'){
-            if(value.includes('json')){
-              extractedType = 'json';
-            }else if(value.includes('xml')){
-              extractedType = 'xml';
+        try{
+          let extractedType:string = '';
+          this.headers = res.headers.keys().map(key=>{
+            const value = res.headers.get(key);
+            if(key.toLowerCase() === 'content-type'){
+              if(value.includes('json')){
+                extractedType = 'json';
+              }else if(value.includes('xml')){
+                extractedType = 'xml';
+              }
             }
-          }
-          return {key:key,value:value};
-        });
-        extractedType = this.extractTypeFromResponse(extractedType, res) || this.responseType;
-        this.responseType = extractedType;
-        if(this.responseType === 'json'){
-          if(res.body.indexOf('\n') === -1 || res.body.indexOf(' ') === -1){
-            this.response = JSON.stringify(res.body, null, 2);
+            return {key:key,value:value};
+          });
+          extractedType = this.extractTypeFromResponse(extractedType, res) || this.responseType;
+          this.responseType = extractedType;
+          if(this.responseType === 'json'){
+            if(typeof res.body === 'string' && (res.body.indexOf('\n') === -1 || res.body.indexOf(' ') === -1)){
+              this.response = JSON.stringify(res.body, null, 2);
+            }else{
+              this.response = res.body;
+            }
           }else{
             this.response = res.body;
           }
-        }else{
-          this.response = res.body;
+          this.appService.showMsg($localize `:@@fhir_imaging_successfully:FHIR Imaging Study created successfully`);
+        }catch (e) {
+          this.response = res;
         }
-        this.appService.showMsg($localize `:@@fhir_imaging_successfully:FHIR Imaging Study created successfully`);
       },err=>{
         console.error(err);
         this.appService.showError($localize `:@@fhir_imaging_fail:Create FHIR Imaging Study failed`);
@@ -105,10 +109,10 @@ export class FhirDialogComponent {
     if(j4care.hasSet(properties,"ImagingStudy")){
       if(properties['ImagingStudy'] === 'FHIR_R5_XML' || properties['ImagingStudy'] === 'LTNHR_V1_XML' || properties['ImagingStudy'].includes("XML")){
         this.responseType = 'xml';
-        this.responseHeaderType = 'application/fhir+xml';
+        //this.responseHeaderType = 'application/fhir+xml';
       }else{
         this.responseType = 'json';
-        this.responseHeaderType = 'application/fhir+json';
+        //this.responseHeaderType = 'application/fhir+json';
       }
     }
   }
