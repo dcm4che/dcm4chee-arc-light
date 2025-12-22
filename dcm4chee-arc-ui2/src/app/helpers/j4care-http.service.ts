@@ -162,6 +162,11 @@ export class J4careHttpService{
                     }));
                 }
                 return throwError(res);
+/*                if(res.status > 299){
+                    return throwError(res);
+                }else {
+                    return of(res);
+                }*/
             }),
             map((res:any)=>{
                 if((_.hasIn(param, 'observe') && param.observe === 'response') || (_.hasIn(param, 'responseType') && param.responseType === 'text')){

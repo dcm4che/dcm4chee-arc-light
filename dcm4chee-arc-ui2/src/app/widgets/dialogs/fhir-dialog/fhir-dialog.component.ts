@@ -53,12 +53,25 @@ export class FhirDialogComponent {
           this.responseHeaderType,
           this.responseType
       ).subscribe((res)=>{
+        let extractedType:string = '';
+        this.headers = res.headers.keys().map(key=>{
+          const value = res.headers.get(key);
+          if(key === 'Content-Type'){
+            if(value.includes('json')){
+              extractedType = 'json';
+            }else if(value.includes('xml')){
+              extractedType = 'xml';
+            }
+          }
+          return {key:key,value:value};
+        });
+        extractedType = this.extractTypeFromResponse(extractedType, res) || this.responseType;
+
         if(this.responseType === 'json'){
           this.response = JSON.stringify(res.body, null, 2);
         }else{
           this.response = res.body;
         }
-        this.headers = res.headers.keys().map(key=>({key:key,value:res.headers.get(key)}));
         this.appService.showMsg($localize `:@@fhir_imaging_successfully:FHIR Imaging Study created successfully`);
       },err=>{
         console.error(err);
@@ -67,6 +80,21 @@ export class FhirDialogComponent {
     }
   }
 
+  extractTypeFromResponse(extractedType:string, res:any){
+    try{
+      if(extractedType === ''){
+        const regex = /<[\w.<\/>="" :\.\\]*>[\n \.]*<[\w.<\/>="" :\.\\]*>/; // Detect xml Regex;
+        if(regex.test(res.body)){
+          extractedType = 'xml';
+        }else{
+          extractedType = 'json';
+        }
+      }
+      return extractedType
+    }catch (e) {
+      return extractedType;
+    }
+  }
   protected webAppModelChange($event: any) {
     this.fhirWebAppsSelectDropdowns.selectedWebService = $event;
     const properties = j4care.extractPropertiesFromWebApp(this.fhirWebAppsSelectDropdowns.selectedWebService);
