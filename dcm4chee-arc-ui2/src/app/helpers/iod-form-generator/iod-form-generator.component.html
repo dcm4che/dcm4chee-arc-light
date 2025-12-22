@@ -99,8 +99,8 @@
         }
     <div *ngIf="object[o].vr === 'SQ'">
         <div *ngFor="let io of object[o].Value; let i=index; trackBy:trackByFn" class="sqiod" [ngClass]="{'active':activeBlock}">
-            <div (click)="removeAttr(o,i)" *ngIf="(!prefix || prefix==='') && object[o].Value.length > 1 && !object.newBlock && !parentNewBlock" class="t4 iod_remove glyphicon glyphicon-remove"></div>
-            <iod-form-generator [parentNewBlock]="object.newBlock" [parentObject]="object" [parentKey]="o" [valueArrayKey]="i"  [object]="object[o].Value[i]" [mode]="mode" [prefix]="'>'+ (prefix || '')" [iod]="iod[o]"></iod-form-generator>
+            <div (click)="removeAttr(o,i)" *ngIf="(!prefix || prefix==='')  && object[o]  && object[o].Value && object[o].Value.length > 1 && !object.newBlock && !parentNewBlock" class="iod_remove glyphicon glyphicon-remove"></div>
+            <iod-form-generator [parentNewBlock]="object.newBlock" [parentObject]="object" [parentKey]="o" [valueArrayKey]="i"  [object]="_.get(object,'['+o+'].Value['+i+']')" [mode]="mode" [prefix]="'>'+ (prefix || '')" [iod]="_.get(iod, o)"></iod-form-generator>
             <button class="add_multi_button" (mouseover)="activeBlock = true" (mouseleave)="activeBlock = false" (click)="clonePart(object,o, iod, i,io)"><span class="glyphicon glyphicon-plus"></span></button>
         </div>
     </div>
