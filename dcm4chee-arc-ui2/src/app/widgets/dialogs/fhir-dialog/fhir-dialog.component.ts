@@ -18,7 +18,8 @@ import {SelectDropdown} from "../../../interfaces";
   imports: [
     FormsModule,
     DcmDropDownComponent,
-    NgClass
+    NgClass,
+    JsonPipe
   ],
   templateUrl: './fhir-dialog.component.html',
   styleUrl: './fhir-dialog.component.scss',
