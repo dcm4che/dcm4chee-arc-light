@@ -55,7 +55,7 @@
 
   <entity class="org.dcm4chee.arc.entity.ContentItem">
     <attributes>
-      <basic name="textValue" optional="false">
+      <basic name="textValue">
         <column name="text_value" column-definition="nvarchar(255)" />
       </basic>
     </attributes>
@@ -63,7 +63,7 @@
 
   <entity class="org.dcm4chee.arc.entity.HL7PSUTask">
     <attributes>
-      <basic name="accessionNumber" optional="false">
+      <basic name="accessionNumber">
         <column name="accession_no" column-definition="nvarchar(255)" />
       </basic>
     </attributes>
