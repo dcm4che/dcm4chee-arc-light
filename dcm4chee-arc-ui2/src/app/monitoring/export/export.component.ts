@@ -230,11 +230,12 @@ export class ExportComponent implements OnInit, OnDestroy {
             this.search(0);
         }
     };
-    confirm(confirmparameters){
+    confirm(confirmparameters,width?:string){
         //this.config.viewContainerRef = this.viewContainerRef;
+        width = width || '465px';
         this.dialogRef = this.dialog.open(ConfirmComponent,{
             height: 'auto',
-            width: '465px'
+            width: width
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
@@ -1324,7 +1325,9 @@ export class ExportComponent implements OnInit, OnDestroy {
                         schema_model: {}
                     },
                     saveButton: $localize `:@@SUBMIT:SUBMIT`
-                }).subscribe((ok)=>{
+                },
+                    '520px'
+                ).subscribe((ok)=>{
                     if (ok) {
                         this.cfpLoadingBar.start();
                         if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
@@ -1395,7 +1398,8 @@ export class ExportComponent implements OnInit, OnDestroy {
                 schema_model: schema_model || {}
             },
             saveButton: $localize `:@@SUBMIT:SUBMIT`
-        }).subscribe((ok)=>{
+        },
+            '520px').subscribe((ok)=>{
                 callBack.call(this, ok);
         });
     }
