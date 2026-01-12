@@ -70,6 +70,7 @@
                 <xsl:with-param name="fillerNoInst" select="$fillerNoInst"/>
                 <xsl:with-param name="fillerNoSqInst" select="$fillerNoSqInst"/>
             </xsl:call-template>
+            <xsl:call-template name="TQ1" />
             <xsl:call-template name="OBR">
                 <xsl:with-param name="placerNoMWL" select="$placerNoMWL"/>
                 <xsl:with-param name="placerNoSqMWL" select="$placerNoSqMWL"/>
@@ -84,7 +85,6 @@
                 <xsl:with-param name="fillerNoInst" select="$fillerNoInst"/>
                 <xsl:with-param name="fillerNoSqInst" select="$fillerNoSqInst"/>
             </xsl:call-template>
-            <xsl:call-template name="TQ1" />
             <xsl:choose>
                 <xsl:when test="starts-with($msgType, 'OMI')">
                     <xsl:call-template name="IPC"/>
