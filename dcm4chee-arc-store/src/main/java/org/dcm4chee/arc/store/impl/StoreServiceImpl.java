@@ -249,6 +249,11 @@ class StoreServiceImpl implements StoreService {
             transcoder.setIncludeImplementationVersionName(arcDev.isStoreImplementationVersionName());
             transcoder.setDeleteBulkDataFiles(true);
             transcoder.transcode(new TranscoderHandler(ctx));
+            long encapsulatedPixelDataValueTotalLength = transcoder.getEncapsulatedPixelDataValueTotalLength();
+            if (encapsulatedPixelDataValueTotalLength > 0) {
+                ctx.getAttributes().setLong(Tag.EncapsulatedPixelDataValueTotalLength, VR.UV,
+                        encapsulatedPixelDataValueTotalLength);
+            }
         } catch (StorageException e) {
             LOG.warn("{}: Failed to store received object:\n", ctx.getStoreSession(), e);
             throw new DicomServiceException(Status.OutOfResources, e);

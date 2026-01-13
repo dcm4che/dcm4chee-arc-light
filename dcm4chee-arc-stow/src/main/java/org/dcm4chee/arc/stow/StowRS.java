@@ -691,6 +691,7 @@ public class StowRS {
         if (attrs.containsValue(Tag.PixelData)) {
             supplementImagePixelModule(ctx, session, attrs, bulkdata);
             verifyImagePixelModule(attrs);
+            attrs.setLong(Tag.EncapsulatedPixelDataValueTotalLength, VR.UV, bulkdata.length);
         }
         if (attrs.containsValue(Tag.EncapsulatedDocument)) {
             verifyEncapsulatedDocumentModule(session, attrs, bulkdata);

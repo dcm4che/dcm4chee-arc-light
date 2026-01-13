@@ -199,6 +199,8 @@ public class WadoRS {
     private String dicomRootPartTransferSyntax;
     private boolean ignorePatientUpdate;
     private AttributeSet metadataFilter;
+    private boolean acceptRanges;
+    private ContentRange contentRange;
 
     @Override
     public String toString() {
@@ -823,6 +825,8 @@ public class WadoRS {
         });
         Object entity = output.entity(this, target, ctx, frameList, attributePath);
         Response.ResponseBuilder builder = output.response(this, lastModified, entity);
+        builder.header("Accept-Ranges", acceptRanges ? "bytes" : "none");
+        builder.header("Content-Range", contentRange);
         if (warning != null) {
             LOG.warn("Response {} caused by {}", responseStatus, warning);
             builder.header("Warning", warning);
@@ -1050,7 +1054,7 @@ public class WadoRS {
                     ctx.copyToRetrieveCache(null);
                     inst = ctx.copiedToRetrieveCache();
                 }
-                return wadoRS.renderInstance(ctx, inst, wadoRS.renderedMediaType);
+                return wadoRS.renderInstance(ctx, inst, wadoRS.renderedMediaType, false);
             }
 
             @Override
@@ -1287,11 +1291,11 @@ public class WadoRS {
         bulkdataURL.setLength(bulkdataURL.length() - 9);
         mkInstanceURL(bulkdataURL, inst);
         bulkdataURL.append("/rendered");
-        OutputPart outputPart = output.addPart(renderInstance(ctx, inst, mediaType), mediaType);
+        OutputPart outputPart = output.addPart(renderInstance(ctx, inst, mediaType, true), mediaType);
         outputPart.getHeaders().putSingle("Content-Location", bulkdataURL.toString());
     }
 
-    private StreamingOutput renderInstance(RetrieveContext ctx, InstanceLocations inst, MediaType mediaType) {
+    private StreamingOutput renderInstance(RetrieveContext ctx, InstanceLocations inst, MediaType mediaType, boolean multipart) {
         ObjectType objectType = ObjectType.objectTypeOf(ctx, inst, 0);
         switch (objectType) {
             case UncompressedSingleFrameImage:
@@ -1302,7 +1306,16 @@ public class WadoRS {
                 return renderImage(ctx, inst, mediaType, 0, windowing(), viewport());
             case MPEG2Video:
             case MPEG4Video:
-                return new CompressedPixelDataOutput(ctx, inst);
+                if (!multipart) {
+                    this.acceptRanges = ctx.getArchiveAEExtension().isWadoVideoAcceptRanges(inst.getAttributes());
+                    if (acceptRanges) {
+                        this.contentRange = ContentRange.from(request, inst);
+                        if (contentRange != null) {
+                            this.responseStatus = Response.Status.PARTIAL_CONTENT;
+                        }
+                    }
+                }
+                return new CompressedPixelDataOutput(ctx, inst, contentRange);
             case EncapsulatedPDF:
                 return new BulkdataOutput(ctx, inst, Tag.EncapsulatedDocument);
             case SRDocument:
@@ -1370,7 +1383,7 @@ public class WadoRS {
                 }
             case MPEG2Video:
             case MPEG4Video:
-                entity = new CompressedPixelDataOutput(ctx, inst);
+                entity = new CompressedPixelDataOutput(ctx, inst, null);
                 break;
             case EncapsulatedPDF:
             case EncapsulatedCDA:
@@ -1413,7 +1426,7 @@ public class WadoRS {
             case CompressedSingleFrameImage:
                 entity = mediaType == MediaType.APPLICATION_OCTET_STREAM_TYPE
                         ? new DecompressPixelDataOutput(ctx, inst)
-                        : new CompressedPixelDataOutput(ctx, inst);
+                        : new CompressedPixelDataOutput(ctx, inst, null);
                 break;
             default:
                 throw new AssertionError("Unexcepted object type: " + objectType);

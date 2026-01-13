@@ -468,7 +468,8 @@ class ArchiveDeviceFactory {
             Tag.ViewPosition,
             Tag.ViewCodeSequence,
             Tag.SharedFunctionalGroupsSequence,
-            Tag.PerFrameFunctionalGroupsSequence
+            Tag.PerFrameFunctionalGroupsSequence,
+            Tag.EncapsulatedPixelDataValueTotalLength
     };
     static final int[] LEADING_CFIND_SCP_ATTRS = {
             Tag.StudyDate,

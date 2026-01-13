@@ -3034,6 +3034,7 @@ dcmTag: 00700083
 dcmTag: 00700084
 dcmTag: 52009229
 dcmTag: 52009230
+dcmTag: 7FE00003
 dcmEntity: Instance
 objectClass: dcmAttributeFilter
 
@@ -3976,6 +3977,7 @@ dcmTag: 00700083
 dcmTag: 00700084
 dcmTag: 52009229
 dcmTag: 52009230
+dcmTag: 7FE00003
 dcmAttributeSetType: WADO_RS
 dcmAttributeSetID: AttributeFilters
 objectClass: dcmAttributeSet

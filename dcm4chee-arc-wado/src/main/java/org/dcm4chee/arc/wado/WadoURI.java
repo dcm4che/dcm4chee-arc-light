@@ -203,6 +203,8 @@ public class WadoURI {
 
     private Collection<String> acceptableTransferSyntaxes;
     private ContentTypes contentTypes;
+    private boolean acceptRanges;
+    private ContentRange contentRange;
 
     @Override
     public String toString() {
@@ -354,11 +356,16 @@ public class WadoURI {
             retrieveWado.fire(ctx);
         });
 
-        ar.resume(Response.ok(entity, mimeType == MediaTypes.APPLICATION_DICOM_TYPE
-                                        ? new MediaType(mimeType.getType(), mimeType.getSubtype(), parameters(inst))
-                                        : mimeType)
+        ar.resume(Response
+                .status(contentRange == null ? Response.Status.OK : Response.Status.PARTIAL_CONTENT)
+                .entity(entity)
+                .type(mimeType == MediaTypes.APPLICATION_DICOM_TYPE
+                        ? new MediaType(mimeType.getType(), mimeType.getSubtype(), parameters(inst))
+                        : mimeType)
                 .lastModified(lastModified)
                 .tag(String.valueOf(lastModified.hashCode()))
+                .header("Accept-Ranges", acceptRanges ? "bytes" : "none")
+                .header("Content-Range", contentRange)
                 .build());
     }
 
@@ -413,7 +420,11 @@ public class WadoURI {
                 return decapsulateDocument(service.openDicomInputStream(ctx, inst));
             case MPEG2Video:
             case MPEG4Video:
-                return new CompressedPixelDataOutput(ctx, inst);
+                this.acceptRanges = ctx.getArchiveAEExtension().isWadoVideoAcceptRanges(inst.getAttributes());
+                if (acceptRanges) {
+                    this.contentRange = ContentRange.from(request, inst);
+                }
+                return new CompressedPixelDataOutput(ctx, inst, this.contentRange);
             case SRDocument:
                 return new DicomXSLTOutput(ctx, inst, mimeType, wadoURL());
         }

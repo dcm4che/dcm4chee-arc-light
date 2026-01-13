@@ -63,10 +63,12 @@ public class CompressedPixelDataOutput implements StreamingOutput {
 
     private final RetrieveContext ctx;
     private final InstanceLocations inst;
+    private final ContentRange contentRange;
 
-    public CompressedPixelDataOutput(RetrieveContext ctx, InstanceLocations inst) {
+    public CompressedPixelDataOutput(RetrieveContext ctx, InstanceLocations inst, ContentRange contentRange) {
         this.ctx = ctx;
         this.inst = inst;
+        this.contentRange = contentRange;
     }
 
     @Override
@@ -77,9 +79,33 @@ public class CompressedPixelDataOutput implements StreamingOutput {
             if (dis.tag() != Tag.PixelData || dis.length() != -1 || !dis.readItemHeader())
                 throw new IOException("No or incorrect encapsulated compressed pixel data in requested object");
             dis.skipFully(dis.length());
+            long skip = 0L;
+            long remaining = 0L;
+            if (contentRange != null) {
+                skip = contentRange.start;
+                remaining = contentRange.length();
+            }
             LOG.debug("Start writing compressed pixel data of {}", inst);
-            while (dis.readItemHeader())
-                StreamUtils.copy(dis, out, dis.length());
+            while (dis.readItemHeader()) {
+                long len = dis.unsignedLength();
+                if (skip > 0) {
+                    skip -= len;
+                    if (skip >= 0) {
+                        dis.skipFully(len);
+                        continue;
+                    }
+                    dis.skipFully(len + skip);
+                    len = -skip;
+                }
+                if (remaining > 0) {
+                    remaining -= len;
+                    if (remaining <= 0) {
+                        StreamUtils.copy(dis, out, len + remaining);
+                        break;
+                    }
+                }
+                StreamUtils.copy(dis, out, len);
+            }
             LOG.debug("Finished writing compressed pixel data of {}", inst);
         }
     }

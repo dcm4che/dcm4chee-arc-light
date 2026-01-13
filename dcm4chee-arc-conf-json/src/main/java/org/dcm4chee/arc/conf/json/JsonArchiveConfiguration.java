@@ -153,6 +153,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.isExternalWadoRSRedirectOnNotFound(), false);
         writer.writeNotDef("dcmWadoIgnorePresentationLUTShape", arcDev.isWadoIgnorePresentationLUTShape(), false);
         writer.writeNotDef("dcmWadoMetadataExcludePrivate", arcDev.isWadoMetadataWithoutPrivate(), false);
+        writer.writeNotNullOrDef("dcmWadoVideoAcceptRanges",
+                arcDev.getWadoVideoAcceptRanges(), WadoVideoAcceptRanges.KNOWN_TOTAL_LENGTH);
         writer.writeNotDef("dcmQueryFetchSize", arcDev.getQueryFetchSize(), 100);
         writer.writeNotDef("dcmQueryMaxNumberOfResults", arcDev.getQueryMaxNumberOfResults(), 0);
         writer.writeNotDef("dcmQidoMaxNumberOfResults", arcDev.getQidoMaxNumberOfResults(), 0);
@@ -1340,6 +1342,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNull("dcmExternalWadoRSRedirectOnNotFound", arcAE.getExternalWadoRSRedirectOnNotFound());
         writer.writeNotNull("dcmWadoIgnorePresentationLUTShape", arcAE.getWadoIgnorePresentationLUTShape());
         writer.writeNotNull("dcmWadoMetadataExcludePrivate", arcAE.getWadoMetadataWithoutPrivate());
+        writer.writeNotNullOrDef("dcmWadoVideoAcceptRanges", arcAE.getWadoVideoAcceptRanges(), null);
         writer.writeNotNull("dcmQueryMaxNumberOfResults", arcAE.getQueryMaxNumberOfResults());
         writer.writeNotNull("dcmQidoMaxNumberOfResults", arcAE.getQidoMaxNumberOfResults());
         writer.writeNotNull("dcmQidoETag", arcAE.getQidoETag());
@@ -1622,6 +1625,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoMetadataExcludePrivate":
                     arcDev.setWadoMetadataWithoutPrivate(reader.booleanValue());
+                    break;
+                case "dcmWadoVideoAcceptRanges":
+                    arcDev.setWadoVideoAcceptRanges(WadoVideoAcceptRanges.valueOf(reader.stringValue()));
                     break;
                 case "dcmQueryFetchSize":
                     arcDev.setQueryFetchSize(reader.intValue());
@@ -4344,6 +4350,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmWadoMetadataExcludePrivate":
                     arcAE.setWadoMetadataWithoutPrivate(reader.booleanValue());
+                    break;
+                case "dcmWadoVideoAcceptRanges":
+                    arcAE.setWadoVideoAcceptRanges(WadoVideoAcceptRanges.valueOf(reader.stringValue()));
                     break;
                 case "dcmQueryMaxNumberOfResults":
                     arcAE.setQueryMaxNumberOfResults(reader.intValue());

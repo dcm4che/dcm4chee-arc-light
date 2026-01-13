@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.io.BulkDataDescriptor;
 import org.dcm4che3.json.JSONWriter;
@@ -93,6 +94,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String wadoSR2HtmlTemplateURI;
     private String wadoSR2TextTemplateURI;
     private String wadoCDA2HtmlTemplateURI;
+    private WadoVideoAcceptRanges wadoVideoAcceptRanges;
     private String[] mppsForwardDestinations = {};
     private String[] ianDestinations = {};
     private Duration ianDelay;
@@ -614,6 +616,24 @@ public class ArchiveAEExtension extends AEExtension {
         return wadoCDA2HtmlTemplateURI != null
                 ? wadoCDA2HtmlTemplateURI
                 : getArchiveDeviceExtension().getWadoCDA2HtmlTemplateURI();
+    }
+
+    public WadoVideoAcceptRanges getWadoVideoAcceptRanges() {
+        return wadoVideoAcceptRanges;
+    }
+
+    public void setWadoVideoAcceptRanges(WadoVideoAcceptRanges wadoVideoAcceptRanges) {
+        this.wadoVideoAcceptRanges = wadoVideoAcceptRanges;
+    }
+
+    public boolean isWadoVideoAcceptRanges(Attributes instAttrs) {
+        return switch(wadoVideoAcceptRanges != null
+                ? wadoVideoAcceptRanges
+                : getArchiveDeviceExtension().getWadoVideoAcceptRanges()) {
+            case NO -> false;
+            case YES -> true;
+            case KNOWN_TOTAL_LENGTH -> instAttrs.containsValue(Tag.EncapsulatedPixelDataValueTotalLength);
+        };
     }
 
     public String[] getMppsForwardDestinations() {
@@ -2121,12 +2141,14 @@ public class ArchiveAEExtension extends AEExtension {
         personNameComponentOrderInsensitiveMatching = aeExt.personNameComponentOrderInsensitiveMatching;
         sendPendingCGet = aeExt.sendPendingCGet;
         sendPendingCMoveInterval = aeExt.sendPendingCMoveInterval;
+        wadoMetadataWithoutPrivate = aeExt.wadoMetadataWithoutPrivate;
         wadoIgnorePresentationLUTShape = aeExt.wadoIgnorePresentationLUTShape;
         wadoThumbnailViewPort = aeExt.wadoThumbnailViewPort;
         wadoZIPEntryNameFormat = aeExt.wadoZIPEntryNameFormat;
         wadoSR2HtmlTemplateURI = aeExt.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = aeExt.wadoSR2TextTemplateURI;
         wadoCDA2HtmlTemplateURI = aeExt.wadoCDA2HtmlTemplateURI;
+        wadoVideoAcceptRanges = aeExt.wadoVideoAcceptRanges;
         mppsForwardDestinations = aeExt.mppsForwardDestinations;
         ianDestinations = aeExt.ianDestinations;
         ianDelay = aeExt.ianDelay;

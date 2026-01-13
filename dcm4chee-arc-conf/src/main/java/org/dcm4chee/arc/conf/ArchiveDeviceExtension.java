@@ -129,6 +129,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile String wadoSR2HtmlTemplateURI;
     private volatile String wadoSR2TextTemplateURI;
     private volatile String wadoCDA2HtmlTemplateURI;
+    private volatile WadoVideoAcceptRanges wadoVideoAcceptRanges = WadoVideoAcceptRanges.KNOWN_TOTAL_LENGTH;
     private volatile String patientUpdateTemplateURI;
     private volatile String importReportTemplateURI;
     private volatile String scheduleProcedureTemplateURI;
@@ -877,6 +878,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setWadoCDA2HtmlTemplateURI(String wadoCDA2HtmlTemplateURI) {
         this.wadoCDA2HtmlTemplateURI = wadoCDA2HtmlTemplateURI;
+    }
+
+    public WadoVideoAcceptRanges getWadoVideoAcceptRanges() {
+        return wadoVideoAcceptRanges;
+    }
+
+    public void setWadoVideoAcceptRanges(WadoVideoAcceptRanges wadoVideoAcceptRanges) {
+        this.wadoVideoAcceptRanges = Objects.requireNonNull(wadoVideoAcceptRanges);
     }
 
     public String getPatientUpdateTemplateURI() {
@@ -3909,12 +3918,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         wadoSupportedSRClasses.addAll(arcdev.wadoSupportedSRClasses);
         wadoSupportedPRClasses.clear();
         wadoSupportedPRClasses.addAll(arcdev.wadoSupportedPRClasses);
+        wadoMetadataWithoutPrivate = arcdev.wadoMetadataWithoutPrivate;
         wadoIgnorePresentationLUTShape = arcdev.wadoIgnorePresentationLUTShape;
         wadoThumbnailViewPort = arcdev.wadoThumbnailViewPort;
         wadoZIPEntryNameFormat = arcdev.wadoZIPEntryNameFormat;
         wadoSR2HtmlTemplateURI = arcdev.wadoSR2HtmlTemplateURI;
         wadoSR2TextTemplateURI = arcdev.wadoSR2TextTemplateURI;
         wadoCDA2HtmlTemplateURI = arcdev.wadoCDA2HtmlTemplateURI;
+        wadoVideoAcceptRanges = arcdev.wadoVideoAcceptRanges;
         patientUpdateTemplateURI = arcdev.patientUpdateTemplateURI;
         importReportTemplateURI = arcdev.importReportTemplateURI;
         scheduleProcedureTemplateURI = arcdev.scheduleProcedureTemplateURI;

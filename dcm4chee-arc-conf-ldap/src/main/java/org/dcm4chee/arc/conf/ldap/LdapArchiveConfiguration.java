@@ -184,6 +184,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.isExternalWadoRSRedirectOnNotFound(), false);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmWadoIgnorePresentationLUTShape",
                 ext.isWadoIgnorePresentationLUTShape(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoVideoAcceptRanges",
+                ext.getWadoVideoAcceptRanges(), WadoVideoAcceptRanges.KNOWN_TOTAL_LENGTH);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmWadoMetadataExcludePrivate",
                 ext.isWadoMetadataWithoutPrivate(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PatientUpdateTemplateURI",
@@ -685,6 +687,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setExternalWadoRSRedirectOnNotFound(LdapUtils.booleanValue(attrs.get("dcmExternalWadoRSRedirectOnNotFound"), false));
         ext.setWadoIgnorePresentationLUTShape(LdapUtils.booleanValue(attrs.get("dcmWadoIgnorePresentationLUTShape"), false));
         ext.setWadoMetadataWithoutPrivate(LdapUtils.booleanValue(attrs.get("dcmWadoMetadataExcludePrivate"), false));
+        ext.setWadoVideoAcceptRanges(LdapUtils.enumValue(WadoVideoAcceptRanges.class,
+                attrs.get("dcmWadoVideoAcceptRanges"), WadoVideoAcceptRanges.KNOWN_TOTAL_LENGTH));
         ext.setPatientUpdateTemplateURI(LdapUtils.stringValue(attrs.get("hl7PatientUpdateTemplateURI"), null));
         ext.setImportReportTemplateURI(LdapUtils.stringValue(attrs.get("hl7ImportReportTemplateURI"), null));
         ext.setImportReportTemplateParams(LdapUtils.stringArray(attrs.get("hl7ImportReportTemplateParam")));
@@ -1176,6 +1180,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.isWadoMetadataWithoutPrivate(),
                 bb.isWadoMetadataWithoutPrivate(),
                 false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoVideoAcceptRanges",
+                aa.getWadoVideoAcceptRanges(),
+                bb.getWadoVideoAcceptRanges(),
+                WadoVideoAcceptRanges.KNOWN_TOTAL_LENGTH);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportTemplateURI",
                 aa.getImportReportTemplateURI(), bb.getImportReportTemplateURI(), null);
         LdapUtils.storeDiffProperties(ldapObj, mods, "hl7ImportReportTemplateParam",
@@ -1977,6 +1985,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getWadoIgnorePresentationLUTShape(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoMetadataExcludePrivate",
                 ext.getWadoMetadataWithoutPrivate(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmWadoVideoAcceptRanges",
+                ext.getWadoVideoAcceptRanges(), null);
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmQueryMaxNumberOfResults", ext.getQueryMaxNumberOfResults());
         LdapUtils.storeNotNull(ldapObj, attrs, "dcmQidoMaxNumberOfResults", ext.getQidoMaxNumberOfResults());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmQidoETag", ext.getQidoETag(), null);
@@ -2175,6 +2185,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setWadoIgnorePresentationLUTShape(
                 LdapUtils.booleanValue(attrs.get("dcmWadoIgnorePresentationLUTShape"), null));
         ext.setWadoMetadataWithoutPrivate(LdapUtils.booleanValue(attrs.get("dcmWadoMetadataExcludePrivate"), null));
+        ext.setWadoVideoAcceptRanges(LdapUtils.enumValue(WadoVideoAcceptRanges.class,
+                attrs.get("dcmWadoVideoAcceptRanges"), null));
         ext.setQueryMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQueryMaxNumberOfResults"), null));
         ext.setQidoMaxNumberOfResults(LdapUtils.intValue(attrs.get("dcmQidoMaxNumberOfResults"), null));
         ext.setQidoETag(LdapUtils.booleanValue(attrs.get("dcmQidoETag"), null));
@@ -2402,6 +2414,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoMetadataExcludePrivate",
                 aa.getWadoMetadataWithoutPrivate(),
                 bb.getWadoMetadataWithoutPrivate(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmWadoVideoAcceptRanges",
+                aa.getWadoVideoAcceptRanges(),
+                bb.getWadoVideoAcceptRanges(),
+                null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmQueryMaxNumberOfResults",
                 aa.getQueryMaxNumberOfResults(), bb.getQueryMaxNumberOfResults(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmQidoMaxNumberOfResults",
