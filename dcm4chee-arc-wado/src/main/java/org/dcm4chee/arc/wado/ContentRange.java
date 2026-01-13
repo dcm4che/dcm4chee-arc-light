@@ -63,7 +63,7 @@ public class ContentRange {
             int dashPos = rangeValue.indexOf('-', 6);
             if (dashPos != -1) {
                 long total = inst.getAttributes().getLong(Tag.EncapsulatedPixelDataValueTotalLength,
-                        inst.getLocations().getFirst().getSize());
+                        inst.getLocations().get(0).getSize());
                 try {
                     long start = Long.parseUnsignedLong(rangeValue.substring(6, dashPos));
                     long end = rangeValue.length() > dashPos + 1
