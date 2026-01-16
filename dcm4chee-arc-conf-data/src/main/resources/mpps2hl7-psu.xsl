@@ -43,10 +43,10 @@
             </xsl:if>
             <xsl:variable name="ppsStartDateTime" select="concat(DicomAttribute[@tag='00400244']/Value, DicomAttribute[@tag='00400245']/Value)"/>
             <xsl:call-template name="ORC" />
-            <xsl:call-template name="OBR">
+            <xsl:call-template name="TQ1">
                 <xsl:with-param name="ppsStartDateTime" select="$ppsStartDateTime"/>
             </xsl:call-template>
-            <xsl:call-template name="TQ1">
+            <xsl:call-template name="OBR">
                 <xsl:with-param name="ppsStartDateTime" select="$ppsStartDateTime"/>
             </xsl:call-template>
             <xsl:choose>
