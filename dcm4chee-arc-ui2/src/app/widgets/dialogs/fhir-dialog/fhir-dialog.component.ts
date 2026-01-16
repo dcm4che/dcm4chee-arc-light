@@ -105,7 +105,11 @@ export class FhirDialogComponent {
     }
   }
   protected webAppModelChange($event: any) {
-    this.fhirWebAppsSelectDropdowns.selectedWebService = $event;
+    if(typeof $event === 'string'){
+      this.fhirWebAppsSelectDropdowns.seletWebAppFromWebAppName($event);
+    }else{
+      this.fhirWebAppsSelectDropdowns.selectedWebService = $event;
+    }
     const properties = j4care.extractPropertiesFromWebApp(this.fhirWebAppsSelectDropdowns.selectedWebService);
     if(j4care.hasSet(properties,"ImagingStudy")){
       if(properties['ImagingStudy'] === 'FHIR_R5_XML' || properties['ImagingStudy'] === 'LTNHR_V1_XML' || properties['ImagingStudy'].includes("XML")){
