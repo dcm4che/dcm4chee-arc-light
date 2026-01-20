@@ -1,6 +1,6 @@
-import {DcmWebApp} from "../../models/dcm-web-app";
-import * as _ from "lodash-es";
-import {SelectDropdown} from "../../interfaces";
+import {DcmWebApp} from '../../models/dcm-web-app';
+import * as _ from 'lodash-es';
+import {SelectDropdown} from '../../interfaces';
 
 export class StudyWebService {
     private _webServices:DcmWebApp[];
@@ -18,7 +18,7 @@ export class StudyWebService {
     ){
         this.webServices = object.webServices;
         this.allWebServices = object.allWebServices;
-        if(_.hasIn(object,"selectedWebService.dcmWebAppName")){
+        if(_.hasIn(object,'selectedWebService.dcmWebAppName')){
             object.webServices.forEach((webService:DcmWebApp)=>{
                if(object.selectedWebService.dcmWebAppName === webService.dcmWebAppName){
                    this.selectedWebService = webService;
@@ -28,7 +28,7 @@ export class StudyWebService {
     }
 
     seletWebAppFromWebAppName(dcmWebAppName:string){
-        if(this._webServices && dcmWebAppName && dcmWebAppName != ""){
+        if(this._webServices && dcmWebAppName && dcmWebAppName != ''){
             this._webServices.forEach((webService:DcmWebApp)=>{
                 if(dcmWebAppName === webService.dcmWebAppName){
                     this._selectedWebService = webService;
@@ -39,6 +39,13 @@ export class StudyWebService {
         }
     }
 
+    getWebAppByName(dcmWebAppName: string): DcmWebApp {
+        if (this._webServices && dcmWebAppName && dcmWebAppName != '') {
+            return this._webServices.find((webService: DcmWebApp) => dcmWebAppName === webService.dcmWebAppName);
+        }
+        return undefined;
+    }
+
     get webServices(): DcmWebApp[] {
         return this._webServices;
     }
@@ -47,7 +54,7 @@ export class StudyWebService {
         this._webServices = value;
         this._selectedWebService = undefined;
         this._selectDropdownWebServices = this._webServices.map((webService:DcmWebApp)=>{
-            return new SelectDropdown(webService,webService.dcmWebAppName,webService.dicomDescription,undefined,undefined,webService);
+            return new SelectDropdown(webService.dcmWebAppName,webService.dcmWebAppName,webService.dicomDescription,undefined,undefined,webService);
         })
 
     }
