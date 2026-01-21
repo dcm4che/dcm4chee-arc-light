@@ -3281,8 +3281,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
     }
     synchronizeSelectedWebAppWithFilter(){
-        if(this.studyWebService && this.studyWebService.selectedWebService && (!_.hasIn(this._filter.filterModel, "webApp") || this._filter.filterModel.webApp.dcmWebAppName != this.studyWebService.selectedWebService.dcmWebAppName)){
-            this.filter.filterModel.webApp = this.studyWebService.selectedWebService.dcmWebAppName;
+        const selectedWebAppName = _.get(this.studyWebService, 'selectedWebService.dcmWebAppName');
+        if (selectedWebAppName && this.filter.filterModel.webApp !== selectedWebAppName) {
+            this.filter.filterModel.webApp = selectedWebAppName;
         }
     }
 
