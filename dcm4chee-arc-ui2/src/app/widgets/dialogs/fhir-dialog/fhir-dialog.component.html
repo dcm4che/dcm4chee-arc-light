@@ -6,7 +6,7 @@
                 <div class="filter_block">
                     <div class="line">
                         <label i18n="@@web_app_service">Web App Service</label>
-                        <dcm-drop-down [options]="fhirWebAppsSelectDropdowns.selectDropdownWebServices" [(model)]="fhirWebAppsSelectDropdowns.selectedWebService"
+                        <dcm-drop-down [options]="fhirWebAppsSelectDropdowns.selectDropdownWebServices" [(model)]="selectedWebServiceName"
                                        [editable]="false" [showSearchField]="false" [multiSelectMode]="false" [showStar]="false"
                                        (modelChange)="webAppModelChange($event)">
                         </dcm-drop-down>

@@ -28,6 +28,7 @@ import {SelectDropdown} from "../../../interfaces";
 export class FhirDialogComponent {
   fhirWebAppsSelectDropdowns:StudyWebService;
   selectedWebService:DcmWebApp;
+  selectedWebServiceName:string;
   study:any;
   response:any;
   responseButton = 'headers';
@@ -44,7 +45,11 @@ export class FhirDialogComponent {
       private service:FhirDialogService,
       private studyService:StudyService,
       private appService:AppService
-  ) { }
+  ) {
+    setTimeout(()=>{
+      console.log("fhirWebAppsSelectDropdowns.selectDropdownWebServices",this.fhirWebAppsSelectDropdowns.selectDropdownWebServices)
+    },2000);
+  }
   save(){
     if(!this.response){
       this.service.createFHIRImageStudy(
@@ -104,12 +109,8 @@ export class FhirDialogComponent {
       return extractedType;
     }
   }
-  protected webAppModelChange($event: any) {
-    if(typeof $event === 'string'){
-      this.fhirWebAppsSelectDropdowns.seletWebAppFromWebAppName($event);
-    }else{
-      this.fhirWebAppsSelectDropdowns.selectedWebService = $event;
-    }
+  protected webAppModelChange($event: string) {
+    this.fhirWebAppsSelectDropdowns.seletWebAppFromWebAppName($event);
     const properties = j4care.extractPropertiesFromWebApp(this.fhirWebAppsSelectDropdowns.selectedWebService);
     if(j4care.hasSet(properties,"ImagingStudy")){
       if(properties['ImagingStudy'] === 'FHIR_R5_XML' || properties['ImagingStudy'] === 'LTNHR_V1_XML' || properties['ImagingStudy'].includes("XML")){
