@@ -36,8 +36,9 @@
       <xsl:variable name="spsStatus" select="concat(string(ORC[1]/field[1]), '_', string(ORC[1]/field[5]))" />
       <xsl:variable name="spsStartDateTime">
         <xsl:call-template name="spsStartDateTime">
-          <xsl:with-param name="orcQuantityTiming" select="ORC[1]/field[7]/component[3]" />
           <xsl:with-param name="tq1QuantityTiming" select="TQ1[1]/field[7]" />
+          <xsl:with-param name="orcQuantityTiming" select="ORC[1]/field[7]/component[3]" />
+          <xsl:with-param name="obrQuantityTiming" select="OBR[1]/field[27]/component[3]" />
         </xsl:call-template>
       </xsl:variable>
       <xsl:variable name="spsScheduledPhysician" select="OBR[1]/field[34]" />
@@ -122,14 +123,18 @@
   </xsl:template>
 
   <xsl:template name="spsStartDateTime">
-    <xsl:param name="orcQuantityTiming"/>
     <xsl:param name="tq1QuantityTiming"/>
+    <xsl:param name="orcQuantityTiming"/>
+    <xsl:param name="obrQuantityTiming"/>
     <xsl:choose>
+      <xsl:when test="string-length($tq1QuantityTiming) > 0">
+        <xsl:value-of select="$tq1QuantityTiming"/>
+      </xsl:when>
       <xsl:when test="string-length($orcQuantityTiming) > 0">
         <xsl:value-of select="$orcQuantityTiming"/>
       </xsl:when>
-      <xsl:when test="string-length($tq1QuantityTiming) > 0">
-        <xsl:value-of select="$tq1QuantityTiming"/>
+      <xsl:when test="string-length($obrQuantityTiming) > 0">
+        <xsl:value-of select="$obrQuantityTiming"/>
       </xsl:when>
       <xsl:otherwise/>
     </xsl:choose>
