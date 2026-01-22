@@ -39,10 +39,12 @@ package org.dcm4chee.arc.fhir.client.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
@@ -52,8 +54,11 @@ import org.dcm4chee.arc.fhir.client.ImagingStudy;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
 import org.dcm4chee.arc.query.QueryService;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,6 +68,8 @@ import java.util.Map;
  */
 @ApplicationScoped
 public class FHIRClientImpl implements FHIRClient {
+
+    private static Logger LOG = LoggerFactory.getLogger(FHIRClient.class);
 
     @Inject
     private Device device;
@@ -89,16 +96,32 @@ public class FHIRClientImpl implements FHIRClient {
             if (token != null)
                 request.header("Authorization", token);
 
-            Response response = request.post(imagingStudy.create(device, info, seriesAttrs));
-            if (response.getEntity() instanceof InputStream is) {
-                // to prevent java.net.SocketException: Socket closed caused by ResteasyClient.close()
-                response = Response.fromResponse(response)
-                        .entity(is.readAllBytes())
-                        .build();
+            LOG.info("Invoke POST {}", url);
+            Entity<StreamingOutput> requestPayload = imagingStudy.create(device, info, seriesAttrs);
+            if (LOG.isDebugEnabled()) {
+                try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                    requestPayload.getEntity().write(out);
+                    LOG.debug(new String(out.toByteArray(), StandardCharsets.UTF_8));
+                }
             }
-            return response;
+            Response response = request.post(requestPayload);
+            LOG.info("Response Status: {} {}, Location: {}",
+                    response.getStatus(),
+                    response.getStatusInfo().getReasonPhrase(),
+                    response.getLocation());
+            // to prevent java.net.SocketException: Socket closed caused by ResteasyClient.close()
+            return Response.fromResponse(response).build();
         } catch (Exception e) {
-            return Response.status(Response.Status.BAD_GATEWAY).entity(e).build();
+            LOG.info("Failed to invoke POST {}", url, e);
+            return Response.status(Response.Status.BAD_GATEWAY)
+                    .entity((StreamingOutput) output -> {
+                        try (PrintWriter printWriter = new PrintWriter(output)) {
+                            printWriter.println(e.getMessage());
+                            e.printStackTrace(printWriter);
+                        }
+                    })
+                    .type(MediaType.TEXT_PLAIN_TYPE)
+                    .build();
         }
     }
 
