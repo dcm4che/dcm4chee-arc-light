@@ -110,7 +110,8 @@ public class FHIRClientImpl implements FHIRClient {
                     response.getStatusInfo().getReasonPhrase(),
                     response.getLocation());
             // to prevent java.net.SocketException: Socket closed caused by ResteasyClient.close()
-            return Response.fromResponse(response).build();
+            response.bufferEntity();
+            return response;
         } catch (Exception e) {
             LOG.info("Failed to invoke POST {}", url, e);
             return Response.status(Response.Status.BAD_GATEWAY)

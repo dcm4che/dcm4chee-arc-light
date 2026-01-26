@@ -91,13 +91,13 @@ public class FHIRClientRS {
             @PathParam("webAppName") String webAppName) {
         LOG.info("Process {} {} from {}@{}",
                 request.getMethod(),
-                toString(),
+                request.getRequestURI(),
                 request.getRemoteUser(),
                 request.getRemoteHost());
         ApplicationEntity ae = getApplicationEntity();
         if (ae == null)
             return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
-        WebApplication webApp = null;
+        WebApplication webApp;
         try {
             webApp = getWebApplication(webAppName);
         } catch (ConfigurationException e) {
