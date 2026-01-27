@@ -47,7 +47,10 @@ export class PlaceholderchangerDirective implements OnInit {
                     this.renderer.setAttribute(this.el.nativeElement, 'placeholder', this.inputAttribut.name);
                 }
             } else {
-                if (this.inputAttribut.iod && !_.hasIn(this.inputAttribut.iod, this.inputAttribut.code)) {
+                 if (
+                     this.inputAttribut.iod && !(_.hasIn(this.inputAttribut.iod, this.inputAttribut.code) ||
+                         _.hasIn(this.inputAttribut.iod, 'Value[0]' + this.inputAttribut.code))
+                 ) {
                     this.disableElement();
                 }
                 this.renderer.setAttribute(this.el.nativeElement, 'placeholder', this.inputAttribut.name);
