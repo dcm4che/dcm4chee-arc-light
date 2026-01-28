@@ -70,21 +70,42 @@
                 <xsl:with-param name="fillerNoInst" select="$fillerNoInst"/>
                 <xsl:with-param name="fillerNoSqInst" select="$fillerNoSqInst"/>
             </xsl:call-template>
-            <xsl:call-template name="TQ1" />
-            <xsl:call-template name="OBR">
-                <xsl:with-param name="placerNoMWL" select="$placerNoMWL"/>
-                <xsl:with-param name="placerNoSqMWL" select="$placerNoSqMWL"/>
-                <xsl:with-param name="fillerNoMWL" select="$fillerNoMWL"/>
-                <xsl:with-param name="fillerNoSqMWL" select="$fillerNoSqMWL"/>
-                <xsl:with-param name="placerNoSer" select="$placerNoSer"/>
-                <xsl:with-param name="placerNoSqSer" select="$placerNoSqSer"/>
-                <xsl:with-param name="placerNoInst" select="$placerNoInst"/>
-                <xsl:with-param name="placerNoSqInst" select="$placerNoSqInst"/>
-                <xsl:with-param name="fillerNoSer" select="$fillerNoSer"/>
-                <xsl:with-param name="fillerNoSqSer" select="$fillerNoSqSer"/>
-                <xsl:with-param name="fillerNoInst" select="$fillerNoInst"/>
-                <xsl:with-param name="fillerNoSqInst" select="$fillerNoSqInst"/>
-            </xsl:call-template>
+            <xsl:choose>
+                <xsl:when test="starts-with($msgType, 'OMG')">
+                    <xsl:call-template name="TQ1" />
+                    <xsl:call-template name="OBR">
+                        <xsl:with-param name="placerNoMWL" select="$placerNoMWL"/>
+                        <xsl:with-param name="placerNoSqMWL" select="$placerNoSqMWL"/>
+                        <xsl:with-param name="fillerNoMWL" select="$fillerNoMWL"/>
+                        <xsl:with-param name="fillerNoSqMWL" select="$fillerNoSqMWL"/>
+                        <xsl:with-param name="placerNoSer" select="$placerNoSer"/>
+                        <xsl:with-param name="placerNoSqSer" select="$placerNoSqSer"/>
+                        <xsl:with-param name="placerNoInst" select="$placerNoInst"/>
+                        <xsl:with-param name="placerNoSqInst" select="$placerNoSqInst"/>
+                        <xsl:with-param name="fillerNoSer" select="$fillerNoSer"/>
+                        <xsl:with-param name="fillerNoSqSer" select="$fillerNoSqSer"/>
+                        <xsl:with-param name="fillerNoInst" select="$fillerNoInst"/>
+                        <xsl:with-param name="fillerNoSqInst" select="$fillerNoSqInst"/>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:call-template name="OBR">
+                        <xsl:with-param name="placerNoMWL" select="$placerNoMWL"/>
+                        <xsl:with-param name="placerNoSqMWL" select="$placerNoSqMWL"/>
+                        <xsl:with-param name="fillerNoMWL" select="$fillerNoMWL"/>
+                        <xsl:with-param name="fillerNoSqMWL" select="$fillerNoSqMWL"/>
+                        <xsl:with-param name="placerNoSer" select="$placerNoSer"/>
+                        <xsl:with-param name="placerNoSqSer" select="$placerNoSqSer"/>
+                        <xsl:with-param name="placerNoInst" select="$placerNoInst"/>
+                        <xsl:with-param name="placerNoSqInst" select="$placerNoSqInst"/>
+                        <xsl:with-param name="fillerNoSer" select="$fillerNoSer"/>
+                        <xsl:with-param name="fillerNoSqSer" select="$fillerNoSqSer"/>
+                        <xsl:with-param name="fillerNoInst" select="$fillerNoInst"/>
+                        <xsl:with-param name="fillerNoSqInst" select="$fillerNoSqInst"/>
+                    </xsl:call-template>
+                    <xsl:call-template name="TQ1" />
+                </xsl:otherwise>
+            </xsl:choose>
             <xsl:choose>
                 <xsl:when test="starts-with($msgType, 'OMI')">
                     <xsl:call-template name="IPC"/>

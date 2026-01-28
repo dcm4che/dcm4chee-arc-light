@@ -43,12 +43,25 @@
             </xsl:if>
             <xsl:variable name="ppsStartDateTime" select="concat(DicomAttribute[@tag='00400244']/Value, DicomAttribute[@tag='00400245']/Value)"/>
             <xsl:call-template name="ORC" />
-            <xsl:call-template name="TQ1">
-                <xsl:with-param name="ppsStartDateTime" select="$ppsStartDateTime"/>
-            </xsl:call-template>
-            <xsl:call-template name="OBR">
-                <xsl:with-param name="ppsStartDateTime" select="$ppsStartDateTime"/>
-            </xsl:call-template>
+            <xsl:choose>
+                <xsl:when test="starts-with($msgType, 'OMG')">
+                    <xsl:call-template name="TQ1">
+                        <xsl:with-param name="ppsStartDateTime" select="$ppsStartDateTime"/>
+                    </xsl:call-template>
+                    <xsl:call-template name="OBR">
+                        <xsl:with-param name="ppsStartDateTime" select="$ppsStartDateTime"/>
+                    </xsl:call-template>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:call-template name="OBR">
+                        <xsl:with-param name="ppsStartDateTime" select="$ppsStartDateTime"/>
+                    </xsl:call-template>
+                    <xsl:call-template name="TQ1">
+                        <xsl:with-param name="ppsStartDateTime" select="$ppsStartDateTime"/>
+                    </xsl:call-template>
+                </xsl:otherwise>
+            </xsl:choose>
+            
             <xsl:choose>
                 <xsl:when test="starts-with($msgType, 'OMI')">
                     <xsl:call-template name="IPC"/>
