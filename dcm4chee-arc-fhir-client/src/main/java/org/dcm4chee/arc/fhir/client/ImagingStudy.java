@@ -92,6 +92,7 @@ public enum ImagingStudy {
                 writer.writeEndElement();
                 writer.writeStartElement("subject");
                 writeEmptyElement(writer, "reference", "value", "#p1");
+                writer.writeEndElement();
                 writeAccessionNumber(writer,
                         IDWithIssuer.valueOf(kosAttrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence), arcdev);
                 writeEmptyElementNotNull(writer, "started", "value",
