@@ -81,13 +81,17 @@ public enum ImagingStudy {
                 writer.writeStartDocument("UTF-8", "1.0");
                 writer.writeStartElement("ImagingStudy");
                 writer.writeDefaultNamespace("http://hl7.org/fhir");
+                writer.writeStartElement("contained");
+                writePatient(writer, "p1", kosAttrs, arcdev);
+                writer.writeEndElement();
                 writeEmptyElement(writer, "status", "value", "available");
                 writer.writeStartElement("identifier");
                 writeEmptyElement(writer, "system", "value", "urn:dicom:uid");
                 writeEmptyElement(writer, "value", "value",
                         "urn:oid:" + kosAttrs.getString(Tag.StudyInstanceUID));
                 writer.writeEndElement();
-                writePatientID(writer, preferredPatientID(IDWithIssuer.pidsOf(kosAttrs), arcdev), arcdev);
+                writer.writeStartElement("subject");
+                writeEmptyElement(writer, "reference", "value", "#p1");
                 writeAccessionNumber(writer,
                         IDWithIssuer.valueOf(kosAttrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence), arcdev);
                 writeEmptyElementNotNull(writer, "started", "value",
@@ -209,9 +213,14 @@ public enum ImagingStudy {
                 writer.writeStartDocument("UTF-8", "1.0");
                 writer.writeStartElement("ImagingStudy");
                 writer.writeDefaultNamespace("http://hl7.org/fhir");
+                writer.writeStartElement("contained");
+                writePatient(writer, "p1", kosAttrs, arcdev);
+                writer.writeEndElement();
                 writeEmptyElement(writer, "uid", "value",
                         "urn:oid:" + kosAttrs.getString(Tag.StudyInstanceUID));
-                writePatientID(writer, preferredPatientID(IDWithIssuer.pidsOf(kosAttrs), arcdev), arcdev);
+                writer.writeStartElement("subject");
+                writeEmptyElement(writer, "reference", "value", "#p1");
+                writer.writeEndElement();
                 writeExtension(writer, "http://esveikata.lt/Profile/ltnhr-imagingstudy#achi-code",
                         kosAttrs.getString(Tag.AccessionNumber));
                 writeEmptyElementNotNull(writer, "datetime", "value",
@@ -279,6 +288,9 @@ public enum ImagingStudy {
                 SimpleDateFormat ISO_DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
                 gen.writeStartObject();
                 gen.write("resourceType", "ImagingStudy");
+                gen.writeStartArray("contained");
+                writePatient(gen, "p1", kosAttrs, arcdev);
+                gen.writeEnd();
                 gen.write("status", "available");
                 gen.writeStartArray("identifier");
                 gen.writeStartObject();
@@ -286,7 +298,9 @@ public enum ImagingStudy {
                 gen.write("value", "urn:oid:" + kosAttrs.getString(Tag.StudyInstanceUID));
                 gen.writeEnd();
                 gen.writeEnd();
-                writePatientID(gen, preferredPatientID(IDWithIssuer.pidsOf(kosAttrs), arcdev), arcdev);
+                gen.writeStartObject("subject");
+                gen.write("reference", "#p1");
+                gen.writeEnd();
                 writeAccessionNumber(gen, IDWithIssuer.valueOf(kosAttrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence), arcdev);
                 writeNotNull(gen, "started", kosAttrs.getDate(Tag.StudyDateAndTime), ISO_DATE_TIME);
                 gen.write("numberOfSeries", refSeriesSeq.size());
@@ -329,15 +343,50 @@ public enum ImagingStudy {
             }
         }
 
-        private void writePatientID(JsonGenerator gen, IDWithIssuer idWithIssuer, ArchiveDeviceExtension arcdev) {
-            if (idWithIssuer != null) {
-                gen.writeStartObject("subject");
-                gen.write("type", "Patient");
-                gen.writeStartObject("identifier");
-                writeNotNull(gen, "system", arcdev.fhirSystemOfPatientID(idWithIssuer.getIssuer()));
-                gen.write("value", idWithIssuer.getID());
+        private void writePatient(JsonGenerator gen, String id, Attributes kosAttrs, ArchiveDeviceExtension arcdev) {
+            gen.writeStartObject();
+            gen.write("resourceType", "Patient");
+            gen.write("id", id);
+            writePatientIDs(gen, ImagingStudy.preferredPatientIDs(kosAttrs, arcdev), arcdev);
+            writePatientName(gen, kosAttrs.getString(Tag.PatientName));
+            ImagingStudy.writeNotNull(gen, "gender", toGender(kosAttrs.getString(Tag.PatientSex)));
+            ImagingStudy.writeNotNull(gen, "birthDate", toDate(kosAttrs.getString(Tag.PatientBirthDate)));
+            gen.writeEnd();
+        }
+
+        private void writePatientIDs(JsonGenerator gen, Set<IDWithIssuer> idWithIssuers, ArchiveDeviceExtension arcdev) {
+            if (!idWithIssuers.isEmpty()) {
+                gen.writeStartArray("identifier");
+                for (IDWithIssuer idWithIssuer : idWithIssuers) {
+                    gen.writeStartObject();
+                    gen.write("type", "Patient");
+                    gen.writeStartObject("identifier");
+                    writeNotNull(gen, "system", arcdev.fhirSystemOfPatientID(idWithIssuer.getIssuer()));
+                    gen.write("value", idWithIssuer.getID());
+                    gen.writeEnd();
+                    gen.writeEnd();
+                }
                 gen.writeEnd();
-                gen.writeEnd();
+            }
+        }
+
+        private void writePatientName(JsonGenerator gen, String value) {
+            if (value != null) {
+                PersonName name = new PersonName(value, true);
+                String family = name.get(PersonName.Component.FamilyName);
+                String given = name.get(PersonName.Component.GivenName);
+                if (family != null || given != null) {
+                    gen.writeStartArray("name");
+                    gen.writeStartObject();
+                    ImagingStudy.writeNotNull(gen, "family", family);
+                    if (given != null) {
+                        gen.writeStartArray("given");
+                        gen.write(given);
+                        gen.writeEnd();
+                    }
+                    gen.writeEnd();
+                    gen.writeEnd();
+                }
             }
         }
 
@@ -397,6 +446,23 @@ public enum ImagingStudy {
         }
     };
 
+    private static String toDate(String value) {
+        return value == null ? null : switch (value.length()) {
+            case 8 -> value.substring(0, 4) + '-' + value.substring(4, 6) + '-' + value.substring(6);
+            case 10 -> value;
+            default -> null;
+        };
+    }
+
+    private static String toGender(String value) {
+        return value == null ? null : switch (value) {
+            case "M" -> "male";
+            case "F" -> "female";
+            case "O" -> "other";
+            default -> null;
+        };
+    }
+
     private static int countInstances(Sequence refSeriesSeq) {
         return refSeriesSeq.stream()
                 .mapToInt(refSeries -> refSeries.getSequence(Tag.ReferencedSOPSequence).size())
@@ -412,28 +478,54 @@ public enum ImagingStudy {
         writer.writeEndElement();
     }
 
-    private static void writePatientID(XMLStreamWriter writer, IDWithIssuer idWithIssuer, ArchiveDeviceExtension arcdev)
+    private static void writePatient(XMLStreamWriter writer, String id, Attributes kosAttrs,
+                                     ArchiveDeviceExtension arcdev)
             throws XMLStreamException {
-        if (idWithIssuer != null) {
-            writer.writeStartElement("subject");
-            writeEmptyElement(writer, "type", "value", "Patient");
+        writer.writeStartElement("Patient");
+        writeEmptyElement(writer, "id", "value", id);
+        writePatientIDs(writer, ImagingStudy.preferredPatientIDs(kosAttrs, arcdev), arcdev);
+        writePatientName(writer, kosAttrs.getString(Tag.PatientName));
+        writeEmptyElementNotNull(writer, "gender", "value",
+                toGender(kosAttrs.getString(Tag.PatientSex)));
+        writeEmptyElementNotNull(writer, "birthDate", "value",
+                toDate(kosAttrs.getString(Tag.PatientBirthDate)));
+        writer.writeEndElement();
+    }
+
+    private static void writePatientIDs(XMLStreamWriter writer, Set<IDWithIssuer> idWithIssuers,
+                                        ArchiveDeviceExtension arcdev)
+            throws XMLStreamException {
+        for (IDWithIssuer idWithIssuer : idWithIssuers) {
             writer.writeStartElement("identifier");
             writeEmptyElementNotNull(writer, "system", "value",
                     arcdev.fhirSystemOfPatientID(idWithIssuer.getIssuer()));
             writeEmptyElement(writer, "value", "value", idWithIssuer.getID());
             writer.writeEndElement();
-            writer.writeEndElement();
+        }
+    }
+
+    private static void writePatientName(XMLStreamWriter writer, String value) throws XMLStreamException {
+        if (value != null) {
+            PersonName name = new PersonName(value, true);
+            String family = name.get(PersonName.Component.FamilyName);
+            String given = name.get(PersonName.Component.GivenName);
+            if (family != null || given != null) {
+                writer.writeStartElement("name");
+                writeEmptyElementNotNull(writer, "family", "value", family);
+                writeEmptyElementNotNull(writer, "given", "value", given);
+                writer.writeEndElement();
+            }
         }
     }
 
     static void writeAccessionNumber(JsonGenerator gen, String name, IDWithIssuer idWithIssuer, ArchiveDeviceExtension arcdev) {
-            gen.writeStartObject(name);
-            gen.writeStartObject("type");
-            writeCoding(gen, "http://terminology.hl7.org/CodeSystem/v2-0203", "ACSN", null);
-            gen.writeEnd();
-            writeNotNull(gen, "system", arcdev.fhirSystemOfAccessionNumber(idWithIssuer.getIssuer()));
-            gen.write("value", idWithIssuer.getID());
-            gen.writeEnd();
+        gen.writeStartObject(name);
+        gen.writeStartObject("type");
+        writeCoding(gen, "http://terminology.hl7.org/CodeSystem/v2-0203", "ACSN", null);
+        gen.writeEnd();
+        writeNotNull(gen, "system", arcdev.fhirSystemOfAccessionNumber(idWithIssuer.getIssuer()));
+        gen.write("value", idWithIssuer.getID());
+        gen.writeEnd();
     }
 
     private static void writeCoding(JsonGenerator gen, String system, String code, String display) {
@@ -453,21 +545,14 @@ public enum ImagingStudy {
                 .collect(Collectors.toSet());
     }
 
-    private static IDWithIssuer preferredPatientID(Set<IDWithIssuer> idWithIssuers, ArchiveDeviceExtension arcdev) {
-        switch (idWithIssuers.size()) {
-            case 0:
-                return null;
-            case 1:
-                return idWithIssuers.iterator().next();
-        }
+    private static Set<IDWithIssuer> preferredPatientIDs(Attributes kosAttrs, ArchiveDeviceExtension arcdev) {
+        Set<IDWithIssuer> idWithIssuers = IDWithIssuer.pidsOf(kosAttrs);
         Issuer preferred = arcdev.getFhirPreferredAssigningAuthorityOfPatientID();
-        if (preferred != null) {
-            Optional<IDWithIssuer> first = idWithIssuers.stream()
+        return preferred != null
+                ? idWithIssuers.stream()
                     .filter(idWithIssuer -> preferred.matches(idWithIssuer.getIssuer()))
-                    .findFirst();
-            if (first.isPresent()) return first.get();
-        }
-        return idWithIssuers.iterator().next();
+                    .findFirst().stream().collect(Collectors.toSet())
+                : idWithIssuers;
     }
 
     private static void writeNotNull(JsonGenerator gen, String name, Date value, DateFormat dateFormat) {

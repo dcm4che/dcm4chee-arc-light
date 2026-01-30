@@ -3496,6 +3496,10 @@ public class ArchiveDeviceExtension extends DeviceExtension {
                 fhirDefaultSystemOfAccessionNumber);
     }
 
+    public Issuer fhirSystem2IssuerOfPatientID(String fhirSystem) {
+        return fhirSystem2Issuer(fhirSystem, fhirSystemByIssuerOfPatientID);
+    }
+
     private static void strs2map(String[] ss, Map<String, String> map, String prompt) {
         map.clear();
         for (String s : ss) {
@@ -3529,6 +3533,23 @@ public class ArchiveDeviceExtension extends DeviceExtension {
             }
         }
         return defaultSystem;
+    }
+
+    private static Issuer fhirSystem2Issuer(String fhirSystem, Map<String, String> fhirSystemByIssuer) {
+        for (Map.Entry<String, String> e : fhirSystemByIssuer.entrySet()) {
+            if (e.getValue().equals(fhirSystem)) {
+                return new Issuer(e.getKey(), null, null);
+            }
+        }
+        if (fhirSystem.startsWith("urn:oid:")) {
+            return new Issuer(null, fhirSystem.substring(8), "ISO");
+        }
+        if (fhirSystem.startsWith("urn:uuid:")) {
+            return new Issuer(null, fhirSystem.substring(9), "UUID");
+        }
+        return fhirSystem.indexOf(':') > 0
+                ? new Issuer(null, fhirSystem, "URI")
+                : null;
     }
 
     public Issuer getHL7PrimaryAssigningAuthorityOfPatientID() {
