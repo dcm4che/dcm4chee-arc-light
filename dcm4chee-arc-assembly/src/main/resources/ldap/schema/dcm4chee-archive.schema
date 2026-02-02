@@ -2958,7 +2958,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.505 NAME 'dcmCheckIfAlreadyExistsOnDestin
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.506 NAME 'fhirPreferredAssigningAuthorityOfPatientID'
-  DESC 'Assigning Authority of preferred Patient ID in logical reference of Patients with multiple Patient IDs in outgoing FHIR messages. Format: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}].'
+  DESC 'Assigning Authority of Patient IDs included in outgoing FHIR messages. If absent, all Patient IDs of the Patient are included. Format: {Issuer of Patient ID}[&{UniversalEntityID}&{UniversalEntityIDType}].'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
@@ -2986,13 +2986,13 @@ attributetype ( 1.2.40.0.13.1.15.110.3.510 NAME 'fhirSystemOfAccessionNumber'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.511 NAME 'fhirSystemByIssuerOfPatientID'
-  DESC 'Specifies mapping of Issuer of Patient ID to namespace (system) of the Patient ID in logical references of Patients in outgoing FHIR messages. Format: {Issuer of Patient ID}={system}. Required if fhirSystemOfPatientID includes LocalNamespaceEntityID.'
+  DESC 'Specifies mapping of Issuer of Patient ID to namespace (system) of the Patient ID in logical references of Patients in outgoing FHIR messages. Format: {Issuer of Patient ID}={system}.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.512 NAME 'fhirSystemByLocalNamespaceEntityIDOfAccessionNumber'
-  DESC 'Specifies Mapping of Local Namespace Entity ID to namespace (system) of the Accession Number in logical references of Service Requests in outgoing FHIR messages. Format: {Local Namespace Entity ID}={system}. Required if fhirSystemOfAccessionNumber includes LocalNamespaceEntityID.'
+  DESC 'Specifies Mapping of Local Namespace Entity ID to namespace (system) of the Accession Number in logical references of Service Requests in outgoing FHIR messages. Format: {Local Namespace Entity ID}={system}.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
@@ -3001,6 +3001,20 @@ attributetype ( 1.2.40.0.13.1.15.110.3.513 NAME 'dcmWadoVideoAcceptRanges'
   DESC 'Indicates if Range Requests accessing encapsulated videos by WADO-URI or WADO-RS Rendered Instance are supported. Enumerated values: YES, NO, KNOWN_TOTAL_LENGTH(= if Encapsulated Pixel Data Value Total Length is known). If absent, KNOWN_TOTAL_LENGTH will be applied.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.514 NAME 'fhirSystemIssuerOfPatientIDPrefix'
+  DESC 'Specifies prefix used to convert the Issuer of Patient ID to namespace (system) of the Patient ID in outgoing FHIR messages, if fhirSystemByIssuerOfPatientID does not contain a matching entry for the Issuer of Patient ID.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
+  SINGLE-VALUE )
+
+attributetype ( 1.2.40.0.13.1.15.110.3.515 NAME 'fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix'
+  DESC 'Specifies prefix used to convert the Local Namespace Entity ID to namespace (system) of the Accession Number in outgoing FHIR messages, if fhirSystemByLocalNamespaceEntityIDOfAccessionNumber does not contain a matching entry for the Local Namespace Entity ID.'
+  EQUALITY caseExactMatch
+  SUBSTR caseExactSubstringsMatch
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
@@ -3323,7 +3337,9 @@ objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     fhirSystemOfPatientID $
     fhirSystemOfAccessionNumber $
     fhirSystemByIssuerOfPatientID $
-    fhirSystemByLocalNamespaceEntityIDOfAccessionNumber ) )
+    fhirSystemByLocalNamespaceEntityIDOfAccessionNumber $
+    fhirSystemIssuerOfPatientIDPrefix $
+    fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix ) )
 
 objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
   DESC 'DICOM Archive Network AE related information'

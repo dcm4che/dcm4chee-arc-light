@@ -474,8 +474,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getQStarVerificationMockAccessState(), null);
         writer.writeNotEmpty("dcmTrustedIssuerOfPatientID", arcDev.getTrustedIssuerOfPatientID());
         writer.writeNotEmpty("dcmTrustedPatientIDPattern", arcDev.getTrustedPatientIDPattern());
-        writer.writeNotNullOrDef("fhirPreferredAssigningAuthorityOfPatientID",
-                arcDev.getFhirPreferredAssigningAuthorityOfPatientID(), null);
+        writer.writeNotEmpty("fhirPreferredAssigningAuthorityOfPatientID",
+                arcDev.getFhirPreferredAssigningAuthorityOfPatientID());
         writer.writeNotNullOrDef("fhirDefaultSystemOfPatientID",
                 arcDev.getFhirDefaultSystemOfPatientID(), null);
         writer.writeNotNullOrDef("fhirDefaultSystemOfAccessionNumber",
@@ -485,6 +485,10 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotEmpty("fhirSystemByIssuerOfPatientID", arcDev.getFhirSystemByIssuerOfPatientID());
         writer.writeNotEmpty("fhirSystemByLocalNamespaceEntityIDOfAccessionNumber",
                 arcDev.getFhirSystemByLocalNamespaceEntityIDOfAccessionNumber());
+        writer.writeNotNullOrDef("fhirSystemIssuerOfPatientIDPrefix",
+                arcDev.getFhirSystemIssuerOfPatientIDPrefix(), null);
+        writer.writeNotNullOrDef("fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix",
+                arcDev.getFhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix(), null);
         writeAttributeFilters(writer, arcDev);
         writeStorageDescriptor(writer, arcDev.getStorageDescriptors());
         writeQueryRetrieveView(writer, arcDev.getQueryRetrieveViews());
@@ -2335,7 +2339,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcDev.setTrustedPatientIDPattern(reader.stringArray());
                     break;
                 case "fhirPreferredAssigningAuthorityOfPatientID":
-                    arcDev.setFhirPreferredAssigningAuthorityOfPatientID(toIssuer(reader.stringValue()));
+                    arcDev.setFhirPreferredAssigningAuthorityOfPatientID(toIssuers(reader.stringArray()));
                     break;
                 case "fhirDefaultSystemOfPatientID":
                     arcDev.setFhirDefaultSystemOfPatientID(reader.stringValue());
@@ -2356,6 +2360,12 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "fhirSystemByLocalNamespaceEntityIDOfAccessionNumber":
                     arcDev.setFhirSystemByLocalNamespaceEntityIDOfAccessionNumber(reader.stringArray());
+                    break;
+                case "fhirSystemIssuerOfPatientIDPrefix":
+                    arcDev.setFhirSystemIssuerOfPatientIDPrefix(reader.stringValue());
+                    break;
+                case "fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix":
+                    arcDev.setFhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix(reader.stringValue());
                     break;
                 case "dcmAttributeFilter":
                     loadAttributeFilterListFrom(arcDev, reader);

@@ -600,8 +600,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getTrustedIssuerOfPatientID());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmTrustedPatientIDPattern",
                 ext.getTrustedPatientIDPattern());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "fhirPreferredAssigningAuthorityOfPatientID",
-                ext.getFhirPreferredAssigningAuthorityOfPatientID(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "fhirPreferredAssigningAuthorityOfPatientID",
+                ext.getFhirPreferredAssigningAuthorityOfPatientID());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "fhirDefaultSystemOfPatientID",
                 ext.getFhirDefaultSystemOfPatientID(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "fhirDefaultSystemOfAccessionNumber",
@@ -614,6 +614,10 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getFhirSystemByIssuerOfPatientID());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "fhirSystemByLocalNamespaceEntityIDOfAccessionNumber",
                 ext.getFhirSystemByLocalNamespaceEntityIDOfAccessionNumber());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "fhirSystemIssuerOfPatientIDPrefix",
+                ext.getFhirSystemIssuerOfPatientIDPrefix(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix",
+                ext.getFhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix(), null);
     }
 
     @Override
@@ -999,7 +1003,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setTrustedIssuerOfPatientID(toIssuers(LdapUtils.stringArray(attrs.get("dcmTrustedIssuerOfPatientID"))));
         ext.setTrustedPatientIDPattern(LdapUtils.stringArray(attrs.get("dcmTrustedPatientIDPattern")));
         ext.setFhirPreferredAssigningAuthorityOfPatientID(
-                toIssuer(LdapUtils.stringValue(attrs.get("fhirPreferredAssigningAuthorityOfPatientID"), null)));
+                toIssuers(LdapUtils.stringArray(attrs.get("fhirPreferredAssigningAuthorityOfPatientID"))));
         ext.setFhirDefaultSystemOfPatientID(LdapUtils.stringValue(attrs.get("fhirDefaultSystemOfPatientID"), null));
         ext.setFhirDefaultSystemOfAccessionNumber(LdapUtils.stringValue(attrs.get("fhirDefaultSystemOfAccessionNumber"), null));
         ext.setFhirSystemOfPatientID(LdapUtils.enumArray(
@@ -1747,10 +1751,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiff(ldapObj, mods, "dcmTrustedPatientIDPattern",
                 aa.getTrustedPatientIDPattern(),
                 bb.getTrustedPatientIDPattern());
-        LdapUtils.storeDiffObject(ldapObj, mods, "fhirPreferredAssigningAuthorityOfPatientID",
+        LdapUtils.storeDiff(ldapObj, mods, "fhirPreferredAssigningAuthorityOfPatientID",
                 aa.getFhirPreferredAssigningAuthorityOfPatientID(),
-                bb.getFhirPreferredAssigningAuthorityOfPatientID(),
-                null);
+                bb.getFhirPreferredAssigningAuthorityOfPatientID());
         LdapUtils.storeDiffObject(ldapObj, mods, "fhirDefaultSystemOfPatientID",
                 aa.getFhirDefaultSystemOfPatientID(),
                 bb.getFhirDefaultSystemOfPatientID(),
@@ -1771,6 +1774,14 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffProperties(ldapObj, mods, "fhirSystemByLocalNamespaceEntityIDOfAccessionNumber",
                 aa.getFhirSystemByLocalNamespaceEntityIDOfAccessionNumber(),
                 bb.getFhirSystemByLocalNamespaceEntityIDOfAccessionNumber());
+        LdapUtils.storeDiffObject(ldapObj, mods, "fhirSystemIssuerOfPatientIDPrefix",
+                aa.getFhirSystemIssuerOfPatientIDPrefix(),
+                bb.getFhirSystemIssuerOfPatientIDPrefix(),
+                null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix",
+                aa.getFhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix(),
+                bb.getFhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix(),
+                null);
         if (remove)
             mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
                     LdapUtils.attr("objectClass", "dcmArchiveDevice")));

@@ -318,7 +318,9 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile Pattern[] trustedPatientIDPattern = {};
     private volatile String fhirDefaultSystemOfPatientID;
     private volatile String fhirDefaultSystemOfAccessionNumber;
-    private volatile Issuer fhirPreferredAssigningAuthorityOfPatientID;
+    private volatile String fhirSystemIssuerOfPatientIDPrefix;
+    private volatile String fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix;
+    private volatile Issuer[] fhirPreferredAssigningAuthorityOfPatientID = {};
     private volatile Issuer hl7PrimaryAssigningAuthorityOfPatientID;
     private volatile HL7OtherPatientIDs hl7OtherPatientIDs = HL7OtherPatientIDs.OTHER;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
@@ -3424,11 +3426,27 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return filtered;
     }
 
-    public Issuer getFhirPreferredAssigningAuthorityOfPatientID() {
+    public String getFhirSystemIssuerOfPatientIDPrefix() {
+        return fhirSystemIssuerOfPatientIDPrefix;
+    }
+
+    public void setFhirSystemIssuerOfPatientIDPrefix(String fhirSystemIssuerOfPatientIDPrefix) {
+        this.fhirSystemIssuerOfPatientIDPrefix = fhirSystemIssuerOfPatientIDPrefix;
+    }
+
+    public String getFhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix() {
+        return fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix;
+    }
+
+    public void setFhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix(String fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix) {
+        this.fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix = fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix;
+    }
+
+    public Issuer[] getFhirPreferredAssigningAuthorityOfPatientID() {
         return fhirPreferredAssigningAuthorityOfPatientID;
     }
 
-    public void setFhirPreferredAssigningAuthorityOfPatientID(Issuer fhirPreferredAssigningAuthorityOfPatientID) {
+    public void setFhirPreferredAssigningAuthorityOfPatientID(Issuer... fhirPreferredAssigningAuthorityOfPatientID) {
         this.fhirPreferredAssigningAuthorityOfPatientID = fhirPreferredAssigningAuthorityOfPatientID;
     }
 
@@ -3486,6 +3504,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return fhirSystem(issuer,
                 fhirSystemOfPatientID,
                 fhirSystemByIssuerOfPatientID,
+                fhirSystemIssuerOfPatientIDPrefix,
                 fhirDefaultSystemOfPatientID);
     }
 
@@ -3493,6 +3512,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return fhirSystem(issuer,
                 fhirSystemOfAccessionNumber,
                 fhirSystemByLocalNamespaceEntityIDOfAccessionNumber,
+                fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix,
                 fhirDefaultSystemOfAccessionNumber);
     }
 
@@ -3514,6 +3534,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
             Issuer issuer,
             EnumSet<FHIRSystemFromDICOMIssuer> fhirSystemFromDICOMIssuer,
             Map<String, String> fhirSystemByLocalNamespaceEntityID,
+            String fhirSystemLocalNamespaceEntityIDPrefix,
             String defaultSystem) {
         if (issuer != null) {
             if (fhirSystemFromDICOMIssuer.contains(FHIRSystemFromDICOMIssuer.UniversalEntityID)
@@ -3529,7 +3550,11 @@ public class ArchiveDeviceExtension extends DeviceExtension {
             }
             if (fhirSystemFromDICOMIssuer.contains(FHIRSystemFromDICOMIssuer.LocalNamespaceEntityID)
                     && issuer.getLocalNamespaceEntityID() != null) {
-                return fhirSystemByLocalNamespaceEntityID.getOrDefault(issuer.getLocalNamespaceEntityID(), defaultSystem);
+                String fhirSystem = fhirSystemByLocalNamespaceEntityID.get(issuer.getLocalNamespaceEntityID());
+                return fhirSystem != null ? fhirSystem
+                        : fhirSystemLocalNamespaceEntityIDPrefix != null
+                        ? fhirSystemLocalNamespaceEntityIDPrefix + issuer.getLocalNamespaceEntityID()
+                        : defaultSystem;
             }
         }
         return defaultSystem;
@@ -4135,6 +4160,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         trustedPatientIDPattern = arcdev.trustedPatientIDPattern;
         fhirDefaultSystemOfPatientID = arcdev.fhirDefaultSystemOfPatientID;
         fhirDefaultSystemOfAccessionNumber = arcdev.fhirDefaultSystemOfAccessionNumber;
+        fhirSystemIssuerOfPatientIDPrefix = arcdev.fhirSystemIssuerOfPatientIDPrefix;
+        fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix = arcdev.fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix;
         fhirPreferredAssigningAuthorityOfPatientID = arcdev.fhirPreferredAssigningAuthorityOfPatientID;
         hl7PrimaryAssigningAuthorityOfPatientID = arcdev.hl7PrimaryAssigningAuthorityOfPatientID;
         hl7OtherPatientIDs = arcdev.hl7OtherPatientIDs;

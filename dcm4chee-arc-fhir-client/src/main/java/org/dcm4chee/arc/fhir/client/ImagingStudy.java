@@ -56,6 +56,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
@@ -382,7 +383,10 @@ public enum ImagingStudy {
                     ImagingStudy.writeNotNull(gen, "family", family);
                     if (given != null) {
                         gen.writeStartArray("given");
-                        gen.write(given);
+                        StringTokenizer tokens = new StringTokenizer(given, " ");
+                        while (tokens.hasMoreTokens()) {
+                            gen.write(tokens.nextToken());
+                        }
                         gen.writeEnd();
                     }
                     gen.writeEnd();
@@ -513,7 +517,10 @@ public enum ImagingStudy {
             if (family != null || given != null) {
                 writer.writeStartElement("name");
                 writeEmptyElementNotNull(writer, "family", "value", family);
-                writeEmptyElementNotNull(writer, "given", "value", given);
+                StringTokenizer tokens = new StringTokenizer(given, " ");
+                while (tokens.hasMoreTokens()) {
+                    writeEmptyElement(writer, "given", "value", tokens.nextToken());
+                }
                 writer.writeEndElement();
             }
         }
@@ -548,11 +555,12 @@ public enum ImagingStudy {
 
     private static Set<IDWithIssuer> preferredPatientIDs(Attributes kosAttrs, ArchiveDeviceExtension arcdev) {
         Set<IDWithIssuer> idWithIssuers = IDWithIssuer.pidsOf(kosAttrs);
-        Issuer preferred = arcdev.getFhirPreferredAssigningAuthorityOfPatientID();
-        return preferred != null
+        Issuer[] preferreds = arcdev.getFhirPreferredAssigningAuthorityOfPatientID();
+        return preferreds.length > 0
                 ? idWithIssuers.stream()
-                    .filter(idWithIssuer -> preferred.matches(idWithIssuer.getIssuer()))
-                    .findFirst().stream().collect(Collectors.toSet())
+                    .filter(idWithIssuer -> Stream.of(preferreds).anyMatch(
+                            preferred -> preferred.matches(idWithIssuer.getIssuer())))
+                    .collect(Collectors.toSet())
                 : idWithIssuers;
     }
 
