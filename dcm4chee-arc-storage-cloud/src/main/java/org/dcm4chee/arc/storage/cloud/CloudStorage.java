@@ -165,7 +165,6 @@ public class CloudStorage extends AbstractStorage {
         if (createBucket) ensureBucketExists();
         if (ensureStoragePathNotExists(ctx))
             upload(ctx, in);
-        upload(ctx, in);
     }
 
     @Override
