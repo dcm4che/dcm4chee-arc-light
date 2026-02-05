@@ -2964,13 +2964,13 @@ attributetype ( 1.2.40.0.13.1.15.110.3.506 NAME 'fhirPreferredAssigningAuthority
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.507 NAME 'fhirDefaultSystemOfPatientID'
-  DESC 'Namespace (system) of the Patient ID in logical references of Patients in outgoing FHIR messages, if no value is derived from the Issuer of Patient ID or the Universal Entity ID according configured fhirSystemOfPatientID and fhirSystemByIssuerOfPatientID.'
+  DESC 'Namespace (system) of the Patient ID in logical references of Patients in outgoing FHIR messages, if no value is derived from the Issuer of Patient ID or the Universal Entity ID according configured fhirSystemOfPatientID, fhirSystemByIssuerOfPatientID and fhirSystemIssuerOfPatientIDPrefix.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.508 NAME 'fhirDefaultSystemOfAccessionNumber'
-  DESC 'Namespace (system) of the Accession Number in logical references of Service Requests in outgoing FHIR messages, if no value is derived from the Local Namespace Entity ID or the Universal Entity ID according configured fhirSystemOfAccessionNumber and fhirSystemByLocalNamespaceEntityIDOfAccessionNumber.'
+  DESC 'Namespace (system) of the Accession Number in logical references of Service Requests in outgoing FHIR messages, if no value is derived from the Local Namespace Entity ID or the Universal Entity ID according configured fhirSystemOfAccessionNumber, fhirSystemByLocalNamespaceEntityIDOfAccessionNumber and fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix.'
   EQUALITY caseExactMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
   SINGLE-VALUE )
@@ -2986,7 +2986,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.510 NAME 'fhirSystemOfAccessionNumber'
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.511 NAME 'fhirSystemByIssuerOfPatientID'
-  DESC 'Specifies mapping of Issuer of Patient ID to namespace (system) of the Patient ID in logical references of Patients in outgoing FHIR messages. Format: {Issuer of Patient ID}={system}.'
+  DESC 'Specifies mapping of Issuer of Patient ID to namespace (system) of the Patient ID in outgoing FHIR messages. Format: {Issuer of Patient ID}={system}.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
@@ -3011,7 +3011,7 @@ attributetype ( 1.2.40.0.13.1.15.110.3.514 NAME 'fhirSystemIssuerOfPatientIDPref
   SINGLE-VALUE )
 
 attributetype ( 1.2.40.0.13.1.15.110.3.515 NAME 'fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix'
-  DESC 'Specifies prefix used to convert the Local Namespace Entity ID to namespace (system) of the Accession Number in outgoing FHIR messages, if fhirSystemByLocalNamespaceEntityIDOfAccessionNumber does not contain a matching entry for the Local Namespace Entity ID.'
+  DESC 'Specifies prefix used to convert the Local Namespace Entity ID to namespace (system) of the Accession Number in logical references of Service Requests in outgoing FHIR messages, if fhirSystemByLocalNamespaceEntityIDOfAccessionNumber does not contain a matching entry for the Local Namespace Entity ID.'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15
