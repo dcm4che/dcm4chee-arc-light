@@ -1012,6 +1012,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ArchiveDeviceExtension.FHIRSystemFromDICOMIssuer.class, attrs.get("fhirSystemOfAccessionNumber")));
         ext.setFhirSystemByIssuerOfPatientID(LdapUtils.stringArray(attrs.get("fhirSystemByIssuerOfPatientID")));
         ext.setFhirSystemByLocalNamespaceEntityIDOfAccessionNumber(LdapUtils.stringArray(attrs.get("fhirSystemByLocalNamespaceEntityIDOfAccessionNumber")));
+        ext.setFhirSystemIssuerOfPatientIDPrefix(LdapUtils.stringValue(attrs.get("fhirSystemIssuerOfPatientIDPrefix"), null));
+        ext.setFhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix(LdapUtils.stringValue(attrs.get("fhirSystemLocalNamespaceEntityIDOfAccessionNumberPrefix"), null));
     }
 
     @Override
