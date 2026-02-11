@@ -3,7 +3,7 @@
  */
 import {
     Component, Input, ElementRef, ChangeDetectionStrategy,
-    ViewContainerRef, ChangeDetectorRef, HostListener, OnDestroy
+    ViewContainerRef, ChangeDetectorRef, HostListener, OnDestroy, OnInit
 } from '@angular/core';
 import {UntypedFormGroup, UntypedFormControl, UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {DynamicFormComponent} from './dynamic-form.component';
@@ -36,6 +36,7 @@ import {SpecificCharPickerComponent} from '../specific-char-picker/specific-char
 import {DynamicFieldComponent} from '../dynamic-field/dynamic-field.component';
 import {DcmSelectComponent} from '../dcm-select/dcm-select.component';
 import {SearchPipe} from '../../pipes/search.pipe';
+import {User} from "../../models/user";
 
 @Component({
     selector: 'df-element',
@@ -62,7 +63,7 @@ import {SearchPipe} from '../../pipes/search.pipe';
     ],
     standalone: true
 })
-export class DynamicFormElementComponent implements OnDestroy{
+export class DynamicFormElementComponent implements OnInit, OnDestroy{
 
     @Input() formelement: FormElement<any>;
     @Input() formelements: FormElement<any>[];
@@ -70,6 +71,7 @@ export class DynamicFormElementComponent implements OnDestroy{
     @Input() partSearch: string;
     @Input() readOnlyMode: boolean;
     dialogRef: MatDialogRef<any>;
+    user:User;
     // activetab = "tab_1";
     partRemoved: boolean;
     search = new UntypedFormControl('');
@@ -92,6 +94,12 @@ export class DynamicFormElementComponent implements OnDestroy{
         private _keycloakService: KeycloakService
     ){
         this.partRemoved = false;
+    }
+
+    ngOnInit(): void {
+        this.mainservice.getUser().subscribe((user) => {
+            this.user = user;
+        })
     }
     get isValid(){
         return this.form.controls[this.formelement.key].valid;
@@ -497,7 +505,7 @@ export class DynamicFormElementComponent implements OnDestroy{
     }
     onValueChange(e, formelement, formcontrol,i){
         try{
-            console.log($localize `:@@dynamic-form-element.trying_to_set_the_new_value:trying to set the new value`,e);
+            console.log(`trying to set the new value`,e);
             if(formelement.controlType === "dynamiccheckbox"){
                 if(formelement.type === 'array')
                     this.form.setControl(formelement.key,this._fb.array(e));
@@ -642,6 +650,26 @@ export class DynamicFormElementComponent implements OnDestroy{
                     formelement.showSchedulePicker = true;
                 }
             }
+        }
+    }
+    canSeePermissionBlock(formelement){
+        if(formelement.key === "dcmuiPermission" && !(this.user && this.user.su) && !(this.mainservice.global && this.mainservice.global.notSecure)){
+            let check = true;
+            const uiPermissions = _.get(this.deviceConfiguratorService.device,"dcmDevice.dcmuiConfig[0].dcmuiPermission");
+            uiPermissions.forEach(permission=>{
+                let oneOfRolesSet = false;
+                permission.dcmAcceptedUserRole.forEach(permissionRoles=>{
+                    this.user.roles.forEach(userRole=>{
+                        if(permissionRoles === userRole){
+                            oneOfRolesSet = true;
+                        }
+                    });
+                });
+                check = check && oneOfRolesSet;
+            });
+            return check;
+        }else{
+            return true;
         }
     }
     onMouseEnter(formelement,i=null){
