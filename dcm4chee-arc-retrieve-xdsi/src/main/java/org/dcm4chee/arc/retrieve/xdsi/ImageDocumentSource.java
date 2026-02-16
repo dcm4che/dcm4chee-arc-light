@@ -551,7 +551,7 @@ public class ImageDocumentSource implements ImagingDocumentSourcePortType {
     }
 
     private boolean validateTransferSyntax(List<String> tsuids, RegistryResponseType regRsp, InstanceLocations match) {
-        if (match.getLocations().stream().map(Location::getStoragePath).anyMatch(
+        if (match.getLocations().stream().map(Location::getTransferSyntaxUID).anyMatch(
                 tsuid -> tsuids.contains(tsuid)
                         || (!isVideo(tsuid)
                             && (tsuids.contains(UID.ExplicitVRLittleEndian)
