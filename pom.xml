@@ -55,17 +55,17 @@
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.source>17</maven.compiler.source>
     <!-- Define the version of the JBoss BOMs we want to import to specify tested stacks. -->
-    <wildfly-ee.version>38.0.1.Final</wildfly-ee.version>
+    <wildfly-ee.version>39.0.1.Final</wildfly-ee.version>
     <!-- Versions -->
     <dcm4che.version>5.34.3</dcm4che.version>
     <keycloak.version>25.0.6</keycloak.version>
-    <jbossws-cxf-client.version>7.3.6.Final</jbossws-cxf-client.version>
+    <jbossws-cxf-client.version>7.3.7.Final</jbossws-cxf-client.version>
     <jaxb-xjc.version>4.0.6</jaxb-xjc.version>
-    <apache-cxf.version>4.0.9-jbossorg-1</apache-cxf.version>
+    <apache-cxf.version>4.0.10</apache-cxf.version>
     <jakarta.json.version>2.1.3</jakarta.json.version>
-    <hibernate.orm.version>6.6.31.Final</hibernate.orm.version>
-    <awssdk.version>2.30.32</awssdk.version>
-    <apache-commons-csv.version>1.11.0</apache-commons-csv.version>
+    <hibernate.orm.version>6.6.40.Final</hibernate.orm.version>
+    <awssdk.version>2.40.9</awssdk.version>
+    <apache-commons-csv.version>1.12.0</apache-commons-csv.version>
     <apache-commons-compress.version>1.27.1</apache-commons-compress.version>
     <jclouds.version>2.7.0</jclouds.version>
     <ecs-object-client.version>3.0.0</ecs-object-client.version>
