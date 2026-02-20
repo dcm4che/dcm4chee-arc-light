@@ -62,11 +62,15 @@ public class MergeAttribute {
     final int[] tagPath;
     final int[] itemPath;
     final AttributesFormat format;
+    final boolean remove;
 
     public MergeAttribute(String value) {
         try {
             this.value = value;
             int index = value.indexOf('=');
+            if (remove = index < 0 && value.charAt(value.length() - 1) == '!') {
+                index = value.length() - 1;
+            }
             String[] names = StringUtils.split(value.substring(0, index), '.');
             tagPath = new int[names.length];
             itemPath = new int[names.length];
@@ -123,12 +127,18 @@ public class MergeAttribute {
             }
         } else {
             Attributes item = getItem(attrs);
-            if (item != null && item.containsValue(tag)) {
-                if (modified != null) {
-                    Attributes.unifyCharacterSets(modified, attrs);
-                    ensureItem(modified).addSelected(item, null, tag);
+            if (item != null) {
+                if (item.containsValue(tag)) {
+                    if (modified != null) {
+                        Attributes.unifyCharacterSets(modified, attrs);
+                        ensureItem(modified).addSelected(item, null, tag);
+                    }
+                    if (!remove)
+                        item.setNull(tag, dict.vrOf(tag));
                 }
-                item.setNull(tag, dict.vrOf(tag));
+                if (remove) {
+                    item.remove(tag);
+                }
             }
         }
     }
