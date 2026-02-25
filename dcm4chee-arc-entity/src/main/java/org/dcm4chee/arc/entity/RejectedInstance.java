@@ -65,10 +65,34 @@ import java.util.Date;
         name = RejectedInstance.DELETE_BY_UIDS,
         query = "delete from RejectedInstance ri " +
                 "where ri.studyInstanceUID = ?1 and ri.seriesInstanceUID = ?2 and ri.sopInstanceUID = ?3")
+@NamedQuery(
+        name = RejectedInstance.IUIDS_BY_SERIES_PK,
+        query = "select ri.sopInstanceUID from RejectedInstance ri " +
+                "join Series se " +
+                "on ri.studyInstanceUID = se.study.studyInstanceUID " +
+                "and ri.seriesInstanceUID = se.seriesInstanceUID " +
+                "where se.pk = ?1")
+@NamedQuery(
+        name = RejectedInstance.IUIDS_BY_SERIES_PK_AND_CODES,
+        query = "select ri.sopInstanceUID from RejectedInstance ri " +
+                "join Series se " +
+                "on ri.studyInstanceUID = se.study.studyInstanceUID " +
+                "and ri.seriesInstanceUID = se.seriesInstanceUID " +
+                "where se.pk = ?1 and ri.rejectionNoteCode in ?2")
+@NamedQuery(
+        name = RejectedInstance.IUIDS_BY_SERIES_PK_AND_NOT_CODES,
+        query = "select ri.sopInstanceUID from RejectedInstance ri " +
+                "join Series se " +
+                "on ri.studyInstanceUID = se.study.studyInstanceUID " +
+                "and ri.seriesInstanceUID = se.seriesInstanceUID " +
+                "where se.pk = ?1 and ri.rejectionNoteCode not in ?2")
 public class RejectedInstance {
     public static final String FIND_BY_UIDS = "RejectedInstance.findByUIDs";
     public static final String FIND_BY_SERIES_UID = "RejectedInstance.findBySeriesUID";
     public static final String DELETE_BY_UIDS = "RejectedInstance.deleteByUIDs";
+    public static final String IUIDS_BY_SERIES_PK = "RejectedInstance.iuidsBySeriesPk";
+    public static final String IUIDS_BY_SERIES_PK_AND_CODES = "RejectedInstance.iuidsBySeriesPkAndCodes";
+    public static final String IUIDS_BY_SERIES_PK_AND_NOT_CODES = "RejectedInstance.iuidsBySeriesPkAndNotCodes";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -367,8 +367,7 @@ class QueryServiceImpl implements QueryService {
             Long seriesPk, Series.InstancePurgeState purgeState, String storageID, String storagePath,
             QueryRetrieveView qrView) {
         return purgeState == Series.InstancePurgeState.PURGED
-                ? qrView.isHideNotRejectedInstances() ? new SeriesQueryAttributes()
-                : calculateSeriesQueryAttributes(seriesPk, storageID, storagePath, qrView)
+                ? calculateSeriesQueryAttributes(seriesPk, storageID, storagePath, qrView)
                 : calculateSeriesQueryAttributes(seriesPk, qrView);
     }
 
@@ -378,6 +377,8 @@ class QueryServiceImpl implements QueryService {
         String[] retrieveAETs = null;
         Availability availability = Availability.ONLINE;
         Set<String> cuids = new HashSet<>();
+        List<String> rejectedInstanceUIDs = rejectedInstanceUIDs(seriesPk, qrView);
+        List<Code> hideRejectionNotesWithCodes = List.of(qrView.getHideRejectionNotesWithCodes());
         Storage storage = storageFactory.getStorage(arcDev().getStorageDescriptorNotNull(storageID));
         try (ZipInputStream seriesMetadataStream = openZipInputStream(storage, storagePath, null)) {
             while (seriesMetadataStream.getNextEntry() != null) {
@@ -385,17 +386,26 @@ class QueryServiceImpl implements QueryService {
                         new InputStreamReader(seriesMetadataStream, StandardCharsets.UTF_8)));
                 jsonReader.setSkipBulkDataURI(true);
                 Attributes metadata = jsonReader.readDataset(null);
-                String[] retrieveAETs1 = metadata.getStrings(Tag.RetrieveAETitle);
-                Availability availability1 = Availability.valueOf(metadata.getString(Tag.InstanceAvailability));
-                if (numberOfInstances++ == 0) {
-                    retrieveAETs = retrieveAETs1;
-                    availability = availability1;
-                } else {
-                    retrieveAETs = QueryAttributesEJB.intersection(retrieveAETs, retrieveAETs1);
-                    if (availability.compareTo(availability1) < 0)
+                String cuid = metadata.getString(Tag.SOPClassUID);
+                Code koCode = UID.KeyObjectSelectionDocumentStorage.equals(cuid)
+                        ? new Code(metadata.getNestedDataset(Tag.ConceptNameCodeSequence))
+                        : null;
+                boolean rejected = rejectedInstanceUIDs.contains(metadata.getString(Tag.SOPInstanceUID));
+                if ((qrView.isHideNotRejectedInstances() ? rejected : !rejected)
+                        && (koCode == null || hideRejectionNotesWithCodes.isEmpty()
+                        || hideRejectionNotesWithCodes.stream().noneMatch(code -> koCode.equalsIgnoreMeaning(code)))) {
+                    String[] retrieveAETs1 = metadata.getStrings(Tag.RetrieveAETitle);
+                    Availability availability1 = Availability.valueOf(metadata.getString(Tag.InstanceAvailability));
+                    if (numberOfInstances++ == 0) {
+                        retrieveAETs = retrieveAETs1;
                         availability = availability1;
+                    } else {
+                        retrieveAETs = QueryAttributesEJB.intersection(retrieveAETs, retrieveAETs1);
+                        if (availability.compareTo(availability1) < 0)
+                            availability = availability1;
+                    }
+                    cuids.add(cuid);
                 }
-                cuids.add(metadata.getString(Tag.SOPClassUID));
                 seriesMetadataStream.closeEntry();
             }
         } catch (IOException e) {
@@ -412,6 +422,20 @@ class QueryServiceImpl implements QueryService {
         }
         if (!arcDev().isDBReadOnly()) queryAttributesEJB.persist(queryAttrs);
         return queryAttrs;
+    }
+
+    private List<String> rejectedInstanceUIDs(Long seriesPk, QueryRetrieveView qrView) {
+        Code[] showInstancesRejectedByCodes = qrView.getShowInstancesRejectedByCodes();
+        return (showInstancesRejectedByCodes.length == 0
+                ? em.createNamedQuery(RejectedInstance.IUIDS_BY_SERIES_PK, String.class)
+                    .setParameter(1, seriesPk)
+                : em.createNamedQuery(qrView.isHideNotRejectedInstances()
+                        ? RejectedInstance.IUIDS_BY_SERIES_PK_AND_CODES
+                        : RejectedInstance.IUIDS_BY_SERIES_PK_AND_NOT_CODES,
+                        String.class)
+                    .setParameter(1, seriesPk)
+                    .setParameter(2, List.of(codeCache.findOrCreateEntities(showInstancesRejectedByCodes))))
+                .getResultList();
     }
 
     public SeriesQueryAttributes calculateSeriesQueryAttributes(Long seriesPk, QueryRetrieveView qrView) {
