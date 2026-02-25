@@ -14,3 +14,8 @@ dn: dcmAttributeSetID=AttributeFilters+dcmAttributeSetType=WADO_RS,dicomDeviceNa
 changetype: modify
 add: dcmTag
 dcmTag: 7FE00003
+
+dn: cn=view-users,ou=realm-management,dc=dcm4che,dc=org
+changetype: modify
+add: member
+member: uid=admin,ou=users,dc=dcm4che,dc=org

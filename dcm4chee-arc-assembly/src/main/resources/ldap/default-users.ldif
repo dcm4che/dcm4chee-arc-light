@@ -142,6 +142,7 @@ dn: cn=view-users,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
 cn: view-users
 member: uid=root,ou=users,dc=dcm4che,dc=org
+member: uid=admin,ou=users,dc=dcm4che,dc=org
 
 dn: cn=query-users,ou=realm-management,dc=dcm4che,dc=org
 objectClass: groupOfNames
