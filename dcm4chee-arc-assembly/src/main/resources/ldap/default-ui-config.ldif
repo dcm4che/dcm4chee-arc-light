@@ -401,3 +401,10 @@ dcmuiPermissionName: Tab - Configuration - Web App List
 dcmAcceptedUserRole: admin
 dcmuiActionParam: visible
 dcmuiActionParam: accessible
+
+dn: dcmuiPermissionName=Action - AE widget,dcmuiConfigName=default,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+objectClass: dcmuiPermission
+dcmuiAction: action-create-ae
+dcmuiPermissionName: Action - AE widget
+dcmAcceptedUserRole: admin
+dcmuiActionParam: visible
