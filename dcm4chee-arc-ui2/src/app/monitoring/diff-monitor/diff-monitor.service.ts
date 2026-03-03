@@ -123,7 +123,7 @@ export class DiffMonitorService {
           },{
               tag:"range-picker",
               filterKey:"updatedTime",
-              description:$localize `:@@created_date:Created Date`
+              description:$localize `:@@updated_date:Updated Date`
           },
           {
               tag:"input",

@@ -46,9 +46,6 @@ export class FhirDialogComponent {
       private studyService:StudyService,
       private appService:AppService
   ) {
-    setTimeout(()=>{
-      console.log("fhirWebAppsSelectDropdowns.selectDropdownWebServices",this.fhirWebAppsSelectDropdowns.selectDropdownWebServices)
-    },2000);
   }
   save(){
     if(!this.response){

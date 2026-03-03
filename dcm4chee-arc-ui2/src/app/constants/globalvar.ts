@@ -3192,6 +3192,10 @@ export class Globalvar {
             },
             "/monitoring/storage-systems":{
                 permissionsAction:"tab-monitoring->storage_systems",
+                nextCheck:"/monitoring/storage-verification"
+            },
+            "/monitoring/storage-verification":{
+                permissionsAction:"tab-monitoring->storage_verification",
                 nextCheck:"/monitoring/metrics"
             },
             "/monitoring/metrics":{
