@@ -535,9 +535,9 @@ public class QidoRS {
                         .build();
             }
             try (Query query = model.createQuery(service, ctx)) {
+                long matches = query.fetchCount();
                 int queryMaxNumberOfResults = ctx.getArchiveAEExtension().queryMaxNumberOfResults();
-                if (queryMaxNumberOfResults > 0 && !ctx.containsUniqueKey()
-                        && query.fetchCount() > queryMaxNumberOfResults)
+                if (queryMaxNumberOfResults > 0 &&  matches > queryMaxNumberOfResults)
                     return errResponse("Request entity too large. Query count exceeds configured Query Max Number of Results, narrow down search using query filters.",
                             Response.Status.REQUEST_ENTITY_TOO_LARGE);
 
@@ -547,7 +547,6 @@ public class QidoRS {
                 int remaining = 0;
                 if (maxResults > 0 && (limitInt == 0 || limitInt > maxResults) && !ctx.isConsiderPurgedInstances()) {
                     LOG.debug("Query for number of matching {}s", model);
-                    long matches = query.fetchCount();
                     LOG.debug("Number of matching {}s: {}", model, matches);
                     int numResults = (int) (matches - offsetInt);
                     if (numResults <= 0) {
