@@ -202,7 +202,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                 new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet()));
 
         Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
-        if (spsSeq != null && spsSeq.size() == 0) {
+        if (spsSeq == null || spsSeq.size() == 0) {
             LOG.info("No Scheduled Procedure Steps in Scheduled Procedure Step Sequence. Abort MWL creation / update");
             return;
         }
