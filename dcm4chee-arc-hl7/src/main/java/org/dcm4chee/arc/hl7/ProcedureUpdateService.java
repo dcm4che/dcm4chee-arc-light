@@ -43,10 +43,7 @@ package org.dcm4chee.arc.hl7;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
-import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.Issuer;
-import org.dcm4che3.data.Tag;
-import org.dcm4che3.data.VR;
+import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
 import org.dcm4che3.hl7.HL7Message;
@@ -204,7 +201,13 @@ public class ProcedureUpdateService extends DefaultHL7Service {
                 ReverseDNS.hostNameOf(ctx.getSocket().getInetAddress()),
                 new HL7Fields(msg, hl7App.getHL7DefaultCharacterSet()));
 
-        Iterator<Attributes> spsItems = attrs.getSequence(Tag.ScheduledProcedureStepSequence).iterator();
+        Sequence spsSeq = attrs.getSequence(Tag.ScheduledProcedureStepSequence);
+        if (spsSeq != null && spsSeq.size() == 0) {
+            LOG.info("No Scheduled Procedure Steps in Scheduled Procedure Step Sequence. Abort MWL creation / update");
+            return;
+        }
+
+        Iterator<Attributes> spsItems = spsSeq.iterator();
         while (spsItems.hasNext()) {
             Attributes sps = spsItems.next();
             validateSPSStartDateTime(sps, msh);
