@@ -8,6 +8,7 @@ import {DatePipe} from "@angular/common";
 import { HttpHeaders } from "@angular/common/http";
 import {TableService} from "../../table.service";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
+import {Validators} from "@angular/forms";
 
 @Injectable()
 export class StorageVerificationService {
@@ -539,4 +540,96 @@ export class StorageVerificationService {
     scheduleStorageVerification  = (param, aet) => this.$http.post(`${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${aet}/stgver/studies?${this.mainservice.param(param)}`,{});
 
     getUniqueID = () => this.mainservice.getUniqueID();
+
+    getCSVSchema( aes,storages){
+        return [
+            {
+                tag:'select',
+                options: aes,
+                showStar: true,
+                showSearchField: true,
+                filterKey: 'LocalAET',
+                description: $localize `:@@localaet:Local AET`,
+                validation: Validators.required
+            },{
+                tag:'input',
+                type:'number',
+                filterKey:'studyUIDField',
+                description:$localize `:@@study_uid_field:Study UID Field`,
+                placeholder:$localize `:@@study_uid_field:Study UID Field`,
+                validation:[Validators.minLength(1),Validators.min(1)],
+                defaultValue:1
+            },{
+                tag:'input',
+                type:'number',
+                filterKey:'seriesUIDField',
+                description:$localize `:@@series_uid_field:Series UID Field`,
+                placeholder:$localize `:@@series_uid_field:Series UID Field`,
+                validation:[Validators.minLength(1),Validators.min(1)]
+            },
+            {
+                tag:'input',
+                type:'checkbox',
+                filterKey:'batchIDFromFile',
+                defaultValue:true,
+                description:$localize `:@@retrieve-export.get_batch_id_from_file_name:Get Batch ID from file name`,
+            },
+            {
+                tag:'input',
+                type:'text',
+                filterKey:'batchID',
+                description:$localize `:@@batch_id:Batch ID`,
+            },{
+                tag:'range-picker-time',
+                type:'text',
+                filterKey:'scheduledTime',
+                defaultTime: j4care.formatDate(new Date(),"HH:mm:ss"),
+                description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
+            },{
+                tag:'input',
+                type:'checkbox',
+                filterKey:'semicolon',
+                description:$localize `:@@use_semicolon_as_delimiter:Use semicolon as delimiter`
+            },
+            {
+                tag:"select",
+                type:"text",
+                options:[
+                    {
+                        value:"DB_RECORD_EXISTS",
+                        text:$localize `:@@db_record_exists:DB Record Exists`
+                    },{
+                        value:"OBJECT_EXISTS",
+                        text:$localize `:@@object_exists:Object Exists`
+                    },{
+                        value:"OBJECT_SIZE",
+                        text:$localize `:@@object_size:Object Size`
+                    },{
+                        value:"OBJECT_FETCH",
+                        text:$localize `:@@object_fetch:Object Fetch`
+                    },{
+                        value:"OBJECT_CHECKSUM",
+                        text:$localize `:@@object_checksum:Object Checksum`
+                    },{
+                        value:"S3_MD5SUM",
+                        text:$localize `:@@s3_md2sum:S3 MD5 Sum`
+                    }
+                ],
+                filterKey:"storageVerificationPolicy",
+                description:$localize `:@@storage_verification_policy:Storage Verification Policy`
+            },
+            {
+                tag:"select",
+                type:"text",
+                options:storages.map(s=>({value:s.dcmStorageID,text:s.dcmStorageID})),
+                filterKey:"storageVerificationStorageID",
+                description:$localize `:@@storage_ids:Storage IDs`
+            },{
+                tag:'input',
+                type:'checkbox',
+                filterKey:'storageVerificationUpdateLocationStatus',
+                description:$localize `:@@update_location_DB:Update Location DB`
+            }
+        ]
+    }
 }

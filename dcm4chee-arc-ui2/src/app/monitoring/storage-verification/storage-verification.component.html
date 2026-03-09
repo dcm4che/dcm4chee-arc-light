@@ -42,15 +42,17 @@
                   <div class="filter_block">
                     <div class="line">
                       <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text" i18n="@@download_csv">Download CSV</span></div>
-                      <mat-select [(ngModel)]="allAction"  i18n-placeholder="@@placeholder.all_actions" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
-                        <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsOptions">{{actions.label}}</mat-option>
-                      </mat-select>
+                      <div (click)="uploadCsv()" class="csv_button pull-right"><span class="material-icons">file_upload</span><span class="text" i18n="@@upload_csv">Upload CSV</span></div>
                     </div>
                   </div>
                   <div class="filter_block">
                     <div class="line">
                       <!--   <div class="checkbox_button pull-left" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="storageVerifications = [];filterObject.offset = 0" i18n="@@batch_id_grouped">Batch ID grouped</mat-checkbox></div>  -->
-                      <label for="checkbox" class="checkbox_button pull-left"   [ngClass]="{'active':batchGrouped}">
+
+                        <mat-select [(ngModel)]="allAction"  i18n-placeholder="@@placeholder.all_actions" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
+                            <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsOptions">{{actions.label}}</mat-option>
+                        </mat-select>
+                        <label for="checkbox" class="checkbox_button pull-left"   [ngClass]="{'active':batchGrouped}">
                         <input id="checkbox" [(ngModel)]="batchGrouped" (ngModelChange)="storageVerifications = [];filterObject.offset = 0" type="checkbox">
                         <span i18n="@@batch_id_grouped">Batch ID grouped</span>
                       </label>

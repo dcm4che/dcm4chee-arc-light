@@ -25,6 +25,9 @@ import {PermissionDirective} from '../../helpers/permissions/permission.directiv
 import {MatOption, MatSelect} from '@angular/material/select';
 import {TableGeneratorComponent} from '../../helpers/table-generator/table-generator.component';
 import {MonitoringTabsComponent} from '../monitoring-tabs.component';
+import {CsvUploadComponent} from "../../widgets/dialogs/csv-upload/csv-upload.component";
+import {SelectDropdown} from "../../interfaces";
+import {StudyService} from "../../study/study/study.service";
 
 @Component({
     selector: 'app-storage-verification',
@@ -98,7 +101,8 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
       public viewContainerRef: ViewContainerRef,
       private permissionService: PermissionService,
       private deviceService: DevicesService,
-      private _keycloakService: KeycloakService
+      private _keycloakService: KeycloakService,
+      private studyService: StudyService
     ) { }
 
     ngOnInit() {
@@ -330,8 +334,44 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             this.httpErrorHandler.handleError(err);
         });
     }
-    uploadCsv() {
-      // TODO
+    uploadCsv(){
+        this.studyService.getStorageSystems().subscribe((storages)=>{
+            console.log('storages',storages);
+            this.dialogRef = this.dialog.open(CsvUploadComponent, {
+                height: 'auto',
+                width: '45%'
+            });
+            this.dialogRef.componentInstance.params = {
+                LocalAET:this.filterObject['LocalAET'] || '',
+                batchID:this.filterObject['batchID'] || '',
+                formSchema:this.service.getCSVSchema(this.localAET, storages),
+                prepareUrl:(filter)=>{
+                    let clonedFilters = {};
+                    if(filter['priority']) clonedFilters['priority'] = filter['priority'];
+                    if(filter['batchID']) clonedFilters['batchID'] = filter['batchID'];
+                    if(filter['storageVerificationStorageID']) clonedFilters['storageVerificationStorageID'] = filter['storageVerificationStorageID'];
+                    if(filter['storageVerificationUpdateLocationStatus']) clonedFilters['storageVerificationUpdateLocationStatus'] = filter['storageVerificationUpdateLocationStatus'];
+                    if(filter['storageVerificationPolicy']) clonedFilters['storageVerificationPolicy'] = filter['storageVerificationPolicy'];
+                    if(filter['dcmQueueName']) clonedFilters['dcmQueueName'] = filter['dcmQueueName'];
+                    if (filter['scheduledTime']){
+                        clonedFilters['scheduledTime'] = filter['scheduledTime'];
+                    }
+                    if(filter['seriesUIDField']){
+                        return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/rs/studies/csv:${filter.studyUIDField}/series/csv:${filter.seriesUIDField}/stgver${j4care.getUrlParams(clonedFilters)}`;
+                    }else{
+                        return `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${filter.LocalAET}/rs/studies/csv:${filter.studyUIDField}/stgver${j4care.getUrlParams(clonedFilters)}`;
+                    }
+                }
+            };
+
+    /*        this.dialogRef.componentInstance.studyWebService = this.studyWebService ;
+            this.dialogRef.componentInstance.aes = this.aes ;*/
+            this.dialogRef.afterClosed().subscribe((ok)=>{
+                if(ok){
+                    console.log('ok',ok);
+                }
+            });
+        });
     }
     allActionChanged(e) {
         let text = $localize `:@@matching_task_question:Are you sure, you want to ${Globalvar.getActionText(this.allAction)} all matching tasks?`;
@@ -735,6 +775,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             }
         });
     }
+
 
     ngOnDestroy() {
         if (this.timer.started) {
