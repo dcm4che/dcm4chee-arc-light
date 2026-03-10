@@ -71,24 +71,21 @@ export class j4care {
     }
 
     static removeKeyFromObject(object, toRemoveKey){
-        if(_.isArray(toRemoveKey)){
-            toRemoveKey.forEach(k=>{
-                if(_.hasIn(object, k)){
-                    delete object[k];
-                }
-            })
-        }else{
-            if(_.hasIn(object, toRemoveKey)){
-                delete object[toRemoveKey];
-            }
-        }
-        for(let key in object){
-            if(typeof object[key] === 'object'){
-                this.removeKeyFromObject(object[key], toRemoveKey);
+        const workingStack = [object]
+        const checked = new Set();
+        toRemoveKey = [].concat(toRemoveKey);
+
+        while (workingStack.length) {
+            const tempObject = workingStack.pop();
+            if (tempObject && typeof tempObject === "object" && !checked.has(tempObject)) {
+                checked.add(tempObject);
+                toRemoveKey.forEach(key => delete tempObject[key]);
+                workingStack.push(...Object.values(tempObject));
             }
         }
         return object;
     }
+
     static getPath(obj, searchKey:string, value:string) {
         for(let key in obj) {
             if(obj[key] && typeof obj[key] === 'object') {

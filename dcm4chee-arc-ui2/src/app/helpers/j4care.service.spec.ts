@@ -672,6 +672,252 @@ describe('j4care', () => {
             }
         };
         expect(j4care.removeKeyFromObject(obj,"required")).toEqual(result);
+        let obj2 = {
+            "00080005": {
+                "vr": "CS",
+                "Value": [
+                    "ISO_IR 192"
+                ]
+            },
+            "0020000D": {
+                "vr": "UI",
+                "required": true,
+                "Value": [
+                    "2.25.110737691462808662512062073583230498506"
+                ]
+            },
+            "00400100": {
+                "vr": "SQ",
+                "Value": [
+                    {
+                        "00400001": {
+                            "vr": "AE",
+                            "Value": [
+                                "SCHEDULEDSTATION"
+                            ]
+                        },
+                        "00400006": {
+                            "vr": "PN",
+                            "Value": [
+                                {
+                                    "Alphabetic": ""
+                                }
+                            ]
+                        },
+                        "00400011": {
+                            "vr": "SH",
+                            "Value": [
+                                ""
+                            ]
+                        },
+                        "00400008": {
+                            "vr": "SQ",
+                            "required": true,
+                            "multi": true,
+                            "Value": [
+                                {
+                                    "00080100": {
+                                        "vr": "SH",
+                                        "required": 1,
+                                        "Value": [
+                                            "1234-6"
+                                        ]
+                                    },
+                                    "00080102": {
+                                        "vr": "SH",
+                                        "required": 1,
+                                        "Value": [
+                                            "GH"
+                                        ]
+                                    },
+                                    "00080103": {
+                                        "vr": "SH",
+                                        "Value": [
+                                            ""
+                                        ]
+                                    },
+                                    "00080104": {
+                                        "vr": "LO",
+                                        "Value": [
+                                            "TEST"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "00080100": {
+                                        "vr": "SH",
+                                        "required": 1,
+                                        "Value": [
+                                            "234-6"
+                                        ]
+                                    },
+                                    "00080102": {
+                                        "vr": "SH",
+                                        "required": 1,
+                                        "Value": [
+                                            "HG"
+                                        ]
+                                    },
+                                    "00080103": {
+                                        "vr": "SH",
+                                        "Value": [
+                                            ""
+                                        ]
+                                    },
+                                    "00080104": {
+                                        "vr": "LO",
+                                        "Value": [
+                                            "TEST2"
+                                        ]
+                                    },
+                                    "newBlock": true
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "00401001": {
+                "vr": "SH",
+                "Value": [
+                    "RP-00000003"
+                ]
+            }
+        };
+        let result2 = {
+            "00080005": {
+                "vr": "CS",
+                "Value": [
+                    "ISO_IR 192"
+                ]
+            },
+            "0020000D": {
+                "vr": "UI",
+                "Value": [
+                    "2.25.110737691462808662512062073583230498506"
+                ]
+            },
+            "00400100": {
+                "vr": "SQ",
+                "Value": [
+                    {
+                        "00400001": {
+                            "vr": "AE",
+                            "Value": [
+                                "SCHEDULEDSTATION"
+                            ]
+                        },
+                        "00400006": {
+                            "vr": "PN",
+                            "Value": [
+                                {
+                                    "Alphabetic": ""
+                                }
+                            ]
+                        },
+                        "00400011": {
+                            "vr": "SH",
+                            "Value": [
+                                ""
+                            ]
+                        },
+                        "00400008": {
+                            "vr": "SQ",
+                            "Value": [
+                                {
+                                    "00080100": {
+                                        "vr": "SH",
+                                        "Value": [
+                                            "1234-6"
+                                        ]
+                                    },
+                                    "00080102": {
+                                        "vr": "SH",
+                                        "Value": [
+                                            "GH"
+                                        ]
+                                    },
+                                    "00080103": {
+                                        "vr": "SH",
+                                        "Value": [
+                                            ""
+                                        ]
+                                    },
+                                    "00080104": {
+                                        "vr": "LO",
+                                        "Value": [
+                                            "TEST"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "00080100": {
+                                        "vr": "SH",
+                                        "Value": [
+                                            "234-6"
+                                        ]
+                                    },
+                                    "00080102": {
+                                        "vr": "SH",
+                                        "Value": [
+                                            "HG"
+                                        ]
+                                    },
+                                    "00080103": {
+                                        "vr": "SH",
+                                        "Value": [
+                                            ""
+                                        ]
+                                    },
+                                    "00080104": {
+                                        "vr": "LO",
+                                        "Value": [
+                                            "TEST2"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "00401001": {
+                "vr": "SH",
+                "Value": [
+                    "RP-00000003"
+                ]
+            }
+        }
+        expect(j4care.removeKeyFromObject(obj2,["required","newBlock","multi"])).toEqual(result2);
+        //TEST CIRCULAR CASE
+        let obj3 = {
+            "00080005": {
+                "vr": "CS",
+                "Value": [
+                    "ISO_IR 192"
+                ],
+                required: 1
+            },
+            "0020000D": {
+                "vr": "UI",
+                "Value": []
+            }
+        }
+        obj3["parent"] = { child: obj3 };
+        let res3 = {
+            "00080005": {
+                "vr": "CS",
+                "Value": [
+                    "ISO_IR 192"
+                ]
+            },
+            "0020000D": {
+                "vr": "UI",
+                "Value": []
+            }
+        }
+        res3["parent"]  = { child: res3 };
+        expect(j4care.removeKeyFromObject(obj3,["required"])).toEqual(res3);
     });
 
     it("Should extract language object from the language ldap string",()=>{
