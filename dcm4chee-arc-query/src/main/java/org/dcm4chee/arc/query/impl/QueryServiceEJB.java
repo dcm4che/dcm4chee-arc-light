@@ -447,7 +447,10 @@ public class QueryServiceEJB {
                     refSOP.setString(Tag.RetrieveLocationUID, VR.UI, retrieveLocationUID);
             }
             if (type == SOPInstanceRefsType.FHIR_IMAGING_STUDY) {
-                refSOP.setInt(Tag.InstanceNumber, VR.IS, tuple.get(instance.get(Instance_.instanceNumber)));
+                Integer instNum = tuple.get(instance.get(Instance_.instanceNumber));
+                if (instNum != null) {
+                    refSOP.setInt(Tag.InstanceNumber, VR.IS, instNum);
+                }
             }
             setSOPRef(refSOP, tuple, cuidPath, iuidPath);
             refSOPSeq.add(refSOP);
