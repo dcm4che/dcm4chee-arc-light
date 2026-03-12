@@ -2887,6 +2887,7 @@ dcmTag: 0008103F
 dcmTag: 00081040
 dcmTag: 00081041
 dcmTag: 00081050
+dcmTag: 00081052
 dcmTag: 00081070
 dcmTag: 00081072
 dcmTag: 00081090
@@ -3830,6 +3831,7 @@ dcmTag: 00081040
 dcmTag: 00081041
 dcmTag: 00081048
 dcmTag: 00081050
+dcmTag: 00081052
 dcmTag: 00081070
 dcmTag: 00081072
 dcmTag: 00081080

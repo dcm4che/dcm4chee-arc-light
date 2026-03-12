@@ -397,6 +397,7 @@ class ArchiveDeviceFactory {
             Tag.InstitutionalDepartmentTypeCodeSequence,
             Tag.InstitutionAddress,
             Tag.PerformingPhysicianName,
+            Tag.PerformingPhysicianIdentificationSequence,
             Tag.ManufacturerModelName,
             Tag.ReferencedPerformedProcedureStepSequence,
             Tag.AnatomicRegionSequence,
