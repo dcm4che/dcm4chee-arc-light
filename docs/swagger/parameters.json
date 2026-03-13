@@ -457,7 +457,7 @@
     }
   },
   "csvStudyUIDFieldPathParam": {
-    "name": "field",
+    "name": "studyUIDField",
     "in": "path",
     "description": "CSV field which contains the Study Instance UID",
     "required": true,
@@ -466,7 +466,7 @@
     }
   },
   "csvSeriesUIDFieldPathParam": {
-    "name": "field",
+    "name": "seriesUIDField",
     "in": "path",
     "description": "CSV field which contains the Series Instance UID",
     "required": true,
