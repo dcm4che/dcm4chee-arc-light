@@ -401,6 +401,7 @@ public class QueryServiceEJB {
                         study.get(Study_.pk),
                         series.get(Series_.pk),
                         series.get(Series_.seriesInstanceUID),
+                        series.get(Series_.receivingAET),
                         iuidPath,
                         cuidPath,
                         instance.get(Instance_.instanceNumber),
@@ -429,6 +430,8 @@ public class QueryServiceEJB {
                     if (retrieveLocationUID != null)
                         refSeries.setString(Tag.RetrieveLocationUID, VR.UI, retrieveLocationUID);
                 }
+                if (type == SOPInstanceRefsType.FHIR_IMAGING_STUDY)
+                    refSeries.setString(Tag.RetrieveAETitle, VR.AE, tuple.get(series.get(Series_.receivingAET)));
                 refSOPSeq = refSeries.newSequence(Tag.ReferencedSOPSequence, 10);
                 String seriesIUID = tuple.get(series.get(Series_.seriesInstanceUID));
                 refSeries.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
