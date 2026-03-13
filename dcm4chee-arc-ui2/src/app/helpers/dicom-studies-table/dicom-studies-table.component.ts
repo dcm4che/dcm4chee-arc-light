@@ -8,7 +8,7 @@ import {StudyWebService} from "../../study/study/study-web-service.model";
 import {DicomLevel, PaginationDirection} from "../../interfaces";
 import {DynamicPipePipe} from "../../pipes/dynamic-pipe.pipe";
 import {TableSchemaElement} from "../../models/dicom-table-schema-element";
-import {CommonModule, NgClass, NgStyle, NgSwitch} from '@angular/common';
+import {CommonModule, NgClass, NgOptimizedImage, NgStyle, NgSwitch} from '@angular/common';
 import {TooltipDirective} from '../tooltip/tooltip.directive';
 import {MatMenu, MatMenuTrigger} from '@angular/material/menu';
 import {AttributeListComponent} from '../attribute-list/attribute-list.component';
@@ -31,7 +31,8 @@ import {SvgDirective} from '../svg/svg.directive';
         CustomAttributeListComponent,
         CommonModule,
         SearchDicomPipe,
-        SvgDirective
+        SvgDirective,
+        NgOptimizedImage
     ],
     standalone: true
 })

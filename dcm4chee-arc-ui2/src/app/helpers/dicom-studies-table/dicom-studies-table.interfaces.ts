@@ -31,6 +31,9 @@ export interface DicomTableSchema{
 
 export interface Icon{
     svg?: string;
+    svgPath?: string;
+    width?:string|number;
+    height?:string|number;
     tag?:("span"|"i");
     cssClass?:string;
     text?:string;

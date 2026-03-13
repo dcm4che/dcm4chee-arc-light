@@ -38,6 +38,9 @@
                           @if(action.icon.svg && action.icon.svg != ''){
                               <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                           }
+                          @if(action.icon.svgPath && action.icon.svgPath != ''){
+                              <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                          }
                       </a>
                     </ng-container>
                 </ng-container>
@@ -54,6 +57,9 @@
                                 <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                 @if(action.icon.svg && action.icon.svg != ''){
                                     <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                }
+                                @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                    <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                 }
                             </a>
                         </ng-container>
@@ -106,6 +112,9 @@
                                     @if(action.icon.svg && action.icon.svg != ''){
                                         <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                     }
+                                    @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                        <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                    }
                                 </a>
                             </ng-container>
                         </ng-container>
@@ -131,6 +140,9 @@
                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                         @if(action.icon.svg && action.icon.svg != ''){
                                             <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                        }
+                                        @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                            <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                         }
                                     </a>
 
@@ -184,6 +196,9 @@
                                             @if(action.icon.svg && action.icon.svg != ''){
                                                 <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                             }
+                                            @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                                <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                            }
                                         </a>
                                     </ng-container>
                                 </ng-container>
@@ -200,6 +215,9 @@
                                                 <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                                 @if(action.icon.svg && action.icon.svg != ''){
                                                     <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                }
+                                                @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                                    <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                 }
                                             </a>
                                         </ng-container>
@@ -255,6 +273,9 @@
                                                     @if(action.icon.svg && action.icon.svg != ''){
                                                         <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                     }
+                                                    @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                                        <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                                    }
                                                 </a>
                                             </ng-container>
                                         </ng-container>
@@ -271,6 +292,9 @@
                                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                                         @if(action.icon.svg && action.icon.svg != ''){
                                                             <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                        }
+                                                        @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                                            <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                         }
                                                     </a>
                                                 </ng-container>
@@ -397,6 +421,9 @@
                                     @if(action.icon.svg && action.icon.svg != ''){
                                         <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                     }
+                                    @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                        <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                    }
                                 </a>
                             </ng-container>
                         </ng-container>
@@ -409,6 +436,9 @@
                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                         @if(action.icon.svg && action.icon.svg != ''){
                                             <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                        }
+                                        @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                            <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                         }
                                     </a>
                                 </ng-container>
@@ -456,6 +486,9 @@
                                     @if(action.icon.svg && action.icon.svg != ''){
                                         <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                     }
+                                    @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                        <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                    }
                                 </a>
                             </ng-container>
                         </ng-container>
@@ -468,6 +501,9 @@
                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                         @if(action.icon.svg && action.icon.svg != ''){
                                             <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                        }
+                                        @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                            <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                         }
                                     </a>
                                 </ng-container>
@@ -511,6 +547,9 @@
                                     @if(action.icon.svg && action.icon.svg != ''){
                                         <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                     }
+                                    @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                        <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                    }
                                 </a>
                             </ng-container>
                         </ng-container>
@@ -523,6 +562,9 @@
                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                         @if(action.icon.svg && action.icon.svg != ''){
                                             <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                        }
+                                        @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                            <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                         }
                                     </a>
                                 </ng-container>
@@ -566,6 +608,9 @@
                                     @if(action.icon.svg && action.icon.svg != ''){
                                         <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                     }
+                                    @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                        <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                    }
                                 </a>
                             </ng-container>
                         </ng-container>
@@ -578,6 +623,9 @@
                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                         @if(action.icon.svg && action.icon.svg != ''){
                                             <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                        }
+                                        @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                            <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                         }
                                     </a>
                                 </ng-container>
@@ -674,6 +722,9 @@
                                             @if(action.icon.svg && action.icon.svg != ''){
                                                 <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                             }
+                                            @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                                <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                            }
                                         </a>
                                     </ng-container>
                                 </ng-container>
@@ -690,6 +741,9 @@
                                                 <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                                 @if(action.icon.svg && action.icon.svg != ''){
                                                     <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                }
+                                                @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                                    <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                 }
                                             </a>
                                         </ng-container>
@@ -744,6 +798,9 @@
                                                     @if(action.icon.svg && action.icon.svg != ''){
                                                         <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                     }
+                                                    @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                                        <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                                    }
                                                 </a>
                                             </ng-container>
                                         </ng-container>
@@ -760,6 +817,9 @@
                                                         <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
                                                         @if(action.icon.svg && action.icon.svg != ''){
                                                             <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                        }
+                                                        @if(action.icon.svgPath && action.icon.svgPath != ''){
+                                                            <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                         }
                                                     </a>
                                                 </ng-container>
