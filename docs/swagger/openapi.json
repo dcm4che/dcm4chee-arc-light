@@ -245,10 +245,10 @@
     "/aets/{aet}/rs/studies/csv:{studyUIDField}/series/csv:{seriesUIDField}/stgver": {
       "$ref": "paths/stgver.json#/series.csv"
     },
-    "/aets/{aet}/rs/studies/csv:{field}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/studies/csv:{studyUIDField}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/study.reject.csv"
     },
-    "/aets/{aet}/rs/studies/csv:{field}/series/csv:{seriesUIDField}/reject/{codeValue}^{codingSchemeDesignator}": {
+    "/aets/{aet}/rs/studies/csv:{studyUIDField}/series/csv:{seriesUIDField}/reject/{codeValue}^{codingSchemeDesignator}": {
       "$ref": "paths/iocm.json#/series.reject.csv"
     },
     "/aets/{aet}/rs/studies/{study}/reject/{codeValue}^{codingSchemeDesignator}": {
@@ -635,7 +635,7 @@
     "/aets/{aet}/dimse/{findSCP}/diff/{secondaryFindSCP}/studies/count": {
       "$ref": "paths/iocm.json#/diff.studies.count"
     },
-    "/aets/{aet}/dimse/{findSCP}/diff/{secondaryFindSCP}/studies/csv:{field}": {
+    "/aets/{aet}/dimse/{findSCP}/diff/{secondaryFindSCP}/studies/csv:{studyUIDField}": {
       "$ref": "paths/iocm.json#/diff.studies.csv"
     },
     "/aets/{aet}/dimse/{mwlscp}/mwlitems": {
@@ -959,7 +959,7 @@
     "/aets/{aet}/dimse/{movescp}/studies/{study}/series/{series}/instances/{instance}/export/dicom:{destination}": {
       "$ref": "paths/move.json#/instances"
     },
-    "/aets/{aet}/dimse/{movescp}/studies/csv:{field}/export/dicom:{destination}": {
+    "/aets/{aet}/dimse/{movescp}/studies/csv:{studyUIDField}/export/dicom:{destination}": {
       "$ref": "paths/move.json#/studies.csv"
     },
     "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/export/dicom:{destination}": {
@@ -989,7 +989,7 @@
     "/aets/{aet}/rs/studies/{study}/series/{series}/instances/workitems": {
       "$ref": "paths/workitems.json#/local.instances"
     },
-    "/aets/{aet}/rs/studies/csv:{field}/workitems": {
+    "/aets/{aet}/rs/studies/csv:{studyUIDField}/workitems": {
       "$ref": "paths/workitems.json#/local.studies.csv"
     },
     "/aets/{aet}/dimse/{movescp}/studies/workitems": {
@@ -1010,7 +1010,7 @@
     "/aets/{aet}/dimse/{movescp}/query:{findscp}/studies/{study}/series/{series}/instances/workitems": {
       "$ref": "paths/workitems.json#/external2.instances"
     },
-    "/aets/{aet}/dimse/{movescp}/studies/csv:{field}/workitems/{upsTemplateUID}": {
+    "/aets/{aet}/dimse/{movescp}/studies/csv:{studyUIDField}/workitems/{upsTemplateUID}": {
       "$ref": "paths/workitems.json#/external.studies.csv"
     }
   }
