@@ -1971,6 +1971,26 @@ export class StudyService {
                                 }
                             }, {
                                 icon: {
+                                    svgPath:`/assets/img/restore_file.svg`,
+                                    width:20,
+                                    height:25
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "study",
+                                        action: "study_restore"
+                                    }, e);
+                                },
+                                id: "study_restoring",
+                                title: $localize `:@@study.restore_study:Restore purged instance records`
+ /*                               ,
+                                permission: {
+                                    id: 'action-studies-restoring',
+                                    param: 'edit'
+                                }*/
+                            }, {
+                                icon: {
                                     tag: 'span',
                                     cssClass: 'glyphicon glyphicon-ok',
                                     text: ''
@@ -2524,6 +2544,26 @@ export class StudyService {
                                     id: 'action-studies-verify_storage_commitment',
                                     param: 'visible'
                                 }
+                            }, {
+                                icon: {
+                                    svgPath:`/assets/img/restore_file.svg`,
+                                    width:20,
+                                    height:25
+                                },
+                                click: (e) => {
+                                    actions.call($this, {
+                                        event: "click",
+                                        level: "series",
+                                        action: "series_restore"
+                                    }, e);
+                                },
+                                id: "series_restore",
+                                title: $localize `:@@study.restore_study:Restore purged instance records`
+                                /*                               ,
+                                                               permission: {
+                                                                   id: 'action-studies-restoring',
+                                                                   param: 'edit'
+                                                               }*/
                             },{
                                 icon: {
                                     tag: 'span',
@@ -5541,6 +5581,25 @@ export class StudyService {
         );
     }
 
+    restorePurged(level:DicomLevel, object:StudyDicom|SeriesDicom, studyWebApp:DcmWebApp,params){
+        let webAppTemp = _.cloneDeep(studyWebApp);
+        console.log("webAppTemp", webAppTemp);
+        const studyInstanceUID = this.getStudyInstanceUID(object?.attrs);
+        const seriesInstanceUID = this.getSeriesInstanceUID(object?.attrs);
+        if(level === "study"){
+            webAppTemp.dcmWebServicePath = webAppTemp.dcmWebServicePath + `/studies/${studyInstanceUID}/restore`;
+        }else{
+            webAppTemp.dcmWebServicePath = webAppTemp.dcmWebServicePath + `/studies/${studyInstanceUID}/series/${seriesInstanceUID}/restore`;
+
+        }
+        return this.$http.post(
+            '',
+            {},
+            new HttpHeaders({'Content-Type': 'application/fhir+json', 'Accept': 'application/fhir+json'}),
+            undefined,
+            webAppTemp
+        );
+    }
     getRequestSchema(){
         let requestSchema = [];
         return this.getIod("series").pipe(map(res=>{

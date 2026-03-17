@@ -1,6 +1,8 @@
 import {Directive, ElementRef, Input, OnInit} from '@angular/core';
 import {J4careHttpService} from "../j4care-http.service";
 import * as _ from 'lodash-es';
+import {Observable} from "rxjs";
+import {map, shareReplay} from "rxjs/operators";
 
 @Directive({
     selector: '[svg]',
@@ -12,7 +14,7 @@ export class SvgDirective implements OnInit{
     @Input() svgHeight: string;
     @Input() svgPath: string;
      parser = new DOMParser();
-    private static cache = new Map<string, string>();
+    private static cache = new Map<string, Observable<string>>();
 
   constructor(
       private el: ElementRef,
@@ -21,33 +23,41 @@ export class SvgDirective implements OnInit{
 
   }
 
-    async ngOnInit(): Promise<void> {
+    ngOnInit() {
         if (this.svg && this.svg.trim().substring(0, 4) === "<svg" && this.svg.trim().substring(this.svg.trim().length - 6) === "</svg>"){
             this.createSvg(this.svg);
         }
         if(this.svgPath){
-            await this.loadSvgFromPath();
+            this.loadSvgFromPath();
         }
     }
-    private async loadSvgFromPath() {
 
-        let svgText: string;
+    private loadSvgFromPath() {
+        let svg$: Observable<string>;
 
         if (SvgDirective.cache.has(this.svgPath)) {
-            svgText = SvgDirective.cache.get(this.svgPath)!;
+            svg$ = SvgDirective.cache.get(this.svgPath)!;
         } else {
-            svgText = await this.$http
+            svg$ = this.$http
                 .get(this.svgPath, { responseType: 'text' })
-                .toPromise();
-            if (svgText && _.has(svgText, 'body') && _.has(svgText, 'status') && svgText["status"] === 200) {
-                svgText = svgText["body"];
-            }
-            SvgDirective.cache.set(this.svgPath, svgText);
+                .pipe(
+                    shareReplay({ bufferSize: 1, refCount: false }),
+                    map(svgText=>{
+                        if (svgText && _.has(svgText, 'body') && _.has(svgText, 'status') && svgText["status"] === 200) {
+                           return svgText["body"];
+                        }
+                        return svgText;
+                    })
+                );
+
+            SvgDirective.cache.set(this.svgPath, svg$);
         }
 
-        if (this.isValidSvg(svgText)) {
-            this.createSvg(svgText);
-        }
+        svg$.subscribe(svgText => {
+            if (this.isValidSvg(svgText)) {
+                this.createSvg(svgText);
+            }
+        });
     }
     private isValidSvg(svg: string): boolean {
         const s = svg.trim();
@@ -62,6 +72,7 @@ export class SvgDirective implements OnInit{
       if(this.svgHeight){
           img.documentElement.setAttribute("height",this.svgHeight);
       }
+      this.el.nativeElement.innerHTML = '';
       this.el.nativeElement.appendChild(img.documentElement);
   }
 

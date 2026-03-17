@@ -1081,6 +1081,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if(id.action === "verify_storage"){
                 this.storageCommitmen(id.level, model);
             }
+            if(id.action === "study_restore" || id.action === "series_restore"){
+                this.restorePurged(id.level, model);
+            }
             if(id.action === "export"){
                 if(this.internal){
                     if(id.level === "study"){
@@ -6845,7 +6848,51 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.httpErrorHandler.handleError(err);
         });
     };
-
+    restorePurged(level:DicomLevel,model){
+        if(level === 'study' || level === 'series'){
+            if(level === 'study'){}
+            this.confirm({
+                content: $localize `:@@restoring_purged_instance_records:Restoring purged instance records of Study`,
+                doNotSave:true,
+                form_schema:[
+                    [
+                        [
+                            {
+                                tag:"label",
+                                text:$localize `:@@purge_instance_records_again:Purge Instance Records again`
+                            },
+                            {
+                                tag:"checkbox",
+                                filterKey:"purge",
+                                description:$localize `:@@if_checked_purge_again_info:If checked, Instance Records will be purged again according configured Purge Instance Records Delay`
+                            }
+                        ]
+                    ]
+                ],
+                result: {
+                    schema_model: {}
+                },
+                saveButton: $localize `:@@RESTORE:RESTORE`
+            }).subscribe(ok=>{
+                if(ok){
+                    this.service.restorePurged(level,model, this.studyWebService.selectedWebService, ok.schema_model).subscribe(res=>{
+                        this.appService.showMsg($localize `:@@restore_purged_instance_records_successfully:Restore purged instance records successfully!`);
+                    }, err=>{
+                        console.error(err);
+                        if(err.status === 409){
+                            this.appService.showError($localize `:@@instance_records_of_none_of_the_series_of_the_study_are_purged:Instance records of none of the Series of the Study are purged!`);
+                        }else if(err.status === 404){
+                            this.appService.showError($localize `:@@no_such_archive_at_title_or_study:No such Archive AE Title or Study!`);
+                        }else if(err.status === 500){
+                            this.appService.showError($localize `:@@internal_server_error:Internal Server Error!`);
+                        }else{
+                            this.httpErrorHandler.handleError(err);
+                        }
+                    });
+                }
+            })
+        }
+    }
     initRjNotes(retries) {
         this.service.getRejectNotes()
             .subscribe(res => {

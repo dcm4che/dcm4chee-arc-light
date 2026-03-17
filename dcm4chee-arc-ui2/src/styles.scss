@@ -4958,6 +4958,12 @@ dicom-list{
           background: #161d23;
           color: white;
         }
+        svg{
+          fill:#333333;
+          &:hover{
+            fill:white;
+          }
+        }
       }
     }
   }
