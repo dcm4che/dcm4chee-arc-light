@@ -619,6 +619,8 @@ public class QueryBuilder {
             if (queryParam.isOnlyWithStudies())
                 predicates.add(onlyWithStudiesPredicate(criteria, patient, queryParam));
         }
+        longPredicate(predicates, patient.get(Patient_.pk),
+                keys.getString(PrivateTag.PrivateCreator, PrivateTag.LogicalPatientID));
         personName(predicates, criteria, patient, Patient_.patientName,
                 keys.getString(Tag.PatientName, "*"), queryParam);
         anyOf(predicates, patient.get(Patient_.patientSex),
@@ -1392,6 +1394,14 @@ public class QueryBuilder {
         if (!isUniversalMatching(value))
             try {
                 predicates.add(cb.equal(path, Integer.parseInt(value)));
+            } catch (NumberFormatException e) {
+            }
+    }
+
+    private void longPredicate(List<Predicate> predicates, Expression<Long> path, String value) {
+        if (!isUniversalMatching(value))
+            try {
+                predicates.add(cb.equal(path, Long.parseLong(value)));
             } catch (NumberFormatException e) {
             }
     }
