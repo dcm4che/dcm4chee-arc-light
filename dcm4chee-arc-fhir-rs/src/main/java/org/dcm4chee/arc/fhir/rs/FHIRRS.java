@@ -67,6 +67,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.OffsetDateTime;
@@ -178,23 +179,23 @@ public class FHIRRS {
         }
     }
 
-    private String writeJSON(OffsetDateTime now, long count, Query query) throws Exception {
-        StringWriter sw = new StringWriter();
-        try (JsonGenerator gen = Json.createGenerator(sw)) {
+    private byte[] writeJSON(OffsetDateTime now, long count, Query query) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (JsonGenerator gen = Json.createGenerator(baos)) {
             FHIRBuilder.JSON fhirJson = new FHIRBuilder.JSON(request, arcdev, gen);
             fhirJson.writePatientBundle(now, count, query);
         }
-        return sw.toString();
+        return baos.toByteArray();
     }
 
-    private String writeXML(OffsetDateTime now, long count, Query query) throws Exception {
-        StringWriter sw = new StringWriter();
+    private byte[] writeXML(OffsetDateTime now, long count, Query query) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
-        XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(sw);
+        XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(baos, "UTF-8");
         FHIRBuilder.XML fhirXml = new FHIRBuilder.XML(request, arcdev, writer);
         fhirXml.writePatientBundle(now, count, query);
         writer.close();
-        return sw.toString();
+        return baos.toByteArray();
     }
 
     private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
