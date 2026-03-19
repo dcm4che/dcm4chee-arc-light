@@ -4301,4 +4301,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         LocalNamespaceEntityID,
         UniversalEntityID
     }
+
+    static <T> Stream<T> concatCopyStream(Collection<T> a1, Collection<T> a2, T[] a) {
+        return a1.isEmpty()
+                ? (a2.isEmpty()
+                ? Stream.empty()
+                : Stream.of(a2.toArray(a)))
+                : (a2.isEmpty()
+                ? Stream.of(a1.toArray(a))
+                : Stream.concat(Stream.of(a1.toArray(a)), Stream.of(a2.toArray(a))));
+    }
 }

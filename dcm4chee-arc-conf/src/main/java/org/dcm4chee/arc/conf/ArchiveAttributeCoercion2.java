@@ -56,6 +56,7 @@ import java.util.Map;
  */
 public class ArchiveAttributeCoercion2 {
     public enum OnFailure { RETHROW, CONTINUE, SUFFICIENT }
+    public static final ArchiveAttributeCoercion2[] EMPTY = {};
     public static final String NULLIFY_PIXEL_DATA = "nullify-pixel-data";
     public static final String RETRIEVE_AS_RECEIVED = "retrieve-as-received";
     private String commonName;

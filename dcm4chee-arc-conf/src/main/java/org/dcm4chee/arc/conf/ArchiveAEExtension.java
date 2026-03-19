@@ -2277,36 +2277,52 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public Stream<ExportRule> exportRules() {
-        return Stream.concat(exportRules.stream(), getArchiveDeviceExtension().getExportRules().stream());
+        return ArchiveDeviceExtension.concatCopyStream(exportRules,
+                getArchiveDeviceExtension().getExportRules(),
+                ExportRule.EMPTY);
     }
 
     public Stream<MPPSForwardRule> mppsForwardRule() {
-        return Stream.concat(mppsForwardRule.stream(), getArchiveDeviceExtension().getMPPSForwardRules().stream());
+        return ArchiveDeviceExtension.concatCopyStream(mppsForwardRule,
+                getArchiveDeviceExtension().getMPPSForwardRules(),
+                MPPSForwardRule.EMPTY);
     }
 
     public Stream<UPSOnStore> upsOnStoreStream() {
-        return Stream.concat(upsOnStoreList.stream(), getArchiveDeviceExtension().listUPSOnStore().stream());
+        return ArchiveDeviceExtension.concatCopyStream(upsOnStoreList,
+                getArchiveDeviceExtension().listUPSOnStore(),
+                UPSOnStore.EMPTY);
     }
 
     public Stream<UPSOnUPSCompleted> upsOnUPSCompletedStream() {
-        return Stream.concat(upsOnUPSCompletedList.stream(), getArchiveDeviceExtension().listUPSOnUPSCompleted().stream());
+        return ArchiveDeviceExtension.concatCopyStream(upsOnUPSCompletedList,
+                getArchiveDeviceExtension().listUPSOnUPSCompleted(),
+                UPSOnUPSCompleted.EMPTY);
     }
 
     public Stream<ExportPriorsRule> prefetchRules() {
-        return Stream.concat(exportPriorsRules.stream(), getArchiveDeviceExtension().getExportPriorsRules().stream());
+        return ArchiveDeviceExtension.concatCopyStream(exportPriorsRules,
+                getArchiveDeviceExtension().getExportPriorsRules(),
+                ExportPriorsRule.EMPTY);
     }
 
     public Stream<RSForwardRule> rsForwardRules() {
-        return Stream.concat(rsForwardRules.stream(), getArchiveDeviceExtension().getRSForwardRules().stream());
+        return ArchiveDeviceExtension.concatCopyStream(rsForwardRules,
+                getArchiveDeviceExtension().getRSForwardRules(),
+                RSForwardRule.EMPTY);
     }
 
     public Stream<ArchiveCompressionRule> compressionRules() {
-        return Stream.concat(compressionRules.stream(), getArchiveDeviceExtension().getCompressionRules().stream())
+        return ArchiveDeviceExtension.concatCopyStream(compressionRules,
+                        getArchiveDeviceExtension().getCompressionRules(),
+                        ArchiveCompressionRule.EMPTY)
                 .sorted(Comparator.comparingInt(ArchiveCompressionRule::getPriority).reversed());
     }
 
     public Stream<ArchiveAttributeCoercion> attributeCoercions() {
-        return Stream.concat(attributeCoercions.stream(), getArchiveDeviceExtension().getAttributeCoercions().stream())
+        return ArchiveDeviceExtension.concatCopyStream(attributeCoercions,
+                        getArchiveDeviceExtension().getAttributeCoercions(),
+                        ArchiveAttributeCoercion.EMPTY)
                 .sorted(Comparator.comparingInt(ArchiveAttributeCoercion::getPriority).reversed());
     }
 
@@ -2320,14 +2336,16 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public Stream<ArchiveAttributeCoercion2> attributeCoercions2() {
-        return Stream.concat(attributeCoercions2.stream(),
-                        getArchiveDeviceExtension().getAttributeCoercions2().stream())
+        return ArchiveDeviceExtension.concatCopyStream(attributeCoercions2,
+                        getArchiveDeviceExtension().getAttributeCoercions2(),
+                        ArchiveAttributeCoercion2.EMPTY)
                 .sorted(Comparator.comparingInt(ArchiveAttributeCoercion2::getPriority).reversed());
     }
 
     public Stream<StudyRetentionPolicy> studyRetentionPolicies() {
-        return Stream.concat(studyRetentionPolicies.stream(),
-                        getArchiveDeviceExtension().getStudyRetentionPolicies().stream())
+        return ArchiveDeviceExtension.concatCopyStream(studyRetentionPolicies,
+                        getArchiveDeviceExtension().getStudyRetentionPolicies(),
+                        StudyRetentionPolicy.EMPTY)
                 .sorted(Comparator.comparingInt(StudyRetentionPolicy::getPriority).reversed());
     }
 
@@ -2340,7 +2358,9 @@ public class ArchiveAEExtension extends AEExtension {
     }
 
     public Stream<StoreAccessControlIDRule> storeAccessControlIDRules(Entity entity) {
-        return Stream.concat(storeAccessControlIDRules.stream(), getArchiveDeviceExtension().getStoreAccessControlIDRules().stream())
+        return ArchiveDeviceExtension.concatCopyStream(storeAccessControlIDRules,
+                        getArchiveDeviceExtension().getStoreAccessControlIDRules(),
+                        StoreAccessControlIDRule.EMPTY)
                 .filter(rule -> rule.getEntity().equals(entity))
                 .sorted(Comparator.comparingInt(StoreAccessControlIDRule::getPriority).reversed());
     }

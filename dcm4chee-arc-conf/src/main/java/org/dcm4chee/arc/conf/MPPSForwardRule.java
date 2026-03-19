@@ -50,6 +50,7 @@ import java.util.Calendar;
  * @since May 2021
  */
 public class MPPSForwardRule {
+    public static final MPPSForwardRule[] EMPTY = {};
     private String commonName;
     private ScheduleExpression[] schedules = {};
     private Conditions conditions = new Conditions();
