@@ -110,7 +110,7 @@ public class FHIRBuilder {
             }
         }
 
-        private void writePatient(Attributes match, String id)
+        public void writePatient(Attributes match, String id)
                 throws XMLStreamException {
             writer.writeStartElement("Patient");
             writer.writeDefaultNamespace("http://hl7.org/fhir");
@@ -122,9 +122,6 @@ public class FHIRBuilder {
             writeEmptyElementNotNull("gender", "value",
                     toGender(match.getString(Tag.PatientSex)));
             writer.writeEndElement();
-            writer.writeEndElement();
-            writer.writeStartElement("subject");
-            writeEmptyElementNotNull("reference", "value", "#patient1");
         }
 
         private void writePatientIDs(Set<IDWithIssuer> idWithIssuers)
@@ -216,7 +213,7 @@ public class FHIRBuilder {
             gen.writeEnd();
         }
 
-        private void writePatient(Attributes match, String id) {
+        public void writePatient(Attributes match, String id) {
             gen.write("resourceType", "Patient");
             gen.write("id", id);
             writePatientIDs(preferredPatientIDs(match));

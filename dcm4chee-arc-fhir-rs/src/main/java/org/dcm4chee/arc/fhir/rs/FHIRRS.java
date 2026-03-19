@@ -108,6 +108,52 @@ public class FHIRRS {
     private String aet;
 
     @GET
+    @Path("/Patient/{id}")
+    public Response getPatient(@PathParam("id") String id) {
+        logRequest(null);
+        arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
+        ArchiveAEExtension arcAE = getArchiveAE();
+        if (arcAE == null)
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("No such Application Entity: " + aet)
+                    .type(MediaType.TEXT_PLAIN_TYPE)
+                    .build();
+        MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
+        MediaType mediaType = selectMediaType(params);
+        if (mediaType == null) {
+            return Response.notAcceptable(
+                            Variant.mediaTypes(
+                                            MediaTypes.APPLICATION_FHIR_JSON_TYPE,
+                                            MediaTypes.APPLICATION_FHIR_XML_TYPE)
+                                    .build())
+                    .build();
+        }
+        try {
+            Long.parseUnsignedLong(id);
+            QueryContext ctx = newQueryContext("fhirReadPatient", id, arcAE);
+            try (Query query = service.createPatientQuery(ctx)) {
+                LOG.debug("Query for Patient/" + id);
+                query.executeQuery(1);
+                if (query.hasMoreMatches()) {
+                    return Response.ok(
+                                    isJSON(mediaType)
+                                            ? writeJSON(query.nextMatch(), id)
+                                            : writeXML(query.nextMatch(), id),
+                                    mediaType)
+                            .build();
+                }
+            } catch (Exception e) {
+                return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
+            }
+        } catch (NumberFormatException e) {
+        }
+        return Response.status(Response.Status.NOT_FOUND)
+                .entity("Resource Patient/" + id + " not found")
+                .type(MediaType.TEXT_PLAIN_TYPE)
+                .build();
+    }
+
+    @GET
     @NoCache
     @Path("/Patient")
     public Response searchForPatients() {
@@ -157,9 +203,10 @@ public class FHIRRS {
                                     .build())
                     .build();
         }
-        QueryContext ctx = newQueryContext("searchForPatients" + request.getMethod(), params, arcAE);
+        QueryContext ctx = newQueryContext("fhirSearchPatients" + request.getMethod(), params, arcAE);
         OffsetDateTime now = OffsetDateTime.now();
         try (Query query = service.createPatientQuery(ctx)) {
+            LOG.debug("Count matching Patients");
             long count = query.fetchCount();
             int fetchSize = arcAE.getArchiveDeviceExtension().getQueryFetchSize();
             LOG.debug("Query for matching Patients");
@@ -168,15 +215,24 @@ public class FHIRRS {
             } else {
                 query.executeQuery(fetchSize);
             }
-            Response.ResponseBuilder builder = Response.ok().type(mediaType);
-            builder.header("Cache-Control", "no-cache");
-            builder.entity(isJSON(mediaType)
-                    ? writeJSON(now, count, query)
-                    : writeXML(now, count, query));
-            return builder.build();
+            return Response.ok(
+                            isJSON(mediaType)
+                                    ? writeJSON(now, count, query)
+                                    : writeXML(now, count, query), mediaType)
+                    .build();
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private byte[] writeJSON(Attributes attrs, String id) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (JsonGenerator gen = Json.createGenerator(baos)) {
+            gen.writeStartObject();
+            new FHIRBuilder.JSON(request, arcdev, gen).writePatient(attrs, id);
+            gen.writeEnd();
+        }
+        return baos.toByteArray();
     }
 
     private byte[] writeJSON(OffsetDateTime now, long count, Query query) throws Exception {
@@ -185,6 +241,17 @@ public class FHIRRS {
             FHIRBuilder.JSON fhirJson = new FHIRBuilder.JSON(request, arcdev, gen);
             fhirJson.writePatientBundle(now, count, query);
         }
+        return baos.toByteArray();
+    }
+
+    private byte[] writeXML(Attributes attrs, String id) throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
+        XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(baos, "UTF-8");
+        writer.writeStartDocument("UTF-8", "1.0");
+        new FHIRBuilder.XML(request, arcdev, writer).writePatient(attrs, id);
+        writer.writeEndDocument();
+        writer.close();
         return baos.toByteArray();
     }
 
@@ -261,6 +328,18 @@ public class FHIRRS {
         ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.PATIENT);
         setPatientIDs(ctx, params.getFirst("identifier"));
         ctx.setQueryKeys(toKeys(params));
+        ctx.setReturnPrivate(true);
+        return ctx;
+    }
+
+    private QueryContext newQueryContext(String method, String id, ArchiveAEExtension arcae) {
+        org.dcm4chee.arc.query.util.QueryParam queryParam = new org.dcm4chee.arc.query.util.QueryParam(arcae);
+        QueryContext ctx = service.newQueryContextQIDO(
+                HttpServletRequestInfo.valueOf(request), method, aet, arcae.getApplicationEntity(), queryParam);
+        ctx.setQueryRetrieveLevel(QueryRetrieveLevel2.PATIENT);
+        Attributes keys = new Attributes(1);
+        setLogicalPatientID(keys, id);
+        ctx.setQueryKeys(keys);
         ctx.setReturnPrivate(true);
         return ctx;
     }
