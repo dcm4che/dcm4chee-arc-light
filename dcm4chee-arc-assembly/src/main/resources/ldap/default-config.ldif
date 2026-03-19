@@ -2874,7 +2874,10 @@ dcmAttributeUpdatePolicy: SUPPLEMENT
 dn: dcmEntity=Series,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmTag: 00080005
 dcmTag: 00080021
+dcmTag: 00080022
+dcmTag: 0008002A
 dcmTag: 00080031
+dcmTag: 00080032
 dcmTag: 00080060
 dcmTag: 00080070
 dcmTag: 00080080
@@ -3808,9 +3811,12 @@ dcmTag: 00080016
 dcmTag: 00080018
 dcmTag: 00080020
 dcmTag: 00080021
+dcmTag: 00080022
 dcmTag: 00080023
+dcmTag: 0008002A
 dcmTag: 00080030
 dcmTag: 00080031
+dcmTag: 00080032
 dcmTag: 00080033
 dcmTag: 00080050
 dcmTag: 00080051
