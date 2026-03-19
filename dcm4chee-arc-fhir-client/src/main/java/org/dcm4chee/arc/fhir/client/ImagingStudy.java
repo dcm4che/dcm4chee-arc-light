@@ -43,6 +43,7 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.StreamingOutput;
 import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.AnatomicRegion;
+import org.dcm4che3.dcmr.AcquisitionModality;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.StringUtils;
@@ -186,19 +187,6 @@ public enum ImagingStudy {
                 writer.writeEndElement();
             }
         }
-
-        private void writeLaterality(XMLStreamWriter writer, String laterality) throws XMLStreamException {
-            boolean l;
-            if (laterality != null && ((l = laterality.equals("L")) || laterality.equals("R"))) {
-                writer.writeStartElement("laterality");
-                if (l)
-                    writeCoding(writer, "http://snomed.info/sct", "7771000", "Left");
-                else {
-                    writeCoding(writer, "http://snomed.info/sct", "24028007", "Right");
-                }
-                writer.writeEndElement();
-            }
-        }
     },
 
     LTNHR_V1_XML {
@@ -210,7 +198,6 @@ public enum ImagingStudy {
 
         private void writeXML(
                 Device device, Attributes kosAttrs, Map<String, Attributes> seriesAttrsByIUID, OutputStream out) {
-            SimpleDateFormat ISO_DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
             ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
             Sequence refSeriesSeq = kosAttrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence)
                     .getSequence(Tag.ReferencedSeriesSequence);
@@ -228,17 +215,17 @@ public enum ImagingStudy {
                 for (String modality : listModalities(seriesAttrsByIUID))
                     writeModality(writer, modality);
                 writer.writeEndElement();
-                writeEmptyElementNotNull(writer, "started", "value", kosAttrs.getDate(Tag.StudyDateAndTime), ISO_DATE_TIME);
+                writeStarted(writer, kosAttrs.getDate(Tag.StudyDateAndTime), null);
+                writeAccessionNo(writer, kosAttrs);
                 writePatient(writer, "patient1", kosAttrs, arcdev);
                 writeStudyIUID(writer, kosAttrs);
-                writeExtension(writer, "http://esveikata.lt/Profile/ltnhr-imagingstudy#achi-code",
-                        "valueString", kosAttrs.getString(Tag.AccessionNumber));
                 int practitionerNo = 0;
                 writeReferringPhysician(writer, kosAttrs, practitionerNo++);
                 writeEmptyElement(writer, "numberOfSeries", "value", refSeriesSeq.size());
                 writeEmptyElement(writer, "numberOfInstances", "value", countInstances(refSeriesSeq));
                 writeEmptyElementNotNull(writer, "description", "value", kosAttrs.getString(Tag.StudyDescription));
-                writeProcedureCode(writer, kosAttrs);
+                writeCode(writer, kosAttrs, Tag.ProcedureCodeSequence, "procedure");
+                writeCode(writer, kosAttrs, Tag.ReasonForPerformedProcedureCodeSequence, "reason");
                 for (Attributes refSeries : refSeriesSeq) {
                     String seriesIUID = refSeries.getString(Tag.SeriesInstanceUID);
                     Attributes seriesAttrs = seriesAttrsByIUID.get(seriesIUID);
@@ -255,7 +242,8 @@ public enum ImagingStudy {
                     writeEmptyElement(writer, "numberOfInstances", "value", refSOPSeq.size());
                     writePerformingPhysician(writer, seriesAttrs, practitionerNo++);
                     writeBodyPart(writer, seriesAttrs);
-                    writeEmptyElementNotNull(writer, "started", "value", seriesAttrs.getDate(Tag.SeriesDateAndTime), ISO_DATE_TIME);
+                    writeLaterality(writer, seriesAttrs.getString(Tag.Laterality));
+                    writeStarted(writer, seriesAttrs.getDate(Tag.AcquisitionDateTime), seriesAttrs.getDate(Tag.SeriesDateAndTime));
                     for (Attributes refSOP : refSOPSeq) {
                         writer.writeStartElement("instance");
                         writeEmptyElement(writer,"uid", "value",
@@ -264,8 +252,10 @@ public enum ImagingStudy {
                         writeEmptyElement(writer, "system", "value", "urn:ietf:rfc:3986");
                         writeEmptyElement(writer, "code", "value", "urn:oid:" + refSOP.getString(Tag.ReferencedSOPClassUID));
                         writer.writeEndElement();
-                        writeEmptyElement(writer,"number", "value",
-                                refSOP.getInt(Tag.InstanceNumber, 0));
+                        writeEmptyElement(writer,"number", "value", refSOP.getInt(Tag.InstanceNumber, 0));
+                        Attributes conceptNameCode = refSOP.getNestedDataset(Tag.ConceptNameCodeSequence);
+                        if (conceptNameCode != null)
+                            writeEmptyElement(writer,"title", "value", conceptNameCode.getString(Tag.CodeValue));
                         writer.writeEndElement();
                     }
                     writer.writeEndElement();
@@ -361,12 +351,42 @@ public enum ImagingStudy {
             writer.writeEndElement();
         }
 
-        private static void writeProcedureCode(XMLStreamWriter writer, Attributes kosAttrs) throws XMLStreamException {
-            Attributes code = kosAttrs.getNestedDataset(Tag.ProcedureCodeSequence);
+        private static void writeAccessionNo(XMLStreamWriter writer, Attributes kosAttrs) throws XMLStreamException {
+            String accessionNo = kosAttrs.getString(Tag.AccessionNumber);
+            if (accessionNo == null)
+                return;
+
+            Attributes accessionNoIssuer = kosAttrs.getNestedDataset(Tag.IssuerOfAccessionNumberSequence);
+            writer.writeStartElement("basedOn");
+            writeEmptyElement(writer, "type", "value", "ServiceRequest");
+            writer.writeStartElement("identifier");
+            writer.writeStartElement("type");
+            writer.writeStartElement("coding");
+            writeEmptyElement(writer, "system", "value", "http://terminology.hl7.org/CodeSystem/v2-0203");
+            writeEmptyElement(writer, "code", "value", "ASCN");
+            writer.writeEndElement();
+            writer.writeEndElement();
+            writeEmptyElement(writer, "value", "value", accessionNo);
+            if (accessionNoIssuer != null) {
+                String accessionNoIssuerLocal = accessionNoIssuer.getString(Tag.LocalNamespaceEntityID);
+                String accessionNoIssuerUniversal = accessionNoIssuer.getString(Tag.UniversalEntityID);
+                writer.writeStartElement("assigner");
+                if (accessionNoIssuerLocal != null)
+                    writeEmptyElement(writer, "display", "value", accessionNoIssuerLocal);
+                if (accessionNoIssuerUniversal != null)
+                    writeEmptyElement(writer, "system", "value", "urn:oid:" + accessionNoIssuer.getString(Tag.UniversalEntityID));
+                writer.writeEndElement();
+            }
+            writer.writeEndElement();
+            writer.writeEndElement();
+        }
+
+        private static void writeCode(XMLStreamWriter writer, Attributes kosAttrs, int tag, String startElementName) throws XMLStreamException {
+            Attributes code = kosAttrs.getNestedDataset(tag);
             if (code == null)
                 return;
 
-            writer.writeStartElement("procedure");
+            writer.writeStartElement(startElementName);
             writer.writeStartElement("concept");
             writer.writeStartElement("coding");
             writeEmptyElement(writer, "system", "value",
@@ -383,6 +403,9 @@ public enum ImagingStudy {
             writer.writeStartElement("coding");
             writeEmptyElement(writer, "system", "value", "http://dicom.nema.org/resources/ontology/DCM");
             writeEmptyElement(writer, "code", "value", modality);
+            Code modalityCode = AcquisitionModality.codeOf(modality);
+            if (modalityCode != null)
+                writeEmptyElement(writer, "display", "value", modalityCode.getCodeMeaning());
             writer.writeEndElement();
         }
 
@@ -397,6 +420,7 @@ public enum ImagingStudy {
                 writeEmptyElement(writer, "code", "value", bodyPartCode.getCodeValue());
             writeEmptyElement(writer, "display", "value", bodyPartExamined);
             writer.writeEndElement();
+            writeEmptyElement(writer, "text", "value", bodyPartExamined);
             writer.writeEndElement();
             writer.writeEndElement();
         }
@@ -645,6 +669,27 @@ public enum ImagingStudy {
         writer.writeEndElement();
     }
 
+    private static void writeStarted(XMLStreamWriter writer, Date val, Date defVal) throws XMLStreamException {
+        if (val == null && defVal == null)
+            return;
+
+        SimpleDateFormat ISO_DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+        writeEmptyElementNotNull(writer, "started", "value", val == null ? defVal : val, ISO_DATE_TIME);
+    }
+
+    private static void writeLaterality(XMLStreamWriter writer, String laterality) throws XMLStreamException {
+        boolean l;
+        if (laterality != null && ((l = laterality.equals("L")) || laterality.equals("R"))) {
+            writer.writeStartElement("laterality");
+            if (l)
+                writeCoding(writer, "http://snomed.info/sct", "7771000", "Unilateral Left");
+            else {
+                writeCoding(writer, "http://snomed.info/sct", "24028007", "Right");
+            }
+            writer.writeEndElement();
+        }
+    }
+
     private static void writePatient(XMLStreamWriter writer, String id, Attributes kosAttrs,
                                      ArchiveDeviceExtension arcdev)
             throws XMLStreamException {
@@ -672,6 +717,7 @@ public enum ImagingStudy {
         writer.writeAttribute("url", "http://esveikata.lt/Profile/ltnhr-imagingstudy#organization");
         writer.writeStartElement("valueResource");
         writeEmptyElement(writer, "reference", "value", "#" + id);
+        writer.writeEndElement();
         writer.writeEndElement();
 
         writer.writeStartElement("contained");
