@@ -229,7 +229,7 @@ public class FHIRRS {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (JsonGenerator gen = Json.createGenerator(baos)) {
             gen.writeStartObject();
-            new FHIRBuilder.JSON(request, arcdev, gen).writePatient(attrs, id);
+            new FHIRBuilder.JSON(arcdev, gen).writePatient(id, attrs);
             gen.writeEnd();
         }
         return baos.toByteArray();
@@ -238,8 +238,7 @@ public class FHIRRS {
     private byte[] writeJSON(OffsetDateTime now, long count, Query query) throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (JsonGenerator gen = Json.createGenerator(baos)) {
-            FHIRBuilder.JSON fhirJson = new FHIRBuilder.JSON(request, arcdev, gen);
-            fhirJson.writePatientBundle(now, count, query);
+            new FHIRBuilder.JSON(arcdev, gen).writePatientBundle(request, now, count, query);
         }
         return baos.toByteArray();
     }
@@ -249,7 +248,7 @@ public class FHIRRS {
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
         XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(baos, "UTF-8");
         writer.writeStartDocument("UTF-8", "1.0");
-        new FHIRBuilder.XML(request, arcdev, writer).writePatient(attrs, id);
+        new FHIRBuilder.XML(arcdev, writer).writePatient(id, attrs, "http://hl7.org/fhir");
         writer.writeEndDocument();
         writer.close();
         return baos.toByteArray();
@@ -259,8 +258,7 @@ public class FHIRRS {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
         XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(baos, "UTF-8");
-        FHIRBuilder.XML fhirXml = new FHIRBuilder.XML(request, arcdev, writer);
-        fhirXml.writePatientBundle(now, count, query);
+        new FHIRBuilder.XML(arcdev, writer).writePatientBundle(request, now, count, query);
         writer.close();
         return baos.toByteArray();
     }

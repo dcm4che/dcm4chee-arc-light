@@ -40,7 +40,6 @@ package org.dcm4chee.arc.fhir.client;
 import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.StreamingOutput;
 import org.dcm4che3.data.*;
 import org.dcm4che3.dcmr.AnatomicRegion;
 import org.dcm4che3.dcmr.AcquisitionModality;
@@ -50,12 +49,13 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.fhir.util.FHIRBuilder;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -70,190 +70,101 @@ import java.util.stream.Stream;
 public enum ImagingStudy {
     FHIR_R5_XML {
         @Override
-        public Entity<StreamingOutput> create(Device device, Attributes kosAttrs, Map<String, Attributes> seriesAttrs) {
-            return Entity.entity(
-                    out -> writeXML(device, kosAttrs, seriesAttrs, out), MediaTypes.APPLICATION_FHIR_XML_TYPE);
-        }
-
-        private void writeXML(
-                Device device, Attributes kosAttrs, Map<String, Attributes> seriesAttrsByIUID, OutputStream out) {
-            SimpleDateFormat ISO_DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-            ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            Sequence refSeriesSeq = kosAttrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence)
-                    .getSequence(Tag.ReferencedSeriesSequence);
-            try {
-                XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
-                XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(out, "UTF-8");
-                writer.writeStartDocument("UTF-8", "1.0");
-                writer.writeStartElement("ImagingStudy");
-                writer.writeDefaultNamespace("http://hl7.org/fhir");
-                writer.writeStartElement("contained");
-                writePatient(writer, "p1", kosAttrs, arcdev);
-                writer.writeEndElement();
-                writeEmptyElement(writer, "status", "value", "available");
-                writer.writeStartElement("identifier");
-                writeEmptyElement(writer, "system", "value", "urn:dicom:uid");
-                writeEmptyElement(writer, "value", "value",
-                        "urn:oid:" + kosAttrs.getString(Tag.StudyInstanceUID));
-                writer.writeEndElement();
-                writer.writeStartElement("subject");
-                writeEmptyElement(writer, "reference", "value", "#p1");
-                writer.writeEndElement();
-                writeAccessionNumber(writer,
-                        IDWithIssuer.valueOf(kosAttrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence), arcdev);
-                writeEmptyElementNotNull(writer, "started", "value",
-                        kosAttrs.getDate(Tag.StudyDateAndTime), ISO_DATE_TIME);
-                writeEmptyElement(writer, "numberOfSeries", "value", refSeriesSeq.size());
-                writeEmptyElement(writer, "numberOfInstances", "value", countInstances(refSeriesSeq));
-                for (String modality : listModalities(seriesAttrsByIUID)) {
-                    writeModality(writer, modality);
-                }
-                writeEmptyElementNotNull(writer, "description", "value",
-                        kosAttrs.getString(Tag.StudyDescription));
-                for (Attributes refSeries : refSeriesSeq) {
-                    String seriesIUID = refSeries.getString(Tag.SeriesInstanceUID);
-                    Attributes seriesAttrs = seriesAttrsByIUID.get(seriesIUID);
-                    Sequence refSOPSeq = refSeries.getSequence(Tag.ReferencedSOPSequence);
-                    writer.writeStartElement("series");
-                    writeEmptyElement(writer,"uid", "value", seriesIUID);
-                    writeEmptyElement(writer,"number", "value",
-                            seriesAttrs.getInt(Tag.SeriesNumber, 0));
-                    writeModalityNotNull(writer, seriesAttrs.getString(Tag.Modality));
-                    writeEmptyElementNotNull(writer, "description", "value",
-                            seriesAttrs.getString(Tag.SeriesDescription));
-                    writeEmptyElement(writer, "numberOfInstances", "value", refSOPSeq.size());
-                    writeBodyPartExamined(writer, seriesAttrs.getString(Tag.BodyPartExamined));
-                    writeLaterality(writer, seriesAttrs.getString(Tag.Laterality));
-                    writeEmptyElementNotNull(writer, "started", "value",
-                            seriesAttrs.getDate(Tag.SeriesDateAndTime), ISO_DATE_TIME);
-                    for (Attributes refSOP : refSOPSeq) {
-                        writer.writeStartElement("instance");
-                        writeEmptyElement(writer,"uid", "value",
-                                refSOP.getString(Tag.ReferencedSOPInstanceUID));
-                        writer.writeStartElement("sopClass");
-                        writeEmptyElement(writer, "system", "value", "urn:ietf:rfc:3986");
-                        writeEmptyElement(writer, "value", "value",
-                                "urn:oid:" + refSOP.getString(Tag.ReferencedSOPClassUID));
-                        writer.writeEndElement();
-                        writeEmptyElement(writer,"number", "value",
-                                refSOP.getInt(Tag.InstanceNumber, 0));
-                        writer.writeEndElement();
-                    }
-                    writer.writeEndElement();
-                }
-                writer.writeEndElement();
-                writer.writeEndDocument();
-                writer.close();
-            } catch (XMLStreamException e) {
-                LoggerFactory.getLogger(ImagingStudy.class).error("Failed to write XML", e);
-                throw new RuntimeException(e);
-            }
-        }
-
-        private void writeAccessionNumber(XMLStreamWriter writer, IDWithIssuer idWithIssuer, ArchiveDeviceExtension arcdev)
+        public Entity<byte[]> create(ArchiveDeviceExtension arcdev, List<Attributes> instances)
                 throws XMLStreamException {
-            if (idWithIssuer != null) {
-                writer.writeStartElement("basedOn");
-                writeEmptyElement(writer, "type", "value", "ServiceRequest");
-                writer.writeStartElement("identifier");
-                writer.writeStartElement("type");
-                writeCoding(writer, "http://terminology.hl7.org/CodeSystem/v2-0203", "ACSN", null);
-                writer.writeEndElement();
-                writeEmptyElementNotNull(writer, "system", "value",
-                        arcdev.fhirSystemOfAccessionNumber(idWithIssuer.getIssuer()));
-                writeEmptyElement(writer, "value", "value", idWithIssuer.getID());
-                writer.writeEndElement();
-                writer.writeEndElement();
-            }
+            return Entity.entity(writeXML(arcdev, instances), MediaTypes.APPLICATION_FHIR_XML_TYPE);
         }
 
-        private void writeModalityNotNull(XMLStreamWriter writer, String modality) throws XMLStreamException {
-            if (modality != null) writeModality(writer, modality);
-        }
-
-        private void writeModality(XMLStreamWriter writer, String modality) throws XMLStreamException {
-            writer.writeStartElement("modality");
-            writeCoding(writer, "http://dicom.nema.org/resources/ontology/DCM", modality, null);
-            writer.writeEndElement();
-        }
-
-        private void writeBodyPartExamined(XMLStreamWriter writer, String bodyPartExamined) throws XMLStreamException {
-            Code code = bodyPartExamined != null ? AnatomicRegion.codeOf(bodyPartExamined) : null;
-            if (code != null) {
-                writer.writeStartElement("bodySite");
-                writer.writeStartElement("concept");
-                writeCoding(writer, "http://snomed.info/sct", code.getCodeValue(), code.getCodeMeaning());
-                writer.writeEndElement();
-                writer.writeEndElement();
-            }
+       private byte[] writeXML(ArchiveDeviceExtension arcdev, List<Attributes> instances) throws XMLStreamException {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
+            XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(baos, "UTF-8");
+            writer.writeStartDocument("UTF-8", "1.0");
+            new FHIRBuilder.XML(arcdev, writer).writeImagingStudy(instances, false);
+            writer.writeEndDocument();
+            writer.close();
+            return baos.toByteArray();
         }
     },
 
     LTNHR_V1_XML {
         @Override
-        public Entity<StreamingOutput> create(Device device, Attributes kosAttrs, Map<String, Attributes> seriesAttrs) {
-            return Entity.entity(
-                    out -> writeXML(device, kosAttrs, seriesAttrs, out), MediaTypes.APPLICATION_FHIR_XML_TYPE);
+        public Entity<byte[]> create(ArchiveDeviceExtension arcdev, List<Attributes> instances) {
+            return Entity.entity(writeXML(arcdev, instances), MediaTypes.APPLICATION_FHIR_XML_TYPE);
         }
 
-        private void writeXML(
-                Device device, Attributes kosAttrs, Map<String, Attributes> seriesAttrsByIUID, OutputStream out) {
-            ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            Sequence refSeriesSeq = kosAttrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence)
-                    .getSequence(Tag.ReferencedSeriesSequence);
+/*
+        private byte[] writeXML(ArchiveDeviceExtension arcdev, List<Attributes> instances) throws XMLStreamException {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
+            XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(baos, "UTF-8");
+            writer.writeStartDocument("UTF-8", "1.0");
+            new FHIRBuilder.XML(arcdev, writer).writeImagingStudy(instances, true);
+            writer.writeEndDocument();
+            writer.close();
+            return baos.toByteArray();
+        }
+*/
+
+        private byte[] writeXML(ArchiveDeviceExtension arcdev, List<Attributes> instances) {
+            Attributes study = instances.get(0);
+            Collection<List<Attributes>> instancesBySeries = instances.stream()
+                    .collect(Collectors.groupingBy(attrs -> attrs.getString(Tag.SeriesInstanceUID)))
+                    .values();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try {
                 XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newFactory();
-                XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(out, "UTF-8");
+                XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(baos, "UTF-8");
                 writer.writeStartDocument("UTF-8", "1.0");
                 writer.writeStartElement("ImagingStudy");
                 writer.writeDefaultNamespace("http://hl7.org/fhir");
-                writeOrganization(writer, "Organization1", device, refSeriesSeq);
+                writeOrganization(writer, "Organization1", arcdev.getDevice(), study.getString(Tag.RetrieveAETitle));
                 writeExtension(writer, "http://esveikata.lt/Profile/ltnhr-imagingstudy#reported",
                         "valueBoolean", "false");
                 writeEmptyElementNotNull(writer, "status", "value", "available");
                 writer.writeStartElement("modality");
-                for (String modality : listModalities(seriesAttrsByIUID))
+                for (String modality : listModalities(instancesBySeries))
                     writeModality(writer, modality);
                 writer.writeEndElement();
-                writeStarted(writer, kosAttrs.getDate(Tag.StudyDateAndTime), null);
-                writeAccessionNo(writer, kosAttrs);
-                writePatient(writer, "patient1", kosAttrs, arcdev);
-                writeStudyIUID(writer, kosAttrs);
+                writeStarted(writer, study.getDate(Tag.StudyDateAndTime), null);
+                writeAccessionNo(writer, study);
+                writePatient(writer, "patient1", study, arcdev);
+                writeStudyIUID(writer, study);
                 int practitionerNo = 0;
-                writeReferringPhysician(writer, kosAttrs, practitionerNo++);
-                writeEmptyElement(writer, "numberOfSeries", "value", refSeriesSeq.size());
-                writeEmptyElement(writer, "numberOfInstances", "value", countInstances(refSeriesSeq));
-                writeEmptyElementNotNull(writer, "description", "value", kosAttrs.getString(Tag.StudyDescription));
-                writeCode(writer, kosAttrs, Tag.ProcedureCodeSequence, "procedure");
-                writeCode(writer, kosAttrs, Tag.ReasonForPerformedProcedureCodeSequence, "reason");
-                for (Attributes refSeries : refSeriesSeq) {
-                    String seriesIUID = refSeries.getString(Tag.SeriesInstanceUID);
-                    Attributes seriesAttrs = seriesAttrsByIUID.get(seriesIUID);
-                    Sequence refSOPSeq = refSeries.getSequence(Tag.ReferencedSOPSequence);
+                writeReferringPhysician(writer, study, practitionerNo++);
+                writeEmptyElement(writer, "numberOfSeries", "value", instancesBySeries.size());
+                writeEmptyElement(writer, "numberOfInstances", "value", instances.size());
+                writeEmptyElementNotNull(writer, "description", "value", study.getString(Tag.StudyDescription));
+                writeCode(writer, study, Tag.ProcedureCodeSequence, "procedure");
+                writeCode(writer, study, Tag.ReasonForPerformedProcedureCodeSequence, "reason");
+                for (List<Attributes> seriesOfInstances : instancesBySeries) {
+                    Attributes series = seriesOfInstances.get(0);
+                    String seriesIUID = series.getString(Tag.SeriesInstanceUID);
                     writer.writeStartElement("series");
                     writeEmptyElement(writer,"uid", "value", "urn:oid:" + seriesIUID);
                     writeEmptyElement(writer,"number", "value",
-                            seriesAttrs.getInt(Tag.SeriesNumber, 0));
+                            series.getInt(Tag.SeriesNumber, 0));
                     writer.writeStartElement("modality");
-                    writeModality(writer, seriesAttrs.getString(Tag.Modality));
+                    writeModality(writer, series.getString(Tag.Modality));
                     writer.writeEndElement();
                     writeEmptyElementNotNull(writer, "description", "value",
-                            seriesAttrs.getString(Tag.SeriesDescription));
-                    writeEmptyElement(writer, "numberOfInstances", "value", refSOPSeq.size());
-                    writePerformingPhysician(writer, seriesAttrs, practitionerNo++);
-                    writeBodyPart(writer, seriesAttrs);
-                    writeLaterality(writer, seriesAttrs.getString(Tag.Laterality));
-                    writeStarted(writer, seriesAttrs.getDate(Tag.AcquisitionDateTime), seriesAttrs.getDate(Tag.SeriesDateAndTime));
-                    for (Attributes refSOP : refSOPSeq) {
+                            series.getString(Tag.SeriesDescription));
+                    writeEmptyElement(writer, "numberOfInstances", "value", seriesOfInstances.size());
+                    writePerformingPhysician(writer, series, practitionerNo++);
+                    writeBodyPart(writer, series);
+                    writeLaterality(writer, series.getString(Tag.Laterality));
+                    writeStarted(writer, series.getDate(Tag.AcquisitionDateTime), series.getDate(Tag.SeriesDateAndTime));
+                    for (Attributes inst : seriesOfInstances) {
                         writer.writeStartElement("instance");
                         writeEmptyElement(writer,"uid", "value",
-                                "urn:oid:" + refSOP.getString(Tag.ReferencedSOPInstanceUID));
+                                "urn:oid:" + inst.getString(Tag.SOPInstanceUID));
                         writer.writeStartElement("sopClass");
                         writeEmptyElement(writer, "system", "value", "urn:ietf:rfc:3986");
-                        writeEmptyElement(writer, "code", "value", "urn:oid:" + refSOP.getString(Tag.ReferencedSOPClassUID));
+                        writeEmptyElement(writer, "code", "value",
+                                "urn:oid:" + inst.getString(Tag.SOPClassUID));
                         writer.writeEndElement();
-                        writeEmptyElement(writer,"number", "value", refSOP.getInt(Tag.InstanceNumber, 0));
-                        Attributes conceptNameCode = refSOP.getNestedDataset(Tag.ConceptNameCodeSequence);
+                        writeEmptyElement(writer,"number", "value", inst.getInt(Tag.InstanceNumber, 0));
+                        Attributes conceptNameCode = inst.getNestedDataset(Tag.ConceptNameCodeSequence);
                         if (conceptNameCode != null)
                             writeEmptyElement(writer,"title", "value", conceptNameCode.getString(Tag.CodeValue));
                         writer.writeEndElement();
@@ -267,6 +178,7 @@ public enum ImagingStudy {
                 LoggerFactory.getLogger(ImagingStudy.class).error("Failed to write XML", e);
                 throw new RuntimeException(e);
             }
+            return baos.toByteArray();
         }
 
         private void writeExtension(XMLStreamWriter writer, String url, String valueType, String value)
@@ -316,12 +228,12 @@ public enum ImagingStudy {
             }
         }
 
-        private static void writeStudyIUID(XMLStreamWriter writer, Attributes kosAttrs) throws XMLStreamException {
+        private static void writeStudyIUID(XMLStreamWriter writer, Attributes study) throws XMLStreamException {
             writer.writeStartElement("identifier");
             writeEmptyElement(writer, "use", "value", "official");
             writeEmptyElement(writer, "system", "value", "urn:dicom:uid");
             writeEmptyElement(writer, "value", "value",
-                    "urn:oid:" + kosAttrs.getString(Tag.StudyInstanceUID));
+                    "urn:oid:" + study.getString(Tag.StudyInstanceUID));
             writer.writeEndElement();
         }
 
@@ -462,178 +374,16 @@ public enum ImagingStudy {
 
     FHIR_R5_JSON {
         @Override
-        public Entity<StreamingOutput> create(Device device, Attributes kosAttrs, Map<String, Attributes> seriesAttrs) {
-            return Entity.entity(
-                    out -> writeJSON(device, kosAttrs, seriesAttrs, out), MediaTypes.APPLICATION_FHIR_JSON_TYPE);
+        public Entity<byte[]> create(ArchiveDeviceExtension arcdev, List<Attributes> instances) {
+            return Entity.entity(writeJSON(arcdev, instances), MediaTypes.APPLICATION_FHIR_JSON_TYPE);
         }
 
-        private void writeJSON(
-                Device device, Attributes kosAttrs, Map<String, Attributes> seriesAttrsByIUID, OutputStream out) {
-            ArchiveDeviceExtension arcdev = device.getDeviceExtension(ArchiveDeviceExtension.class);
-            Sequence refSeriesSeq = kosAttrs.getNestedDataset(Tag.CurrentRequestedProcedureEvidenceSequence)
-                    .getSequence(Tag.ReferencedSeriesSequence);
-            try (JsonGenerator gen = Json.createGenerator(out)) {
-                SimpleDateFormat ISO_DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-                gen.writeStartObject();
-                gen.write("resourceType", "ImagingStudy");
-                gen.writeStartArray("contained");
-                writePatient(gen, "p1", kosAttrs, arcdev);
-                gen.writeEnd();
-                gen.write("status", "available");
-                gen.writeStartArray("identifier");
-                gen.writeStartObject();
-                gen.write("system", "urn:dicom:uid");
-                gen.write("value", "urn:oid:" + kosAttrs.getString(Tag.StudyInstanceUID));
-                gen.writeEnd();
-                gen.writeEnd();
-                gen.writeStartObject("subject");
-                gen.write("reference", "#p1");
-                gen.writeEnd();
-                writeAccessionNumber(gen, IDWithIssuer.valueOf(kosAttrs, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence), arcdev);
-                writeNotNull(gen, "started", kosAttrs.getDate(Tag.StudyDateAndTime), ISO_DATE_TIME);
-                gen.write("numberOfSeries", refSeriesSeq.size());
-                gen.write("numberOfInstances", countInstances(refSeriesSeq));
-                writeModalities(gen, listModalities(seriesAttrsByIUID));
-                writeNotNull(gen, "description", kosAttrs.getString(Tag.StudyDescription));
-                gen.writeStartArray("series");
-                for (Attributes refSeries : refSeriesSeq) {
-                    String seriesIUID = refSeries.getString(Tag.SeriesInstanceUID);
-                    Attributes seriesAttrs = seriesAttrsByIUID.get(seriesIUID);
-                    Sequence refSOPSeq = refSeries.getSequence(Tag.ReferencedSOPSequence);
-                    gen.writeStartObject();
-                    gen.write("uid", seriesIUID);
-                    gen.write("number", seriesAttrs.getInt(Tag.SeriesNumber, 0));
-                    writeModality(gen, seriesAttrs.getString(Tag.Modality));
-                    writeNotNull(gen, "description", seriesAttrs.getString(Tag.SeriesDescription));
-                    gen.write("numberOfInstances", refSOPSeq.size());
-                    writeBodyPartExamined(gen, seriesAttrs.getString(Tag.BodyPartExamined));
-                    writeLaterality(gen, seriesAttrs.getString(Tag.Laterality));
-                    writeNotNull(gen, "started", seriesAttrs.getDate(Tag.SeriesDateAndTime), ISO_DATE_TIME);
-                    gen.writeStartArray("instance");
-                    for (Attributes refSOP : refSOPSeq) {
-                        gen.writeStartObject();
-                        gen.write("uid", refSOP.getString(Tag.ReferencedSOPInstanceUID));
-                        gen.writeStartObject("sopClass");
-                        gen.write("system", "urn:ietf:rfc:3986");
-                        gen.write("code", "urn:oid:" + refSOP.getString(Tag.ReferencedSOPClassUID));
-                        gen.writeEnd();
-                        gen.write("number", refSOP.getInt(Tag.InstanceNumber, 0));
-                        gen.writeEnd();
-                    }
-                    gen.writeEnd();
-                    gen.writeEnd();
-                }
-                gen.writeEnd();
-                gen.writeEnd();
-            } catch (RuntimeException e) {
-                LoggerFactory.getLogger(ImagingStudy.class).error("Failed to write JSON", e);
-                throw e;
+        private byte[] writeJSON(ArchiveDeviceExtension arcdev, List<Attributes> instances) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try (JsonGenerator gen = Json.createGenerator(baos)) {
+                new FHIRBuilder.JSON(arcdev, gen).writeImagingStudy(instances);
             }
-        }
-
-        private void writePatient(JsonGenerator gen, String id, Attributes kosAttrs, ArchiveDeviceExtension arcdev) {
-            gen.writeStartObject();
-            gen.write("resourceType", "Patient");
-            gen.write("id", id);
-            writePatientIDs(gen, ImagingStudy.preferredPatientIDs(kosAttrs, arcdev), arcdev);
-            writePatientName(gen, kosAttrs.getString(Tag.PatientName));
-            ImagingStudy.writeNotNull(gen, "gender", toGender(kosAttrs.getString(Tag.PatientSex)));
-            ImagingStudy.writeNotNull(gen, "birthDate", toDate(kosAttrs.getString(Tag.PatientBirthDate)));
-            gen.writeEnd();
-        }
-
-        private void writePatientIDs(JsonGenerator gen, Set<IDWithIssuer> idWithIssuers, ArchiveDeviceExtension arcdev) {
-            if (!idWithIssuers.isEmpty()) {
-                gen.writeStartArray("identifier");
-                for (IDWithIssuer idWithIssuer : idWithIssuers) {
-                    gen.writeStartObject();
-                    gen.write("type", "Patient");
-                    gen.writeStartObject("identifier");
-                    writeNotNull(gen, "system", arcdev.fhirSystemOfPatientID(idWithIssuer.getIssuer()));
-                    gen.write("value", idWithIssuer.getID());
-                    gen.writeEnd();
-                    gen.writeEnd();
-                }
-                gen.writeEnd();
-            }
-        }
-
-        private void writePatientName(JsonGenerator gen, String value) {
-            if (value != null) {
-                PersonName name = new PersonName(value, true);
-                String family = name.get(PersonName.Component.FamilyName);
-                String given = name.get(PersonName.Component.GivenName);
-                if (family != null || given != null) {
-                    gen.writeStartArray("name");
-                    gen.writeStartObject();
-                    ImagingStudy.writeNotNull(gen, "family", family);
-                    if (given != null) {
-                        gen.writeStartArray("given");
-                        StringTokenizer tokens = new StringTokenizer(given, " ");
-                        while (tokens.hasMoreTokens()) {
-                            gen.write(tokens.nextToken());
-                        }
-                        gen.writeEnd();
-                    }
-                    gen.writeEnd();
-                    gen.writeEnd();
-                }
-            }
-        }
-
-        private void writeAccessionNumber(JsonGenerator gen, IDWithIssuer idWithIssuer, ArchiveDeviceExtension arcdev) {
-            if (idWithIssuer != null) {
-                gen.writeStartArray("basedOn");
-                gen.writeStartObject();
-                gen.write("type", "ServiceRequest");
-                writeAccessionNumber(gen, "identifier", idWithIssuer, arcdev);
-                gen.writeEnd();
-                gen.writeEnd();
-            }
-        }
-
-        private void writeModalities(JsonGenerator gen, Collection<String> modalities) {
-            if (!modalities.isEmpty()) {
-                gen.writeStartArray("modality");
-                for (String modality : modalities) {
-                    gen.writeStartObject();
-                    writeCoding(gen, "http://dicom.nema.org/resources/ontology/DCM", modality, null);
-                    gen.writeEnd();
-                }
-                gen.writeEnd();
-            }
-        }
-
-        private void writeModality(JsonGenerator gen, String modality) {
-            if (modality != null) {
-                gen.writeStartObject("modality");
-                writeCoding(gen, "http://dicom.nema.org/resources/ontology/DCM", modality, null);
-                gen.writeEnd();
-            }
-        }
-
-        private void writeBodyPartExamined(JsonGenerator gen, String bodyPartExamined) {
-            Code code = bodyPartExamined != null ? AnatomicRegion.codeOf(bodyPartExamined) : null;
-            if (code != null) {
-                gen.writeStartObject("bodySite");
-                gen.writeStartObject("concept");
-                writeCoding(gen, "http://snomed.info/sct", code.getCodeValue(), code.getCodeMeaning());
-                gen.writeEnd();
-                gen.writeEnd();
-            }
-        }
-
-        private void writeLaterality(JsonGenerator gen, String laterality) {
-            boolean l;
-            if (laterality != null && ((l = laterality.equals("L")) || laterality.equals("R"))) {
-                gen.writeStartObject("laterality");
-                if (l)
-                    writeCoding(gen, "http://snomed.info/sct", "7771000", "Left");
-                else {
-                    writeCoding(gen, "http://snomed.info/sct", "24028007", "Right");
-                }
-                gen.writeEnd();
-            }
+            return baos.toByteArray();
         }
     };
 
@@ -652,12 +402,6 @@ public enum ImagingStudy {
             case "O" -> "other";
             default -> null;
         };
-    }
-
-    private static int countInstances(Sequence refSeriesSeq) {
-        return refSeriesSeq.stream()
-                .mapToInt(refSeries -> refSeries.getSequence(Tag.ReferencedSOPSequence).size())
-                .sum();
     }
 
     private static void writeCoding(XMLStreamWriter writer, String system, String code, String display)
@@ -704,9 +448,8 @@ public enum ImagingStudy {
         writer.writeEndElement();
     }
 
-    private static void writeOrganization(XMLStreamWriter writer, String id, Device device, Sequence refSeriesSeq)
+    private static void writeOrganization(XMLStreamWriter writer, String id, Device device, String retrieveAET)
             throws XMLStreamException {
-        String retrieveAET = refSeriesSeq.get(0).getString(Tag.RetrieveAETitle);
         ApplicationEntity retrieveAE = device.getApplicationEntity(retrieveAET);
         if (retrieveAE == null || !retrieveAE.isInstalled()) {
             LoggerFactory.getLogger(ImagingStudy.class).info("No Application Entity found for Retrieve AE Title : ", retrieveAET);
@@ -780,11 +523,8 @@ public enum ImagingStudy {
         gen.writeEnd();
     }
 
-    private static Collection<String> listModalities(Map<String, Attributes> seriesAttrsByIUID) {
-        return seriesAttrsByIUID.values().stream()
-                .map(attrs -> attrs.getString(Tag.Modality))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+    private static Collection<String> listModalities(Collection<List<Attributes>> instancesBySeries) {
+        return instancesBySeries.stream().map(l -> l.get(0).getString(Tag.Modality)).collect(Collectors.toSet());
     }
 
     private static Set<IDWithIssuer> preferredPatientIDs(Attributes kosAttrs, ArchiveDeviceExtension arcdev) {
@@ -822,6 +562,18 @@ public enum ImagingStudy {
         writer.writeAttribute(attrName, value.toString());
     }
 
-    public abstract Entity<StreamingOutput> create(
-            Device device, Attributes kosAttrs, Map<String, Attributes> seriesAttrs);
+    private static ApplicationEntity retrieveAE(Device device, Attributes study) {
+        String retrieveAET = study.getString(Tag.RetrieveAETitle);
+        if (retrieveAET != null) {
+            ApplicationEntity retrieveAE = device.getApplicationEntity(retrieveAET);
+            if (retrieveAE != null && retrieveAE.isInstalled()) {
+                return retrieveAE;
+            }
+            LoggerFactory.getLogger(ImagingStudy.class)
+                    .info("No Application Entity found for Retrieve AE Title : ", retrieveAET);
+        }
+        return null;
+    }
+
+    public abstract Entity<byte[]> create(ArchiveDeviceExtension arcdev, List<Attributes> instances) throws XMLStreamException;
 }

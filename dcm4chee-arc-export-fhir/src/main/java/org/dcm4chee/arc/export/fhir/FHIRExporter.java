@@ -39,6 +39,9 @@ package org.dcm4chee.arc.export.fhir;
 
 import jakarta.ws.rs.core.Response;
 import org.dcm4che3.conf.api.IWebApplicationCache;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
@@ -48,6 +51,11 @@ import org.dcm4chee.arc.exporter.AbstractExporter;
 import org.dcm4chee.arc.exporter.ExportContext;
 import org.dcm4chee.arc.fhir.client.FHIRClient;
 import org.dcm4chee.arc.qmgt.Outcome;
+import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.util.QueryParam;
+
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
@@ -59,13 +67,16 @@ public class FHIRExporter extends AbstractExporter {
     private final String webAppName;
     private final IWebApplicationCache webAppCache;
     private final FHIRClient fhirClient;
+    private final QueryService queryService;
 
-    public FHIRExporter(ExporterDescriptor descriptor, Device device, IWebApplicationCache webAppCache, FHIRClient fhirClient) {
+    public FHIRExporter(ExporterDescriptor descriptor, Device device, IWebApplicationCache webAppCache,
+                        FHIRClient fhirClient, QueryService queryService) {
         super(descriptor);
         this.device = device;
         this.webAppName = descriptor.getExportURI().getSchemeSpecificPart();
         this.webAppCache = webAppCache;
         this.fhirClient = fhirClient;
+        this.queryService = queryService;
     }
 
     @Override
@@ -75,7 +86,8 @@ public class FHIRExporter extends AbstractExporter {
             return new Outcome(Task.Status.WARNING,
                     "Destination webapp " + webAppName + " is not configured for FHIR web service");
         ApplicationEntity ae = device.getApplicationEntity(descriptor.getAETitle(), true);
-        return outcome(fhirClient.create(ae, ctx.getStudyInstanceUID(), webApp));
+        List<Attributes> instances = queryService.queryInstances(queryContext(ae, ctx.getStudyInstanceUID()));
+        return outcome(fhirClient.create(ae, instances, webApp));
     }
 
     private Outcome outcome(Response rsp) {
@@ -86,5 +98,15 @@ public class FHIRExporter extends AbstractExporter {
 
         return new Outcome(Task.Status.WARNING,
                 "ImagingStudy creation unsuccessful : " + rsp.getHeaderString("Warning"));
+    }
+
+    private QueryContext queryContext(ApplicationEntity ae, String studyUID) {
+        QueryParam queryParam = new QueryParam(ae);
+        QueryContext queryContext = queryService.newQueryContext(ae, queryParam);
+        Attributes keys = new Attributes(1);
+        keys.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
+        queryContext.setQueryKeys(keys);
+        queryContext.setReturnPrivate(true);
+        return queryContext;
     }
 }

@@ -47,6 +47,7 @@ import org.dcm4che3.data.Code;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Association;
 import org.dcm4che3.net.QueryOption;
+import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
@@ -85,6 +86,8 @@ public interface QueryService {
 
     Query createInstanceQuery(QueryContext ctx);
 
+    List<Attributes> queryInstances(QueryContext ctx) throws DicomServiceException;
+
     Query createMWLQuery(QueryContext ctx);
 
     Query createMPPSQuery(QueryContext ctx);
@@ -107,8 +110,6 @@ public interface QueryService {
 
     Attributes getStudyAttributesWithSOPInstanceRefs(
             String studyUID, ApplicationEntity ae, Map<String, Attributes> seriesAttrs);
-
-    Attributes getImagingStudyInfo(String studyUID, ApplicationEntity ae, Map<String, Attributes> seriesAttrs);
 
     Attributes createIAN(ApplicationEntity ae, String studyUID, String[] seriesUID, String sopUID,
                          String[] retrieveAETs, String retrieveLocationUID, Availability availability);

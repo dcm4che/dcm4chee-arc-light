@@ -357,7 +357,7 @@ public class QueryServiceEJB {
         return attrs;
     }
 
-    public enum SOPInstanceRefsType { IAN, KOS_IOCM, KOS_XDSI, STGCMT, UPS, FHIR_IMAGING_STUDY }
+    public enum SOPInstanceRefsType { IAN, KOS_IOCM, KOS_XDSI, STGCMT, UPS }
 
     public Attributes getStudyAttributesWithSOPInstanceRefs(
             SOPInstanceRefsType type, String studyIUID, String seriesIUID, String objectUID, QueryRetrieveView qrView,
@@ -430,8 +430,6 @@ public class QueryServiceEJB {
                     if (retrieveLocationUID != null)
                         refSeries.setString(Tag.RetrieveLocationUID, VR.UI, retrieveLocationUID);
                 }
-                if (type == SOPInstanceRefsType.FHIR_IMAGING_STUDY)
-                    refSeries.setString(Tag.RetrieveAETitle, VR.AE, tuple.get(series.get(Series_.receivingAET)));
                 refSOPSeq = refSeries.newSequence(Tag.ReferencedSOPSequence, 10);
                 String seriesIUID = tuple.get(series.get(Series_.seriesInstanceUID));
                 refSeries.setString(Tag.SeriesInstanceUID, VR.UI, seriesIUID);
@@ -448,12 +446,6 @@ public class QueryServiceEJB {
                         StringUtils.maskNull(availability, tuple.get(instance.get(Instance_.availability))).toString());
                 if (retrieveLocationUID != null)
                     refSOP.setString(Tag.RetrieveLocationUID, VR.UI, retrieveLocationUID);
-            }
-            if (type == SOPInstanceRefsType.FHIR_IMAGING_STUDY) {
-                Integer instNum = tuple.get(instance.get(Instance_.instanceNumber));
-                if (instNum != null) {
-                    refSOP.setInt(Tag.InstanceNumber, VR.IS, instNum);
-                }
             }
             setSOPRef(refSOP, tuple, cuidPath, iuidPath);
             refSOPSeq.add(refSOP);

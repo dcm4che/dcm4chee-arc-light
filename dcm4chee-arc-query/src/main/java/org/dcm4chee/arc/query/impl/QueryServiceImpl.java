@@ -299,6 +299,18 @@ class QueryServiceImpl implements QueryService {
     }
 
     @Override
+    public List<Attributes> queryInstances(QueryContext ctx) throws DicomServiceException {
+        List<Attributes> results = new ArrayList<>();
+        try (Query query = createInstanceQuery(ctx)) {
+            query.executeQuery(arcDev().getQueryFetchSize());
+            while (query.hasMoreMatches()) {
+                results.add(query.nextMatch());
+            }
+        }
+        return results;
+    }
+
+    @Override
     public Query createMWLQuery(QueryContext ctx) {
         queryEvent.fire(ctx);
         return ctx.getArchiveAEExtension().ups2MWLCFindSCP()
@@ -467,14 +479,6 @@ class QueryServiceImpl implements QueryService {
         return ejb.getStudyAttributesWithSOPInstanceRefs(
                 QueryServiceEJB.SOPInstanceRefsType.KOS_XDSI, studyUID, null, null, qrView, seriesAttrs,
                 null, null);
-    }
-
-    @Override
-    public Attributes getImagingStudyInfo(String studyUID, ApplicationEntity ae, Map<String, Attributes> seriesAttrs) {
-        QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
-        return ejb.getStudyAttributesWithSOPInstanceRefs(
-                QueryServiceEJB.SOPInstanceRefsType.FHIR_IMAGING_STUDY, studyUID, null, null, qrView,
-                seriesAttrs, null, null);
     }
 
     @Override

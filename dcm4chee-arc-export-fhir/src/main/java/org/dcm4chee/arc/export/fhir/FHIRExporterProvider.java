@@ -46,6 +46,7 @@ import org.dcm4chee.arc.conf.ExporterDescriptor;
 import org.dcm4chee.arc.exporter.Exporter;
 import org.dcm4chee.arc.exporter.ExporterProvider;
 import org.dcm4chee.arc.fhir.client.FHIRClient;
+import org.dcm4chee.arc.query.QueryService;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
@@ -64,8 +65,11 @@ public class FHIRExporterProvider implements ExporterProvider {
     @Inject
     private FHIRClient fhirClient;
 
+    @Inject
+    private QueryService queryService;
+
     @Override
     public Exporter getExporter(ExporterDescriptor descriptor) {
-        return new FHIRExporter(descriptor, device, webAppCache, fhirClient);
+        return new FHIRExporter(descriptor, device, webAppCache, fhirClient, queryService);
     }
 }

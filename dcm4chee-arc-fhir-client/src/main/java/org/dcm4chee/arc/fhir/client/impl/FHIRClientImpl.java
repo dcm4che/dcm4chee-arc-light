@@ -49,18 +49,18 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.fhir.client.FHIRClient;
 import org.dcm4chee.arc.fhir.client.ImagingStudy;
 import org.dcm4chee.arc.keycloak.AccessTokenRequestor;
-import org.dcm4chee.arc.query.QueryService;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
@@ -75,18 +75,14 @@ public class FHIRClientImpl implements FHIRClient {
     private Device device;
 
     @Inject
-    private QueryService queryService;
-
-    @Inject
     private AccessTokenRequestor accessTokenRequestor;
 
     @Override
-    public Response create(ApplicationEntity ae, String studyUID, WebApplication webApp,
-                           MediaType... acceptableMediaTypes) {
+    public Response create(ApplicationEntity ae, List<Attributes> instances, WebApplication webApp,
+                           MediaType... acceptableMediaTypes) throws XMLStreamException {
         ImagingStudy imagingStudy = imagingStudy(webApp);
+        Entity<byte[]> requestPayload = imagingStudy.create(device.getDeviceExtension(ArchiveDeviceExtension.class), instances);
         String url = webApp.getServiceURL().append("/ImagingStudy").toString();
-        Map<String, Attributes> seriesAttrs = new HashMap<>();
-        Attributes info = queryService.getImagingStudyInfo(studyUID, ae, seriesAttrs);
         try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, webApp).build()) {
             WebTarget target = client.target(url);
             Invocation.Builder request = target.request();
@@ -97,12 +93,8 @@ public class FHIRClientImpl implements FHIRClient {
                 request.header("Authorization", token);
 
             LOG.info("Invoke POST {}", url);
-            Entity<StreamingOutput> requestPayload = imagingStudy.create(device, info, seriesAttrs);
             if (LOG.isDebugEnabled()) {
-                try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-                    requestPayload.getEntity().write(out);
-                    LOG.debug(new String(out.toByteArray(), StandardCharsets.UTF_8));
-                }
+                LOG.debug(new String(requestPayload.getEntity(), StandardCharsets.UTF_8));
             }
             Response response = request.post(requestPayload);
             LOG.info("Response Status: {} {}, Location: {}",

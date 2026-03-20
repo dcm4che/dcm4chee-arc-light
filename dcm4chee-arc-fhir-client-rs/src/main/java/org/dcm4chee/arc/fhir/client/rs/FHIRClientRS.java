@@ -41,21 +41,24 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.*;
 import org.dcm4che3.conf.api.ConfigurationException;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.fhir.client.FHIRClient;
-import org.dcm4chee.arc.fhir.client.ImagingStudy;
+import org.dcm4chee.arc.query.QueryContext;
+import org.dcm4chee.arc.query.QueryService;
+import org.dcm4chee.arc.query.util.QueryParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.PrintWriter;
+import java.util.List;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
@@ -78,6 +81,9 @@ public class FHIRClientRS {
     @Inject
     private FHIRClient fhirClient;
 
+    @Inject
+    private QueryService queryService;
+
     @Context
     private HttpServletRequest request;
 
@@ -96,16 +102,31 @@ public class FHIRClientRS {
                 request.getRemoteHost());
         ApplicationEntity ae = getApplicationEntity();
         if (ae == null)
-            return errResponse("No such Application Entity: " + aet, Response.Status.NOT_FOUND);
-        WebApplication webApp;
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("No such Application Entity: " + aet)
+                    .type(MediaType.TEXT_PLAIN_TYPE)
+                    .build();
         try {
-            webApp = getWebApplication(webAppName);
-        } catch (ConfigurationException e) {
-            return errResponse(e.getMessage(), Response.Status.NOT_FOUND);
+            WebApplication webApp = getWebApplication(webAppName);
+            if (webApp == null)
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("No such Web Application: " + webAppName)
+                        .type(MediaType.TEXT_PLAIN_TYPE)
+                        .build();
+
+            List<Attributes> instances = queryService.queryInstances(queryContext(ae, studyUID));
+            return fhirClient.create(ae, instances, webApp, headers.getAcceptableMediaTypes().toArray(new MediaType[0]));
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity((StreamingOutput) output -> {
+                        try (PrintWriter printWriter = new PrintWriter(output)) {
+                            printWriter.println(e.getMessage());
+                            e.printStackTrace(printWriter);
+                        }
+                    })
+                    .type(MediaType.TEXT_PLAIN_TYPE)
+                    .build();
         }
-        if (webApp == null)
-            return errResponse("No such Web Application: " + webApp, Response.Status.NOT_FOUND);
-        return fhirClient.create(ae, studyUID, webApp, headers.getAcceptableMediaTypes().toArray(new MediaType[0]));
     }
 
     private ApplicationEntity getApplicationEntity() {
@@ -121,16 +142,14 @@ public class FHIRClientRS {
                 : webApp;
     }
 
-    private Response errResponse(String msg, Response.Status status) {
-        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
-    }
-
-    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
-        LOG.warn("Response {} caused by {}", status, errorMsg);
-        return Response.status(status)
-                .entity(errorMsg)
-                .type("text/plain")
-                .build();
+    private QueryContext queryContext(ApplicationEntity ae, String studyUID) {
+        QueryParam queryParam = new QueryParam(ae);
+        QueryContext queryContext = queryService.newQueryContext(ae, queryParam);
+        Attributes keys = new Attributes(1);
+        keys.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
+        queryContext.setQueryKeys(keys);
+        queryContext.setReturnPrivate(true);
+        return queryContext;
     }
 
 }

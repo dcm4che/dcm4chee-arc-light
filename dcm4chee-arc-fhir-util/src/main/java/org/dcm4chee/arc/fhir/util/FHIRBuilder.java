@@ -40,41 +40,45 @@ package org.dcm4chee.arc.fhir.util;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import org.dcm4che3.data.*;
+import org.dcm4che3.dcmr.AnatomicRegion;
 import org.dcm4che3.dict.archive.PrivateTag;
+import org.dcm4che3.net.ApplicationEntity;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.query.Query;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since Mar 2026
  */
 public class FHIRBuilder {
-    protected final HttpServletRequest request;
     protected final ArchiveDeviceExtension arcdev;
 
-    protected FHIRBuilder(HttpServletRequest request, ArchiveDeviceExtension arcdev) {
-        this.request = request;
+    protected FHIRBuilder(ArchiveDeviceExtension arcdev) {
         this.arcdev = arcdev;
     }
 
     public static class XML extends FHIRBuilder {
         private final XMLStreamWriter writer;
 
-        public XML(HttpServletRequest request, ArchiveDeviceExtension arcdev, XMLStreamWriter writer) {
-            super(request, arcdev);
+        public XML(ArchiveDeviceExtension arcdev, XMLStreamWriter writer) {
+            super(arcdev);
             this.writer = writer;
         }
 
-        public void writePatientBundle(OffsetDateTime now, long count, Query query) throws Exception {
+        public void writePatientBundle(HttpServletRequest request, OffsetDateTime now, long count, Query query)
+                throws Exception {
             writer.writeStartDocument("UTF-8", "1.0");
             writer.writeStartElement("Bundle");
             writer.writeDefaultNamespace("http://hl7.org/fhir");
@@ -89,33 +93,30 @@ public class FHIRBuilder {
             writeEmptyElement("url", "value", request.getRequestURL().toString());
             writer.writeEndElement();
             while (query.hasMoreMatches()) {
-                writePatientEntry(query.nextMatch());
+                writePatientEntry(request, query.nextMatch());
             }
             writer.writeEndElement();
             writer.writeEndDocument();
         }
 
-        public void writePatientEntry(Attributes match) {
-            try {
-                writer.writeStartElement("entry");
-                String id = match.getString(PrivateTag.PrivateCreator, PrivateTag.LogicalPatientID);
-                writeEmptyElement("fullUrl", "value", patientURL(id));
-                writePatient(match, id);
-                writer.writeStartElement("search");
-                writeEmptyElement("mode", "value", "match");
-                writer.writeEndElement();
-                writer.writeEndElement();
-            } catch (XMLStreamException e) {
-                throw new RuntimeException(e);
-            }
+        public void writePatientEntry(HttpServletRequest request, Attributes match) throws XMLStreamException {
+            writer.writeStartElement("entry");
+            String id = match.getString(PrivateTag.PrivateCreator, PrivateTag.LogicalPatientID);
+            writeEmptyElement("fullUrl", "value", patientURL(request, id));
+            writePatient(id, match, "http://hl7.org/fhir");
+            writer.writeStartElement("search");
+            writeEmptyElement("mode", "value", "match");
+            writer.writeEndElement();
+            writer.writeEndElement();
         }
 
-        public void writePatient(Attributes match, String id)
-                throws XMLStreamException {
+        public void writePatient(String id, Attributes match, String namespaceURI) throws XMLStreamException {
             writer.writeStartElement("Patient");
-            writer.writeDefaultNamespace("http://hl7.org/fhir");
+            if (namespaceURI != null) {
+                writer.writeDefaultNamespace(namespaceURI);
+            }
             writeEmptyElement("id", "value", id);
-            writePatientName(match.getString(Tag.PatientName));
+            writePersonName(match.getString(Tag.PatientName));
             writePatientIDs(preferredPatientIDs(match));
             writeEmptyElementNotNull("birthDate", "value",
                     toDate(match.getString(Tag.PatientBirthDate)));
@@ -124,8 +125,91 @@ public class FHIRBuilder {
             writer.writeEndElement();
         }
 
-        private void writePatientIDs(Set<IDWithIssuer> idWithIssuers)
+        public void writeImagingStudy(List<Attributes> instancesOfStudy, boolean LTNHR_V1) throws XMLStreamException {
+            SimpleDateFormat ISO_DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+            Attributes study = instancesOfStudy.get(0);
+            Collection<List<Attributes>> instancesBySeries = instancesOfStudy.stream()
+                    .collect(Collectors.groupingBy(attrs -> attrs.getString(Tag.SeriesInstanceUID)))
+                    .values();
+            writer.writeStartElement("ImagingStudy");
+            writer.writeDefaultNamespace("http://hl7.org/fhir");
+            writer.writeStartElement("contained");
+            writePatient("patient1", study, null);
+            writer.writeEndElement();
+            boolean referrer = writePractitioner("practitioner1", study.getString(Tag.ReferringPhysicianName)) ;
+            int practitionerNo = referrer ? 1 : 0;
+            writePerformingPhysicians(instancesBySeries, practitionerNo);
+            boolean organisation = LTNHR_V1 && writeOrganization("organisation1", study);
+            if (LTNHR_V1) {
+                if (organisation) writeOrganizationExtension("#organisation1");
+                writeExtension("http://esveikata.lt/Profile/ltnhr-imagingstudy#reported",
+                        "valueBoolean", "false");
+            }
+            writeEmptyElement("status", "value", "available");
+            writeStudyIUID(study.getString(Tag.StudyInstanceUID));
+            writer.writeStartElement("subject");
+            writeEmptyElement("reference", "value", "#patient1");
+            writer.writeEndElement();
+            if (referrer) {
+                writer.writeStartElement("referrer");
+                writeEmptyElement("reference", "value", "#practitioner1");
+                writer.writeEndElement();
+            }
+            writeAccessionNumber(IDWithIssuer.valueOf(study, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence));
+            writeEmptyElementNotNull("started", "value",
+                    study.getDate(Tag.StudyDateAndTime), ISO_DATE_TIME);
+            writeEmptyElement("numberOfSeries", "value", instancesBySeries.size());
+            writeEmptyElement("numberOfInstances", "value", instancesOfStudy.size());
+            for (String modality : listModalities(instancesBySeries)) {
+                writeModality(modality);
+            }
+            writeEmptyElementNotNull("description", "value", study.getString(Tag.StudyDescription));
+            writeConceptCode("procedure", study.getNestedDataset(Tag.ProcedureCodeSequence));
+            writeConceptCode("reason", study.getNestedDataset(Tag.ReasonForPerformedProcedureCodeSequence));
+            for (List<Attributes> seriesOfInstances : instancesBySeries) {
+                Attributes series = seriesOfInstances.get(0);
+                String seriesIUID = series.getString(Tag.SeriesInstanceUID);
+                writer.writeStartElement("series");
+                writeEmptyElement("uid", "value", seriesIUID);
+                writeEmptyElement("number", "value", series.getInt(Tag.SeriesNumber, 0));
+                writeModalityNotNull(series.getString(Tag.Modality));
+                writeEmptyElementNotNull("description", "value", series.getString(Tag.SeriesDescription));
+                writeEmptyElement("numberOfInstances", "value", seriesOfInstances.size());
+                if (series.containsValue(Tag.PerformingPhysicianName)) {
+                   writePerformerReference("#practitioner" + ++practitionerNo);
+                }
+                writeBodyPartExamined(series.getString(Tag.BodyPartExamined));
+                writeLaterality(series.getString(Tag.Laterality));
+                writeEmptyElementNotNull("started", "value", seriesStartDate(series), ISO_DATE_TIME);
+                for (Attributes inst : seriesOfInstances) {
+                    writer.writeStartElement("instance");
+                    writeEmptyElement("uid", "value", inst.getString(Tag.SOPInstanceUID));
+                    writer.writeStartElement("sopClass");
+                    writeEmptyElement("system", "value", "urn:ietf:rfc:3986");
+                    writeEmptyElement("value", "value",
+                            "urn:oid:" + inst.getString(Tag.SOPClassUID));
+                    writer.writeEndElement();
+                    writeEmptyElement("number", "value",
+                            inst.getInt(Tag.InstanceNumber, 0));
+                    writeEmptyElementNotNull("title", "value", documentTitle(inst));
+                    writer.writeEndElement();
+                }
+                writer.writeEndElement();
+            }
+            writer.writeEndElement();
+        }
+
+        private void writePerformingPhysicians(Collection<List<Attributes>> instancesBySeries, int practitionerNo)
                 throws XMLStreamException {
+            String id = "practitioner" + ++practitionerNo;
+            for (List<Attributes> instancesOfSeries : instancesBySeries) {
+                if (writePractitioner(id, instancesOfSeries.get(0).getString(Tag.PerformingPhysicianName))) {
+                    id = "practitioner" + ++practitionerNo;
+                }
+            }
+        }
+
+        private void writePatientIDs(Set<IDWithIssuer> idWithIssuers) throws XMLStreamException {
             for (IDWithIssuer idWithIssuer : idWithIssuers) {
                 writer.writeStartElement("identifier");
                 writeEmptyElementNotNull("system", "value",
@@ -135,7 +219,7 @@ public class FHIRBuilder {
             }
         }
 
-        private void writePatientName(String value) throws XMLStreamException {
+        private void writePersonName(String value) throws XMLStreamException {
             if (value != null) {
                 PersonName name = new PersonName(value, true);
                 String family = name.get(PersonName.Component.FamilyName);
@@ -154,9 +238,179 @@ public class FHIRBuilder {
             }
         }
 
-        private void writeEmptyElementNotNull(String elmName, String attrName, Object value)
+        private void writeStudyIUID(String suid) throws XMLStreamException {
+            writer.writeStartElement("identifier");
+            writeEmptyElement("use", "value", "official");
+            writeEmptyElement("system", "value", "urn:dicom:uid");
+            writeEmptyElement("value", "value", "urn:oid:" + suid);
+            writer.writeEndElement();
+        }
+
+        private void writeAccessionNumber(IDWithIssuer idWithIssuer) throws XMLStreamException {
+            if (idWithIssuer != null) {
+                writer.writeStartElement("basedOn");
+                writeEmptyElement( "type", "value", "ServiceRequest");
+                writer.writeStartElement("identifier");
+                writer.writeStartElement("type");
+                writeCoding("http://terminology.hl7.org/CodeSystem/v2-0203", "ACSN", null);
+                writer.writeEndElement();
+                writeEmptyElement( "value", "value", idWithIssuer.getID());
+                Issuer issuer = idWithIssuer.getIssuer();
+                String system = arcdev.fhirSystemOfAccessionNumber(issuer);
+                if (system != null) {
+                    writer.writeStartElement("assigner");
+                    writeEmptyElement("system", "value", system);
+                    if (issuer != null) {
+                        writeEmptyElementNotNull("display", "value", issuer.getLocalNamespaceEntityID());
+                    }
+                    writer.writeEndElement();
+                }
+                writer.writeEndElement();
+                writer.writeEndElement();
+            }
+        }
+
+        private void writeModalityNotNull(String modality) throws XMLStreamException {
+            if (modality != null) writeModality(modality);
+        }
+
+        private void writeModality(String modality) throws XMLStreamException {
+            writer.writeStartElement("modality");
+            writeCoding("http://dicom.nema.org/resources/ontology/DCM", modality, null );
+            writer.writeEndElement();
+        }
+
+        private boolean writeOrganization(String id, Attributes study) throws XMLStreamException {
+            String retrieveAET = study.getString(Tag.RetrieveAETitle);
+            if (retrieveAET != null) {
+                ApplicationEntity retrieveAE = arcdev.getDevice().getApplicationEntity(retrieveAET);
+                if (retrieveAE != null && retrieveAE.isInstalled()) {
+                    writer.writeStartElement("extension");
+                    writer.writeAttribute("url", "http://esveikata.lt/Profile/ltnhr-imagingstudy#organization");
+                    writer.writeStartElement("valueResource");
+                    writeEmptyElement("reference", "value", "#" + id);
+                    writer.writeEndElement();
+                    writer.writeEndElement();
+                    writer.writeStartElement("contained");
+                    writer.writeStartElement("Organization");
+                    writer.writeAttribute("id", id);
+                    writer.writeStartElement("name");
+                    writeEmptyElementNotNull("code", "value",
+                            retrieveAE.getAEExtension(ArchiveAEExtension.class).getStoreAccessControlID());
+                    writeEmptyElementNotNull("AET", "value", retrieveAE.getAETitle());
+                    writer.writeEndElement();
+                    writer.writeEndElement();
+                    writer.writeEndElement();
+                    return true;
+                } else {
+                    LoggerFactory.getLogger(FHIRBuilder.class)
+                            .info("No Application Entity found for Retrieve AE Title : {}", retrieveAET);
+                }
+            }
+            return false;
+        }
+
+        private void writeOrganizationExtension(String reference) throws XMLStreamException {
+            writer.writeStartElement("extension");
+            writer.writeAttribute("url", "http://esveikata.lt/Profile/ltnhr-imagingstudy#organization");
+            writer.writeStartElement("valueResource");
+            writeEmptyElement("reference", "value", reference);
+            writer.writeEndElement();
+            writer.writeEndElement();
+        }
+
+        private void writeExtension(String url, String valueType, String value)
                 throws XMLStreamException {
+            if (value != null) {
+                writer.writeStartElement("extension");
+                writer.writeAttribute("url", url);
+                writeEmptyElement(valueType, "value", value);
+                writer.writeEndElement();
+            }
+        }
+
+        private boolean writePractitioner(String id, String name)
+                throws XMLStreamException {
+            if (name == null) return false;
+
+            writer.writeStartElement("contained");
+            writer.writeStartElement("Practitioner");
+            writeEmptyElement("id", "value", id);
+            writePersonName(name);
+            writer.writeEndElement();
+            writer.writeEndElement();
+            return true;
+        }
+
+        private void writePerformerReference(String reference)
+                throws XMLStreamException {
+            writer.writeStartElement("performer");
+            writer.writeStartElement("function");
+            writeCoding("http://terminology.hl7.org/CodeSystem/v3-ParticipationType", "PRF", null);
+            writer.writeEndElement();
+            writer.writeStartElement("actor");
+            writeEmptyElement("reference", "value", reference);
+            writer.writeEndElement();
+            writer.writeEndElement();
+        }
+
+        private void writeBodyPartExamined(String bodyPartExamined) throws XMLStreamException {
+            Code code = bodyPartExamined != null ? AnatomicRegion.codeOf(bodyPartExamined) : null;
+            if (code != null) {
+                writer.writeStartElement("bodySite");
+                writer.writeStartElement("concept");
+                writeCodingWithText("http://snomed.info/sct", code.getCodeValue(), code.getCodeMeaning());
+                writer.writeEndElement();
+                writer.writeEndElement();
+            }
+        }
+
+        private void writeLaterality(String laterality) throws XMLStreamException {
+            boolean l;
+            if (laterality != null && ((l = laterality.equals("L")) || laterality.equals("R"))) {
+                writer.writeStartElement("laterality");
+                if (l)
+                    writeCodingWithText("http://snomed.info/sct", "7771000", "Unilateral Left");
+                else {
+                    writeCodingWithText("http://snomed.info/sct", "24028007", "Right");
+                }
+                writer.writeEndElement();
+            }
+        }
+
+        private void writeCoding(String system, String code, String display) throws XMLStreamException {
+            writer.writeStartElement("coding");
+            writeEmptyElement("system", "value", system);
+            writeEmptyElement( "code", "value", code);
+            writeEmptyElementNotNull( "display", "value", display);
+            writer.writeEndElement();
+        }
+
+        private void writeCodingWithText(String system, String code, String display) throws XMLStreamException {
+            writeCoding(system, code, display);
+            writeEmptyElementNotNull( "text", "value", display);
+        }
+
+        private void writeConceptCode(String name, Attributes item) throws XMLStreamException {
+            if (item != null) {
+                writer.writeStartElement(name);
+                writer.writeStartElement("concept");
+                writeCodingWithText(
+                        item.getString(Tag.CodingSchemeDesignator),
+                        item.getString(Tag.CodeValue),
+                        item.getString(Tag.CodeMeaning));
+                writer.writeEndElement();
+                writer.writeEndElement();
+            }
+        }
+
+        private void writeEmptyElementNotNull(String elmName, String attrName, Object value) throws XMLStreamException {
             if (value != null) writeEmptyElement(elmName, attrName, value);
+        }
+
+        private void writeEmptyElementNotNull(String elmName, String attrName, Date value, DateFormat dateFormat)
+                throws XMLStreamException {
+            if (value != null) writeEmptyElement(elmName, attrName, dateFormat.format(value));
         }
 
         private void writeEmptyElement(String elmName, String attrName, Object value)
@@ -170,12 +424,13 @@ public class FHIRBuilder {
     public static class JSON extends FHIRBuilder {
         private final JsonGenerator gen;
 
-        public JSON(HttpServletRequest request, ArchiveDeviceExtension arcdev, JsonGenerator gen) {
-            super(request, arcdev);
+        public JSON(ArchiveDeviceExtension arcdev, JsonGenerator gen) {
+            super(arcdev);
             this.gen = gen;
         }
 
-        public void writePatientBundle(OffsetDateTime now, long count, Query query) throws Exception {
+        public void writePatientBundle(HttpServletRequest request, OffsetDateTime now, long count, Query query)
+                throws Exception {
             gen.writeStartObject();
             gen.write("resourceType", "Bundle");
             gen.write("id", UUID.randomUUID().toString());
@@ -193,19 +448,19 @@ public class FHIRBuilder {
             if (query.hasMoreMatches()) {
                 gen.writeStartArray("entry");
                 do {
-                    writePatientEntry(query.nextMatch());
+                    writePatientEntry(request, query.nextMatch());
                 } while (query.hasMoreMatches());
                 gen.writeEnd();
             }
             gen.writeEnd();
         }
 
-        public void writePatientEntry(Attributes match) {
+        public void writePatientEntry(HttpServletRequest request, Attributes match) {
             gen.writeStartObject();
             String id = match.getString(PrivateTag.PrivateCreator, PrivateTag.LogicalPatientID);
-            gen.write("fullUrl", patientURL(id));
+            gen.write("fullUrl", patientURL(request, id));
             gen.writeStartObject("resource");
-            writePatient(match, id);
+            writePatient(id, match);
             gen.writeEnd();
             gen.writeStartObject("search");
             gen.write("mode", "match");
@@ -213,13 +468,99 @@ public class FHIRBuilder {
             gen.writeEnd();
         }
 
-        public void writePatient(Attributes match, String id) {
+        public void writePatient(String id, Attributes match) {
             gen.write("resourceType", "Patient");
             gen.write("id", id);
             writePatientIDs(preferredPatientIDs(match));
-            writePatientName(match.getString(Tag.PatientName));
+            writePersonName(match.getString(Tag.PatientName));
             writeNotNull("gender", toGender(match.getString(Tag.PatientSex)));
             writeNotNull("birthDate", toDate(match.getString(Tag.PatientBirthDate)));
+        }
+
+
+        public void writeImagingStudy(List<Attributes> instances) {
+            SimpleDateFormat ISO_DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+            Attributes study = instances.get(0);
+            Collection<List<Attributes>> instancesBySeries = instances.stream()
+                    .collect(Collectors.groupingBy(attrs -> attrs.getString(Tag.SeriesInstanceUID)))
+                    .values();
+            gen.writeStartObject();
+            gen.write("resourceType", "ImagingStudy");
+            gen.writeStartArray("contained");
+            gen.writeStartObject();
+            writePatient("patient1", study);
+            gen.writeEnd();
+            boolean referrer = writePractitioner("practitioner1", study.getString(Tag.ReferringPhysicianName)) ;
+            int practitionerNo = referrer ? 1 : 0;
+            writePerformingPhysicians(instancesBySeries, practitionerNo);
+            gen.writeEnd();
+            gen.write("status", "available");
+            gen.writeStartArray("identifier");
+            gen.writeStartObject();
+            gen.write("system", "urn:dicom:uid");
+            gen.write("value", "urn:oid:" + study.getString(Tag.StudyInstanceUID));
+            gen.writeEnd();
+            gen.writeEnd();
+            gen.writeStartObject("subject");
+            gen.write("reference", "#patient1");
+            gen.writeEnd();
+            if (referrer) {
+                gen.writeStartObject("referrer");
+                gen.write("reference", "#practitioner1");
+                gen.writeEnd();
+            }
+            writeAccessionNumber(IDWithIssuer.valueOf(study, Tag.AccessionNumber, Tag.IssuerOfAccessionNumberSequence));
+            writeNotNull("started", study.getDate(Tag.StudyDateAndTime), ISO_DATE_TIME);
+            gen.write("numberOfSeries", instancesBySeries.size());
+            gen.write("numberOfInstances", instances.size());
+            writeModalities(listModalities(instancesBySeries));
+            writeNotNull("description", study.getString(Tag.StudyDescription));
+            writeConceptCode("procedure", study.getNestedDataset(Tag.ProcedureCodeSequence));
+            writeConceptCode("reason", study.getNestedDataset(Tag.ReasonForPerformedProcedureCodeSequence));
+            gen.writeStartArray("series");
+            for (List<Attributes> seriesOfInstances : instancesBySeries) {
+                Attributes series = seriesOfInstances.get(0);
+                String seriesIUID = series.getString(Tag.SeriesInstanceUID);
+                gen.writeStartObject();
+                gen.write("uid", seriesIUID);
+                gen.write("number", series.getInt(Tag.SeriesNumber, 0));
+                writeModality(series.getString(Tag.Modality));
+                writeNotNull("description", series.getString(Tag.SeriesDescription));
+                gen.write("numberOfInstances", seriesOfInstances.size());
+                if (series.containsValue(Tag.PerformingPhysicianName)) {
+                    writePerformerReference("#practitioner" + ++practitionerNo);
+                }
+                writeBodyPartExamined(series.getString(Tag.BodyPartExamined));
+                writeLaterality(series.getString(Tag.Laterality));
+                writeNotNull("started", FHIRBuilder.seriesStartDate(series), ISO_DATE_TIME);
+                gen.writeStartArray("instance");
+                for (Attributes inst : seriesOfInstances) {
+                    gen.writeStartObject();
+                    gen.write("uid", inst.getString(Tag.SOPInstanceUID));
+                    gen.writeStartObject("sopClass");
+                    gen.write("system", "urn:ietf:rfc:3986");
+                    gen.write("code", "urn:oid:" + inst.getString(Tag.SOPClassUID));
+                    gen.writeEnd();
+                    gen.write("number", inst.getInt(Tag.InstanceNumber, 0));
+                    writeNotNull("title", documentTitle(inst));
+                    gen.writeEnd();
+                }
+                gen.writeEnd();
+                gen.writeEnd();
+            }
+            gen.writeEnd();
+            gen.writeEnd();
+        }
+
+        private void writePerformerReference(String reference) {
+            gen.writeStartArray("performer");
+            gen.writeStartObject("function");
+            writeCoding("http://terminology.hl7.org/CodeSystem/v3-ParticipationType", "PRF", null);
+            gen.writeEnd();
+            gen.writeStartObject("actor");
+            gen.write("reference", reference);
+            gen.writeEnd();
+            gen.writeEnd();
         }
 
         private void writePatientIDs(Set<IDWithIssuer> idWithIssuers) {
@@ -238,7 +579,7 @@ public class FHIRBuilder {
             }
         }
 
-        private void writePatientName(String value) {
+        private void writePersonName(String value) {
             if (value != null) {
                 PersonName name = new PersonName(value, true);
                 String family = name.get(PersonName.Component.FamilyName);
@@ -261,6 +602,125 @@ public class FHIRBuilder {
             }
         }
 
+        private boolean writePractitioner(String id, String name) {
+            if (name == null) return false;
+            gen.writeStartObject();
+            gen.write("resourceType", "Practitioner");
+            gen.write("id", id);
+            writePersonName(name);
+            gen.writeEnd();
+            return true;
+        }
+
+        private void writePerformingPhysicians(Collection<List<Attributes>> instancesBySeries, int practitionerNo) {
+            String id = "practitioner" + ++practitionerNo;
+            for (List<Attributes> instancesOfSeries : instancesBySeries) {
+                if (writePractitioner(id, instancesOfSeries.get(0).getString(Tag.PerformingPhysicianName))) {
+                    id = "practitioner" + ++practitionerNo;
+                }
+            }
+        }
+
+        private void writeAccessionNumber(IDWithIssuer idWithIssuer) {
+            if (idWithIssuer != null) {
+                gen.writeStartArray("basedOn");
+                gen.writeStartObject();
+                gen.write("type", "ServiceRequest");
+                gen.writeStartObject("identifier");
+                gen.writeStartObject("type");
+                writeCoding("http://terminology.hl7.org/CodeSystem/v2-0203", "ACSN", null);
+                gen.writeEnd();
+                gen.write("value", idWithIssuer.getID());
+                Issuer issuer = idWithIssuer.getIssuer();
+                String system = arcdev.fhirSystemOfAccessionNumber(issuer);
+                if (system != null) {
+                    gen.writeStartObject("assigner");
+                    gen.write("system", system);
+                    writeNotNull("display", issuer.getLocalNamespaceEntityID());
+                    gen.writeEnd();
+                }
+                gen.writeEnd();
+                gen.writeEnd();
+                gen.writeEnd();
+            }
+        }
+
+        private void writeModalities(Collection<String> modalities) {
+            if (!modalities.isEmpty()) {
+                gen.writeStartArray("modality");
+                for (String modality : modalities) {
+                    gen.writeStartObject();
+                    writeCoding("http://dicom.nema.org/resources/ontology/DCM", modality, null);
+                    gen.writeEnd();
+                }
+                gen.writeEnd();
+            }
+        }
+
+        private void writeModality(String modality) {
+            if (modality != null) {
+                gen.writeStartObject("modality");
+                writeCoding("http://dicom.nema.org/resources/ontology/DCM", modality, null);
+                gen.writeEnd();
+            }
+        }
+
+        private void writeBodyPartExamined(String bodyPartExamined) {
+            Code code = bodyPartExamined != null ? AnatomicRegion.codeOf(bodyPartExamined) : null;
+            if (code != null) {
+                gen.writeStartObject("bodySite");
+                gen.writeStartObject("concept");
+                writeCoding("http://snomed.info/sct", code.getCodeValue(), code.getCodeMeaning());
+                gen.writeEnd();
+                gen.writeEnd();
+            }
+        }
+
+        private void writeLaterality(String laterality) {
+            boolean l;
+            if (laterality != null && ((l = laterality.equals("L")) || laterality.equals("R"))) {
+                gen.writeStartObject("laterality");
+                if (l)
+                    writeCoding("http://snomed.info/sct", "7771000", "Left");
+                else {
+                    writeCoding("http://snomed.info/sct", "24028007", "Right");
+                }
+                gen.writeEnd();
+            }
+        }
+
+        private void writeCoding(String system, String code, String display) {
+            gen.writeStartArray("coding");
+            gen.writeStartObject();
+            gen.write("system", system);
+            gen.write("code", code);
+            writeNotNull("display", display);
+            gen.writeEnd();
+            gen.writeEnd();
+        }
+
+        private void writeCodingWithText(String system, String code, String display) {
+            writeCoding(system, code, display);
+            writeNotNull( "text", display);
+        }
+
+        private void writeConceptCode(String name, Attributes item) {
+            if (item != null) {
+                gen.writeStartArray(name);
+                gen.writeStartObject("concept");
+                writeCodingWithText(
+                        item.getString(Tag.CodingSchemeDesignator),
+                        item.getString(Tag.CodeValue),
+                        item.getString(Tag.CodeMeaning));
+                gen.writeEnd();
+                gen.writeEnd();
+            }
+        }
+
+        private void writeNotNull(String name, Date value, DateFormat dateFormat) {
+            if (value != null) gen.write(name, dateFormat.format(value));
+        }
+ 
         private void writeNotNull(String name, String value) {
             if (value != null) gen.write(name, value);
         }
@@ -277,7 +737,7 @@ public class FHIRBuilder {
                 : idWithIssuers;
     }
 
-    protected String patientURL(String logicalPatientID) {
+    protected String patientURL(HttpServletRequest request, String logicalPatientID) {
         StringBuffer requestURL = request.getRequestURL();
         requestURL.setLength(requestURL.indexOf("/patient") + 8);
         return requestURL.append('/').append(logicalPatientID).toString();
@@ -299,4 +759,30 @@ public class FHIRBuilder {
             default -> null;
         };
     }
+
+    private static Collection<String> listModalities(Collection<List<Attributes>> instancesBySeries) {
+        return instancesBySeries.stream().map(l -> l.get(0)
+                .getString(Tag.Modality))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    private static Date seriesStartDate(Attributes series) {
+        Date seriesStartDate = series.getDate(Tag.AcquisitionDateTime);
+        if (seriesStartDate == null) {
+            seriesStartDate = series.getDate(Tag.AcquisitionDateAndTime);
+            if (seriesStartDate == null) {
+                seriesStartDate = series.getDate(Tag.SeriesDateAndTime);
+            }
+        }
+        return seriesStartDate;
+    }
+
+    private static String documentTitle(Attributes inst) {
+        Attributes conceptNameCode = inst.getNestedDataset(Tag.ConceptNameCodeSequence);
+        return conceptNameCode != null
+                ? conceptNameCode.getString(Tag.CodeMeaning)
+                : inst.getString(Tag.DocumentTitle);
+    }
+
 }
