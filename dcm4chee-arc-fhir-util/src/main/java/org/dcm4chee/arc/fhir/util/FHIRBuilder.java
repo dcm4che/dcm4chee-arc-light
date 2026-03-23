@@ -133,23 +133,22 @@ public class FHIRBuilder {
                     .values();
             writer.writeStartElement("ImagingStudy");
             writer.writeDefaultNamespace("http://hl7.org/fhir");
-            writer.writeStartElement("contained");
-            writePatient("patient1", study, null);
-            writer.writeEndElement();
-            boolean referrer = writePractitioner("practitioner1", study.getString(Tag.ReferringPhysicianName)) ;
-            int practitionerNo = referrer ? 1 : 0;
-            writePerformingPhysicians(instancesBySeries, practitionerNo);
-            boolean organisation = LTNHR_V1 && writeOrganization("organisation1", study);
             if (LTNHR_V1) {
-                if (organisation) writeOrganizationExtension("#organisation1");
+                writeOrganization("Organization1", study);
                 writeExtension("http://esveikata.lt/Profile/ltnhr-imagingstudy#reported",
                         "valueBoolean", "false");
             }
-            writeEmptyElement("status", "value", "available");
             writeStudyIUID(study.getString(Tag.StudyInstanceUID));
+            writeEmptyElement("status", "value", "available");
+            writer.writeStartElement("contained");
+            writePatient("patient1", study, null);
+            writer.writeEndElement();
             writer.writeStartElement("subject");
             writeEmptyElement("reference", "value", "#patient1");
             writer.writeEndElement();
+            boolean referrer = writePractitioner("Practitioner1", study.getString(Tag.ReferringPhysicianName)) ;
+            int practitionerNo = referrer ? 1 : 0;
+            writePerformingPhysicians(instancesBySeries, practitionerNo);
             if (referrer) {
                 writer.writeStartElement("referrer");
                 writeEmptyElement("reference", "value", "#practitioner1");
@@ -176,7 +175,7 @@ public class FHIRBuilder {
                 writeEmptyElementNotNull("description", "value", series.getString(Tag.SeriesDescription));
                 writeEmptyElement("numberOfInstances", "value", seriesOfInstances.size());
                 if (series.containsValue(Tag.PerformingPhysicianName)) {
-                   writePerformerReference("#practitioner" + ++practitionerNo);
+                   writePerformerReference("#Practitioner" + ++practitionerNo);
                 }
                 writeBodyPartExamined(series.getString(Tag.BodyPartExamined));
                 writeLaterality(series.getString(Tag.Laterality));
@@ -201,10 +200,10 @@ public class FHIRBuilder {
 
         private void writePerformingPhysicians(Collection<List<Attributes>> instancesBySeries, int practitionerNo)
                 throws XMLStreamException {
-            String id = "practitioner" + ++practitionerNo;
+            String id = "Practitioner" + ++practitionerNo;
             for (List<Attributes> instancesOfSeries : instancesBySeries) {
                 if (writePractitioner(id, instancesOfSeries.get(0).getString(Tag.PerformingPhysicianName))) {
-                    id = "practitioner" + ++practitionerNo;
+                    id = "Practitioner" + ++practitionerNo;
                 }
             }
         }
