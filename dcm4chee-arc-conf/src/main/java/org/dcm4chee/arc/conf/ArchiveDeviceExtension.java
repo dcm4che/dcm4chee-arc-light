@@ -382,6 +382,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
     private final List<UPSOnHL7> upsOnHL7List = new ArrayList<>();
     private final List<UPSOnUPSCompleted> upsOnUPSCompletedList = new ArrayList<>();
+    private final List<UPSOnUPSCanceled> upsOnUPSCanceledList = new ArrayList<>();
     private final List<UPSProcessingRule> upsProcessingRuleList = new ArrayList<>();
     private final List<ExportRule> exportRules = new ArrayList<>();
     private final List<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
@@ -2347,6 +2348,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         return upsOnUPSCompletedList;
     }
 
+    public void removeUPSOnUPSCanceled(UPSOnUPSCanceled rule) {
+        upsOnUPSCanceledList.remove(rule);
+    }
+
+    public void clearUPSOnUPSCanceled() {
+        upsOnUPSCanceledList.clear();
+    }
+
+    public void addUPSOnUPSCanceled(UPSOnUPSCanceled upsOnUPSCanceled) {
+        upsOnUPSCanceledList.add(upsOnUPSCanceled);
+    }
+
+    public Collection<UPSOnUPSCanceled> listUPSOnUPSCanceled() {
+        return upsOnUPSCanceledList;
+    }
+
     public void removeUPSOnHL7(UPSOnHL7 rule) {
         upsOnHL7List.remove(rule);
     }
@@ -4225,6 +4242,8 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         upsOnStoreList.addAll(arcdev.upsOnStoreList);
         upsOnUPSCompletedList.clear();
         upsOnUPSCompletedList.addAll(arcdev.upsOnUPSCompletedList);
+        upsOnUPSCanceledList.clear();
+        upsOnUPSCanceledList.addAll(arcdev.upsOnUPSCanceledList);
         upsOnHL7List.clear();
         upsOnHL7List.addAll(arcdev.upsOnHL7List);
         upsProcessingRuleList.clear();

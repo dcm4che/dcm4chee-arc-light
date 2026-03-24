@@ -41,7 +41,9 @@
 
 package org.dcm4chee.arc.conf;
 
-import org.dcm4che3.data.*;
+import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Code;
+import org.dcm4che3.data.Issuer;
 import org.dcm4che3.util.AttributesFormat;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
@@ -50,14 +52,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
- * @author Gunter Zeilinger (gunterze@protonmail.com)
- * @since Nov 2019
+ * @author Vrinda Nayak <vrinda.nayak@j4care.com>
+ * @since Mar 2026
  */
-public class UPSOnUPSCompleted {
-    public static final UPSOnUPSCompleted[] EMPTY = {};
-    private String upsOnUPSCompletedID;
+public class UPSOnUPSCanceled {
+    public static final UPSOnUPSCanceled[] EMPTY = {};
+    private String upsOnUPSCanceledID;
     private Conditions conditions = new Conditions();
-    private String[] requiresOtherUPSCompleted = {};
+    private String[] requiresOtherUPSCanceled = {};
     private UPSPriority upsPriority = UPSPriority.MEDIUM;
     private InputReadinessState inputReadinessState = InputReadinessState.READY;
     private IncludeInputInformation includeInputInformation = IncludeInputInformation.COPY_OUTPUT;
@@ -83,18 +85,18 @@ public class UPSOnUPSCompleted {
     private boolean includeReferencedRequest;
     private boolean includePatient = true;
 
-    public UPSOnUPSCompleted() {}
+    public UPSOnUPSCanceled() {}
 
-    public UPSOnUPSCompleted(String upsOnUPSCompletedID) {
-        setUPSonUPSCompletedID(upsOnUPSCompletedID);
+    public UPSOnUPSCanceled(String upsOnUPSCanceledID) {
+        setUPSOnUPSCanceledID(upsOnUPSCanceledID);
     }
 
-    public String getUPSonUPSCompletedID() {
-        return upsOnUPSCompletedID;
+    public String getUPSOnUPSCanceledID() {
+        return upsOnUPSCanceledID;
     }
 
-    public void setUPSonUPSCompletedID(String UPSonUPSCompletedID) {
-        this.upsOnUPSCompletedID = UPSonUPSCompletedID;
+    public void setUPSOnUPSCanceledID(String UPSOnUPSCanceledID) {
+        this.upsOnUPSCanceledID = UPSOnUPSCanceledID;
     }
 
     public Conditions getConditions() {
@@ -105,12 +107,12 @@ public class UPSOnUPSCompleted {
         this.conditions = conditions;
     }
 
-    public String[] getRequiresOtherUPSCompleted() {
-        return requiresOtherUPSCompleted;
+    public String[] getRequiresOtherUPSCanceled() {
+        return requiresOtherUPSCanceled;
     }
 
-    public void setRequiresOtherUPSCompleted(String[] requiresOtherUPSCompleted) {
-        this.requiresOtherUPSCompleted = requiresOtherUPSCompleted;
+    public void setRequiresOtherUPSCanceled(String[] requiresOtherUPSCanceled) {
+        this.requiresOtherUPSCanceled = requiresOtherUPSCanceled;
     }
 
     public UPSPriority getUPSPriority() {
@@ -333,8 +335,8 @@ public class UPSOnUPSCompleted {
 
     @Override
     public String toString() {
-        return "UPSOnUPSCompleted{" +
-                "cn='" + upsOnUPSCompletedID + '\'' +
+        return "UPSOnUPSCanceled{" +
+                "cn='" + upsOnUPSCanceledID + '\'' +
                 '}';
     }
 

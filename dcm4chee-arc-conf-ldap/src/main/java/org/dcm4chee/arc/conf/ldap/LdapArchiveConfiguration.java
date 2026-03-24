@@ -1826,6 +1826,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeUPSProcessingRules(diffs, deviceDN, arcDev);
         storeUPSOnHL7List(diffs, arcDev.listUPSOnHL7(), deviceDN, config);
         storeUPSOnUPSCompletedList(diffs, arcDev.listUPSOnUPSCompleted(), deviceDN);
+        storeUPSOnUPSCanceledList(diffs, arcDev.listUPSOnUPSCanceled(), deviceDN);
         storeMWLIdleTimeouts(diffs, arcDev.getMWLIdleTimeouts(), deviceDN);
         storeMWLImports(diffs, arcDev.getMWLImports(), deviceDN);
         config.store(diffs, arcDev.getBulkDataDescriptors(), deviceDN);
@@ -1868,6 +1869,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadUPSProcessingRules(arcdev, deviceDN);
         loadUPSOnHL7List(arcdev.listUPSOnHL7(), deviceDN, config);
         loadUPSOnUPSCompletedList(arcdev.listUPSOnUPSCompleted(), deviceDN);
+        loadUPSOnUPSCanceledList(arcdev.listUPSOnUPSCanceled(), deviceDN);
         loadMWLIdleTimeouts(arcdev.getMWLIdleTimeouts(), deviceDN);
         loadMWLImports(arcdev.getMWLImports(), deviceDN);
         config.load(arcdev.getBulkDataDescriptors(), deviceDN);
@@ -1920,6 +1922,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeUPSOnHL7List(diffs, aa.listUPSOnHL7(), bb.listUPSOnHL7(), deviceDN, config);
         mergeUPSProcessingRules(diffs, aa, bb, deviceDN);
         mergeUPSOnUPSCompletedList(diffs, aa.listUPSOnUPSCompleted(), bb.listUPSOnUPSCompleted(), deviceDN);
+        mergeUPSOnUPSCanceledList(diffs, aa.listUPSOnUPSCanceled(), bb.listUPSOnUPSCanceled(), deviceDN);
         mergeMWLIdleTimeouts(diffs, aa.getMWLIdleTimeouts(), bb.getMWLIdleTimeouts(), deviceDN);
         mergeMWLImports(diffs, aa.getMWLImports(), bb.getMWLImports(), deviceDN);
         config.merge(diffs, aa.getBulkDataDescriptors(), bb.getBulkDataDescriptors(), deviceDN);
@@ -2635,6 +2638,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         storeRSForwardRules(diffs, aeExt.getRSForwardRules(), aeDN);
         storeUPSOnStoreList(diffs, aeExt.listUPSOnStore(), aeDN);
         storeUPSOnUPSCompletedList(diffs, aeExt.listUPSOnUPSCompleted(), aeDN);
+        storeUPSOnUPSCanceledList(diffs, aeExt.listUPSOnUPSCanceled(), aeDN);
     }
 
     @Override
@@ -2654,6 +2658,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         loadRSForwardRules(aeExt.getRSForwardRules(), aeDN);
         loadUPSOnStoreList(aeExt.listUPSOnStore(), aeDN);
         loadUPSOnUPSCompletedList(aeExt.listUPSOnUPSCompleted(), aeDN);
+        loadUPSOnUPSCanceledList(aeExt.listUPSOnUPSCanceled(), aeDN);
     }
 
     @Override
@@ -2680,6 +2685,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         mergeRSForwardRules(diffs, aa.getRSForwardRules(), bb.getRSForwardRules(), aeDN);
         mergeUPSOnStoreList(diffs, aa.listUPSOnStore(), bb.listUPSOnStore(), aeDN);
         mergeUPSOnUPSCompletedList(diffs, aa.listUPSOnUPSCompleted(), bb.listUPSOnUPSCompleted(), aeDN);
+        mergeUPSOnUPSCanceledList(diffs, aa.listUPSOnUPSCanceled(), bb.listUPSOnUPSCanceled(), aeDN);
     }
 
     private void storeAttributeFilter(ConfigurationChanges diffs, String deviceDN, ArchiveDeviceExtension arcDev)
@@ -3666,6 +3672,17 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void storeUPSOnUPSCanceledList(
+            ConfigurationChanges diffs, Collection<UPSOnUPSCanceled> upsOnUPSCanceledList, String parentDN)
+            throws NamingException {
+        for (UPSOnUPSCanceled upsOnUPSCanceled : upsOnUPSCanceledList) {
+            String dn = LdapUtils.dnOf("dcmUPSOnUPSCanceledID", upsOnUPSCanceled.getUPSOnUPSCanceledID(), parentDN);
+            ConfigurationChanges.ModifiedObject ldapObj =
+                    ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+            config.createSubcontext(dn, storeTo(ldapObj, upsOnUPSCanceled, new BasicAttributes(true)));
+        }
+    }
+
     private void storeUPSProcessingRules(ConfigurationChanges diffs, String deviceDN, ArchiveDeviceExtension arcDev)
             throws NamingException {
         for (UPSProcessingRule upsProcessingRule : arcDev.listUPSProcessingRules()) {
@@ -3814,7 +3831,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(
                 ldapObj, attrs, "dcmUPSInstanceUIDBasedOnName", upsOnUPSCompleted.getInstanceUIDBasedOnName(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSIncludeInputInformation",
-                upsOnUPSCompleted.getIncludeInputInformation(), UPSOnUPSCompleted.IncludeInputInformation.COPY_OUTPUT);
+                upsOnUPSCompleted.getIncludeInputInformation(), IncludeInputInformation.COPY_OUTPUT);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludePatient", upsOnUPSCompleted.isIncludePatient(), true);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,
                 "dcmUPSPriority", upsOnUPSCompleted.getUPSPriority(), UPSPriority.MEDIUM);
@@ -3854,6 +3871,63 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnUPSCompleted.isIncludeReferencedRequest(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", upsOnUPSCompleted.getXSLTStylesheetURI(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoKeywords", upsOnUPSCompleted.isNoKeywords(), false);
+        return attrs;
+    }
+
+    private Attributes storeTo(
+            ConfigurationChanges.ModifiedObject ldapObj, UPSOnUPSCanceled upsOnUPSCanceled, BasicAttributes attrs) {
+        attrs.put("objectclass", "dcmUPSOnUPSCanceled");
+        attrs.put("dcmUPSOnUPSCanceledID", upsOnUPSCanceled.getUPSOnUPSCanceledID());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", upsOnUPSCanceled.getConditions().getMap());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmRequiresOtherUPSCanceled",
+                upsOnUPSCanceled.getRequiresOtherUPSCanceled());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,
+                "dcmUPSLabel", upsOnUPSCanceled.getProcedureStepLabel(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,
+                "dcmUPSWorklistLabel", upsOnUPSCanceled.getWorklistLabel(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSInstanceUIDBasedOnName", upsOnUPSCanceled.getInstanceUIDBasedOnName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSIncludeInputInformation",
+                upsOnUPSCanceled.getIncludeInputInformation(), IncludeInputInformation.COPY_OUTPUT);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludePatient", upsOnUPSCanceled.isIncludePatient(), true);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs,
+                "dcmUPSPriority", upsOnUPSCanceled.getUPSPriority(), UPSPriority.MEDIUM);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSInputReadinessState",
+                upsOnUPSCanceled.getInputReadinessState(), InputReadinessState.READY);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSStartDateTimeDelay",
+                upsOnUPSCanceled.getStartDateTimeDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSCompletionDateTimeDelay",
+                upsOnUPSCanceled.getCompletionDateTimeDelay(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDestinationAE",
+                upsOnUPSCanceled.getDestinationAE(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmEntity",
+                upsOnUPSCanceled.getScopeOfAccumulation(), null);
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledWorkitemCode",
+                upsOnUPSCanceled.getScheduledWorkitemCode(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationNameCode",
+                upsOnUPSCanceled.getScheduledStationNames());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationClassCode",
+                upsOnUPSCanceled.getScheduledStationClasses());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledStationLocationCode",
+                upsOnUPSCanceled.getScheduledStationLocations());
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSScheduledHumanPerformerCode",
+                upsOnUPSCanceled.getScheduledHumanPerformers());
+        LdapUtils.storeNotNullOrDef(
+                ldapObj, attrs, "dcmUPSScheduledHumanPerformerName",
+                upsOnUPSCanceled.getScheduledHumanPerformerName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSScheduledHumanPerformerOrganization",
+                upsOnUPSCanceled.getScheduledHumanPerformerOrganization(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAdmissionID",
+                upsOnUPSCanceled.getAdmissionID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomIssuerOfAdmissionID",
+                upsOnUPSCanceled.getIssuerOfAdmissionID(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludeStudyInstanceUID",
+                upsOnUPSCanceled.isIncludeStudyInstanceUID(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSIncludeReferencedRequest",
+                upsOnUPSCanceled.isIncludeReferencedRequest(), false);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", upsOnUPSCanceled.getXSLTStylesheetURI(), null);
+        LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoKeywords", upsOnUPSCanceled.isNoKeywords(), false);
         return attrs;
     }
 
@@ -4140,9 +4214,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnUPSCompleted.setInstanceUIDBasedOnName(
                         LdapUtils.stringValue(attrs.get("dcmUPSInstanceUIDBasedOnName"), null));
                 upsOnUPSCompleted.setIncludeInputInformation(
-                        LdapUtils.enumValue(UPSOnUPSCompleted.IncludeInputInformation.class,
+                        LdapUtils.enumValue(IncludeInputInformation.class,
                                 attrs.get("dcmUPSIncludeInputInformation"),
-                                UPSOnUPSCompleted.IncludeInputInformation.COPY_OUTPUT));
+                                IncludeInputInformation.COPY_OUTPUT));
                 upsOnUPSCompleted.setIncludePatient(LdapUtils.booleanValue(attrs.get("dcmUPSIncludePatient"), true));
                 upsOnUPSCompleted.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
                 upsOnUPSCompleted.setScopeOfAccumulation(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), null));
@@ -4164,6 +4238,64 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnUPSCompleted.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 upsOnUPSCompleted.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
                 upsOnUPSCompletedList.add(upsOnUPSCompleted);
+            }
+        } finally {
+            LdapUtils.safeClose(ne);
+        }
+    }
+
+    private void loadUPSOnUPSCanceledList(Collection<UPSOnUPSCanceled> upsOnUPSCanceledList, String parentDN)
+            throws NamingException {
+        NamingEnumeration<SearchResult> ne = config.search(parentDN, "(objectclass=dcmUPSOnUPSCanceled)");
+        try {
+            while (ne.hasMore()) {
+                SearchResult sr = ne.next();
+                Attributes attrs = sr.getAttributes();
+                UPSOnUPSCanceled upsOnUPSCanceled = new UPSOnUPSCanceled(
+                        LdapUtils.stringValue(attrs.get("dcmUPSOnUPSCanceledID"), null));
+                upsOnUPSCanceled.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
+                upsOnUPSCanceled.setRequiresOtherUPSCanceled(
+                        LdapUtils.stringArray(attrs.get("dcmRequiresOtherUPSCanceled")));
+                upsOnUPSCanceled.setProcedureStepLabel(LdapUtils.stringValue(attrs.get("dcmUPSLabel"), null));
+                upsOnUPSCanceled.setUPSPriority(
+                        LdapUtils.enumValue(UPSPriority.class,
+                                attrs.get("dcmUPSPriority"),
+                                UPSPriority.MEDIUM));
+                upsOnUPSCanceled.setInputReadinessState(
+                        LdapUtils.enumValue(InputReadinessState.class,
+                                attrs.get("dcmUPSInputReadinessState"),
+                                InputReadinessState.READY));
+                upsOnUPSCanceled.setStartDateTimeDelay(toDuration(attrs.get("dcmUPSStartDateTimeDelay"), null));
+                upsOnUPSCanceled.setCompletionDateTimeDelay(
+                        toDuration(attrs.get("dcmUPSCompletionDateTimeDelay"), null));
+                upsOnUPSCanceled.setWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
+                upsOnUPSCanceled.setInstanceUIDBasedOnName(
+                        LdapUtils.stringValue(attrs.get("dcmUPSInstanceUIDBasedOnName"), null));
+                upsOnUPSCanceled.setIncludeInputInformation(
+                        LdapUtils.enumValue(IncludeInputInformation.class,
+                                attrs.get("dcmUPSIncludeInputInformation"),
+                                IncludeInputInformation.COPY_OUTPUT));
+                upsOnUPSCanceled.setIncludePatient(LdapUtils.booleanValue(attrs.get("dcmUPSIncludePatient"), true));
+                upsOnUPSCanceled.setDestinationAE(LdapUtils.stringValue(attrs.get("dcmDestinationAE"), null));
+                upsOnUPSCanceled.setScopeOfAccumulation(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), null));
+                upsOnUPSCanceled.setScheduledWorkitemCode(LdapUtils.codeValue(attrs.get("dcmUPSScheduledWorkitemCode")));
+                upsOnUPSCanceled.setScheduledStationNames(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationNameCode")));
+                upsOnUPSCanceled.setScheduledStationClasses(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationClassCode")));
+                upsOnUPSCanceled.setScheduledStationLocations(LdapUtils.codeArray(attrs.get("dcmUPSScheduledStationLocationCode")));
+                upsOnUPSCanceled.setScheduledHumanPerformers(LdapUtils.codeArray(attrs.get("dcmUPSScheduledHumanPerformerCode")));
+                upsOnUPSCanceled.setScheduledHumanPerformerName(
+                        LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerName"), null));
+                upsOnUPSCanceled.setScheduledHumanPerformerOrganization(
+                        LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerOrganization"), null));
+                upsOnUPSCanceled.setAdmissionID(LdapUtils.stringValue(attrs.get("dcmAdmissionID"), null));
+                upsOnUPSCanceled.setIssuerOfAdmissionID(LdapUtils.issuerValue(attrs.get("dicomIssuerOfAdmissionID")));
+                upsOnUPSCanceled.setIncludeStudyInstanceUID(
+                        LdapUtils.booleanValue(attrs.get("dcmUPSIncludeStudyInstanceUID"), false));
+                upsOnUPSCanceled.setIncludeReferencedRequest(
+                        LdapUtils.booleanValue(attrs.get("dcmUPSIncludeReferencedRequest"), false));
+                upsOnUPSCanceled.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
+                upsOnUPSCanceled.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
+                upsOnUPSCanceledList.add(upsOnUPSCanceled);
             }
         } finally {
             LdapUtils.safeClose(ne);
@@ -4645,6 +4777,36 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         }
     }
 
+    private void mergeUPSOnUPSCanceledList(
+            ConfigurationChanges diffs, Collection<UPSOnUPSCanceled> prevUPSOnUPSCanceledList,
+            Collection<UPSOnUPSCanceled> upsOnUPSCanceledList, String parentDN) throws NamingException {
+        for (UPSOnUPSCanceled prevUPSOnUPSCanceled : prevUPSOnUPSCanceledList) {
+            String id = prevUPSOnUPSCanceled.getUPSOnUPSCanceledID();
+            if (findUPSOnUPSCanceledByID(upsOnUPSCanceledList, id) == null) {
+                String dn = LdapUtils.dnOf("dcmUPSOnUPSCanceledID", id, parentDN);
+                config.destroySubcontext(dn);
+                ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.D);
+            }
+        }
+        for (UPSOnUPSCanceled rule : upsOnUPSCanceledList) {
+            String id = rule.getUPSOnUPSCanceledID();
+            String dn = LdapUtils.dnOf("dcmUPSOnUPSCanceledID", id, parentDN);
+            UPSOnUPSCanceled prevUPSOnUPSCanceled = findUPSOnUPSCanceledByID(prevUPSOnUPSCanceledList, id);
+            if (prevUPSOnUPSCanceled == null) {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.C);
+                config.createSubcontext(dn,
+                        storeTo(ConfigurationChanges.nullifyIfNotVerbose(diffs, ldapObj),
+                                rule, new BasicAttributes(true)));
+            } else {
+                ConfigurationChanges.ModifiedObject ldapObj =
+                        ConfigurationChanges.addModifiedObject(diffs, dn, ConfigurationChanges.ChangeType.U);
+                config.modifyAttributes(dn, storeDiffs(ldapObj, prevUPSOnUPSCanceled, rule, new ArrayList<>()));
+                ConfigurationChanges.removeLastIfEmpty(diffs, ldapObj);
+            }
+        }
+    }
+
     private void mergeUPSProcessingRules(ConfigurationChanges diffs, ArchiveDeviceExtension prev,
                                          ArchiveDeviceExtension arcDev, String deviceDN)
             throws NamingException {
@@ -4853,7 +5015,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getInstanceUIDBasedOnName(), upsOnUPSCompleted.getInstanceUIDBasedOnName(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSIncludeInputInformation",
                 prev.getIncludeInputInformation(), upsOnUPSCompleted.getIncludeInputInformation(),
-                UPSOnUPSCompleted.IncludeInputInformation.COPY_OUTPUT);
+                IncludeInputInformation.COPY_OUTPUT);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludePatient",
                 prev.isIncludePatient(), upsOnUPSCompleted.isIncludePatient(), true);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPriority",
@@ -4895,6 +5057,66 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getXSLTStylesheetURI(), upsOnUPSCompleted.getXSLTStylesheetURI(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmNoKeywords",
                 prev.isNoKeywords(), upsOnUPSCompleted.isNoKeywords(), false);
+        return mods;
+    }
+
+    private List<ModificationItem> storeDiffs(
+            ConfigurationChanges.ModifiedObject ldapObj, UPSOnUPSCanceled prev, UPSOnUPSCanceled upsOnUPSCanceled,
+            ArrayList<ModificationItem> mods) {
+        LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty",
+                prev.getConditions().getMap(), upsOnUPSCanceled.getConditions().getMap());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmRequiresOtherUPSCanceled",
+                prev.getRequiresOtherUPSCanceled(), upsOnUPSCanceled.getRequiresOtherUPSCanceled());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSLabel",
+                prev.getProcedureStepLabel(), upsOnUPSCanceled.getProcedureStepLabel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
+                prev.getWorklistLabel(), upsOnUPSCanceled.getWorklistLabel(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSInstanceUIDBasedOnName",
+                prev.getInstanceUIDBasedOnName(), upsOnUPSCanceled.getInstanceUIDBasedOnName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSIncludeInputInformation",
+                prev.getIncludeInputInformation(), upsOnUPSCanceled.getIncludeInputInformation(),
+                IncludeInputInformation.COPY_OUTPUT);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludePatient",
+                prev.isIncludePatient(), upsOnUPSCanceled.isIncludePatient(), true);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSPriority",
+                prev.getUPSPriority(), upsOnUPSCanceled.getUPSPriority(), UPSPriority.MEDIUM);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSInputReadinessState",
+                prev.getInputReadinessState(), upsOnUPSCanceled.getInputReadinessState(), InputReadinessState.READY);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSStartDateTimeDelay",
+                prev.getStartDateTimeDelay(), upsOnUPSCanceled.getStartDateTimeDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSCompletionDateTimeDelay",
+                prev.getCompletionDateTimeDelay(), upsOnUPSCanceled.getCompletionDateTimeDelay(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmDestinationAE",
+                prev.getDestinationAE(), upsOnUPSCanceled.getDestinationAE(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmEntity",
+                prev.getScopeOfAccumulation(), upsOnUPSCanceled.getScopeOfAccumulation(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledWorkitemCode",
+                prev.getScheduledWorkitemCode(), upsOnUPSCanceled.getScheduledWorkitemCode(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationNameCode",
+                prev.getScheduledStationNames(), upsOnUPSCanceled.getScheduledStationNames());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationClassCode",
+                prev.getScheduledStationClasses(), upsOnUPSCanceled.getScheduledStationClasses());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledStationLocationCode",
+                prev.getScheduledStationLocations(), upsOnUPSCanceled.getScheduledStationLocations());
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSScheduledHumanPerformerCode",
+                prev.getScheduledHumanPerformers(), upsOnUPSCanceled.getScheduledHumanPerformers());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerName",
+                prev.getScheduledHumanPerformerName(), upsOnUPSCanceled.getScheduledHumanPerformerName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSScheduledHumanPerformerOrganization",
+                prev.getScheduledHumanPerformerOrganization(),
+                upsOnUPSCanceled.getScheduledHumanPerformerOrganization(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAdmissionID",
+                prev.getAdmissionID(), upsOnUPSCanceled.getAdmissionID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomIssuerOfAdmissionID",
+                prev.getIssuerOfAdmissionID(), upsOnUPSCanceled.getIssuerOfAdmissionID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludeStudyInstanceUID",
+                prev.isIncludeStudyInstanceUID(), upsOnUPSCanceled.isIncludeStudyInstanceUID(), false);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSIncludeReferencedRequest",
+                prev.isIncludeReferencedRequest(), upsOnUPSCanceled.isIncludeReferencedRequest(), false);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI",
+                prev.getXSLTStylesheetURI(), upsOnUPSCanceled.getXSLTStylesheetURI(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmNoKeywords",
+                prev.isNoKeywords(), upsOnUPSCanceled.isNoKeywords(), false);
         return mods;
     }
 
@@ -5049,6 +5271,13 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         for (UPSOnUPSCompleted upsOnUPSCompleted : upsOnUPSCompletedList)
             if (upsOnUPSCompleted.getUPSonUPSCompletedID().equals(id))
                 return upsOnUPSCompleted;
+        return null;
+    }
+
+    private UPSOnUPSCanceled findUPSOnUPSCanceledByID(Collection<UPSOnUPSCanceled> upsOnUPSCanceledList, String id) {
+        for (UPSOnUPSCanceled upsOnUPSCanceled : upsOnUPSCanceledList)
+            if (upsOnUPSCanceled.getUPSOnUPSCanceledID().equals(id))
+                return upsOnUPSCanceled;
         return null;
     }
 

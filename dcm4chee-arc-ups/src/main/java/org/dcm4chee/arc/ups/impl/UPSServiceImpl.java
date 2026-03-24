@@ -237,6 +237,7 @@ public class UPSServiceImpl implements UPSService {
             UPS ups = ejb.changeUPSState(ctx, upsState, transactionUID);
             fireUPSEvents(ctx);
             if (upsState == UPSState.COMPLETED) onUPSCompleted(ctx, ups);
+            if (upsState == UPSState.CANCELED) onUPSCanceled(ctx, ups);
             return ups;
         } catch (DicomServiceException e) {
             throw e;
@@ -268,7 +269,7 @@ public class UPSServiceImpl implements UPSService {
                 && (refStudyIUID = item.getString(Tag.StudyInstanceUID)) != null) {
             for (String queryString : requiresOtherUPSCompleted) {
                 try (Query query = queryService.createUPSQuery(
-                        queryContextUPSNotCompleted(ctx, refStudyIUID, queryString))) {
+                        queryContextUPSNotStatuses(ctx, refStudyIUID, queryString, "SCHEDULED", "IN PROGRESS", "CANCELED"))) {
                     long notCompleted = query.fetchCount();
                     if (notCompleted > 0) {
                         LOG.info("Suspend {} on completion of {} caused by {} not completed required other UPS",
@@ -281,22 +282,59 @@ public class UPSServiceImpl implements UPSService {
         return true;
     }
 
-    private QueryContext queryContextUPSNotCompleted(UPSContext ctx, String refStudyIUID, String queryString) {
+    private QueryContext queryContextUPSNotStatuses(
+            UPSContext ctx, String refStudyIUID, String queryString, String... statuses) {
         QueryParam queryParam = new QueryParam(ctx.getApplicationEntity());
         queryParam.setCombinedDatetimeMatching(true);
         QueryContext queryContext = queryService.newQueryContext(ctx.getApplicationEntity(), queryParam);
-        queryContext.setQueryKeys(queryKeysUPSNotCompleted(refStudyIUID, queryString));
+        queryContext.setQueryKeys(queryKeysUPSNotStatuses(refStudyIUID, queryString, statuses));
         return queryContext;
     }
 
-    private static Attributes queryKeysUPSNotCompleted(String refStudyIUID, String queryString) {
+    private static Attributes queryKeysUPSNotStatuses(String refStudyIUID, String queryString, String... statuses) {
         Attributes keys = new QueryAttributes(QueryAttributes.parseQueryString(queryString), null)
                 .getQueryKeys();
         Attributes item = new Attributes(1);
         item.setString(Tag.StudyInstanceUID, VR.UI, refStudyIUID);
         keys.newSequence(Tag.ReferencedRequestSequence, 1).add(item);
-        keys.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED", "IN PROGRESS", "CANCELED");
+        keys.setString(Tag.ProcedureStepState, VR.CS, statuses);
         return keys;
+    }
+
+    private void onUPSCanceled(UPSContext ctx, UPS ups) {
+        Calendar now = Calendar.getInstance();
+        ctx.getArchiveAEExtension().upsOnUPSCanceledStream()
+                .filter(rule -> rule.getConditions()
+                        .match(ctx.getRemoteHostName(),
+                                ctx.getRequesterAET(),
+                                ctx.getLocalHostName(),
+                                ctx.getApplicationEntity().getAETitle(),
+                                ups.getAttributes()))
+                .peek(rule -> LOG.info("Apply {} on cancellation of {}", rule, ups))
+                .filter(rule -> isRequiredOtherUPSCanceled(ctx, ups, rule))
+                .forEach(rule -> createUPSOnUPSCanceled(ctx, ups, rule, now));
+    }
+
+    private boolean isRequiredOtherUPSCanceled(UPSContext ctx, UPS ups, UPSOnUPSCanceled rule) {
+        String[] requiresOtherUPSCanceled;
+        Attributes item;
+        String refStudyIUID;
+        if ((requiresOtherUPSCanceled = rule.getRequiresOtherUPSCanceled()).length > 0
+                && (item = ups.getAttributes().getNestedDataset(Tag.ReferencedRequestSequence)) != null
+                && (refStudyIUID = item.getString(Tag.StudyInstanceUID)) != null) {
+            for (String queryString : requiresOtherUPSCanceled) {
+                try (Query query = queryService.createUPSQuery(
+                        queryContextUPSNotStatuses(ctx, refStudyIUID, queryString, "SCHEDULED", "IN PROGRESS", "COMPLETED"))) {
+                    long notCanceled = query.fetchCount();
+                    if (notCanceled > 0) {
+                        LOG.info("Suspend {} on cancellation of {} caused by {} not canceled required other UPS",
+                                rule, ups, notCanceled);
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     private void createUPSOnUPSCompleted(UPSContext ctx, UPS prevUPS, UPSOnUPSCompleted rule, Calendar now) {
@@ -307,6 +345,17 @@ public class UPSServiceImpl implements UPSService {
             createUPS(upsCtx);
         } catch (UPSConfigurationException | DicomServiceException e) {
             LOG.info("Failed to apply {} create on completion of {}", rule, prevUPS, e);
+        }
+    }
+
+    private void createUPSOnUPSCanceled(UPSContext ctx, UPS prevUPS, UPSOnUPSCanceled rule, Calendar now) {
+        UPSContext upsCtx = newUPSContext(ctx);
+        upsCtx.setUPSInstanceUID(rule.getInstanceUID(prevUPS.getAttributes()));
+        try {
+            upsCtx.setAttributes(upsOnCanceled(upsCtx, prevUPS, now, rule));
+            createUPS(upsCtx);
+        } catch (UPSConfigurationException | DicomServiceException e) {
+            LOG.info("Failed to apply {} create on cancellation of {}", rule, prevUPS, e);
         }
     }
 
@@ -638,7 +687,7 @@ public class UPSServiceImpl implements UPSService {
     private Attributes upsOnCompleted(UPSContext upsCtx, UPS prevUPS, Calendar now, UPSOnUPSCompleted rule)
             throws UPSConfigurationException {
         Attributes prevUPSAttrs = prevUPS.getAttributes();
-        Attributes attrs = applyXSLT(rule, prevUPS);
+        Attributes attrs = applyXSLT(rule.getXSLTStylesheetURI(), rule.isNoKeywords(), prevUPS);
         if (rule.isIncludeStudyInstanceUID() && !attrs.contains(Tag.StudyInstanceUID))
             attrs.setString(Tag.StudyInstanceUID, VR.UI, prevUPSAttrs.getString(Tag.StudyInstanceUID));
         if (!attrs.contains(Tag.AdmissionID)) {
@@ -685,26 +734,86 @@ public class UPSServiceImpl implements UPSService {
         if (!attrs.contains(Tag.ScheduledProcedureStepPriority))
             attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, rule.getUPSPriority().toString());
         if (!attrs.contains(Tag.WorklistLabel))
-            attrs.setString(Tag.WorklistLabel, VR.LO, worklistLabel(rule, prevUPSAttrs, upsCtx));
+            attrs.setString(Tag.WorklistLabel, VR.LO, worklistLabel(rule.getWorklistLabel(prevUPSAttrs), upsCtx));
         if (!attrs.contains(Tag.ProcedureStepLabel))
             attrs.setString(Tag.ProcedureStepLabel, VR.LO, rule.getProcedureStepLabel(prevUPSAttrs));
         if (!attrs.contains(Tag.InputInformationSequence))
-            updateIncludeInputInformation(attrs, prevUPS, rule);
+            updateIncludeInputInformation(attrs, prevUPS, rule.getIncludeInputInformation(), rule.toString());
         UPSUtils.addScheduledProcessingParameter(attrs, ScopeOfAccumulation.CODE, rule.getScopeOfAccumulation());
         if (rule.isIncludePatient())
             attrs.addAll(prevUPS.getPatient().getAttributes());
         return attrs;
     }
 
-    private Attributes applyXSLT(UPSOnUPSCompleted upsOnUPSCompleted, UPS ups) {
-        String uri = upsOnUPSCompleted.getXSLTStylesheetURI();
+    private Attributes upsOnCanceled(UPSContext upsCtx, UPS prevUPS, Calendar now, UPSOnUPSCanceled rule)
+            throws UPSConfigurationException {
+        Attributes prevUPSAttrs = prevUPS.getAttributes();
+        Attributes attrs = applyXSLT(rule.getXSLTStylesheetURI(), rule.isNoKeywords(), prevUPS);
+        if (rule.isIncludeStudyInstanceUID() && !attrs.contains(Tag.StudyInstanceUID))
+            attrs.setString(Tag.StudyInstanceUID, VR.UI, prevUPSAttrs.getString(Tag.StudyInstanceUID));
+        if (!attrs.contains(Tag.AdmissionID)) {
+            attrs.setString(Tag.AdmissionID, VR.LO, rule.getAdmissionID(prevUPSAttrs));
+            UPSUtils.setIssuer(attrs, Tag.IssuerOfAdmissionID, rule.getIssuerOfAdmissionID());
+        }
+        if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime))
+            attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, UPSUtils.add(now, rule.getStartDateTimeDelay()));
+        if (rule.getCompletionDateTimeDelay() != null && !attrs.contains(Tag.ExpectedCompletionDateTime))
+            attrs.setDate(Tag.ExpectedCompletionDateTime, VR.DT, UPSUtils.add(now, rule.getCompletionDateTimeDelay()));
+        if (rule.getScheduledHumanPerformers().length > 0 && !attrs.contains(Tag.ScheduledHumanPerformersSequence))
+            UPSUtils.setScheduledHumanPerformerItems(attrs,
+                    rule.getScheduledHumanPerformers(),
+                    rule.getScheduledHumanPerformerName(attrs),
+                    rule.getScheduledHumanPerformerOrganization(attrs));
+        if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence))
+            UPSUtils.setCode(attrs, Tag.ScheduledWorkitemCodeSequence, rule.getScheduledWorkitemCode());
+        if (!attrs.contains(Tag.ScheduledStationNameCodeSequence))
+            UPSUtils.setCodes(attrs, Tag.ScheduledStationNameCodeSequence, rule.getScheduledStationNames());
+        if (!attrs.contains(Tag.ScheduledStationClassCodeSequence))
+            UPSUtils.setCodes(attrs, Tag.ScheduledStationClassCodeSequence, rule.getScheduledStationClasses());
+        if (!attrs.contains(Tag.ScheduledStationGeographicLocationCodeSequence))
+            UPSUtils.setCodes(attrs, Tag.ScheduledStationGeographicLocationCodeSequence, rule.getScheduledStationLocations());
+        if (!attrs.contains(Tag.InputReadinessState))
+            attrs.setString(Tag.InputReadinessState, VR.CS, rule.getInputReadinessState().toString());
+        if (!attrs.contains(Tag.ReferencedRequestSequence)) {
+            if (rule.isIncludeReferencedRequest()) {
+                Attributes refReqSq = prevUPSAttrs.getNestedDataset(Tag.ReferencedRequestSequence);
+                if (refReqSq == null)
+                    throw new UPSConfigurationException(
+                            rule + " configured to include Referenced Request, but previous UPS "
+                                    + prevUPS
+                                    + " attributes does not contain Referenced Request Sequence");
+
+                attrs.newSequence(Tag.ReferencedRequestSequence, 1).add(refReqSq);
+            }
+            else
+                attrs.setNull(Tag.ReferencedRequestSequence, VR.SQ);
+        }
+        if (rule.getDestinationAE() != null && !attrs.contains(Tag.OutputDestinationSequence))
+            attrs.newSequence(Tag.OutputDestinationSequence, 1)
+                    .add(UPSUtils.outputStorage(rule.getDestinationAE()));
+        attrs.setString(Tag.ProcedureStepState, VR.CS, "SCHEDULED");
+        if (!attrs.contains(Tag.ScheduledProcedureStepPriority))
+            attrs.setString(Tag.ScheduledProcedureStepPriority, VR.CS, rule.getUPSPriority().toString());
+        if (!attrs.contains(Tag.WorklistLabel))
+            attrs.setString(Tag.WorklistLabel, VR.LO, worklistLabel(rule.getWorklistLabel(prevUPSAttrs), upsCtx));
+        if (!attrs.contains(Tag.ProcedureStepLabel))
+            attrs.setString(Tag.ProcedureStepLabel, VR.LO, rule.getProcedureStepLabel(prevUPSAttrs));
+        if (!attrs.contains(Tag.InputInformationSequence))
+            updateIncludeInputInformation(attrs, prevUPS, rule.getIncludeInputInformation(), rule.toString());
+        UPSUtils.addScheduledProcessingParameter(attrs, ScopeOfAccumulation.CODE, rule.getScopeOfAccumulation());
+        if (rule.isIncludePatient())
+            attrs.addAll(prevUPS.getPatient().getAttributes());
+        return attrs;
+    }
+
+    private Attributes applyXSLT(String uri, boolean noKeywords, UPS ups) {
         if (uri != null) {
             try {
                 return SAXTransformer.transform(
                         ups.getAttributes(),
                         TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(uri)),
                         false,
-                        !upsOnUPSCompleted.isNoKeywords(),
+                        !noKeywords,
                         null);
             } catch (SAXException e) {
                 LOG.warn("{}: Failed to apply XSL: {}", ups, uri, e);
@@ -715,18 +824,20 @@ public class UPSServiceImpl implements UPSService {
         return new Attributes();
     }
 
-    private String worklistLabel(UPSOnUPSCompleted rule, Attributes prevUPSAttrs, UPSContext ctx) {
-        String worklistLabel = rule.getWorklistLabel(prevUPSAttrs);
-        return worklistLabel != null ? worklistLabel : ctx.getArchiveAEExtension().upsWorklistLabel();
+    private String worklistLabel(String worklistLabel, UPSContext ctx) {
+        return worklistLabel != null
+                ? worklistLabel
+                : ctx.getArchiveAEExtension().upsWorklistLabel();
     }
 
-    private void updateIncludeInputInformation(Attributes attrs, UPS prevUPS, UPSOnUPSCompleted rule)
+    private void updateIncludeInputInformation(
+            Attributes attrs, UPS prevUPS, IncludeInputInformation includeInputInformation, String ruleAsStr)
             throws UPSConfigurationException {
         Attributes prevUPSAttrs = prevUPS.getAttributes();
-        if (rule.getIncludeInputInformation() == UPSOnUPSCompleted.IncludeInputInformation.NO)
+        if (includeInputInformation == IncludeInputInformation.NO)
             return;
 
-        if (rule.getIncludeInputInformation() == UPSOnUPSCompleted.IncludeInputInformation.COPY_INPUT) {
+        if (includeInputInformation == IncludeInputInformation.COPY_INPUT) {
             Sequence prevUPSInputInfoSeq = prevUPSAttrs.getSequence(Tag.InputInformationSequence);
             attrs.newSequence(Tag.InputInformationSequence, prevUPSInputInfoSeq.size())
                     .addAll(prevUPSInputInfoSeq.stream()
@@ -739,7 +850,7 @@ public class UPSServiceImpl implements UPSService {
                                                     .getSequence(Tag.OutputInformationSequence);
         if (prevUPSOutputInfoSeq == null)
             throw new UPSConfigurationException(
-                    rule + " configured to include Output Information of previous UPS. "
+                    ruleAsStr + " configured to include Output Information of previous UPS. "
                          + "Missing Output Information Sequence in previous UPS "
                          + prevUPS);
 

@@ -519,6 +519,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeUPSOnHL7List(writer, arcDev.listUPSOnHL7());
         writeUPSProcessingRules(writer, arcDev.listUPSProcessingRules());
         writeUPSOnUPSCompletedList(writer, arcDev.listUPSOnUPSCompleted());
+        writeUPSOnUPSCanceledList(writer, arcDev.listUPSOnUPSCanceled());
         writeMWLIdleTimeout(writer, arcDev.getMWLIdleTimeouts());
         writeMWLImportRule(writer, arcDev.getMWLImports());
         config.writeBulkdataDescriptors(arcDev.getBulkDataDescriptors(), writer);
@@ -1236,7 +1237,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef(
                     "dcmUPSIncludeInputInformation",
                     upsOnUPSCompleted.getIncludeInputInformation(),
-                    UPSOnUPSCompleted.IncludeInputInformation.COPY_OUTPUT);
+                    IncludeInputInformation.COPY_OUTPUT);
             writer.writeNotDef("dcmUPSIncludePatient", upsOnUPSCompleted.isIncludePatient(), true);
             writer.writeNotNullOrDef("dcmUPSPriority", upsOnUPSCompleted.getUPSPriority(), UPSPriority.MEDIUM);
             writer.writeNotNullOrDef(
@@ -1268,6 +1269,58 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     "dcmUPSIncludeReferencedRequest", upsOnUPSCompleted.isIncludeReferencedRequest(), false);
             writer.writeNotNullOrDef("dcmURI", upsOnUPSCompleted.getXSLTStylesheetURI(), null);
             writer.writeNotDef("dcmNoKeywords", upsOnUPSCompleted.isNoKeywords(), false);
+            writer.writeEnd();
+        });
+        writer.writeEnd();
+    }
+
+    private static void writeUPSOnUPSCanceledList(JsonWriter writer, Collection<UPSOnUPSCanceled> upsOnUPSCanceledList) {
+        writer.writeStartArray("dcmUPSOnUPSCanceled");
+        upsOnUPSCanceledList.forEach(upsOnUPSCanceled -> {
+            writer.writeStartObject();
+            writer.writeNotNullOrDef(
+                    "dcmUPSOnUPSCanceledID", upsOnUPSCanceled.getUPSOnUPSCanceledID(), null);
+            writer.writeNotNullOrDef("dcmUPSLabel", upsOnUPSCanceled.getProcedureStepLabel(), null);
+            writer.writeNotEmpty("dcmProperty", upsOnUPSCanceled.getConditions().getMap());
+            writer.writeNotEmpty("dcmRequiresOtherUPSCanceled", upsOnUPSCanceled.getRequiresOtherUPSCanceled());
+            writer.writeNotNullOrDef("dcmUPSWorklistLabel", upsOnUPSCanceled.getWorklistLabel(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSInstanceUIDBasedOnName", upsOnUPSCanceled.getInstanceUIDBasedOnName(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSIncludeInputInformation",
+                    upsOnUPSCanceled.getIncludeInputInformation(),
+                    IncludeInputInformation.COPY_OUTPUT);
+            writer.writeNotDef("dcmUPSIncludePatient", upsOnUPSCanceled.isIncludePatient(), true);
+            writer.writeNotNullOrDef("dcmUPSPriority", upsOnUPSCanceled.getUPSPriority(), UPSPriority.MEDIUM);
+            writer.writeNotNullOrDef(
+                    "dcmUPSInputReadinessState", upsOnUPSCanceled.getInputReadinessState(), InputReadinessState.READY);
+            writer.writeNotNullOrDef("dcmUPSStartDateTimeDelay", upsOnUPSCanceled.getStartDateTimeDelay(), null);
+            writer.writeNotNullOrDef("dcmUPSCompletionDateTimeDelay",
+                    upsOnUPSCanceled.getCompletionDateTimeDelay(), null);
+            writer.writeNotNullOrDef("dcmDestinationAE", upsOnUPSCanceled.getDestinationAE(), null);
+            writer.writeNotNullOrDef("dcmEntity", upsOnUPSCanceled.getScopeOfAccumulation(), null);
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledWorkitemCode", upsOnUPSCanceled.getScheduledWorkitemCode(), null);
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationNameCode", upsOnUPSCanceled.getScheduledStationNames());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationClassCode", upsOnUPSCanceled.getScheduledStationClasses());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledStationLocationCode", upsOnUPSCanceled.getScheduledStationLocations());
+            writer.writeNotEmpty(
+                    "dcmUPSScheduledHumanPerformerCode", upsOnUPSCanceled.getScheduledHumanPerformers());
+            writer.writeNotNullOrDef(
+                    "dcmUPSScheduledHumanPerformerName", upsOnUPSCanceled.getScheduledHumanPerformerName(), null);
+            writer.writeNotNullOrDef("dcmUPSScheduledHumanPerformerOrganization",
+                    upsOnUPSCanceled.getScheduledHumanPerformerOrganization(), null);
+            writer.writeNotNullOrDef("dcmAdmissionID", upsOnUPSCanceled.getAdmissionID(), null);
+            writer.writeNotNullOrDef("dicomIssuerOfAdmissionID", upsOnUPSCanceled.getIssuerOfAdmissionID(), null);
+            writer.writeNotDef(
+                    "dcmUPSIncludeStudyInstanceUID", upsOnUPSCanceled.isIncludeStudyInstanceUID(), false);
+            writer.writeNotDef(
+                    "dcmUPSIncludeReferencedRequest", upsOnUPSCanceled.isIncludeReferencedRequest(), false);
+            writer.writeNotNullOrDef("dcmURI", upsOnUPSCanceled.getXSLTStylesheetURI(), null);
+            writer.writeNotDef("dcmNoKeywords", upsOnUPSCanceled.isNoKeywords(), false);
             writer.writeEnd();
         });
         writer.writeEnd();
@@ -1457,6 +1510,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writeRSForwardRules(writer, arcAE.getRSForwardRules());
         writeUPSOnStoreList(writer, arcAE.listUPSOnStore());
         writeUPSOnUPSCompletedList(writer, arcAE.listUPSOnUPSCompleted());
+        writeUPSOnUPSCanceledList(writer, arcAE.listUPSOnUPSCanceled());
         writer.writeEnd();
     }
 
@@ -2459,6 +2513,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSOnUPSCompleted":
                     loadUPSOnUPSCompletedList(arcDev.listUPSOnUPSCompleted(), reader);
+                    break;
+                case "dcmUPSOnUPSCanceled":
+                    loadUPSOnUPSCanceledList(arcDev.listUPSOnUPSCanceled(), reader);
                     break;
                 case "dcmMWLIdleTimeout":
                     loadMWLIdleTimeout(arcDev.getMWLIdleTimeouts(), reader);
@@ -4082,7 +4139,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmUPSIncludeInputInformation":
                         upsOnUPSCompleted.setIncludeInputInformation(
-                                UPSOnUPSCompleted.IncludeInputInformation.valueOf(reader.stringValue()));
+                                IncludeInputInformation.valueOf(reader.stringValue()));
                         break;
                     case "dcmUPSIncludePatient":
                         upsOnUPSCompleted.setIncludePatient(reader.booleanValue());
@@ -4150,6 +4207,106 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             }
             reader.expect(JsonParser.Event.END_OBJECT);
             upsOnUPSCompletedList.add(upsOnUPSCompleted);
+        }
+        reader.expect(JsonParser.Event.END_ARRAY);
+    }
+
+    private void loadUPSOnUPSCanceledList(Collection<UPSOnUPSCanceled> upsOnUPSCanceledList, JsonReader reader) {
+        reader.next();
+        reader.expect(JsonParser.Event.START_ARRAY);
+        while (reader.next() == JsonParser.Event.START_OBJECT) {
+            reader.expect(JsonParser.Event.START_OBJECT);
+            UPSOnUPSCanceled upsOnUPSCanceled = new UPSOnUPSCanceled();
+            while (reader.next() == JsonParser.Event.KEY_NAME) {
+                switch (reader.getString()) {
+                    case "dcmUPSOnUPSCanceledID":
+                        upsOnUPSCanceled.setUPSOnUPSCanceledID(reader.stringValue());
+                        break;
+                    case "dcmProperty":
+                        upsOnUPSCanceled.setConditions(new Conditions(reader.stringArray()));
+                        break;
+                    case "dcmRequiresOtherUPSCanceled":
+                        upsOnUPSCanceled.setRequiresOtherUPSCanceled(reader.stringArray());
+                        break;
+                    case "dcmUPSLabel":
+                        upsOnUPSCanceled.setProcedureStepLabel(reader.stringValue());
+                        break;
+                    case "dcmUPSWorklistLabel":
+                        upsOnUPSCanceled.setWorklistLabel(reader.stringValue());
+                        break;
+                    case "dcmUPSInstanceUIDBasedOnName":
+                        upsOnUPSCanceled.setInstanceUIDBasedOnName(reader.stringValue());
+                        break;
+                    case "dcmUPSIncludeInputInformation":
+                        upsOnUPSCanceled.setIncludeInputInformation(
+                                IncludeInputInformation.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSIncludePatient":
+                        upsOnUPSCanceled.setIncludePatient(reader.booleanValue());
+                        break;
+                    case "dcmUPSPriority":
+                        upsOnUPSCanceled.setUPSPriority(UPSPriority.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSInputReadinessState":
+                        upsOnUPSCanceled.setInputReadinessState(InputReadinessState.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSStartDateTimeDelay":
+                        upsOnUPSCanceled.setStartDateTimeDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSCompletionDateTimeDelay":
+                        upsOnUPSCanceled.setCompletionDateTimeDelay(Duration.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmDestinationAE":
+                        upsOnUPSCanceled.setDestinationAE(reader.stringValue());
+                        break;
+                    case "dcmEntity":
+                        upsOnUPSCanceled.setScopeOfAccumulation(Entity.valueOf(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledWorkitemCode":
+                        upsOnUPSCanceled.setScheduledWorkitemCode(new Code(reader.stringValue()));
+                        break;
+                    case "dcmUPSScheduledStationNameCode":
+                        upsOnUPSCanceled.setScheduledStationNames(reader.codeArray());
+                        break;
+                    case "dcmUPSScheduledStationClassCode":
+                        upsOnUPSCanceled.setScheduledStationClasses(reader.codeArray());
+                        break;
+                    case "dcmUPSScheduledStationLocationCode":
+                        upsOnUPSCanceled.setScheduledStationLocations(reader.codeArray());
+                        break;
+                    case "dcmUPSScheduledHumanPerformerCode":
+                        upsOnUPSCanceled.setScheduledHumanPerformers(reader.codeArray());
+                        break;
+                    case "dcmUPSScheduledHumanPerformerName":
+                        upsOnUPSCanceled.setScheduledHumanPerformerName(reader.stringValue());
+                        break;
+                    case "dcmUPSScheduledHumanPerformerOrganization":
+                        upsOnUPSCanceled.setScheduledHumanPerformerOrganization(reader.stringValue());
+                        break;
+                    case "dcmAdmissionID":
+                        upsOnUPSCanceled.setAdmissionID(reader.stringValue());
+                        break;
+                    case "dicomIssuerOfAdmissionID":
+                        upsOnUPSCanceled.setIssuerOfAdmissionID(reader.issuerValue());
+                        break;
+                    case "dcmUPSIncludeStudyInstanceUID":
+                        upsOnUPSCanceled.setIncludeStudyInstanceUID(reader.booleanValue());
+                        break;
+                    case "dcmUPSIncludeReferencedRequest":
+                        upsOnUPSCanceled.setIncludeReferencedRequest(reader.booleanValue());
+                        break;
+                    case "dcmURI":
+                        upsOnUPSCanceled.setXSLTStylesheetURI(reader.stringValue());
+                        break;
+                    case "dcmNoKeywords":
+                        upsOnUPSCanceled.setNoKeywords(reader.booleanValue());
+                        break;
+                    default:
+                        reader.skipUnknownProperty();
+                }
+            }
+            reader.expect(JsonParser.Event.END_OBJECT);
+            upsOnUPSCanceledList.add(upsOnUPSCanceled);
         }
         reader.expect(JsonParser.Event.END_ARRAY);
     }
@@ -4658,6 +4815,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmUPSOnUPSCompleted":
                     loadUPSOnUPSCompletedList(arcAE.listUPSOnUPSCompleted(), reader);
+                    break;
+                case "dcmUPSOnUPSCanceled":
+                    loadUPSOnUPSCanceledList(arcAE.listUPSOnUPSCanceled(), reader);
                     break;
                 default:
                     reader.skipUnknownProperty();

@@ -189,6 +189,7 @@ public class ArchiveAEExtension extends AEExtension {
     private final LinkedHashSet<String> acceptedUserRoles = new LinkedHashSet<>();
     private final List<UPSOnStore> upsOnStoreList = new ArrayList<>();
     private final List<UPSOnUPSCompleted> upsOnUPSCompletedList = new ArrayList<>();
+    private final List<UPSOnUPSCanceled> upsOnUPSCanceledList = new ArrayList<>();
     private final List<ExportRule> exportRules = new ArrayList<>();
     private final List<ExportPriorsRule> exportPriorsRules = new ArrayList<>();
     private final List<MPPSForwardRule> mppsForwardRule = new ArrayList<>();
@@ -1273,6 +1274,22 @@ public class ArchiveAEExtension extends AEExtension {
         return upsOnUPSCompletedList;
     }
 
+    public void removeUPSOnUPSCanceled(UPSOnUPSCanceled rule) {
+        upsOnUPSCanceledList.remove(rule);
+    }
+
+    public void clearUPSOnUPSCanceled() {
+        upsOnUPSCanceledList.clear();
+    }
+
+    public void addUPSOnUPSCanceled(UPSOnUPSCanceled upsOnUPSCanceled) {
+        upsOnUPSCanceledList.add(upsOnUPSCanceled);
+    }
+
+    public Collection<UPSOnUPSCanceled> listUPSOnUPSCanceled() {
+        return upsOnUPSCanceledList;
+    }
+
     public void removeExportRule(ExportRule rule) {
         exportRules.remove(rule);
     }
@@ -2250,6 +2267,8 @@ public class ArchiveAEExtension extends AEExtension {
         upsOnStoreList.addAll(aeExt.upsOnStoreList);
         upsOnUPSCompletedList.clear();
         upsOnUPSCompletedList.addAll(aeExt.upsOnUPSCompletedList);
+        upsOnUPSCanceledList.clear();
+        upsOnUPSCanceledList.addAll(aeExt.upsOnUPSCanceledList);
         exportRules.clear();
         exportRules.addAll(aeExt.exportRules);
         exportPriorsRules.clear();
@@ -2298,6 +2317,12 @@ public class ArchiveAEExtension extends AEExtension {
         return ArchiveDeviceExtension.concatCopyStream(upsOnUPSCompletedList,
                 getArchiveDeviceExtension().listUPSOnUPSCompleted(),
                 UPSOnUPSCompleted.EMPTY);
+    }
+
+    public Stream<UPSOnUPSCanceled> upsOnUPSCanceledStream() {
+        return ArchiveDeviceExtension.concatCopyStream(upsOnUPSCanceledList,
+                getArchiveDeviceExtension().listUPSOnUPSCanceled(),
+                UPSOnUPSCanceled.EMPTY);
     }
 
     public Stream<ExportPriorsRule> prefetchRules() {
