@@ -133,11 +133,7 @@ public class FHIRBuilder {
                     .values();
             writer.writeStartElement("ImagingStudy");
             writer.writeDefaultNamespace("http://hl7.org/fhir");
-            if (LTNHR_V1) {
-                writeOrganization("Organization1", study);
-                writeExtension("http://esveikata.lt/Profile/ltnhr-imagingstudy#reported",
-                        "valueBoolean", "false");
-            }
+            if (LTNHR_V1) writeOrganization("Organization1", study);
             writeStudyIUID(study.getString(Tag.StudyInstanceUID));
             writeEmptyElement("status", "value", "available");
             writer.writeStartElement("contained");
