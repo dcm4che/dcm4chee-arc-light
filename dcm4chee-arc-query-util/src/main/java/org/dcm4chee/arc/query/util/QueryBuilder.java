@@ -1107,7 +1107,7 @@ public class QueryBuilder {
         dateRange(predicates, ups.get(UPS_.updatedTime),
                 keys.getDateRange(Tag.ScheduledProcedureStepModificationDateTime));
         anyOf(predicates, ups.get(UPS_.upsLabel), keys.getStrings(Tag.ProcedureStepLabel), true);
-        anyOf(predicates, ups.get(UPS_.worklistLabel), keys.getStrings(Tag.WorklistLabel), true);
+        anyOf(predicates, ups.get(UPS_.worklistLabel), new String[]{queryParam.getUPSWorklistLabel()}, true);
         codes(predicates, criteria, ups, UPS_.scheduledStationNameCodes,
                 keys.getNestedDataset(Tag.ScheduledStationNameCodeSequence));
         codes(predicates, criteria, ups, UPS_.scheduledStationClassCodes,

@@ -679,6 +679,9 @@ public class QidoRS {
         queryParam.setExpirationDate(expirationDate);
         queryParam.setStudySizeRange(studySizeInKB);
         queryParam.setRequested(requested);
+        String upsWorklistLabel = ae.getAEExtension(ArchiveAEExtension.class).getUPSWorklistLabel();
+        if (upsWorklistLabel != null)
+            queryParam.setUPSWorklistLabel(upsWorklistLabel);
         if (storageID != null)
             queryParam.setStudyStorageIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                     .getStudyStorageIDs(storageID, parseBoolean(storageClustered), parseBoolean(storageExported)));
