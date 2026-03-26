@@ -78,7 +78,6 @@ public class QueryParam {
     private String subscriberAET;
     private String notSubscribedByAET;
     private String calledAET;
-    private String upsWorklistLabel;
     private Patient.VerificationStatus patientVerificationStatus;
     private ExpirationState[] expirationState;
     private String expirationDate;
@@ -372,13 +371,5 @@ public class QueryParam {
 
     public void setRequested(String requested) {
         this.requested = requested;
-    }
-
-    public String getUPSWorklistLabel() {
-        return upsWorklistLabel;
-    }
-
-    public void setUPSWorklistLabel(String upsWorklistLabel) {
-        this.upsWorklistLabel = upsWorklistLabel;
     }
 }
