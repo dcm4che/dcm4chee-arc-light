@@ -49,6 +49,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.util.Base64;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.fhir.client.FHIRClient;
 import org.dcm4chee.arc.fhir.client.ImagingStudy;
@@ -61,6 +62,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
@@ -83,11 +85,14 @@ public class FHIRClientImpl implements FHIRClient {
         ImagingStudy imagingStudy = imagingStudy(webApp);
         Entity<byte[]> requestPayload = imagingStudy.create(device.getDeviceExtension(ArchiveDeviceExtension.class), instances);
         String url = webApp.getServiceURL().append("/ImagingStudy").toString();
+        String authorization;
         try (ResteasyClient client = accessTokenRequestor.resteasyClientBuilder(url, webApp).build()) {
             WebTarget target = client.target(url);
             Invocation.Builder request = target.request();
             if (acceptableMediaTypes.length > 0)
                 request.accept(acceptableMediaTypes);
+            if ((authorization = authorization(webApp)) != null)
+                request.header("Authorization", authorization);
             String token = accessTokenRequestor.authorizationHeader(webApp);
             if (token != null)
                 request.header("Authorization", token);
@@ -121,6 +126,29 @@ public class FHIRClientImpl implements FHIRClient {
     private static ImagingStudy imagingStudy(WebApplication webApp) {
         String imagingStudy = webApp.getProperty("ImagingStudy", null);
         return imagingStudy != null ? ImagingStudy.valueOf(imagingStudy) : ImagingStudy.FHIR_R5_JSON;
+    }
+
+    private String authorization(WebApplication webApp) {
+        Map<String, String> props = webApp.getProperties();
+        try {
+            return webApp.getKeycloakClientID() != null
+                    ? "Bearer " + accessTokenRequestor.getAccessToken2(webApp).getToken()
+                    : props.containsKey("bearer-token")
+                    ? "Bearer " + props.get("bearer-token")
+                    : props.containsKey("basic-auth")
+                    ? "Basic " + encodeBase64(props.get("basic-auth").getBytes(StandardCharsets.UTF_8))
+                    : null;
+        } catch (Exception e) {
+            LOG.info("Unable to obtain Bearer token or basic auth token.\n", e);
+            return null;
+        }
+    }
+
+    private static String encodeBase64(byte[] b) {
+        int len = (b.length * 4 / 3 + 3) & ~3;
+        char[] ch = new char[len];
+        Base64.encode(b, 0, b.length, ch, 0);
+        return new String(ch);
     }
 
 }
