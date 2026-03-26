@@ -50,6 +50,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.WebApplication;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.fhir.client.FHIRClient;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.QueryService;
@@ -145,6 +146,7 @@ public class FHIRClientRS {
     private QueryContext queryContext(ApplicationEntity ae, String studyUID) {
         QueryParam queryParam = new QueryParam(ae);
         QueryContext queryContext = queryService.newQueryContext(ae, queryParam);
+        queryContext.setQueryRetrieveLevel(QueryRetrieveLevel2.IMAGE);
         Attributes keys = new Attributes(1);
         keys.setString(Tag.StudyInstanceUID, VR.UI, studyUID);
         queryContext.setQueryKeys(keys);
