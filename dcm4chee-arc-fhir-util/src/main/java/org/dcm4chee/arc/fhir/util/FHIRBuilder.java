@@ -133,7 +133,7 @@ public class FHIRBuilder {
                     .values();
             writer.writeStartElement("ImagingStudy");
             writer.writeDefaultNamespace("http://hl7.org/fhir");
-            if (LTNHR_V1) writeOrganization("Organization1", instancesBySeries);
+            if (LTNHR_V1) writeOrganization("Organization1", study);
             writeStudyIUID(study.getString(Tag.StudyInstanceUID));
             writeEmptyElement("status", "value", "available");
             writer.writeStartElement("contained");
@@ -275,12 +275,10 @@ public class FHIRBuilder {
             writer.writeEndElement();
         }
 
-        private boolean writeOrganization(String id, Collection<List<Attributes>> instancesBySeries)
+        private boolean writeOrganization(String id, Attributes study)
                 throws XMLStreamException {
-            String retrieveAET = instancesBySeries.iterator()
-                                                    .next()
-                                                    .get(0).
-                                                    getString(PrivateTag.PrivateCreator, PrivateTag.ReceivingApplicationEntityTitleOfSeries, VR.AE);
+            String retrieveAET = study.getString(
+                    PrivateTag.PrivateCreator, PrivateTag.ReceivingApplicationEntityTitleOfSeries);
             if (retrieveAET != null) {
                 ApplicationEntity retrieveAE = arcdev.getDevice().getApplicationEntity(retrieveAET);
                 if (retrieveAE != null && retrieveAE.isInstalled()) {
