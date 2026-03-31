@@ -1655,7 +1655,7 @@
   "scheduledTime": {
     "name": "scheduledTime",
     "in": "query",
-    "description": "Scheduled Time as {datetime} to be set for scheduling of tasks",
+    "description": "Scheduled Time as {datetime} - in format yyyyMMddHHmmss - to be set for scheduling of tasks",
     "schema": {
       "type": "string"
     }
@@ -1679,7 +1679,7 @@
   "upsScheduledTime": {
     "name": "upsScheduledTime",
     "in": "query",
-    "description": "Scheduled Procedure Step Start DateTime (0040,4005) as {datetime} in created UPS.",
+    "description": "Scheduled Procedure Step Start DateTime (0040,4005) as {datetime} - in format yyyyMMddHHmmss - in created UPS.",
     "schema": {
       "type": "string"
     }
