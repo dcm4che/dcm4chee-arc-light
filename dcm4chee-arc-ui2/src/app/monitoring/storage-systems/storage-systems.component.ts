@@ -253,6 +253,15 @@ export class StorageSystemsComponent implements OnInit {
                                 }
                             });
                         }
+                        if (_.hasIn(properties, 'deleterThresholdMaxUsableSpace')){
+                            properties['deleterThresholdMaxUsableSpacePrepared'] = properties.deleterThresholdMaxUsableSpace.map((deleter, i) => {
+                                if (_.keys(deleter)[0] != ''){
+                                    return _.keys(deleter)[0] + ':' + $this.convertBtoGBorMB(_.values(deleter)[0]);
+                                }else{
+                                    return $this.convertBtoGBorMB(_.values(deleter)[0]);
+                                }
+                            });
+                        }
                         if(_.hasIn(properties, 'usableSpace') && _.hasIn(properties, 'totalSpace')){
                             properties.usedSpace = (Math.round((((properties.totalSpace-properties.usableSpace)*100)/properties.totalSpace) * 100)/100).toFixed(2);
 /*                            if(properties.usedSpace){
