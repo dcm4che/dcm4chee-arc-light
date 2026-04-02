@@ -416,7 +416,9 @@ public class PamRS {
         ctx.setPatientIDs(trustedPatientIDs);
         ctx.setReasonForModification(reasonForModification);
         ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
-        ctx.setPatPk(Long.parseLong(ctx.getAttributes().getString(PrivateTag.PrivateCreator, PrivateTag.LogicalPatientID)));
+        String pk = ctx.getAttributes().getString(PrivateTag.PrivateCreator, PrivateTag.LogicalPatientID);
+        if (pk != null) //check reqd for create patient REST API forwarded from other site as PUT req
+            ctx.setPatPk(Long.parseLong(pk));
         if (priorPatient != null)
             ctx.setPrevPatient(priorPatient);
 
