@@ -313,8 +313,7 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
-            PatientMgtContext ctx = patientMgtCtx(in);
-            ctx.setArchiveAEExtension(arcAE);
+            PatientMgtContext ctx = patientMgtCtx(in, arcAE, false);
             if (ctx.getPatientIDs().isEmpty()) {
                 idService.newPatientID(ctx.getAttributes());
                 ctx.setPatientIDs(IDWithIssuer.pidsOf(ctx.getAttributes()));
@@ -342,9 +341,14 @@ public class PamRS {
         }
     }
 
-    private PatientMgtContext patientMgtCtx(InputStream in) {
+    private PatientMgtContext patientMgtCtx(InputStream in, ArchiveAEExtension arcAE, boolean update) {
         PatientMgtContext ctx = patientMgtCtx();
         ctx.setAttributes(toAttributes(in));
+        ctx.setArchiveAEExtension(arcAE);
+        if (update) {
+            ctx.setReasonForModification(reasonForModification);
+            ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
+        }
         return ctx;
     }
 
@@ -375,7 +379,16 @@ public class PamRS {
                     MessageFormat.format(PRIOR_PIDS_REQ_URL_NOT_TRUSTED, multiplePriorPatientIDs),
                     Response.Status.BAD_REQUEST);
 
-        return updatePatient(arcAE, in, trustedPriorPatientIDs, merge, null);
+        PatientMgtContext ctx = patientMgtCtx(in, arcAE, true);
+        Collection<IDWithIssuer> trustedPatientIDs = arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(ctx.getPatientIDs());
+        if (trustedPatientIDs.isEmpty())
+            return errResponse(
+                    MessageFormat.format(PIDS_REQ_PAYLOAD_NOT_TRUSTED, ctx.getPatientIDs()),
+                    Response.Status.BAD_REQUEST);
+
+        ctx.setPatientIDs(trustedPatientIDs);
+
+        return updatePatient(ctx, merge, trustedPriorPatientIDs, false);
     }
 
     @PUT
@@ -399,29 +412,23 @@ public class PamRS {
                     Response.Status.NOT_FOUND);
 
         Collection<IDWithIssuer> trustedPriorPatientIDs = IDWithIssuer.pidsOf(priorPatient.getAttributes());
-        return updatePatient(arcAE, in, trustedPriorPatientIDs, merge, priorPatient);
-    }
-
-    private Response updatePatient(
-            ArchiveAEExtension arcAE, InputStream in, Collection<IDWithIssuer> trustedPriorPatientIDs, String merge,
-            Patient priorPatient) {
-        PatientMgtContext ctx = patientMgtCtx(in);
+        
+        PatientMgtContext ctx = patientMgtCtx(in, arcAE, true);
         Collection<IDWithIssuer> trustedPatientIDs = arcAE.getArchiveDeviceExtension().retainTrustedPatientIDs(ctx.getPatientIDs());
         if (trustedPatientIDs.isEmpty())
             return errResponse(
                     MessageFormat.format(PIDS_REQ_PAYLOAD_NOT_TRUSTED, ctx.getPatientIDs()),
                     Response.Status.BAD_REQUEST);
 
-        ctx.setArchiveAEExtension(arcAE);
         ctx.setPatientIDs(trustedPatientIDs);
-        ctx.setReasonForModification(reasonForModification);
-        ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
-        String pk = ctx.getAttributes().getString(PrivateTag.PrivateCreator, PrivateTag.LogicalPatientID);
-        if (pk != null) //check reqd for create patient REST API forwarded from other site as PUT req
-            ctx.setPatPk(Long.parseLong(pk));
-        if (priorPatient != null)
-            ctx.setPrevPatient(priorPatient);
+        ctx.setPatPk(Long.parseLong(ctx.getAttributes().getString(PrivateTag.PrivateCreator, PrivateTag.LogicalPatientID)));
+        ctx.setPrevPatient(priorPatient);
 
+        return updatePatient(ctx, merge, trustedPriorPatientIDs, true);
+    }
+
+    private Response updatePatient(
+            PatientMgtContext ctx, String merge, Collection<IDWithIssuer> trustedPriorPatientIDs, boolean updateByPK) {
         boolean mergePatients = Boolean.parseBoolean(merge);
         Collection<IDWithIssuer> targetPIDs = ctx.getPatientIDs();
         boolean patientMatch = targetPIDs.containsAll(trustedPriorPatientIDs);
@@ -434,14 +441,14 @@ public class PamRS {
             if (patientMatch) {
                 patientService.updatePatient(ctx);
                 if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)) {
-                    rsOp = ctx.getPrevPatPk() != 0L ? RSOperation.UpdatePatientByPID : RSOperation.UpdatePatient;
+                    rsOp = updateByPK ? RSOperation.UpdatePatientByPID : RSOperation.UpdatePatient;
                     msgType = UPDATE_PATIENT_MSG_TYPE;
                 }
             } else {
                 ctx.setPreviousPatientIDs(trustedPriorPatientIDs);
                 if (mergePatients) {
                     msgType = MERGE_PATIENT_MSG_TYPE;
-                    rsOp = ctx.getPrevPatPk() != 0L ? RSOperation.MergePatientByPID : RSOperation.MergePatient2;
+                    rsOp = updateByPK ? RSOperation.MergePatientByPID : RSOperation.MergePatient2;
                     patientService.mergePatient(ctx);
                 } else {
                     if (isInvalidChangePID(ctx))
@@ -450,12 +457,12 @@ public class PamRS {
                                 Response.Status.BAD_REQUEST);
 
                     msgType = CHANGE_PATIENT_ID_MSG_TYPE;
-                    rsOp = ctx.getPrevPatPk() != 0L ? RSOperation.ChangePatientIDByPID : RSOperation.ChangePatientID2;
+                    rsOp = updateByPK ? RSOperation.ChangePatientIDByPID : RSOperation.ChangePatientID2;
                     patientService.changePatientID(ctx);
                 }
             }
 
-            forwardAndNotify(rsOp, arcAE, ctx, msgType);
+            forwardAndNotify(rsOp, ctx, msgType);
             return Response.noContent().build();
         } catch (PatientAlreadyExistsException
                  | NonUniquePatientException
@@ -473,7 +480,7 @@ public class PamRS {
         return ctx.getPatPk() != 0L && ctx.getPrevPatPk() != 0L && ctx.getPrevPatPk() != ctx.getPatPk();
     }
 
-    private void forwardAndNotify(RSOperation rsOp, ArchiveAEExtension arcAE, PatientMgtContext ctx, String msgType) {
+    private void forwardAndNotify(RSOperation rsOp, PatientMgtContext ctx, String msgType) {
         if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read))
             return;
 
@@ -482,11 +489,11 @@ public class PamRS {
             LOG.info(LOG_FWD_BY_PID);
 
         if (rsOp == RSOperation.MergePatientByPID || rsOp == RSOperation.ChangePatientIDByPID) {
-            rsForward.forward(rsOp, arcAE, ctx.getAttributes(), ctx.getPreviousAttributes(), request);
+            rsForward.forward(rsOp, ctx.getArchiveAEExtension(), ctx.getAttributes(), ctx.getPreviousAttributes(), request);
             return;
         }
 
-        rsForward.forward(rsOp, arcAE, ctx.getAttributes(), request);
+        rsForward.forward(rsOp, ctx.getArchiveAEExtension(), ctx.getAttributes(), request);
     }
 
     @POST
