@@ -66,6 +66,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String defaultCharacterSet;
     private String mwlWorklistLabel;
     private String upsWorklistLabel;
+    private String[] upsWorklistLabelFilters = {};
     private String[] upsEventSCUs = {};
     private int upsEventSCUKeepAlive;
     private Boolean upsUpdateWithoutTransactionUID;
@@ -235,6 +236,14 @@ public class ArchiveAEExtension extends AEExtension {
         return upsWorklistLabel != null
                 ? upsWorklistLabel
                 : StringUtils.maskNull(getArchiveDeviceExtension().getUPSWorklistLabel(), ae.getAETitle());
+    }
+
+    public String[] getUPSWorklistLabelFilters() {
+        return upsWorklistLabelFilters;
+    }
+
+    public void setUPSWorklistLabelFilters(String[] upsWorklistLabelFilters) {
+        this.upsWorklistLabelFilters = upsWorklistLabelFilters;
     }
 
     public String[] getUPSEventSCUs() {
@@ -2137,6 +2146,7 @@ public class ArchiveAEExtension extends AEExtension {
         defaultCharacterSet = aeExt.defaultCharacterSet;
         mwlWorklistLabel = aeExt.mwlWorklistLabel;
         upsWorklistLabel = aeExt.upsWorklistLabel;
+        upsWorklistLabelFilters = aeExt.upsWorklistLabelFilters;
         upsEventSCUs = aeExt.upsEventSCUs;
         upsEventSCUKeepAlive = aeExt.upsEventSCUKeepAlive;
         upsUpdateWithoutTransactionUID = aeExt.upsUpdateWithoutTransactionUID;

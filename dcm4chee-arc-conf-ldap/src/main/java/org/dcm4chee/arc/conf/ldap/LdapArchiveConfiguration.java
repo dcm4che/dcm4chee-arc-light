@@ -2048,6 +2048,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getMWLWorklistLabel(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel",
                 ext.getUPSWorklistLabel(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSWorklistLabelFilter", ext.getUPSWorklistLabelFilters());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSEventSCU", ext.getUPSEventSCUs());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmUPSEventSCUKeepAlive", ext.getUPSEventSCUKeepAlive(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorePermissionServiceErrorCommentPattern",
@@ -2243,6 +2244,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
         ext.setMWLWorklistLabel(LdapUtils.stringValue(attrs.get("dcmMWLWorklistLabel"), null));
         ext.setUPSWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
+        ext.setUPSWorklistLabelFilters(LdapUtils.stringArray(attrs.get("dcmUPSWorklistLabelFilter")));
         ext.setUPSEventSCUs(LdapUtils.stringArray(attrs.get("dcmUPSEventSCU")));
         ext.setUPSEventSCUKeepAlive(LdapUtils.intValue(attrs.get("dcmUPSEventSCUKeepAlive"), 0));
         ext.setStorePermissionServiceErrorCommentPattern(toPattern(
@@ -2495,6 +2497,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getMWLWorklistLabel(), bb.getMWLWorklistLabel(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
                 aa.getUPSWorklistLabel(), bb.getUPSWorklistLabel(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmUPSWorklistLabelFilter",
+                aa.getUPSWorklistLabelFilters(), bb.getUPSWorklistLabelFilters());
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSEventSCU",
                 aa.getUPSEventSCUs(), bb.getUPSEventSCUs());
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSEventSCUKeepAlive",

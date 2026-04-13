@@ -705,6 +705,10 @@ public class QidoRS {
         String mwlWorklistLabel = ae.getAEExtension(ArchiveAEExtension.class).getMWLWorklistLabel();
         if (mwlWorklistLabel != null)
             keys.setString(Tag.WorklistLabel, VR.LO, mwlWorklistLabel);
+        String[] upsWorklistLabelFilters = ae.getAEExtension(ArchiveAEExtension.class).getUPSWorklistLabelFilters();
+        if ((keys.getStrings(Tag.WorklistLabel) == null || keys.getStrings(Tag.WorklistLabel).length == 0)
+                && upsWorklistLabelFilters.length > 0)
+            keys.setString(Tag.WorklistLabel, VR.LO, upsWorklistLabelFilters);
         ctx.setOrderByTags(queryAttrs.getOrderByTags());
         return ctx;
     }
