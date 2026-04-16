@@ -45,6 +45,8 @@ import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
@@ -54,6 +56,12 @@ public class ContentRange {
     public final long start;
     public final long end;
     public final long total;
+    private static Map<String, Long> cachedEncapsulatedPixelDataValueTotalLengths = new LinkedHashMap<>() {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Long> eldest) {
+            return size() > 10;
+        }
+    };
 
     public ContentRange(long start, long end, long total) {
         this.start = start;
@@ -66,7 +74,12 @@ public class ContentRange {
         if (rangeValue != null && rangeValue.startsWith("bytes=")) {
             int dashPos = rangeValue.indexOf('-', 6);
             if (dashPos != -1) {
-                long total = getEncapsulatedPixelDataValueTotalLength(ctx, inst);
+                long total = inst.getAttributes().getLong(Tag.EncapsulatedPixelDataValueTotalLength, 0L);
+                if (total == 0L) {
+                    total = cachedEncapsulatedPixelDataValueTotalLengths.computeIfAbsent(
+                                inst.getSopInstanceUID(),
+                                key -> calcEncapsulatedPixelDataValueTotalLength(ctx, inst));
+                }
                 try {
                     if (dashPos > 6) {
                         long start = Long.parseUnsignedLong(rangeValue.substring(6, dashPos));
@@ -89,23 +102,21 @@ public class ContentRange {
         return null;
     }
 
-    private static long getEncapsulatedPixelDataValueTotalLength(RetrieveContext ctx, InstanceLocations inst) {
-        long total = inst.getAttributes().getLong(Tag.EncapsulatedPixelDataValueTotalLength, 0L);
-        if (total == 0L) {
-            RetrieveService service = ctx.getRetrieveService();
-            try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
-                dis.readDataset(-1, Tag.PixelData);
-                if (dis.tag() != Tag.PixelData || dis.length() != -1 || !dis.readItemHeader())
-                    throw new IOException("No or incorrect encapsulated compressed pixel data in requested object");
-                dis.skipFully(dis.length());
-                while (dis.readItemHeader()) {
-                    long len = dis.unsignedLength();
-                    dis.skipFully(len);
-                    total += len;
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+    private static long calcEncapsulatedPixelDataValueTotalLength(RetrieveContext ctx, InstanceLocations inst) {
+        long total = 0;
+        RetrieveService service = ctx.getRetrieveService();
+        try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
+            dis.readDataset(-1, Tag.PixelData);
+            if (dis.tag() != Tag.PixelData || dis.length() != -1 || !dis.readItemHeader())
+                throw new IOException("No or incorrect encapsulated compressed pixel data in requested object");
+            dis.skipFully(dis.length());
+            while (dis.readItemHeader()) {
+                long len = dis.unsignedLength();
+                dis.skipFully(len);
+                total += len;
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return total;
     }
