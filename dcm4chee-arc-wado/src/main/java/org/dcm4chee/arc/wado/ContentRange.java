@@ -38,9 +38,13 @@
 package org.dcm4chee.arc.wado;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.HttpHeaders;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.io.DicomInputStream;
+import org.dcm4chee.arc.retrieve.RetrieveContext;
+import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.store.InstanceLocations;
+
+import java.io.IOException;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
@@ -57,26 +61,53 @@ public class ContentRange {
         this.total = total;
     }
 
-    public static ContentRange from(HttpServletRequest request, InstanceLocations inst) {
+    public static ContentRange from(HttpServletRequest request, RetrieveContext ctx, InstanceLocations inst) {
         String rangeValue = request.getHeader("Range");
         if (rangeValue != null && rangeValue.startsWith("bytes=")) {
             int dashPos = rangeValue.indexOf('-', 6);
             if (dashPos != -1) {
-                long total = inst.getAttributes().getLong(Tag.EncapsulatedPixelDataValueTotalLength,
-                        inst.getLocations().get(0).getSize());
+                long total = getEncapsulatedPixelDataValueTotalLength(ctx, inst);
                 try {
-                    long start = Long.parseUnsignedLong(rangeValue.substring(6, dashPos));
-                    long end = rangeValue.length() > dashPos + 1
-                            ? Long.parseUnsignedLong(rangeValue.substring(dashPos + 1))
-                            : total - 1;
-                    if (start <= end && end < total) {
-                        return new ContentRange(start, end, total);
+                    if (dashPos > 6) {
+                        long start = Long.parseUnsignedLong(rangeValue.substring(6, dashPos));
+                        long end = (rangeValue.length() > dashPos + 1)
+                                ? Long.parseUnsignedLong(rangeValue.substring(dashPos + 1))
+                                : total - 1;
+                        if (start <= end && end < total) {
+                            return new ContentRange(start, end, total);
+                        }
+                    } else {
+                        long start = total - Long.parseUnsignedLong(rangeValue.substring(dashPos + 1));
+                        if (start > 0) {
+                            return new ContentRange(start, total - 1, total);
+                        }
                     }
                 } catch (NumberFormatException e) {
                 }
             }
         }
         return null;
+    }
+
+    private static long getEncapsulatedPixelDataValueTotalLength(RetrieveContext ctx, InstanceLocations inst) {
+        long total = inst.getAttributes().getLong(Tag.EncapsulatedPixelDataValueTotalLength, 0L);
+        if (total == 0L) {
+            RetrieveService service = ctx.getRetrieveService();
+            try (DicomInputStream dis = service.openDicomInputStream(ctx, inst)) {
+                dis.readDataset(-1, Tag.PixelData);
+                if (dis.tag() != Tag.PixelData || dis.length() != -1 || !dis.readItemHeader())
+                    throw new IOException("No or incorrect encapsulated compressed pixel data in requested object");
+                dis.skipFully(dis.length());
+                while (dis.readItemHeader()) {
+                    long len = dis.unsignedLength();
+                    dis.skipFully(len);
+                    total += len;
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return total;
     }
 
     @Override

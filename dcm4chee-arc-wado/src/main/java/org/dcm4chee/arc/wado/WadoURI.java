@@ -422,7 +422,7 @@ public class WadoURI {
             case MPEG4Video:
                 this.acceptRanges = ctx.getArchiveAEExtension().isWadoVideoAcceptRanges(inst.getAttributes());
                 if (acceptRanges) {
-                    this.contentRange = ContentRange.from(request, inst);
+                    this.contentRange = ContentRange.from(request, ctx, inst);
                 }
                 return new CompressedPixelDataOutput(ctx, inst, this.contentRange);
             case SRDocument:

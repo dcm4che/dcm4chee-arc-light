@@ -1309,7 +1309,7 @@ public class WadoRS {
                 if (!multipart) {
                     this.acceptRanges = ctx.getArchiveAEExtension().isWadoVideoAcceptRanges(inst.getAttributes());
                     if (acceptRanges) {
-                        this.contentRange = ContentRange.from(request, inst);
+                        this.contentRange = ContentRange.from(request, ctx, inst);
                         if (contentRange != null) {
                             this.responseStatus = Response.Status.PARTIAL_CONTENT;
                         }

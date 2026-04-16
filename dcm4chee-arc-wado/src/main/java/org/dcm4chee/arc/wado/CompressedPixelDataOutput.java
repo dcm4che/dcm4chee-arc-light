@@ -97,14 +97,12 @@ public class CompressedPixelDataOutput implements StreamingOutput {
                     dis.skipFully(len + skip);
                     len = -skip;
                 }
-                if (remaining > 0) {
-                    remaining -= len;
-                    if (remaining <= 0) {
-                        StreamUtils.copy(dis, out, len + remaining);
-                        break;
-                    }
+                if (remaining > 0 && remaining <= len) {
+                    StreamUtils.copy(dis, out, remaining);
+                    break;
                 }
                 StreamUtils.copy(dis, out, len);
+                remaining -= len;
             }
             LOG.debug("Finished writing compressed pixel data of {}", inst);
         }
