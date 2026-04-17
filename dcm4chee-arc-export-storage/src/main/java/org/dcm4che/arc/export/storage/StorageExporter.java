@@ -399,8 +399,7 @@ public class StorageExporter extends AbstractExporter {
                         tar.closeArchiveEntry();
                     }
                 }
-                storeService.replaceLocations(storeSession,
-                        tarEntries.stream().map(this::replaceLocation));
+                storeService.replaceLocations(storeSession, tarEntries.stream().map(this::replaceLocation));
                 completed += tarEntries.size();
                 retrieveContext.addCompleted(tarEntries.size());
                 storage.commitStorage(writeCtx);
