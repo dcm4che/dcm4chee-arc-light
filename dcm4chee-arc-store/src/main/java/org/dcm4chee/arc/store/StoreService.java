@@ -57,6 +57,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -139,6 +140,8 @@ public interface StoreService {
 
     void replaceLocation(StoreSession storeSession, Long instancePk, Location newLocation,
             List<Location> replaceLocations);
+
+    void replaceLocations(StoreSession storeSession, Stream<ReplaceLocation> replaceLocations);
 
     void compress(StoreContext ctx, InstanceLocations inst, InputStream data)
             throws IOException;

@@ -91,6 +91,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
 
 
@@ -342,6 +343,11 @@ class StoreServiceImpl implements StoreService {
     public void replaceLocation(StoreSession session, Long instancePk, Location newLocation,
             List<Location> replaceLocations) {
         ejb.replaceLocation(session, instancePk, newLocation, replaceLocations);
+    }
+
+    @Override
+    public void replaceLocations(StoreSession storeSession, Stream<ReplaceLocation> replaceLocations) {
+        ejb.replaceLocation(storeSession, replaceLocations);
     }
 
     @Override

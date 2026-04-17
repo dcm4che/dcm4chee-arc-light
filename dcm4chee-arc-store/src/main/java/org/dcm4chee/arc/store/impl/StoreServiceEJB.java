@@ -76,10 +76,7 @@ import org.dcm4chee.arc.patient.PatientService;
 import org.dcm4chee.arc.storage.ReadContext;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
-import org.dcm4chee.arc.store.InstanceLocations;
-import org.dcm4chee.arc.store.StoreContext;
-import org.dcm4chee.arc.store.StoreService;
-import org.dcm4chee.arc.store.StoreSession;
+import org.dcm4chee.arc.store.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,6 +90,7 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -1763,6 +1761,11 @@ public class StoreServiceEJB {
             LOG.info("{}: Mark to delete {}", session, location);
             removeOrMarkLocationAs(em.find(Location.class, location.getPk()), LocationStatus.TO_DELETE);
         }
+    }
+
+    public void replaceLocation(StoreSession storeSession, Stream<ReplaceLocation> replaceLocations) {
+        replaceLocations.forEach(replaceLocation -> replaceLocation(storeSession,
+                replaceLocation.instancePk, replaceLocation.newLocation, replaceLocation.replaceLocations));
     }
 
     public void addStorageID(String studyIUID, String storageID) {

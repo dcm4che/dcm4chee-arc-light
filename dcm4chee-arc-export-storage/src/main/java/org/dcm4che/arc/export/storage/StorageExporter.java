@@ -65,6 +65,7 @@ import org.dcm4chee.arc.retrieve.RetrieveService;
 import org.dcm4chee.arc.retrieve.LocationInputStream;
 import org.dcm4chee.arc.storage.Storage;
 import org.dcm4chee.arc.storage.WriteContext;
+import org.dcm4chee.arc.store.ReplaceLocation;
 import org.dcm4chee.arc.store.StoreService;
 import org.dcm4chee.arc.store.StoreSession;
 import org.slf4j.Logger;
@@ -397,14 +398,11 @@ public class StorageExporter extends AbstractExporter {
                         tar.closeArchiveEntry();
                     }
                 }
+                storeService.replaceLocations(storeSession,
+                        tarEntries.stream().map(tarEntry -> replaceLocation(seriesIUIDs, tarEntry)));
+                completed += tarEntries.size();
+                retrieveContext.addCompleted(tarEntries.size());
                 storage.commitStorage(writeCtx);
-                for (TarEntry tarEntry : tarEntries) {
-                    storeService.replaceLocation(storeSession, tarEntry.match.getInstancePk(),
-                            tarEntry.newLocation, locationsOnStorage(tarEntry.match).collect(Collectors.toList()));
-                    completed++;
-                    retrieveContext.incrementCompleted();
-                    seriesIUIDs.add(tarEntry.match.getAttributes().getString(Tag.SeriesInstanceUID));
-                }
             } catch (Exception e) {
                 retrieveContext.addFailed(tarEntries.size() - completed);
                 if (completed == 0)
@@ -416,6 +414,14 @@ public class StorageExporter extends AbstractExporter {
             }
         }
         return seriesIUIDs;
+    }
+
+    private ReplaceLocation replaceLocation(Collection<String> seriesIUIDs, TarEntry tarEntry) {
+        seriesIUIDs.add(tarEntry.match.getAttributes().getString(Tag.SeriesInstanceUID));
+        return new ReplaceLocation(
+                tarEntry.match.getInstancePk(),
+                tarEntry.newLocation,
+                locationsOnStorage(tarEntry.match).collect(Collectors.toList()));
     }
 
     private Location copyTo(RetrieveContext retrieveContext, InstanceLocations instanceLocations,
