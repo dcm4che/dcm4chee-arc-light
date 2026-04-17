@@ -389,6 +389,7 @@ public class StorageExporter extends AbstractExporter {
                             md5sum.write(tarEntry.entryName.getBytes());
                             md5sum.write('\n');
                         }
+                        seriesIUIDs.add(tarEntry.match.getAttributes().getString(Tag.SeriesInstanceUID));
                     }
                     if (md5sum.size() > 0) {
                         TarArchiveEntry archiveEntry = new TarArchiveEntry("MD5SUM");
@@ -399,7 +400,7 @@ public class StorageExporter extends AbstractExporter {
                     }
                 }
                 storeService.replaceLocations(storeSession,
-                        tarEntries.stream().map(tarEntry -> replaceLocation(seriesIUIDs, tarEntry)));
+                        tarEntries.stream().map(this::replaceLocation));
                 completed += tarEntries.size();
                 retrieveContext.addCompleted(tarEntries.size());
                 storage.commitStorage(writeCtx);
@@ -416,8 +417,7 @@ public class StorageExporter extends AbstractExporter {
         return seriesIUIDs;
     }
 
-    private ReplaceLocation replaceLocation(Collection<String> seriesIUIDs, TarEntry tarEntry) {
-        seriesIUIDs.add(tarEntry.match.getAttributes().getString(Tag.SeriesInstanceUID));
+    private ReplaceLocation replaceLocation(TarEntry tarEntry) {
         return new ReplaceLocation(
                 tarEntry.match.getInstancePk(),
                 tarEntry.newLocation,
