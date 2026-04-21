@@ -5724,4 +5724,116 @@ export class StudyService {
         });
         return newObject;
     }
+    isDicomEmptyValue(v: any): boolean {
+        // empty primitives
+        if (v === "" || v === null || v === undefined) return true;
+
+        // arrays → all elements must be empty
+        if (Array.isArray(v)) {
+            return v.every(vsq => this.isDicomEmptyValue(vsq));
+        }
+
+        // objects → all properties must be empty
+        if (typeof v === "object") {
+            const keys = Object.keys(v);
+            if (keys.length === 0) return true;
+
+            return keys.every(k => this.isDicomEmptyValue(v[k]));
+        }
+
+        return false;
+    }
+
+    removeEmptyNotRequiredIODValues(attrs:any){
+        const isEmptyPrimitive = (v: any) =>
+            v === "" || v === null || v === undefined;
+
+        const isEmptyValue = (val: any): boolean => {
+            if (Array.isArray(val)) {
+                return val.every(isEmptyValue);
+            }
+
+            if (typeof val === "object") {
+                if (!val) return true;
+
+                if (val.vr !== undefined) {
+                    if (!val.Value) return true;
+                    return isEmptyValue(val.Value);
+                }
+
+                const keys = Object.keys(val);
+                if (keys.length === 0) return true;
+
+                return keys.every(k => isEmptyValue(val[k]));
+            }
+
+            return isEmptyPrimitive(val);
+        };
+
+        const clean = (node: any, isRoot = false): any => {
+
+            if (!node || typeof node !== "object") return node;
+
+            // Arrays
+            if (Array.isArray(node)) {
+                for (let i = node.length - 1; i >= 0; i--) {
+                    const cleaned = clean(node[i], false);
+                    if (cleaned === undefined) {
+                        node.splice(i, 1);
+                    }
+                }
+                return node;
+            }
+
+            if (node.vr !== undefined) {
+
+                if (Array.isArray(node.Value)) {
+                    node.Value = clean(node.Value, false);
+                }
+
+                const empty = !node.Value || isEmptyValue(node.Value);
+
+                if (empty) {
+                    if (node.required === 1) {
+                        throw new Error(`Type 1 attribute is empty`);
+                    }
+
+                    if (node.required === 2) {
+                        // Type 2
+                        if (node.vr === "SQ") {
+                            node.Value = [{}];
+                        } else {
+                            delete node.Value;
+                        }
+                        return node;
+                    }
+
+                    // Type 3 (undefined)
+                    if (!isRoot) {
+                        return undefined;
+                    }
+
+                    // ROOT must never be removed
+                    return node;
+                }
+
+                return node;
+            }
+
+            Object.keys(node).forEach(key => {
+                const cleaned = clean(node[key], false);
+                if (cleaned === undefined) {
+                    delete node[key];
+                } else {
+                    node[key] = cleaned;
+                }
+            });
+
+            return node;
+        };
+
+        return clean(attrs, true);
+
+    }
+
 }

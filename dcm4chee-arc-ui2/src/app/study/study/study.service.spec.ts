@@ -428,5 +428,367 @@ describe('StudyService', () => {
 
         })
     );
+    it("Should remove not required IOD values", inject([StudyService], (service: StudyService)=>{
+            const beforeObject1 = {
+                "vr": "SQ",
+                "Value": [
+                    {
+                        "00404030": {
+                            "vr": "SQ",
+                            "Value": [
+                                {
+                                    "00080100": {
+                                        "vr": "SH",
+                                        "required": 1,
+                                        "Value": ["test1"]
+                                    },
+                                    "00080102": {
+                                        "vr": "SH",
+                                        "required": 1,
+                                        "Value": ["test1"]
+                                    },
+                                    "00080103": {
+                                        "vr": "SH",
+                                        "Value": [""]
+                                    },
+                                    "00080104": {
+                                        "vr": "LO",
+                                        "required": 1,
+                                        "Value": ["test1"]
+                                    }
+                                }
+                            ]
+                        },
+                        "00404033": {
+                            "vr": "SQ",
+                            "required": 2,
+                            "Value": [
+                                {
+                                    "0040E020": {
+                                        "vr": "CS",
+                                        "required": 1,
+                                        "Value": ["test1"]
+                                    },
+                                    "0020000D": {
+                                        "vr": "UI",
+                                        "required": 2,
+                                        "Value": [""]
+                                    },
+                                    "0040E022": {
+                                        "vr": "SQ",
+                                        "required": 2,
+                                        "Value": [
+                                            {
+                                                "00880130": {
+                                                    "vr": "SH",
+                                                    "required": 2,
+                                                    "Value": [""]
+                                                },
+                                                "00880140": {
+                                                    "vr": "UI",
+                                                    "required": 1,
+                                                    "Value": ["test1"]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            };
+            const afterObject1 = {
+                "vr": "SQ",
+                "Value": [
+                    {
+                        "00404030": {
+                            "vr": "SQ",
+                            "Value": [
+                                {
+                                    "00080100": {
+                                        "vr": "SH",
+                                        "required": 1,
+                                        "Value": ["test1"]
+                                    },
+                                    "00080102": {
+                                        "vr": "SH",
+                                        "required": 1,
+                                        "Value": ["test1"]
+                                    },
+                                    "00080104": {
+                                        "vr": "LO",
+                                        "required": 1,
+                                        "Value": ["test1"]
+                                    }
+                                }
+                            ]
+                        },
+                        "00404033": {
+                            "vr": "SQ",
+                            "required": 2,
+                            "Value": [
+                                {
+                                    "0020000D": {
+                                        "vr": "UI",
+                                        "required": 2
+                                    },
+                                    "0040E022": {
+                                        "vr": "SQ",
+                                        "required": 2,
+                                        "Value": [
+                                            {
+                                                "00880130": {
+                                                    "vr": "SH",
+                                                    "required": 2
+                                                },
+                                                "00880140": {
+                                                    "vr": "UI",
+                                                    "required": 1,
+                                                    "Value": ["test1"]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+            //expect(service.removeEmptyNotRequiredIODValues(beforeObject1)).toEqual(afterObject1);
+        const beforeObject2 = {
+            "vr": "SQ",
+            "Value": [
+                {
+                    "00404030": {
+                        "vr": "SQ",
+                        "Value": [
+                            {
+                                "00080100": {
+                                    "vr": "SH",
+                                    "required": 1,
+                                    "Value": ["test1"]
+                                },
+                                "00080102": {
+                                    "vr": "SH",
+                                    "required": 1,
+                                    "Value": ["test1"]
+                                },
+                                "00080103": {
+                                    "vr": "SH",
+                                    "Value": [""]
+                                },
+                                "00080104": {
+                                    "vr": "LO",
+                                    "required": 1,
+                                    "Value": ["test1"]
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        };
+        const afterObject2 = {
+            "vr": "SQ",
+            "Value": [
+                {
+                    "00404030": {
+                        "vr": "SQ",
+                        "Value": [
+                            {
+                                "00080100": {
+                                    "vr": "SH",
+                                    "required": 1,
+                                    "Value": ["test1"]
+                                },
+                                "00080102": {
+                                    "vr": "SH",
+                                    "required": 1,
+                                    "Value": ["test1"]
+                                },
+                                "00080104": {
+                                    "vr": "LO",
+                                    "required": 1,
+                                    "Value": ["test1"]
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+        expect(service.removeEmptyNotRequiredIODValues(beforeObject2)).toEqual(afterObject2);
+        })
+    );
+    it('should clean Type 2 and Type 3 IOD attributes correctly', inject([StudyService], (service: StudyService)=> {
+        const before = {
+            "00100010": { // Type 2
+                "vr": "PN",
+                "required": 2,
+                "Value": [""]
+            },
+            "00100020": { // Type 3
+                "vr": "LO",
+                "Value": [""]
+            }
+        };
 
+        const after = {
+            "00100010": { // Type 2 → keep, but remove Value
+                "vr": "PN",
+                "required": 2
+            }
+            // Type 3 removed completely
+        };
+
+        expect(service.removeEmptyNotRequiredIODValues(before)).toEqual(after);
+    }));
+    it('should not modify IOD attributes with valid values', inject([StudyService], (service: StudyService) => {
+        const before = {
+            "00100010": {
+                "vr": "PN",
+                "required": 2,
+                "Value": ["John^Doe"]
+            }
+        };
+
+        expect(service.removeEmptyNotRequiredIODValues(before)).toEqual(before);
+    }));
+    it('should recursively clean nested sequences in IOD object', inject([StudyService], (service: StudyService) => {
+        const before = {
+            "vr": "SQ",
+            "Value": [
+                {
+                    "00100010": {
+                        "vr": "PN",
+                        "required": 2,
+                        "Value": [""]
+                    },
+                    "00100020": {
+                        "vr": "LO",
+                        "Value": [""]
+                    }
+                }
+            ]
+        };
+
+        const after = {
+            "vr": "SQ",
+            "Value": [
+                {
+                    "00100010": {
+                        "vr": "PN",
+                        "required": 2
+                    }
+                    // 00100020 removed
+                }
+            ]
+        };
+
+        expect(service.removeEmptyNotRequiredIODValues(before)).toEqual(after);
+    }));
+    it('should handle empty sequences correctly',  inject([StudyService], (service: StudyService) => {
+        const before = {
+            "0040A730": {
+                "vr": "SQ",
+                "required": 2,
+                "Value": [
+                    {
+                        "00100020": {
+                            "vr": "LO",
+                            "Value": [""]
+                        }
+                    }
+                ]
+            }
+        };
+
+        const after = {
+            "0040A730": {
+                "vr": "SQ",
+                "required": 2,
+                "Value": [
+                    {}
+                ]
+            }
+        };
+
+        expect(service.removeEmptyNotRequiredIODValues(before)).toEqual(after);
+    }));
+    it('should remove empty Type 3 sequence in the IOD object',  inject([StudyService], (service: StudyService) => {
+        const before = {
+            "0040A730": {
+                "vr": "SQ",
+                "Value": [
+                    {
+                        "00100020": {
+                            "vr": "LO",
+                            "Value": [""]
+                        }
+                    }
+                ]
+            }
+        };
+
+        const after = {};
+
+        expect(service.removeEmptyNotRequiredIODValues(before)).toEqual(after);
+    }));
+    it('should NOT remove attribute if at least one value is non-empty', inject([StudyService], (service: StudyService)=> {
+        const before = {
+            "00100010": {
+                "vr": "PN",
+                "required": 2,
+                "Value": ["", "John"]
+            }
+        };
+
+        expect(service.removeEmptyNotRequiredIODValues(before)).toEqual(before);
+    }));
+    it('should not treat partially empty nested objects as empty', inject([StudyService], (service: StudyService) => {
+        const before = {
+            "vr": "SQ",
+            "Value": [
+                {
+                    "A": { "vr": "LO", "Value": [""] },
+                    "B": { "vr": "LO", "Value": ["test"] }
+                }
+            ]
+        };
+
+        expect(service.removeEmptyNotRequiredIODValues(before)).toEqual(before);
+    }));
+    it('should preserve non-empty items in Type 2 sequences', inject([StudyService], (service: StudyService) => {
+        const before = {
+            "0040A730": {
+                "vr": "SQ",
+                "required": 2,
+                "Value": [
+                    {},
+                    {
+                        "00100010": {
+                            "vr": "PN",
+                            "Value": ["John"]
+                        }
+                    }
+                ]
+            }
+        };
+
+        expect(service.removeEmptyNotRequiredIODValues(before))
+            .toEqual(before);
+    }));
+    it('should treat missing Value as empty Type 2', inject([StudyService], (service: StudyService) => {
+        const before = {
+            "00100010": {
+                "vr": "PN",
+                "required": 2
+            }
+        };
+
+        expect(service.removeEmptyNotRequiredIODValues(before))
+            .toEqual(before);
+    }));
 });

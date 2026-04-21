@@ -21,14 +21,36 @@ module.exports = {
     "changeOrigin": true,
     "logLevel": "debug"
   },
-  /* As the schemas are not part of the same ui project and are normally copied to the UI project by `mvn install`,
-   * we need to proxy them to the dcm4chee-arc-ui2 project from the running (other) UI season */
+/*  /!* As the schemas are not part of the same ui project and are normally copied to the UI project by `mvn install`,
+   * we need to proxy them to the dcm4chee-arc-ui2 project from the running (other) UI season *!/
   "/assets/schema":{
     target: "http://localhost:18080",
-        secure: false,
-      changeOrigin: true,
-      logLevel: "debug",
-      pathRewrite: { "^/assets/schema": "/dcm4chee-arc/ui2/en/assets/schema" }
+    secure: false,
+    changeOrigin: true,
+    logLevel: "debug",
+    pathRewrite: { "^/assets/schema": "/dcm4chee-arc/ui2/en/assets/schema" }
+  },*/
+  "/assets/schema": {
+    target: "http://localhost",
+    secure: false,
+    changeOrigin: true,
+    pathRewrite: {
+      "^/assets/schema": "/dcm4chee-arc-lang/en/assets/schema"
+    },
+    logLevel: "debug"
+  },
+  "/resources/theme-config.js": {
+    "target": "http://localhost:18080",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/resources": {
+    "target": "http://localhost:18080",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": { "^/resources": "/resources" }
   }
 };
 
