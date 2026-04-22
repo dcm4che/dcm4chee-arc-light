@@ -1372,6 +1372,10 @@ export class DeviceConfiguratorService{
             let optObject = {};
             if(opt && typeof opt === "string" && opt.indexOf("|") > -1){
                 let [optValue, description,label] = opt.split("|");
+                if(typeof value === "number" && typeof optValue === "string"){
+                    const intValue:any = parseInt(optValue);
+                    optValue = intValue || optValue;
+                }
                 optObject = {
                     description:description ?? '',
                     value: optValue ?? '',
