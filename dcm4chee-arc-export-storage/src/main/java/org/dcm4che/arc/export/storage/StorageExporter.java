@@ -368,13 +368,16 @@ public class StorageExporter extends AbstractExporter {
             List<TarEntry> tarEntries = entry.getValue();
             WriteContext writeCtx = storage.createWriteContext(entry.getKey());
             writeCtx.setStudyInstanceUID(retrieveContext.getStudyInstanceUID());
-            int completed = 0;
+            boolean tarCreated = false;
+            TarEntry copying = null;
             try {
                 try (TarArchiveOutputStream tar = new TarArchiveOutputStream(
                         new BufferedOutputStream(storage.openOutputStream(writeCtx)))) {
+                    tarCreated = true;
                     String storagePath = writeCtx.getStoragePath();
                     ByteArrayOutputStream md5sum = new ByteArrayOutputStream();
                     for (TarEntry tarEntry : tarEntries) {
+                        copying = tarEntry;
                         LOG.debug("Start copying {} to TAR {} at {}", tarEntry.match,
                                 storagePath, storage.getStorageDescriptor());
                         tarEntry.newLocation = copyTo(retrieveContext, tarEntry.match,
@@ -399,18 +402,29 @@ public class StorageExporter extends AbstractExporter {
                         tar.closeArchiveEntry();
                     }
                 }
+                copying = null;
                 storeService.replaceLocations(storeSession, tarEntries.stream().map(this::replaceLocation));
-                completed += tarEntries.size();
                 retrieveContext.addCompleted(tarEntries.size());
                 storage.commitStorage(writeCtx);
             } catch (Exception e) {
-                retrieveContext.addFailed(tarEntries.size() - completed);
-                if (completed == 0)
-                    try {
-                        storage.revokeStorage(writeCtx);
-                    } catch (Exception e2) {
-                        LOG.warn("Failed to revoke storage", e2);
+                retrieveContext.addFailed(tarEntries.size());
+                if (!tarCreated) {
+                    LOG.warn("Failed to create TAR {} at {}:\n",
+                            writeCtx.getStoragePath(), storage.getStorageDescriptor(), e);
+                } else {
+                    if (copying != null) {
+                        LOG.warn("Failed to copy {} to TAR {} at {}:\n",
+                                copying.match, writeCtx.getStoragePath(), storage.getStorageDescriptor(), e);
+                    } else {
+                        LOG.warn("Failed to update DB with location records referencing entries in TAR {} at {}:\n",
+                                writeCtx.getStoragePath(), storage.getStorageDescriptor(), e);
+                        try {
+                            storage.revokeStorage(writeCtx);
+                        } catch (Exception e2) {
+                            LOG.warn("Failed to revoke storage", e2);
+                        }
                     }
+                }
             }
         }
         return seriesIUIDs;
