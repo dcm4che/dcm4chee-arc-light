@@ -107,6 +107,8 @@ import {MatMenuModule} from '@angular/material/menu';
 import {MAT_DIALOG_DATA, MatDialogModule} from '@angular/material/dialog';
 import { MatFormFieldModule} from '@angular/material/form-field';
 
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { WithCredentialsInterceptor } from './helpers/with-credentials.interceptor';
 
 // registerLocaleData(localeDe, 'de-DE');
 
@@ -333,6 +335,11 @@ import { MatFormFieldModule} from '@angular/material/form-field';
         { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
         provideHttpClient(withInterceptorsFromDi()),
         provideClientHydration(withEventReplay()),
+		{
+            provide: HTTP_INTERCEPTORS,
+            useClass: WithCredentialsInterceptor,
+            multi: true
+        },
     ] })
 export class AppModule {
     constructor(private router: Router) {
