@@ -1434,6 +1434,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getStorePermissionServiceExpirationDatePattern(), null);
         writer.writeNotNullOrDef("dcmDefaultCharacterSet", arcAE.getDefaultCharacterSet(), null);
         writer.writeNotNullOrDef("dcmMWLWorklistLabel", arcAE.getMWLWorklistLabel(), null);
+        writer.writeNotEmpty("dcmMWLWorklistLabelFilter", arcAE.getMWLWorklistLabelFilters());
         writer.writeNotNullOrDef("dcmUPSWorklistLabel", arcAE.getUPSWorklistLabel(), null);
         writer.writeNotEmpty("dcmUPSWorklistLabelFilter", arcAE.getUPSWorklistLabelFilters());
         writer.writeNotEmpty("dcmUPSEventSCU", arcAE.getUPSEventSCUs());
@@ -4612,6 +4613,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmMWLWorklistLabel":
                     arcAE.setMWLWorklistLabel(reader.stringValue());
+                    break;
+                case "dcmMWLWorklistLabelFilter":
+                    arcAE.setMWLWorklistLabelFilters(reader.stringArray());
                     break;
                 case "dcmUPSWorklistLabel":
                     arcAE.setUPSWorklistLabel(reader.stringValue());

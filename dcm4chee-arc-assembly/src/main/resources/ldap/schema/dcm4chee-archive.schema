@@ -3034,6 +3034,11 @@ attributetype ( 1.2.40.0.13.1.15.110.3.518 NAME 'dcmUPSWorklistLabelFilter'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
 
+attributetype ( 1.2.40.0.13.1.15.110.3.519 NAME 'dcmMWLWorklistLabelFilter'
+  DESC 'Value of Worklist Label (0074,1202) used as matching Key by this AE on processing queries by DIMSE (MWL Query SOP Class) or dicomWeb (Modality Worklist Search Transaction) service for matching Modality Worklist items (MWL), if no matching key for this attribute is specified in the request. If multiple values are specified, MWL with any of the specified values of Worklist Label (0074,1202) matches. If no value is specified, MWL with any value of Worklist Label (0074,1202) will match.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
+
 objectclass ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -3479,6 +3484,7 @@ objectclass ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmMWLRequestedProcedureIDGenerator $
     dcmMWLScheduledProcedureStepIDGenerator $
     dcmMWLWorklistLabel $
+    dcmMWLWorklistLabelFilter $
     hl7PSUReceivingApplication $
     hl7PSUSendingApplication $
     hl7PSUAction $

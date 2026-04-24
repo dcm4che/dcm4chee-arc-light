@@ -65,6 +65,7 @@ import java.util.stream.Stream;
 public class ArchiveAEExtension extends AEExtension {
     private String defaultCharacterSet;
     private String mwlWorklistLabel;
+    private String[] mwlWorklistLabelFilters = {};
     private String upsWorklistLabel;
     private String[] upsWorklistLabelFilters = {};
     private String[] upsEventSCUs = {};
@@ -222,6 +223,14 @@ public class ArchiveAEExtension extends AEExtension {
 
     public void setMWLWorklistLabel(String mwlWorklistLabel) {
         this.mwlWorklistLabel = mwlWorklistLabel;
+    }
+
+    public String[] getMWLWorklistLabelFilters() {
+        return mwlWorklistLabelFilters;
+    }
+
+    public void setMWLWorklistLabelFilters(String[] mwlWorklistLabelFilters) {
+        this.mwlWorklistLabelFilters = mwlWorklistLabelFilters;
     }
 
     public String getUPSWorklistLabel() {
@@ -2145,6 +2154,7 @@ public class ArchiveAEExtension extends AEExtension {
         ArchiveAEExtension aeExt = (ArchiveAEExtension) from;
         defaultCharacterSet = aeExt.defaultCharacterSet;
         mwlWorklistLabel = aeExt.mwlWorklistLabel;
+        mwlWorklistLabelFilters = aeExt.mwlWorklistLabelFilters;
         upsWorklistLabel = aeExt.upsWorklistLabel;
         upsWorklistLabelFilters = aeExt.upsWorklistLabelFilters;
         upsEventSCUs = aeExt.upsEventSCUs;

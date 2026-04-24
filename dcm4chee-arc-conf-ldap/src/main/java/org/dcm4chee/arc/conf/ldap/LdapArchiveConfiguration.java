@@ -2046,6 +2046,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getDefaultCharacterSet(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmMWLWorklistLabel",
                 ext.getMWLWorklistLabel(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmMWLWorklistLabelFilter", ext.getMWLWorklistLabelFilters());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmUPSWorklistLabel",
                 ext.getUPSWorklistLabel(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmUPSWorklistLabelFilter", ext.getUPSWorklistLabelFilters());
@@ -2243,6 +2244,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 attrs.get("dcmStorePermissionServiceExpirationDatePattern")));
         ext.setDefaultCharacterSet(LdapUtils.stringValue(attrs.get("dcmDefaultCharacterSet"), null));
         ext.setMWLWorklistLabel(LdapUtils.stringValue(attrs.get("dcmMWLWorklistLabel"), null));
+        ext.setMWLWorklistLabelFilters(LdapUtils.stringArray(attrs.get("dcmMWLWorklistLabelFilter")));
         ext.setUPSWorklistLabel(LdapUtils.stringValue(attrs.get("dcmUPSWorklistLabel"), null));
         ext.setUPSWorklistLabelFilters(LdapUtils.stringArray(attrs.get("dcmUPSWorklistLabelFilter")));
         ext.setUPSEventSCUs(LdapUtils.stringArray(attrs.get("dcmUPSEventSCU")));
@@ -2495,6 +2497,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getDefaultCharacterSet(), bb.getDefaultCharacterSet(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmMWLWorklistLabel",
                 aa.getMWLWorklistLabel(), bb.getMWLWorklistLabel(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmMWLWorklistLabelFilter",
+                aa.getMWLWorklistLabelFilters(), bb.getMWLWorklistLabelFilters());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmUPSWorklistLabel",
                 aa.getUPSWorklistLabel(), bb.getUPSWorklistLabel(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmUPSWorklistLabelFilter",
