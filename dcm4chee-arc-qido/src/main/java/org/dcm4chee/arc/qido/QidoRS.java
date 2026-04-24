@@ -702,9 +702,10 @@ public class QidoRS {
             keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
         if (seriesInstanceUID != null)
             keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
-        String mwlWorklistLabel = ae.getAEExtension(ArchiveAEExtension.class).getMWLWorklistLabel();
-        if (mwlWorklistLabel != null)
-            keys.setString(Tag.WorklistLabel, VR.LO, mwlWorklistLabel);
+        String[] mwlWorklistLabelFilters = ae.getAEExtension(ArchiveAEExtension.class).getMWLWorklistLabelFilters();
+        if ((keys.getStrings(Tag.WorklistLabel) == null || keys.getStrings(Tag.WorklistLabel).length == 0)
+                && mwlWorklistLabelFilters.length > 0)
+            keys.setString(Tag.WorklistLabel, VR.LO, mwlWorklistLabelFilters);
         String[] upsWorklistLabelFilters = ae.getAEExtension(ArchiveAEExtension.class).getUPSWorklistLabelFilters();
         if ((keys.getStrings(Tag.WorklistLabel) == null || keys.getStrings(Tag.WorklistLabel).length == 0)
                 && upsWorklistLabelFilters.length > 0)
