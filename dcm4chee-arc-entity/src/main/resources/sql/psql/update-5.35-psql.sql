@@ -5,6 +5,8 @@ alter table if exists study_access_control_id add constraint FKluah7q5kdwqidu6uw
 create table series_access_control_id (series_fk bigint not null, access_control_id varchar(255));
 alter table if exists series_access_control_id add constraint FKt7uu3btv6pro4wuxspq0pom8y foreign key (series_fk) references series;
 
+alter table series add num_instances integer;
+
 -- part 2: shall be applied on stopped archive before starting 5.35
 insert into study_access_control_id(study_fk, access_control_id)
 select study.pk, study.access_control_id

@@ -705,6 +705,9 @@ public class Series {
     @Column(name = "compress_failures")
     private int compressionFailures;
 
+    @Column(name = "num_instances")
+    private Integer numberOfInstances;
+
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true, optional = false)
     @JoinColumn(name = "dicomattrs_fk")
     private AttributesBlob attributesBlob;
