@@ -280,6 +280,7 @@ export class ModifyUpsComponent {
                     ups.attrs[attrcode]['Value'].push({Alphabetic: ''});
                 }else{
                     if (ups.attrs[attrcode].vr === 'SQ'){
+                        ups.attrs[attrcode]['Value'] =  ups.attrs[attrcode]['Value'] || [];
                         ups.attrs[attrcode]['Value'].push(_.cloneDeep(this.iod[attrcode].Value[0]));
                     }else{
                         ups.attrs[attrcode]['Value'].push('');
