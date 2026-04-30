@@ -344,14 +344,17 @@ public class UpdateMetadataScheduler extends Scheduler {
         if (studyInfo.getExpirationDate() != null)
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationDate, VR.DA,
                     studyInfo.getExpirationDate());
-        if (!studyInfo.getAccessControlID().equals("*"))
-            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyAccessControlID, VR.LO,
-                    studyInfo.getAccessControlID());
+        String studyAccessControlID = studyInfo.getAccessControlID();
+        if (studyAccessControlID != null && !studyAccessControlID.equals("*"))
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.StudyAccessControlID, VR.LO, studyAccessControlID);
 
         SeriesInfo seriesInfo = ctx.getSeriesInfos().get(0);
         if (seriesInfo.getExpirationDate() != null)
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesExpirationDate, VR.DA,
                     seriesInfo.getExpirationDate());
+        String seriesAccessControlID = seriesInfo.getAccessControlID();
+        if (seriesAccessControlID != null && !seriesAccessControlID.equals("*"))
+            attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SeriesAccessControlID, VR.LO, seriesAccessControlID);
         if (seriesInfo.getSendingAET() != null)
             attrs.setString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries, VR.AE,
                     seriesInfo.getSendingAET());

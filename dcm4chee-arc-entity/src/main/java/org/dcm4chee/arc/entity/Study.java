@@ -53,6 +53,7 @@ import org.dcm4chee.arc.conf.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Damien Evans <damien.daddy@gmail.com>
@@ -145,10 +146,6 @@ import java.util.*;
                 query = "update Study st set st.storageIDs = null " +
                         "where st.pk = ?1 and st.storageIDs is not null"),
         @NamedQuery(
-                name = Study.UPDATE_ACCESS_CONTROL_ID,
-                query = "update Study st set st.accessControlID = ?2 " +
-                        "where st.studyInstanceUID = ?1 and st.accessControlID != ?2"),
-        @NamedQuery(
                 name = Study.FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE,
                 query = "select st from Study st " +
                         "join fetch st.patient p " +
@@ -171,7 +168,6 @@ import java.util.*;
         indexes = {
                 @Index(columnList = "access_time"),
                 @Index(columnList = "created_time"),
-                @Index(columnList = "access_control_id"),
                 @Index(columnList = "rejection_state"),
                 @Index(columnList = "storage_ids"),
                 @Index(columnList = "study_date"),
@@ -211,7 +207,6 @@ public class Study {
     public static final String STORAGE_IDS_BY_STUDY_UID = "Study.storageIDsByStudyUID";
     public static final String SET_STORAGE_IDS = "Study.setStorageIDs";
     public static final String CLEAR_STORAGE_IDS = "Study.clearStorageIDs";
-    public static final String UPDATE_ACCESS_CONTROL_ID = "Study.updateAccessControlID";
     public static final String FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE = "Study.findByUpdateTimeAndUnknownSize";
     public static final String CLAIM_UNKNOWN_SIZE_STUDY = "Study.claimUnknownSizeStudy";
     public static final String SET_STUDY_SIZE_IF_CLAIMED = "Study.setStudySizeIfClaimed";
@@ -332,9 +327,14 @@ public class Study {
     @Column(name = "study_custom3")
     private String studyCustomAttribute3;
 
-    @Basic(optional = false)
     @Column(name = "access_control_id")
     private String accessControlID = "*";
+
+    @ElementCollection
+    @CollectionTable(name = "study_access_control_id", joinColumns = @JoinColumn(name = "study_fk"),
+            indexes = @Index(columnList = "access_control_id"))
+    @Column(name = "access_control_id")
+    private Set<String> accessControlIDs;
 
     @Basic(optional = false)
     @Column(name = "rejection_state")
@@ -547,12 +547,42 @@ public class Study {
         return studyCustomAttribute3;
     }
 
-    public String getAccessControlID() {
-        return StringUtils.nullify(accessControlID, "*");
+    public String getAccessControlIDsAsString() {
+        return accessControlID;
     }
 
-    public void setAccessControlID(String accessControlID) {
-        this.accessControlID = StringUtils.maskNull(accessControlID, "*");
+    public Set<String> getAccessControlIDs() {
+        return accessControlIDs != null
+                ? Collections.EMPTY_SET
+                : Collections.unmodifiableSet(accessControlIDs);
+    }
+
+    public boolean containsAccessControlID(String accessControlID) {
+        return accessControlIDs != null && accessControlIDs.contains(accessControlID);
+    }
+
+    public boolean containsAllAccessControlIDs(String... accessControlID) {
+        return accessControlID.length == 0
+                || accessControlIDs != null && accessControlIDs.containsAll(Arrays.asList(accessControlID));
+    }
+
+    public void setAccessControlIDs(String... accessControlIDs) {
+        setOrAddAccessControlIDs(accessControlIDs, false);
+    }
+
+    public void addAccessControlIDs(String... accessControlIDs) {
+        setOrAddAccessControlIDs(accessControlIDs, true);
+    }
+
+    private void setOrAddAccessControlIDs(String[] accessControlIDs, boolean add) {
+        Set<String> local = this.accessControlIDs;
+        if (local == null) {
+            this.accessControlIDs = local = new HashSet<>(Arrays.asList(accessControlIDs));
+        } else {
+            if (!add) local.clear();
+            local.addAll(Arrays.asList(accessControlIDs));
+        }
+        accessControlID = local.isEmpty() ? null : local.stream().sorted().collect(Collectors.joining("\\"));
     }
 
     public RejectionState getRejectionState() {

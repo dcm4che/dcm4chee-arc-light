@@ -2301,7 +2301,7 @@ class ArchiveDeviceFactory {
             StoreAccessControlIDRule storeAccessControlIDRule =
                     new StoreAccessControlIDRule("StoreAccessControlIDRule1");
             storeAccessControlIDRule.getConditions().setSendingAETitle("ACCESS_CONTROL");
-            storeAccessControlIDRule.setStoreAccessControlID("ACCESS_CONTROL_ID");
+            storeAccessControlIDRule.setStoreAccessControlIDs(new String[]{"ACCESS_CONTROL_ID"});
             ext.addStoreAccessControlIDRule(storeAccessControlIDRule);
         }
     }

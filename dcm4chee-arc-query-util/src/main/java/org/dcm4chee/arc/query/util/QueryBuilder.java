@@ -772,10 +772,9 @@ public class QueryBuilder {
         if (queryParam.getExternalRetrieveAETNot() != null)
             predicates.add(cb.notEqual(study.get(Study_.externalRetrieveAET), queryParam.getExternalRetrieveAETNot()));
         if (queryRetrieveLevel == QueryRetrieveLevel2.STUDY) {
-            if (queryParam.getAccessControlIDs().length != 0)
-                predicates.add(study.get(Study_.accessControlID).in(queryParam.getAccessControlIDs()));
+            anyMember(predicates, queryParam.getAccessControlIDs(), study.get(Study_.accessControlIDs), false);
             if (queryParam.getAccessControlIDNot() != null)
-                predicates.add(cb.notEqual(study.get(Study_.accessControlID), queryParam.getAccessControlIDNot()));
+                predicates.add(cb.isNotMember(queryParam.getAccessControlIDNot(), study.get(Study_.accessControlIDs)));
             if (queryParam.isHideNotRejectedInstances()) {
                 Subquery<RejectedInstance> sq = criteria.subquery(RejectedInstance.class);
                 Root<RejectedInstance> ri = sq.from(RejectedInstance.class);
@@ -815,38 +814,47 @@ public class QueryBuilder {
         }
     }
 
-    public static void accessControl(List<Predicate> predicates, Path<Study> study, String[] accessControlIDs) {
-        if (accessControlIDs.length > 0)
-            predicates.add(accessControlPredicate(study, accessControlIDs));
+    private void anyMember(List<Predicate> predicates, String[] elems, Expression<Set<String>> collection,
+                           boolean orEmpty) {
+        if (elems.length != 0) {
+            predicates.add(anyMember(elems, collection, orEmpty));
+        }
     }
 
-    private static Predicate accessControlPredicate(Path<Study> study, String[] accessControlIDs) {
-        String[] a = new String[accessControlIDs.length + 1];
-        a[0] = "*";
-        System.arraycopy(accessControlIDs, 0, a, 1, accessControlIDs.length);
-        return study.get(Study_.accessControlID).in(a);
+    private Predicate anyMember(String[] elems, Expression<Set<String>> collection, boolean orEmpty) {
+        if (!orEmpty && elems.length == 1) {
+            return cb.isMember(elems[0], collection);
+        } else {
+            Predicate[] y = new Predicate[orEmpty ? elems.length + 1 : elems.length];
+            for (int i = 0; i < elems.length; i++) {
+                y[i] = cb.isMember(elems[i], collection);
+            }
+            if (orEmpty) {
+                y[elems.length] = cb.isEmpty(collection);
+            }
+            return cb.or(y);
+        }
     }
 
-    public static void seriesAccessControl(List<Predicate> predicates, Path<Series> series, String[] accessControlIDs) {
-        if (accessControlIDs.length > 0)
-            predicates.add(seriesAccessControlPredicate(series, accessControlIDs));
+    public void accessControl(List<Predicate> predicates, Path<Study> study, String[] accessControlIDs) {
+        anyMember(predicates, accessControlIDs, study.get(Study_.accessControlIDs), true);
     }
 
-    private static Predicate seriesAccessControlPredicate(Path<Series> series, String[] accessControlIDs) {
-        String[] a = new String[accessControlIDs.length + 1];
-        a[0] = "*";
-        System.arraycopy(accessControlIDs, 0, a, 1, accessControlIDs.length);
-        return series.get(Series_.accessControlID).in(a);
+    private Predicate accessControlPredicate(Path<Study> study, String[] accessControlIDs) {
+        return anyMember(accessControlIDs, study.get(Study_.accessControlIDs), true);
+    }
+
+    public void seriesAccessControl(List<Predicate> predicates, Path<Series> series, String[] accessControlIDs) {
+        anyMember(predicates, accessControlIDs, series.get(Series_.accessControlIDs), true);
     }
 
     private <Z> void seriesLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
              From<Series, Study> study, From<Z, Series> series, Attributes keys, QueryParam queryParam,
              QueryRetrieveLevel2 queryRetrieveLevel2, CodeEntity[] showInstancesRejectedByCodes) {
         seriesAccessControl(predicates, series, queryParam.getAEAccessControlIDs());
-        if (queryParam.getAccessControlIDs().length != 0)
-            predicates.add(series.get(Series_.accessControlID).in(queryParam.getAccessControlIDs()));
+        anyMember(predicates, queryParam.getAccessControlIDs(), series.get(Series_.accessControlIDs), false);
         if (queryParam.getAccessControlIDNot() != null)
-            predicates.add(cb.notEqual(series.get(Series_.accessControlID), queryParam.getAccessControlIDNot()));
+            predicates.add(cb.isNotMember(queryParam.getAccessControlIDNot(), series.get(Series_.accessControlIDs)));
         anyOf(predicates, series.get(Series_.seriesInstanceUID), keys.getStrings(Tag.SeriesInstanceUID), false);
         numberPredicate(predicates, series.get(Series_.seriesNumber), keys.getString(Tag.SeriesNumber, "*"));
         anyOf(predicates, series.get(Series_.modality),

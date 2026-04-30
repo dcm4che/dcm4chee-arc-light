@@ -70,7 +70,7 @@ class Assert {
             return;
         assertNotNull(actual);
         assertArrayEquals(expected.getObjectStorageIDs(), actual.getObjectStorageIDs());
-        assertEquals(expected.getStoreAccessControlID(), actual.getStoreAccessControlID());
+        assertArrayEquals(expected.getStoreAccessControlIDs(), actual.getStoreAccessControlIDs());
         assertArrayEquals(expected.getAccessControlIDs(), actual.getAccessControlIDs());
         assertEquals(expected.getOverwritePolicy(), actual.getOverwritePolicy());
         assertEquals(expected.getQueryRetrieveViewID(), actual.getQueryRetrieveViewID());

@@ -51,6 +51,7 @@ import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
@@ -66,15 +67,14 @@ public class UpdateServiceEJB {
 
     public int updateAccessControlIDOfStudies(Attributes keys, QueryParam queryParam, String accessControlID) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaUpdate<Study> update = cb.createCriteriaUpdate(Study.class);
-        Root<Study> root = update.from(Study.class);
-        update.set(root.get(Study_.accessControlID), accessControlID);
-        Subquery<Study> sq = update.subquery(Study.class);
+        CriteriaQuery<Study> query = cb.createQuery(Study.class);
+        Root<Study> root = query.from(Study.class);
+        Subquery<Study> sq = query.subquery(Study.class);
         Root<Study> study = sq.correlate(root);
         Join<Study, Patient> patient = study.join(Study_.patient);
         QueryBuilder builder = new QueryBuilder(cb);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-        List<Predicate> predicates = builder.studyPredicates(update, patient, study,
+        List<Predicate> predicates = builder.studyPredicates(query, patient, study,
                 idWithIssuer != null
                         ? new IDWithIssuer[] { idWithIssuer } : IDWithIssuer.EMPTY,
                 idWithIssuer == null && queryParam.isFilterByIssuerOfPatientID()
@@ -82,22 +82,23 @@ public class UpdateServiceEJB {
                 keys, queryParam,
                 codeCache.findOrCreateEntities(
                         queryParam.getQueryRetrieveView().getShowInstancesRejectedByCodes()));
-        update.where(cb.exists(sq.select(study).where(predicates.toArray(new Predicate[0]))));
-        return em.createQuery(update).executeUpdate();
+        query.where(cb.exists(sq.select(study).where(predicates.toArray(new Predicate[0]))));
+        return em.createQuery(query).getResultStream()
+                .mapToInt(s -> updateAccessControlID(s, accessControlID))
+                .sum();
     }
 
     public int updateAccessControlIDOfSeries(Attributes keys, QueryParam queryParam, String accessControlID) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaUpdate<Series> update = cb.createCriteriaUpdate(Series.class);
-        Root<Series> root = update.from(Series.class);
-        update.set(root.get(Series_.accessControlID), accessControlID);
-        Subquery<Series> sq = update.subquery(Series.class);
+        CriteriaQuery<Series> query = cb.createQuery(Series.class);
+        Root<Series> root = query.from(Series.class);
+        Subquery<Series> sq = query.subquery(Series.class);
         Root<Series> series = sq.correlate(root);
         Join<Series, Study> study = series.join(Series_.study);
         Join<Study, Patient> patient = study.join(Study_.patient);
         QueryBuilder builder = new QueryBuilder(cb);
         IDWithIssuer idWithIssuer = IDWithIssuer.pidOf(keys);
-        List<Predicate> predicates = builder.seriesPredicates(update, patient, study, series,
+        List<Predicate> predicates = builder.seriesPredicates(query, patient, study, series,
                 idWithIssuer != null
                         ? new IDWithIssuer[] { idWithIssuer } : IDWithIssuer.EMPTY,
                 idWithIssuer == null && queryParam.isFilterByIssuerOfPatientID()
@@ -105,7 +106,31 @@ public class UpdateServiceEJB {
                 keys, queryParam,
                 codeCache.findOrCreateEntities(
                         queryParam.getQueryRetrieveView().getShowInstancesRejectedByCodes()));
-        update.where(cb.exists(sq.select(series).where(predicates.toArray(new Predicate[0]))));
-        return em.createQuery(update).executeUpdate();
+        query.where(cb.exists(sq.select(series).where(predicates.toArray(new Predicate[0]))));
+        return em.createQuery(query).getResultStream()
+                .mapToInt(s -> updateAccessControlID(s, accessControlID))
+                .sum();
+    }
+
+    private int updateAccessControlID(Study series, String accessControlID) {
+        if (accessControlID.equals("*")) {
+            if (series.getAccessControlIDs().isEmpty()) return 0;
+            series.setAccessControlIDs();
+        } else {
+            if (series.containsAccessControlID(accessControlID)) return 0;
+            series.addAccessControlIDs(accessControlID);
+        }
+        return 1;
+    }
+
+    private int updateAccessControlID(Series series, String accessControlID) {
+        if (accessControlID.equals("*")) {
+            if (series.getAccessControlIDs().isEmpty()) return 0;
+            series.setAccessControlIDs();
+        } else {
+            if (series.containsAccessControlID(accessControlID)) return 0;
+            series.addAccessControlIDs(accessControlID);
+        }
+        return 1;
     }
 }

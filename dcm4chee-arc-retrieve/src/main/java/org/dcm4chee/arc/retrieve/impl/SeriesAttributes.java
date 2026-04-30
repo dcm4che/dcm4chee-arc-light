@@ -116,6 +116,7 @@ class SeriesAttributes {
                 tuple.get(series.get(Series_.completeness)),
                 tuple.get(series.get(Series_.modifiedTime)),
                 tuple.get(series.get(Series_.expirationDate)),
+                tuple.get(series.get(Series_.accessControlID)),
                 tuple.get(series.get(Series_.sendingAET)),
                 tuple.get(series.get(Series_.receivingAET)),
                 tuple.get(series.get(Series_.sendingPresentationAddress)),

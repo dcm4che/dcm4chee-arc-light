@@ -306,8 +306,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.60 NAME 'dcmDeletePatientOnDeleteLas
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.61 NAME 'dcmStoreAccessControlID'
   DESC 'AccessControlID assigned to Studies received by this AE'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.62 NAME 'dcmAccessControlID'
   DESC 'AccessControlIDs assigned to Query/Retrieve requests received by this AE'
   EQUALITY caseExactIA5Match
@@ -2526,7 +2525,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.518 NAME 'dcmUPSWorklistLabelFilter'
   DESC 'Value of Worklist Label (0074,1202) used as matching Key by this AE on processing queries by DIMSE (UPS Query SOP Class) or dicomWeb (Worklist Search Transaction) service for matching Unified Procedure Steps (UPS), if no matching key for this attribute is specified in the request. If multiple values are specified, UPS with any of the specified values of Worklist Label (0074,1202) matches. If no value is specified, UPS with any value of Worklist Label (0074,1202) will match.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)
-attributetype ( 1.2.40.0.13.1.15.110.3.519 NAME 'dcmMWLWorklistLabelFilter'
+olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.519 NAME 'dcmMWLWorklistLabelFilter'
   DESC 'Value of Worklist Label (0074,1202) used as matching Key by this AE on processing queries by DIMSE (MWL Query SOP Class) or dicomWeb (Modality Worklist Search Transaction) service for matching Modality Worklist items (MWL), if no matching key for this attribute is specified in the request. If multiple values are specified, MWL with any of the specified values of Worklist Label (0074,1202) matches. If no value is specified, MWL with any value of Worklist Label (0074,1202) will match.'
   EQUALITY caseExactIA5Match
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.26)

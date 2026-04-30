@@ -54,9 +54,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -310,11 +309,6 @@ import java.util.stream.Stream;
                 "and se.instancePurgeState = ?2 " +
                 "GROUP BY p, st" ),
 @NamedQuery(
-        name = Series.UPDATE_ACCESS_CONTROL_ID,
-        query = "update Series se set se.accessControlID = ?3 " +
-                "where se.seriesInstanceUID = ?2 and se.accessControlID != ?3 and se.study in (" +
-                "select study from Study study where study.studyInstanceUID = ?1)"),
-@NamedQuery(
         name=Series.FIND_LAST_MODIFIED_SERIES_LEVEL,
         query="SELECT p.updatedTime, st.modifiedTime, se.modifiedTime from Series se " +
                 "JOIN se.study st " +
@@ -419,7 +413,6 @@ public class Series {
     public static final String UPDATE_COMPRESSION_COMPLETED = "Series.updateCompressionCompleted";
     public static final String FIND_LAST_MODIFIED_STUDY_LEVEL = "Series.findLastModifiedStudyLevel";
     public static final String FIND_LAST_MODIFIED_SERIES_LEVEL = "Series.findLastModifiedSeriesLevel";
-    public static final String UPDATE_ACCESS_CONTROL_ID = "Series.UpdateAccessControlID";
 
     public enum InstancePurgeState { NO, PURGED, FAILED_TO_PURGE }
 
@@ -608,9 +601,14 @@ public class Series {
     @Column(name = "series_custom3")
     private String seriesCustomAttribute3;
 
-    @Basic(optional = false)
     @Column(name = "access_control_id")
-    private String accessControlID = "*";
+    private String accessControlID;
+
+    @ElementCollection
+    @CollectionTable(name = "series_access_control_id", joinColumns = @JoinColumn(name = "series_fk"),
+            indexes = @Index(columnList = "access_control_id"))
+    @Column(name = "access_control_id")
+    private Set<String> accessControlIDs;
 
     @Column(name = "sending_aet")
     private String sendingAET;
@@ -864,12 +862,42 @@ public class Series {
         return seriesCustomAttribute3;
     }
 
-    public String getAccessControlID() {
-        return StringUtils.nullify(accessControlID, "*");
+    public String getAccessControlIDsAsString() {
+        return accessControlID;
     }
 
-    public void setAccessControlID(String accessControlID) {
-        this.accessControlID = StringUtils.maskNull(accessControlID, "*");
+    public Set<String> getAccessControlIDs() {
+        return accessControlIDs != null
+                ? Collections.EMPTY_SET
+                : Collections.unmodifiableSet(accessControlIDs);
+    }
+
+    public boolean containsAccessControlID(String accessControlID) {
+        return accessControlIDs != null && accessControlIDs.contains(accessControlID);
+    }
+
+    public boolean containsAllAccessControlIDs(String... accessControlID) {
+        return accessControlID.length == 0
+                || accessControlIDs != null && accessControlIDs.containsAll(Arrays.asList(accessControlID));
+    }
+
+    public void setAccessControlIDs(String... accessControlIDs) {
+        setOrAddAccessControlIDs(accessControlIDs, false);
+    }
+
+    public void addAccessControlIDs(String... accessControlIDs) {
+        setOrAddAccessControlIDs(accessControlIDs, true);
+    }
+
+    private void setOrAddAccessControlIDs(String[] accessControlIDs, boolean add) {
+        Set<String> local = this.accessControlIDs;
+        if (local == null) {
+            this.accessControlIDs = local = new HashSet<>(Arrays.asList(accessControlIDs));
+        } else {
+            if (!add) local.clear();
+            local.addAll(Arrays.asList(accessControlIDs));
+        }
+        accessControlID = local.isEmpty() ? null : local.stream().sorted().collect(Collectors.joining("\\"));
     }
 
     public String getSendingAET() {

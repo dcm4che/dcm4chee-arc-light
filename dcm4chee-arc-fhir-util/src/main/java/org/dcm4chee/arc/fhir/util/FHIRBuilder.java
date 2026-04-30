@@ -292,8 +292,11 @@ public class FHIRBuilder {
                     writer.writeStartElement("Organization");
                     writer.writeAttribute("id", id);
                     writer.writeStartElement("name");
-                    writeEmptyElementNotNull("code", "value",
-                            retrieveAE.getAEExtension(ArchiveAEExtension.class).getStoreAccessControlID());
+                    String[] storeAccessControlIDs = retrieveAE.getAEExtension(ArchiveAEExtension.class)
+                            .getStoreAccessControlIDs();
+                    if (storeAccessControlIDs.length > 0) {
+                        writeEmptyElementNotNull("code", "value", storeAccessControlIDs[0]);
+                    }
                     writeEmptyElementNotNull("AET", "value", retrieveAE.getAETitle());
                     writer.writeEndElement();
                     writer.writeEndElement();

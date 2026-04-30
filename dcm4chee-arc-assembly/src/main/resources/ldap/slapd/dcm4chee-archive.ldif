@@ -305,8 +305,7 @@ olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.60 NAME 'dcmDeletePatientOnDeleteLas
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.61 NAME 'dcmStoreAccessControlID'
   DESC 'AccessControlID assigned to Studies received by this AE'
   EQUALITY caseExactIA5Match
-  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
-  SINGLE-VALUE )
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
 olcAttributeTypes: ( 1.2.40.0.13.1.15.110.3.62 NAME 'dcmAccessControlID'
   DESC 'AccessControlIDs assigned to Query/Retrieve requests received by this AE'
   EQUALITY caseExactIA5Match

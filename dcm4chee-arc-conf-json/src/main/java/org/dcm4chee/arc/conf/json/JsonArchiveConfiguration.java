@@ -825,7 +825,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         for (StoreAccessControlIDRule acr : rules) {
             writer.writeStartObject();
             writer.writeNotNullOrDef("cn", acr.getCommonName(), null);
-            writer.writeNotNullOrDef("dcmStoreAccessControlID", acr.getStoreAccessControlID(), null);
+            writer.writeNotEmpty("dcmStoreAccessControlID", acr.getStoreAccessControlIDs());
             writer.writeNotDef("dcmRulePriority", acr.getPriority(), 0);
             writer.writeNotNullOrDef("dcmEntity", acr.getEntity(), Entity.Study);
             writer.writeNotEmpty("dcmProperty", acr.getConditions().getMap());
@@ -1365,7 +1365,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmBulkDataDescriptorID", arcAE.getBulkDataDescriptorID(), null);
         writer.writeNotNullOrDef("dcmSeriesMetadataDelay", arcAE.getSeriesMetadataDelay(), null);
         writer.writeNotNullOrDef("dcmPurgeInstanceRecordsDelay", arcAE.getPurgeInstanceRecordsDelay(), null);
-        writer.writeNotNullOrDef("dcmStoreAccessControlID", arcAE.getStoreAccessControlID(), null);
+        writer.writeNotEmpty("dcmStoreAccessControlID", arcAE.getStoreAccessControlIDs());
         writer.writeNotEmpty("dcmAccessControlID", arcAE.getAccessControlIDs());
         writer.writeNotNullOrDef("dcmOverwritePolicy", arcAE.getOverwritePolicy(), null);
         writer.writeNotNullOrDef("dcmRelationalMismatchPolicy", arcAE.getRelationalMismatchPolicy(), null);
@@ -3226,7 +3226,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         acr.setCommonName(reader.stringValue());
                         break;
                     case "dcmStoreAccessControlID":
-                        acr.setStoreAccessControlID(reader.stringValue());
+                        acr.setStoreAccessControlIDs(reader.stringArray());
                         break;
                     case "dcmRulePriority":
                         acr.setPriority(reader.intValue());
@@ -4431,7 +4431,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     arcAE.setPurgeInstanceRecordsDelay(Duration.valueOf(reader.stringValue()));
                     break;
                 case "dcmStoreAccessControlID":
-                    arcAE.setStoreAccessControlID(reader.stringValue());
+                    arcAE.setStoreAccessControlIDs(reader.stringArray());
                     break;
                 case "dcmAccessControlID":
                     arcAE.setAccessControlIDs(reader.stringArray());

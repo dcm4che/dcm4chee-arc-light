@@ -42,6 +42,8 @@ package org.dcm4chee.arc.conf;
 
 import org.dcm4che3.data.Attributes;
 
+import java.util.Arrays;
+
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -58,7 +60,7 @@ public class StoreAccessControlIDRule {
 
     private Conditions conditions = new Conditions();
 
-    private String storeAccessControlID;
+    private String[] storeAccessControlIDs = {};
 
     public StoreAccessControlIDRule() {
     }
@@ -106,12 +108,12 @@ public class StoreAccessControlIDRule {
         this.conditions = conditions;
     }
 
-    public String getStoreAccessControlID() {
-        return storeAccessControlID;
+    public String[] getStoreAccessControlIDs() {
+        return storeAccessControlIDs;
     }
 
-    public void setStoreAccessControlID(String storeAccessControlID) {
-        this.storeAccessControlID = storeAccessControlID;
+    public void setStoreAccessControlIDs(String[] storeAccessControlIDs) {
+        this.storeAccessControlIDs = storeAccessControlIDs;
     }
 
     public boolean match(String sendingHost, String sendingAET, String receivingHost, String receivingAET,
@@ -126,7 +128,7 @@ public class StoreAccessControlIDRule {
                 "', entity=" + entity +
                 ", priority=" + priority +
                 ", conditions=" + conditions +
-                ", storeAccessControlID='" + storeAccessControlID +
+                ", storeAccessControlID='" + Arrays.toString(storeAccessControlIDs) +
                 "'}";
     }
 }

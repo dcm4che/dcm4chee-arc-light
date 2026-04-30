@@ -60,6 +60,7 @@ public class SeriesInfoImpl implements SeriesInfo {
     private final Completeness completeness;
     private final Date modifiedTime;
     private final String expirationDate;
+    private final String accessControlID;
     private final String sendingAET;
     private final String receivingAET;
     private final String sendingPresentationAddress;
@@ -69,8 +70,9 @@ public class SeriesInfoImpl implements SeriesInfo {
 
     public SeriesInfoImpl(String studyInstanceUID, String seriesInstanceUID,
                           Series.InstancePurgeState instancePurgeState, int failedRetrieves,
-                          Completeness completeness, Date modifiedTime, String expirationDate, String sendingAET,
-                          String receivingAET, String sendingPresentationAddress, String receivingPresentationAddress,
+                          Completeness completeness, Date modifiedTime, String expirationDate, String accessControlID,
+                          String sendingAET, String receivingAET,
+                          String sendingPresentationAddress, String receivingPresentationAddress,
                           long seriesSize, long seriesPk) {
         this.studyInstanceUID = studyInstanceUID;
         this.seriesInstanceUID = seriesInstanceUID;
@@ -79,6 +81,7 @@ public class SeriesInfoImpl implements SeriesInfo {
         this.completeness = completeness;
         this.modifiedTime = modifiedTime;
         this.expirationDate = expirationDate;
+        this.accessControlID = accessControlID;
         this.sendingAET = sendingAET;
         this.receivingAET = receivingAET;
         this.sendingPresentationAddress = sendingPresentationAddress;
@@ -125,6 +128,11 @@ public class SeriesInfoImpl implements SeriesInfo {
     @Override
     public String getExpirationDate() {
         return expirationDate;
+    }
+
+    @Override
+    public String getAccessControlID() {
+        return accessControlID;
     }
 
     @Override

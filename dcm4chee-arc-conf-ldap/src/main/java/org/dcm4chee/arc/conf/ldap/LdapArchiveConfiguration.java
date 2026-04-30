@@ -1944,8 +1944,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getSeriesMetadataDelay(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmPurgeInstanceRecordsDelay",
                 ext.getPurgeInstanceRecordsDelay(), null);
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoreAccessControlID",
-                ext.getStoreAccessControlID(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStoreAccessControlID", ext.getStoreAccessControlIDs());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAccessControlID", ext.getAccessControlIDs());
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy", ext.getOverwritePolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRelationalMismatchPolicy",
@@ -2159,7 +2158,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setBulkDataDescriptorID(LdapUtils.stringValue(attrs.get("dcmBulkDataDescriptorID"), null));
         ext.setSeriesMetadataDelay(toDuration(attrs.get("dcmSeriesMetadataDelay"), null));
         ext.setPurgeInstanceRecordsDelay(toDuration(attrs.get("dcmPurgeInstanceRecordsDelay"), null));
-        ext.setStoreAccessControlID(LdapUtils.stringValue(attrs.get("dcmStoreAccessControlID"), null));
+        ext.setStoreAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmStoreAccessControlID")));
         ext.setAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmAccessControlID")));
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), null));
         ext.setRelationalMismatchPolicy(LdapUtils.enumValue(
@@ -2361,8 +2360,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmPurgeInstanceRecordsDelay",
                 aa.getPurgeInstanceRecordsDelay(),
                 bb.getPurgeInstanceRecordsDelay(), null);
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoreAccessControlID",
-                aa.getStoreAccessControlID(), bb.getStoreAccessControlID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStoreAccessControlID",
+                aa.getStoreAccessControlIDs(), bb.getStoreAccessControlIDs());
         LdapUtils.storeDiff(ldapObj, mods, "dcmAccessControlID",
                 aa.getAccessControlIDs(), bb.getAccessControlIDs());
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmOverwritePolicy",
@@ -5624,7 +5623,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         attrs.put("objectclass", "dcmStoreAccessControlIDRule");
         attrs.put("cn", rule.getCommonName());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", rule.getConditions().getMap());
-        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStoreAccessControlID", rule.getStoreAccessControlID(), null);
+        LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStoreAccessControlID", rule.getStoreAccessControlIDs());
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmRulePriority", rule.getPriority(), 0);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmEntity", rule.getEntity(), Entity.Study);
         return attrs;
@@ -5742,7 +5741,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 Attributes attrs = sr.getAttributes();
                 StoreAccessControlIDRule rule = new StoreAccessControlIDRule(LdapUtils.stringValue(attrs.get("cn"), null));
                 rule.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
-                rule.setStoreAccessControlID(LdapUtils.stringValue(attrs.get("dcmStoreAccessControlID"), null));
+                rule.setStoreAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmStoreAccessControlID")));
                 rule.setPriority(LdapUtils.intValue(attrs.get("dcmRulePriority"), 0));
                 rule.setEntity(LdapUtils.enumValue(Entity.class, attrs.get("dcmEntity"), Entity.Study));
                 rules.add(rule);
@@ -6272,8 +6271,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
             ArrayList<ModificationItem> mods) {
         LdapUtils.storeDiffProperties(ldapObj, mods, "dcmProperty",
                 prev.getConditions().getMap(), rule.getConditions().getMap());
-        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoreAccessControlID",
-                prev.getStoreAccessControlID(), rule.getStoreAccessControlID(), null);
+        LdapUtils.storeDiff(ldapObj, mods, "dcmStoreAccessControlID",
+                prev.getStoreAccessControlIDs(), rule.getStoreAccessControlIDs());
         LdapUtils.storeDiff(ldapObj, mods, "dcmRulePriority", prev.getPriority(), rule.getPriority(), 0);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmEntity",
                 prev.getEntity(), rule.getEntity(), Entity.Study);

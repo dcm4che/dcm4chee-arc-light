@@ -68,6 +68,8 @@ public interface SeriesInfo {
 
     String getExpirationDate();
 
+    String getAccessControlID();
+
     String getSendingAET();
 
     String getReceivingAET();

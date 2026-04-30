@@ -167,7 +167,10 @@ public class RestoreFromMetadataEJB implements RestoreFromMetadata {
             for (Attributes item : seq) {
                 study.addStorageID(item.getString(PrivateTag.PrivateCreator, PrivateTag.StorageID));
             }
-        study.setAccessControlID(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.StudyAccessControlID));
+        String[] accessControlIDs = attrs.getStrings(PrivateTag.PrivateCreator, PrivateTag.StudyAccessControlID);
+        if (accessControlIDs != null) {
+            study.setAccessControlIDs(accessControlIDs);
+        }
         study.setCompleteness(Completeness.COMPLETE);
         study.setExpirationDate(toLocalDate(attrs.getDate(PrivateTag.PrivateCreator, PrivateTag.StudyExpirationDate)));
         study.setExpirationState(ExpirationState.UPDATEABLE);
@@ -193,7 +196,10 @@ public class RestoreFromMetadataEJB implements RestoreFromMetadata {
                 SeriesRequestAttributes request = new SeriesRequestAttributes(item, arcDev.getFuzzyStr());
                 requestAttributes.add(request);
             }
-        series.setAccessControlID(attrs.getString(PrivateTag.PrivateCreator, PrivateTag.SeriesAccessControlID));
+        String[] accessControlIDs = attrs.getStrings(PrivateTag.PrivateCreator, PrivateTag.SeriesAccessControlID);
+        if (accessControlIDs != null) {
+            series.setAccessControlIDs(accessControlIDs);
+        }
         series.setSendingAET(
                 attrs.getString(PrivateTag.PrivateCreator, PrivateTag.SendingApplicationEntityTitleOfSeries));
         series.setReceivingAET(

@@ -1065,18 +1065,27 @@ public class StoreServiceEJB {
         updated = attrs.updateSelected(updatePolicy,
                 ctx.getAttributes(), updateInfo.modified, filter.getSelection(false))
                 || updated;
-        if (!updated) {
+        String[] accessControlIDs = accessControlIDs(ctx, Entity.Study);
+        boolean updateAccessControlIDs = !study.containsAllAccessControlIDs(accessControlIDs);
+        if (!updated && !updateAccessControlIDs) {
             resetStudySizeAndExternalRetrieveAET(study);
             return study;
         }
 
-        updateInfo.log(session, study, attrs);
+        if (updated) {
+            updateInfo.log(session, study, attrs);
+        }
         study = em.find(Study.class, study.getPk());
-        study.setAttributes(recordAttributeModification(ctx)
-                    ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
-                    : attrs,
-                filter, true, arcDev.getFuzzyStr());
-        setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
+        if (updated) {
+            study.setAttributes(recordAttributeModification(ctx)
+                            ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
+                            : attrs,
+                    filter, true, arcDev.getFuzzyStr());
+            setCodes(study.getProcedureCodes(), attrs, Tag.ProcedureCodeSequence);
+        }
+        if (updateAccessControlIDs) {
+            study.addAccessControlIDs(accessControlIDs);
+        }
         if (arcDev.isUpdateSeriesMetadata()) {
             em.createNamedQuery(Series.SCHEDULE_METADATA_UPDATE_FOR_STUDY)
                     .setParameter(1, study)
@@ -1133,21 +1142,31 @@ public class StoreServiceEJB {
         Attributes attrs = series.getAttributes();
         UpdateInfo updateInfo = new UpdateInfo(attrs);
         Attributes.unifyCharacterSets(attrs, ctx.getAttributes());
-        if (!attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection(false))) {
+        boolean updated = attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection(false));
+        String[] accessControlIDs = accessControlIDs(ctx, Entity.Series);
+        boolean updateAccessControlIDs = !series.containsAllAccessControlIDs(accessControlIDs);
+        if (!updated && !updateAccessControlIDs) {
             resetSeriesSizeAndExternalRetrieveAET(series);
             return series;
         }
 
-        updateInfo.log(session, series, attrs);
+        if (updated) {
+            updateInfo.log(session, series, attrs);
+        }
         series = em.find(Series.class, series.getPk());
-        FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
-        series.setAttributes(recordAttributeModification(ctx)
-                    ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
-                    : attrs,
-                filter, true, fuzzyStr);
-        series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
-        series.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
-        setRequestAttributes(series, attrs, fuzzyStr);
+        if (updated) {
+            FuzzyStr fuzzyStr = arcDev.getFuzzyStr();
+            series.setAttributes(recordAttributeModification(ctx)
+                            ? attrs.addOriginalAttributes(null, now, reason, device.getDeviceName(), updateInfo.modified)
+                            : attrs,
+                    filter, true, fuzzyStr);
+            series.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
+            series.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
+            setRequestAttributes(series, attrs, fuzzyStr);
+        }
+        if (updateAccessControlIDs) {
+            series.addAccessControlIDs(accessControlIDs);
+        }
         series.resetSize();
         series.resetExternalRetrieveAET();
         return series;
@@ -1315,19 +1334,9 @@ public class StoreServiceEJB {
 
     private Study createStudy(StoreContext ctx, Patient patient, UpdateDBResult result) {
         StoreSession session = ctx.getStoreSession();
-        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
         Study study = new Study();
         study.addStorageID(objectStorageID(ctx));
-        study.setAccessControlID(arcAE.storeAccessControlIDRules(Entity.Study)
-                .filter(rule -> rule.match(
-                                session.getRemoteHostName(),
-                                session.getCallingAET(),
-                                session.getLocalHostName(),
-                                session.getCalledAET(),
-                                ctx.getAttributes()))
-                .map(StoreAccessControlIDRule::getStoreAccessControlID)
-                .findFirst()
-                .orElse(arcAE.getStoreAccessControlID()));
+        study.setAccessControlIDs(accessControlIDs(ctx, Entity.Study));
         study.setCompleteness(Completeness.COMPLETE);
         study.setExpirationState(ExpirationState.UPDATEABLE);
         study.setExternalRetrieveAET("*");
@@ -1511,16 +1520,7 @@ public class StoreServiceEJB {
         series.setStudy(study);
         series.setInstancePurgeState(Series.InstancePurgeState.NO);
         series.setExpirationState(ExpirationState.UPDATEABLE);
-        arcAE.storeAccessControlIDRules(Entity.Series)
-                .filter(rule -> rule.match(
-                        session.getRemoteHostName(),
-                        session.getCallingAET(),
-                        session.getLocalHostName(),
-                        session.getCalledAET(),
-                        ctx.getAttributes()))
-                .map(StoreAccessControlIDRule::getStoreAccessControlID)
-                .findFirst()
-                .ifPresent(series::setAccessControlID);
+        series.setAccessControlIDs(accessControlIDs(ctx, Entity.Series));
         ArchiveCompressionRule compressionRule = ctx.getCompressionRule();
         if (compressionRule != null && compressionRule.getDelay() != null) {
             series.setCompressionTime(
@@ -1545,6 +1545,21 @@ public class StoreServiceEJB {
         em.persist(series);
         LOG.info("{}: Create {}", ctx.getStoreSession(), series);
         return series;
+    }
+
+    private String[] accessControlIDs(StoreContext ctx, Entity entity) {
+        StoreSession session = ctx.getStoreSession();
+        ArchiveAEExtension arcAE = session.getArchiveAEExtension();
+        return arcAE.storeAccessControlIDRules(entity)
+                .filter(rule -> rule.match(
+                        session.getRemoteHostName(),
+                        session.getCallingAET(),
+                        session.getLocalHostName(),
+                        session.getCalledAET(),
+                        ctx.getAttributes()))
+                .map(StoreAccessControlIDRule::getStoreAccessControlIDs)
+                .findFirst()
+                .orElse(entity == Entity.Study ? arcAE.getStoreAccessControlIDs() : StringUtils.EMPTY_STRING);
     }
 
     private boolean markOldStudiesAsIncomplete(StoreContext ctx, Study study) {

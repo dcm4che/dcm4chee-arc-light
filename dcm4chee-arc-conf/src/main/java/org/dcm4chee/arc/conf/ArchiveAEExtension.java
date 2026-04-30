@@ -78,7 +78,7 @@ public class ArchiveAEExtension extends AEExtension {
     private String bulkDataDescriptorID;
     private Duration seriesMetadataDelay;
     private Duration purgeInstanceRecordsDelay;
-    private String storeAccessControlID;
+    private String[] storeAccessControlIDs = {};
     private String[] accessControlIDs = {};
     private OverwritePolicy overwritePolicy;
     private RelationalMismatchPolicy relationalMismatchPolicy;
@@ -385,12 +385,12 @@ public class ArchiveAEExtension extends AEExtension {
                 : null;
     }
 
-    public String getStoreAccessControlID() {
-        return storeAccessControlID;
+    public String[] getStoreAccessControlIDs() {
+        return storeAccessControlIDs;
     }
 
-    public void setStoreAccessControlID(String storeAccessControlID) {
-        this.storeAccessControlID = storeAccessControlID;
+    public void setStoreAccessControlIDs(String[] storeAccessControlIDs) {
+        this.storeAccessControlIDs = storeAccessControlIDs;
     }
 
     public String[] getAccessControlIDs() {
@@ -2167,7 +2167,7 @@ public class ArchiveAEExtension extends AEExtension {
         bulkDataDescriptorID = aeExt.bulkDataDescriptorID;
         seriesMetadataDelay = aeExt.seriesMetadataDelay;
         purgeInstanceRecordsDelay = aeExt.purgeInstanceRecordsDelay;
-        storeAccessControlID = aeExt.storeAccessControlID;
+        storeAccessControlIDs = aeExt.storeAccessControlIDs;
         accessControlIDs = aeExt.accessControlIDs;
         overwritePolicy = aeExt.overwritePolicy;
         relationalMismatchPolicy = aeExt.relationalMismatchPolicy;
