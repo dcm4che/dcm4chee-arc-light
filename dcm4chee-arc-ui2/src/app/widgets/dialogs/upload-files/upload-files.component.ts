@@ -799,6 +799,9 @@ export class UploadFilesComponent implements OnInit {
             case "jhc":
             case "image/png":
             case "image/tiff":
+            case "image/bmp":
+            case "image/heic":
+            case "image/heif":
                 $this.modality = $this.selectedSopClass.modality; // set modality from the sequen 0040,0100->Modality
                 descriptionPart = "Image";
                 break;
