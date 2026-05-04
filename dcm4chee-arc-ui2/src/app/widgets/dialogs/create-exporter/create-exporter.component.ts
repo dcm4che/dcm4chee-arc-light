@@ -18,6 +18,12 @@ import {CommonModule} from '@angular/common';
         DynamicFormComponent,
         CommonModule
     ],
+    styles:`
+        .dynamic_form_dialog{
+            overflow: auto;
+            max-height: 86vh;
+        }
+    `,
     standalone: true
 })
 export class CreateExporterComponent implements OnInit{

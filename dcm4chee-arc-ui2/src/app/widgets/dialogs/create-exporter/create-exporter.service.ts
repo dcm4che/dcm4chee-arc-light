@@ -20,7 +20,7 @@ export class CreateExporterService {
     getQueue = () => this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}queue`);
 
     getExporterDescriptorSchema = () => {
-        const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
+        //const currentSavedLanguage = <LocalLanguageObject> JSON.parse(localStorage.getItem('current_language'));
         let deviceSchemaURL = `./assets/schema/exporter.schema.json`;
         return this.$http.get(deviceSchemaURL)
     };
