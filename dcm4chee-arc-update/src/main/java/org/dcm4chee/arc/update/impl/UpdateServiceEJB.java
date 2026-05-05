@@ -118,7 +118,7 @@ public class UpdateServiceEJB {
             series.setAccessControlIDs();
         } else {
             if (series.containsAccessControlID(accessControlID)) return 0;
-            series.addAccessControlIDs(accessControlID);
+            series.setAccessControlIDs(accessControlID);
         }
         return 1;
     }
@@ -129,7 +129,7 @@ public class UpdateServiceEJB {
             series.setAccessControlIDs();
         } else {
             if (series.containsAccessControlID(accessControlID)) return 0;
-            series.addAccessControlIDs(accessControlID);
+            series.setAccessControlIDs(accessControlID);
         }
         return 1;
     }
