@@ -323,7 +323,6 @@ import java.util.stream.Stream;
     indexes = {
         @Index(columnList = "created_time"),
         @Index(columnList = "series_iuid"),
-        @Index(columnList = "access_control_id"),
         @Index(columnList = "rejection_state"),
         @Index(columnList = "series_no"),
         @Index(columnList = "modality"),

@@ -94,7 +94,6 @@ create index IDX9nr8ddkp8enufvbn72esyw3n1 on person_name (phonetic_name);
 create index IDXowm55at56tdjitsncsrhr93xj on rejected_instance (created_time);
 create index IDX12auabn3ubq8bat0wkg33n3ms on series (created_time);
 create index IDX9fi64g5jjycg9dp24jjk5txg1 on series (series_iuid);
-create index IDXr9qbr5jv4ejclglvyvtsynuo9 on series (access_control_id);
 create index IDXjlgy9ifvqak4g2bxkchismw8x on series (rejection_state);
 create index IDX75oc6w5ootkuwyvmrhe3tbown on series (series_no);
 create index IDXb126hub0dc1o9dqp6awoispx2 on series (modality);
