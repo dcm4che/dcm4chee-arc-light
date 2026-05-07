@@ -5,16 +5,15 @@ declare var DCM4CHE: any;
 import * as _ from 'lodash-es';
 import {AppService} from '../../../app.service';
 import {SearchPipe} from '../../../pipes/search.pipe';
-import {WindowRefService} from "../../../helpers/window-ref.service";
-import {SelectDropdown, UPSModifyMode, UPSSubscribeType} from "../../../interfaces";
-import {j4care} from "../../../helpers/j4care.service";
-import {Aet} from "../../../models/aet";
-import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {WindowRefService} from '../../../helpers/window-ref.service';
+import {SelectDropdown, UPSModifyMode, UPSSubscribeType} from '../../../interfaces';
+import {j4care} from '../../../helpers/j4care.service';
+import {Aet} from '../../../models/aet';
+import {J4careHttpService} from '../../../helpers/j4care-http.service';
 import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
+import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
 import {FormsModule} from '@angular/forms';
 import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
-import {AppModule} from '../../../app.module';
-import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
 import {CommonModule} from '@angular/common';
 
 @Component({
@@ -22,9 +21,9 @@ import {CommonModule} from '@angular/common';
     templateUrl: './modify-ups.component.html',
     styleUrls: ['./modify-ups.component.scss'],
     imports: [
+        IodFormGeneratorComponent,
         FormsModule,
         DcmDropDownComponent,
-        IodFormGeneratorComponent,
         MatDialogContent,
         CommonModule,
         SearchPipe
@@ -49,7 +48,7 @@ export class ModifyUpsComponent {
     private _upskey: any;
     private _externalInternalAetMode;
     iod: any;
-    templateParameter:string = "no_template";
+    templateParameter:string = 'no_template';
 
     private _result = {
         subscribeMode: 'filtered',
@@ -165,7 +164,7 @@ export class ModifyUpsComponent {
         }
         //Enter clicked
         if (code === 13){
-            // var filter = $filter("filter");
+            // var filter = $filter('filter');
             // var filtered = filter(this.dropdown, this.addPatientAttribut);
             let filtered = new SearchPipe().transform(this.dropdown, this.addPatientAttribut);
             if (filtered){
@@ -174,7 +173,7 @@ export class ModifyUpsComponent {
             console.log('filtered', filtered);
             let attrcode: any;
             if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected').length > 0){
-                attrcode = window.document.getElementsByClassName("dropdown_element selected")[0].getAttribute("name");
+                attrcode = window.document.getElementsByClassName('dropdown_element selected')[0].getAttribute('name');
             }else{
                 attrcode = filtered[0].code;
             }
@@ -222,8 +221,8 @@ export class ModifyUpsComponent {
                     element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
                     dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
                     WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 },10)
 
@@ -258,8 +257,8 @@ export class ModifyUpsComponent {
                     element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
                     dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
                     WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 },10)
 
@@ -281,7 +280,9 @@ export class ModifyUpsComponent {
                 }else{
                     if (ups.attrs[attrcode].vr === 'SQ'){
                         ups.attrs[attrcode]['Value'] =  ups.attrs[attrcode]['Value'] || [];
-                        ups.attrs[attrcode]['Value'].push(_.cloneDeep(this.iod[attrcode].Value[0]));
+                        const newItem = _.cloneDeep(this.iod[attrcode].Value[0]);
+                        newItem.newBlock = true;
+                        ups.attrs[attrcode]['Value'].push(newItem);
                     }else{
                         ups.attrs[attrcode]['Value'].push('');
                     }
@@ -293,12 +294,12 @@ export class ModifyUpsComponent {
                 console.log('message attribute already exists');
             }
         }else{
-            // console.log("in else", this.dialogRef.componentInstance.ups);
+            // console.log('in else', this.dialogRef.componentInstance.ups);
             console.log('this.iodattrcod', this.iod[attrcode]);
              ups.attrs[attrcode]  = _.cloneDeep(this.iod[attrcode]);
-             delete ups.attrs[attrcode]["multi"];
-             delete ups.attrs[attrcode]["required"];
-            // ups.attrs[attrcode].Value[0] = "";
+             delete ups.attrs[attrcode]['multi'];
+             delete ups.attrs[attrcode]['required'];
+            // ups.attrs[attrcode].Value[0] = '';
             console.log('ups=', ups);
         }
         // this.dialogRef.componentInstance.ups = ups;
@@ -329,6 +330,7 @@ export class ModifyUpsComponent {
     }
 
     aesOption:SelectDropdown<Aet>[];
+    iodFormValid = true;
     ngOnInit() {
         this.getAes();
     }
@@ -347,7 +349,7 @@ export class ModifyUpsComponent {
         this.$http.get(
             `${j4care.addLastSlash(this.mainservice.baseUrl)}aes`
         )
-            // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
+            // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = '/dcm4chee-arc/ui2/';} resjson = res; }catch (e){ resjson = [];} return resjson;})
             .subscribe((response) => {
                 $this.aes = response;
                 this.aesOption = this.aes.map((ae:Aet)=>{
@@ -368,5 +370,13 @@ export class ModifyUpsComponent {
             }, (response) => {
                 // vex.dialog.alert("Error loading aes, please reload the page and try again!");
             });
+    }
+    submit(submitObject){
+
+        this.dialogRef.close(submitObject);
+    }
+
+    get isFormValid(): boolean {
+        return this.iodFormValid;
     }
 }

@@ -1,4 +1,4 @@
-import {Component, OnInit, Input} from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
 import * as _ from 'lodash-es';
 import {Globalvar} from '../../constants/globalvar';
 import {AppService} from "../../app.service";
@@ -23,6 +23,12 @@ declare var DCM4CHE: any;
         CommonModule
     ],
     styles:[`
+
+        .iod-required-missing input,
+        .iod-required-missing select {
+            border-color: #d9534f;
+        }
+
         .active.sqiod:hover {
             background: rgba(0, 0, 0, 0.6);
             color: white;
@@ -58,7 +64,7 @@ declare var DCM4CHE: any;
     `],
     standalone: true
 })
-export class IodFormGeneratorComponent implements OnInit {
+export class IodFormGeneratorComponent implements OnInit, OnChanges {
     @Input() object;
     @Input() prefix;
     @Input() mode;
@@ -68,6 +74,7 @@ export class IodFormGeneratorComponent implements OnInit {
     @Input() valueArrayKey:number;
     @Input() parentNewBlock:number;
     @Input() externalInternalAetMode;
+    @Output() validityChange = new EventEmitter<boolean>();
     objectIsArray;
     hasValue;
     _=_;
@@ -99,6 +106,13 @@ export class IodFormGeneratorComponent implements OnInit {
         console.log('hasValue=', this.hasValue);
         this.objectIsArray = _.isArray(this.object);
         console.log('objectisarray', this.objectIsArray);
+        this.emitValidationState();
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['object']) {
+            this.emitValidationState();
+        }
     }
     getKeys(obj){
         if (_.isArray(obj)){
@@ -113,6 +127,72 @@ export class IodFormGeneratorComponent implements OnInit {
     activeBlock = false;
     onChange(newValue, model) {
         _.set(this, model, newValue);
+        this.emitValidationState();
+    }
+    onValueModelChange() {
+        this.emitValidationState();
+    }
+    onRangeModelChange(fieldKey, valueIndex, value) {
+        if (this.object && this.object[fieldKey] && this.object[fieldKey].Value) {
+            this.object[fieldKey].Value[valueIndex] = value;
+            this.emitValidationState();
+        }
+    }
+    onChildValidityChange() {
+        this.emitValidationState();
+    }
+    isRequiredMissing(field, value?) {
+        if (!field || !field.required || field.required != "1") {
+            return false;
+        }
+        const valueToValidate = value !== undefined ? value : field.Value;
+        return !this.hasAnyValue(valueToValidate);
+    }
+    private hasAnyValue(value): boolean {
+        if (value === undefined || value === null) {
+            return false;
+        }
+        if (typeof value === 'string') {
+            return value.trim() !== '';
+        }
+        if (_.isArray(value)) {
+            return value.some(item => this.hasAnyValue(item));
+        }
+        if (typeof value === 'object') {
+            return Object.keys(value).some(key => this.hasAnyValue(value[key]));
+        }
+        return true;
+    }
+    private isFieldObject(field): boolean {
+        return !!(field && typeof field === 'object' && field.vr);
+    }
+    private validateObjectRecursively(node): boolean {
+        if (!node || typeof node !== 'object') {
+            return true;
+        }
+        for (const key of Object.keys(node)) {
+            if (key === 'newBlock') {
+                continue;
+            }
+            const field = node[key];
+            if (!this.isFieldObject(field)) {
+                continue;
+            }
+            if (this.isRequiredMissing(field)) {
+                return false;
+            }
+            if (field.vr === 'SQ' && _.isArray(field.Value)) {
+                for (const item of field.Value) {
+                    if (!this.validateObjectRecursively(item)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    private emitValidationState() {
+        this.validityChange.emit(this.validateObjectRecursively(this.object));
     }
     removeAttr(attrcode, i?){
         console.log('attrcode', attrcode);
@@ -129,6 +209,7 @@ export class IodFormGeneratorComponent implements OnInit {
                 delete  this.object[arguments[0]];
                 break;
         }
+        this.emitValidationState();
     };
     removeObject(object){
         try{
@@ -136,12 +217,14 @@ export class IodFormGeneratorComponent implements OnInit {
         }catch (e) {
             console.warn(e);
         }
+        this.emitValidationState();
     }
     trackByFn(index, item) {
         return index; // or item.id
     }
     charChange(event){
         console.log("test in charchange",event);
+        this.emitValidationState();
     }
     clonePart(object, o, iod, i, io){
         try{
@@ -156,6 +239,7 @@ export class IodFormGeneratorComponent implements OnInit {
                 console.log("clonedObject",clonedObject);
                 clonedObject.newBlock = true;
                 object[o].Value.splice(i+1, 0, clonedObject);
+                this.emitValidationState();
             }
         }catch (e) {
             console.warn(e);

@@ -42,6 +42,10 @@ export class EditPatientComponent {
     lastPressedCode;
     options = Globalvar.OPTIONS;
     DCM4CHE = DCM4CHE;
+    iodFormValid = true;
+    get isFormValid(): boolean {
+        return this.iodFormValid;
+    }
     private _mode;
     private _saveLabel;
     private _titleLabel;

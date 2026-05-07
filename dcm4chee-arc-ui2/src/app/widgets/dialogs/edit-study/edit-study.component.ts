@@ -58,6 +58,7 @@ export class EditStudyComponent{
 
     addStudyAttribut = '';
     lastPressedCode;
+    iodFormValid = true;
     private _saveLabel;
     private _titleLabel;
     private _dropdown;
@@ -75,7 +76,9 @@ export class EditStudyComponent{
     ]
 
     private _tagStudy:any;
-
+    get isFormValid(): boolean {
+        return this.iodFormValid;
+    }
     get tagStudy() {
         return this._tagStudy;
     }

@@ -55,6 +55,7 @@ export class EditSeriesComponent{
     addSeriesAttribut = '';
     lastPressedCode;
     sourceOfPrevVals = '';
+    iodFormValid = true;
     private _saveLabel;
     private _titleLabel;
     private _dropdown;
@@ -319,4 +320,8 @@ export class EditSeriesComponent{
     onSaveClick(series){
         j4care.removeKeyFromObject(series, "newBlock");
         this.dialogRef.close(series)
-    }}
+    }
+    get isFormValid(): boolean {
+        return this.iodFormValid;
+    }
+}

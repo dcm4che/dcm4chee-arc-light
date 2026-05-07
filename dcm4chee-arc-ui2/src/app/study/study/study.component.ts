@@ -6704,7 +6704,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.afterClosed().subscribe(ok => {
                 if (ok){
                     workitem.attrs = this.service.removeEmptyNotRequiredIODValues(workitem.attrs);
-                    j4care.removeKeyFromObject(workitem.attrs, ['required','enum', 'multi']);
+                    j4care.removeKeyFromObject(workitem.attrs, ['required','enum', 'multi','newBlock','required']);
                     let createUPS = (template?:boolean)=>{
                         let object = _.cloneDeep(workitem);
                         if(template){
@@ -7261,8 +7261,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.afterClosed().subscribe(result => {
                 if (result){
                     const {patient: formPatient , ...additionalParams} = result;
-                    const tempAttrs = {...formPatient.attrs, ...onlyPrivateAttrs};
-                    j4care.removeKeyFromObject(tempAttrs, ["required","enum", "multi"]);
+                    let tempAttrs = {...formPatient.attrs, ...onlyPrivateAttrs};
+                    tempAttrs = this.service.removeEmptyNotRequiredIODValues(tempAttrs);
+                    j4care.removeKeyFromObject(tempAttrs, ['required','enum', 'multi','newBlock','required']);
                     if(mode === "create"){
                         this.service.modifyPatient(undefined,tempAttrs,this.studyWebService).subscribe(res=>{
                             this.appService.showMsg($localize `:@@study.patient_created_successfully:Patient created successfully`);
@@ -8041,7 +8042,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.componentInstance.titleLabel = $localize `:@@update_matching_studies:Update matching Studies`;
             $this.dialogRef.afterClosed().subscribe((ok) => {
                 if (ok) {
-                    j4care.removeKeyFromObject(studyFiltered.attrs, ["required","enum", "multi"]);
+                    studyFiltered.attrs = this.service.removeEmptyNotRequiredIODValues(studyFiltered.attrs);
+                    j4care.removeKeyFromObject(studyFiltered.attrs, ['required','enum', 'multi','newBlock','required']);
                     if(_.hasIn(studyFiltered,"attrs.0020000D"))
                         delete studyFiltered.attrs["0020000D"];
 
@@ -8105,7 +8107,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.dialogRef.componentInstance.titleLabel = $localize `:@@update_matching_series:Update matching Series`;
             $this.dialogRef.afterClosed().subscribe((ok) => {
                 if (ok) {
-                    j4care.removeKeyFromObject(seriesFiltered.attrs, ["required","enum", "multi"]);
+                    seriesFiltered.attrs = this.service.removeEmptyNotRequiredIODValues(seriesFiltered.attrs);
+                    j4care.removeKeyFromObject(seriesFiltered.attrs, ['required','enum', 'multi','newBlock','required']);
                     if(_.hasIn(seriesFiltered,"attrs.0020000E"))
                         delete seriesFiltered.attrs["0020000E"];
 

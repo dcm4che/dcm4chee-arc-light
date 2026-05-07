@@ -37,6 +37,7 @@ export class EditMwlComponent {
 
     addmwlAttribut = '';
     lastPressedCode;
+    iodFormValid = true;
     private _saveLabel;
     private _titleLabel;
     private _dropdown;
@@ -52,6 +53,10 @@ export class EditMwlComponent {
     DCM4CHE = DCM4CHE;
     onChange(newValue, model) {
         _.set(this, model, newValue);
+    }
+
+    get isFormValid(): boolean {
+        return this.iodFormValid;
     }
     get mode() {
         return this._mode;
