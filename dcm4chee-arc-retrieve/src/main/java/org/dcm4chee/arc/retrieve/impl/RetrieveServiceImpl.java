@@ -561,7 +561,10 @@ public class RetrieveServiceImpl implements RetrieveService {
                             && !qrView.hideRejectionNote(metadata)) {
                         Attributes.unifyCharacterSets(seriesAttrs, metadata);
                         metadata.addAll(seriesAttrs);
-                        ctx.getMatches().add(instanceLocationsFromMetadata(ctx, metadata));
+                        ctx.getMatches().add(instanceLocationsFromMetadata(ctx, metadata,
+                                !ctx.isRetrieveMetadata() && ctx.getSeriesMetadataUpdate() == null
+                                        ? ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.Instance).getSelection()
+                                        : null));
                     }
                 }
                 zip.closeEntry();
@@ -580,8 +583,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         return false;
     }
 
-    private InstanceLocations instanceLocationsFromMetadata(RetrieveContext ctx, Attributes attrs) {
-        InstanceLocationsImpl inst = new InstanceLocationsImpl(attrs);
+    private InstanceLocations instanceLocationsFromMetadata(RetrieveContext ctx, Attributes attrs, int[] filter) {
+        InstanceLocationsImpl inst = new InstanceLocationsImpl(filter != null ? new Attributes(attrs, filter) : attrs);
         inst.setRetrieveAETs(StringUtils.concat(attrs.getStrings(Tag.RetrieveAETitle), '\\'));
         inst.setAvailability(Availability.valueOf(attrs.getString(Tag.InstanceAvailability)));
         inst.setCreatedTime(attrs.getDate(PrivateTag.PrivateCreator, PrivateTag.InstanceReceiveDateTime));
@@ -595,7 +598,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         if (otherStorageSeq != null)
             for (Attributes otherStorageItem : otherStorageSeq)
                 addLocationFromMetadata(inst, otherStorageItem);
-        if (ctx.getSeriesMetadataUpdate() == null)
+        if (ctx.getSeriesMetadataUpdate() == null && filter == null)
             attrs.removePrivateAttributes(PrivateTag.PrivateCreator, 0x7777);
         return inst;
     }
