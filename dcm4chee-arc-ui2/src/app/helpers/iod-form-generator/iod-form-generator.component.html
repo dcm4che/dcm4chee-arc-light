@@ -66,12 +66,12 @@
                                [(ngModel)]="object[o].Value[i]"
                                (ngModelChange)="onValueModelChange()"
                         >
-                        <select *ngIf="_.get(this.appService.global,'uiConfig.dcmuiMWLWorklistLabel')" [(ngModel)]="object[o].Value[0]" (ngModelChange)="onValueModelChange()">
+                        <select *ngIf="_.get(this.appService.global,'uiConfig.dcmuiMWLWorklistLabel')" [ngModel]="object[o].Value[0]" (ngModelChange)="onChange($event, 'object['+o+'].Value[0]')">
                             <option value="">*</option>
                             <option *ngFor="let label of _.get(this.appService.global,'uiConfig.dcmuiMWLWorklistLabel')" value="{{label}}">{{label}}</option>
                         </select>
                     </ng-container>
-                    <select *ngIf="object[o].enum && object[o].enum.length > 0" [(ngModel)]="object[o].Value[0]" (ngModelChange)="onValueModelChange()">
+                    <select *ngIf="object[o].enum && object[o].enum.length > 0" [ngModel]="object[o].Value[0]" (ngModelChange)="onChange($event, 'object['+o+'].Value[0]')">
                         <option *ngIf="!(object[o].required && object[o].required === 1)" value="">*</option>
                         <option *ngFor="let n of object[o].enum" value="{{n}}">{{n}}</option>
                     </select>

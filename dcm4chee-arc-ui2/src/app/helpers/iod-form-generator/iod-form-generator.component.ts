@@ -126,10 +126,17 @@ export class IodFormGeneratorComponent implements OnInit, OnChanges {
     DCM4CHE = DCM4CHE;
     activeBlock = false;
     onChange(newValue, model) {
-        _.set(this, model, newValue);
+        const tempValue = _.toNumber(newValue);
+        if (tempValue == newValue) {
+            _.set(this, model, tempValue);
+        }else{
+            _.set(this, model, newValue);
+        }
         this.emitValidationState();
     }
-    onValueModelChange() {
+    onValueModelChange(model?, value?) {
+        console.log("model",model);
+        console.log("value",value);
         this.emitValidationState();
     }
     onRangeModelChange(fieldKey, valueIndex, value) {
