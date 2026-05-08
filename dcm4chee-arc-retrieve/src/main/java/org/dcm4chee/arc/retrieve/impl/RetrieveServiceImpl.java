@@ -554,7 +554,8 @@ public class RetrieveServiceImpl implements RetrieveService {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (isEmptyOrContains(ctx.getSopInstanceUIDs(), entry.getName())) {
-                    Attributes metadata = parseJSON(zip, !ctx.isRetrieveMetadata());
+                    boolean skipBulkDataURI = !ctx.isRetrieveMetadata() && ctx.getSeriesMetadataUpdate() == null;
+                    Attributes metadata = parseJSON(zip, skipBulkDataURI);
                     if (qrView == null
                             || !qrView.hideRejectedInstance(
                                 metadata.getNestedDataset(PrivateTag.PrivateCreator, PrivateTag.RejectionCodeSequence))
@@ -562,7 +563,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                         Attributes.unifyCharacterSets(seriesAttrs, metadata);
                         metadata.addAll(seriesAttrs);
                         ctx.getMatches().add(instanceLocationsFromMetadata(ctx, metadata,
-                                !ctx.isRetrieveMetadata() && ctx.getSeriesMetadataUpdate() == null
+                                skipBulkDataURI
                                         ? ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.Instance).getSelection()
                                         : null));
                     }
