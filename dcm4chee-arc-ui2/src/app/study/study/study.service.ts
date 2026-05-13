@@ -2110,7 +2110,7 @@ export class StudyService {
                                 title: $localize `:@@study.delete_study_permanently:Delete study permanently`,
                                 showIf: (e) => {
                                     return (
-                                            j4care.is(options,"trash.active") ||
+                                            !j4care.is(options,"trash.active") &&
                                             j4care.is(options, "selectedWebService.dicomAETitleObject.dcmAllowDeleteStudyPermanently", "ALWAYS")
                                     ) && this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET");
                                 },
