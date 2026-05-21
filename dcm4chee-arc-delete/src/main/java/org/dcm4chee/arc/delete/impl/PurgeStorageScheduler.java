@@ -443,6 +443,12 @@ public class PurgeStorageScheduler extends Scheduler {
                 while ((n = ejb.deleteStudy(ctx, limit, false).size()) > 0) {
                     LOG.debug("Deleted {} instances of Study[pk={}]", n, pkUID.pk);
                 }
+                if (ctx.getInstances().isEmpty()) {
+                    LOG.info("Detect Study[pk={}] without Locations on {}", pkUID.pk, desc);
+                    while ((n = ejb.deleteInstancesWithoutLocationsOfStudy(ctx, pkUID.pk, limit)) > 0) {
+                        LOG.debug("Deleted {} instances of Study[pk={}]", n, pkUID.pk);
+                    }
+                }
                 removed++;
                 LOG.info("Successfully delete {} on {}", ctx.getStudy(), desc);
             } catch (Exception e) {

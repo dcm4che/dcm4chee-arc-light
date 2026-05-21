@@ -337,13 +337,13 @@ public class DeletionServiceEJB {
                 .executeUpdate();
     }
 
-    public int deleteInstancesWithoutLocationsOfStudy(StudyDeleteContext ctx, Study study, int limit) {
-        Collection<Instance> insts = em.createNamedQuery(Instance.FIND_WITHOUT_LOCATIONS_BY_STUDY, Instance.class)
-                .setParameter(1, study)
+    public int deleteInstancesWithoutLocationsOfStudy(StudyDeleteContext ctx, Long studyPk, int limit) {
+        Collection<Instance> insts = em.createNamedQuery(Instance.FIND_WITHOUT_LOCATIONS_BY_STUDY_PK, Instance.class)
+                .setParameter(1, studyPk)
                 .setMaxResults(limit)
                 .getResultList();
         deleteInstances(insts, ctx);
-        LOG.debug("Deleted {} instances of Study[pk={}]", insts.size(), study);
+        LOG.debug("Deleted {} instances of Study[pk={}]", insts.size(), studyPk);
         return insts.size();
     }
 

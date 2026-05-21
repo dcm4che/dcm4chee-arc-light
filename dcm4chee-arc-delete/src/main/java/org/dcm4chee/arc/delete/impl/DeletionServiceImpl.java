@@ -289,7 +289,7 @@ public class DeletionServiceImpl implements DeletionService {
         int retries = arcDev.getStoreUpdateDBMaxRetries();
         for (;;) {
             try {
-                return ejb.deleteInstancesWithoutLocationsOfStudy(ctx, study, limit);
+                return ejb.deleteInstancesWithoutLocationsOfStudy(ctx, study.getPk(), limit);
             } catch (EJBException e) {
                 if (retries-- > 0) {
                     LOG.info("Failure on deleting {} from database caused by {} - retry",
