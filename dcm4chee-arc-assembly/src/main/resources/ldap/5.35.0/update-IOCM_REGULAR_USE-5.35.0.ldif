@@ -1,0 +1,10 @@
+version: 1
+
+dn: cn=RemoveEncapsulatedPixelDataValueTotalLength,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+changetype: add
+dcmMergeAttribute: EncapsulatedPixelDataValueTotalLength!
+dcmDIMSE: C_STORE_RQ
+dicomTransferRole: SCP
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: merge-attrs:
+cn: RemoveEncapsulatedPixelDataValueTotalLength

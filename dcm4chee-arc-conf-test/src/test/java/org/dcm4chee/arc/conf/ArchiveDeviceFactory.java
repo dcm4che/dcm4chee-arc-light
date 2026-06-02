@@ -1553,6 +1553,12 @@ class ArchiveDeviceFactory {
 
         configType.configureKeyAndTrustStore(device);
 
+        ArchiveAttributeCoercion2 removeEncapsulatedPixelDataValueTotalLength = new ArchiveAttributeCoercion2()
+                .setCommonName("RemoveEncapsulatedPixelDataValueTotalLength")
+                .setDIMSE(Dimse.C_STORE_RQ)
+                .setRole(SCP)
+                .setURI("merge-attrs:")
+                .setMergeAttributes("EncapsulatedPixelDataValueTotalLength!");
         device.addApplicationEntity(createAE(AE_TITLE, AE_TITLE_DESC,
                 dicom, dicomTLS, HIDE_REJECTED_VIEW,
                 true, true, true, true, false, true, true, false,
@@ -1571,7 +1577,8 @@ class ArchiveDeviceFactory {
                         .setRole(SCU)
                         .setURI("merge-attrs:")
                         .setConditions(new Conditions("IssuerOfPatientID!=.+"))
-                        .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}")
+                        .setMergeAttributes("IssuerOfPatientID=DCM4CHEE.{PatientName,hash}.{PatientBirthDate,hash}"),
+                        removeEncapsulatedPixelDataValueTotalLength
                 },
                 configType));
         device.addApplicationEntity(createAE("WORKLIST", WORKLIST_DESC,
@@ -1590,7 +1597,8 @@ class ArchiveDeviceFactory {
                 configType));
         device.addApplicationEntity(createAE("IOCM_REGULAR_USE", IOCM_REGULAR_USE_DESC,
                 dicom, dicomTLS, REGULAR_USE_VIEW,
-                false, true, true, true, false, false, false, false, null,
+                false, true, true, true, false, false, false, false,
+                new ArchiveAttributeCoercion2[] { removeEncapsulatedPixelDataValueTotalLength },
                 configType));
         device.addApplicationEntity(createAE("IOCM_EXPIRED", IOCM_EXPIRED_DESC,
                 dicom, dicomTLS, IOCM_EXPIRED_VIEW,

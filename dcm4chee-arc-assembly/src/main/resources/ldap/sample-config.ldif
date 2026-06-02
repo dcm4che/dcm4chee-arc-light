@@ -8960,6 +8960,14 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips Perfusion Image Storage SCU
 
+dn: cn=RemoveEncapsulatedPixelDataValueTotalLength,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmMergeAttribute: EncapsulatedPixelDataValueTotalLength!
+dcmDIMSE: C_STORE_RQ
+dicomTransferRole: SCP
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: merge-attrs:
+cn: RemoveEncapsulatedPixelDataValueTotalLength
+
 dn: cn=Storage Commitment Push Model SOP Class SCP,dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.1.20.1
 dicomTransferRole: SCP
@@ -18133,6 +18141,14 @@ dicomTransferSyntax: 1.2.840.10008.1.2.5
 objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Private Philips Perfusion Image Storage SCU
+
+dn: cn=RemoveEncapsulatedPixelDataValueTotalLength,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dcmMergeAttribute: EncapsulatedPixelDataValueTotalLength!
+dcmDIMSE: C_STORE_RQ
+dicomTransferRole: SCP
+objectClass: dcmArchiveAttributeCoercion2
+dcmURI: merge-attrs:
+cn: RemoveEncapsulatedPixelDataValueTotalLength
 
 dn: cn=Storage Commitment Push Model SOP Class SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomSOPClass: 1.2.840.10008.1.20.1
