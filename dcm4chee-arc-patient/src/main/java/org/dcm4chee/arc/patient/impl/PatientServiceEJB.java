@@ -97,6 +97,15 @@ public class PatientServiceEJB {
         return (withMatchingIssuer.isEmpty() ? withoutMatchingIssuer : withMatchingIssuer).keySet();
     }
 
+    public Collection<Patient> findNotMergedPatients(Collection<IDWithIssuer> pids) {
+        Collection<Patient> pats = findPatients(pids);
+        for (Patient pat : pats) {
+            if (pat.getMergedWith() != null)
+                throw new PatientMergedException(pat + " merged with " + pat.getMergedWith());
+        }
+        return pats;
+    }
+
     private void findPatients(Collection<IDWithIssuer> pids, String pn,
                               IdentityHashMap<Patient, Object> withoutMatchingIssuer,
                               IdentityHashMap<Patient, Object> withMatchingIssuer) {
@@ -188,12 +197,14 @@ public class PatientServiceEJB {
 
     public Patient findNotMergedPatient(Collection<IDWithIssuer> pids)
             throws NonUniquePatientException, PatientMergedException {
-        Patient pat = findPatient(pids);
-        Patient mergedWith;
-        if (pat != null && (mergedWith = pat.getMergedWith()) != null)
-            throw new PatientMergedException(pat + " merged with " + mergedWith);
+        Collection<Patient> list = findNotMergedPatients(pids);
+        if (list.isEmpty())
+            return null;
 
-        return pat;
+        if (list.size() > 1)
+            throw new NonUniquePatientException("Multiple Patients with ID " + pids);
+
+        return list.iterator().next();
     }
 
     public Patient findNotMergedPatient(long pk) throws PatientMergedException {
