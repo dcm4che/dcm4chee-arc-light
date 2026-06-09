@@ -702,14 +702,18 @@ public class QidoRS {
             keys.setString(Tag.StudyInstanceUID, VR.UI, studyInstanceUID);
         if (seriesInstanceUID != null)
             keys.setString(Tag.SeriesInstanceUID, VR.UI, seriesInstanceUID);
-        String[] mwlWorklistLabelFilters = ae.getAEExtension(ArchiveAEExtension.class).getMWLWorklistLabelFilters();
-        if ((keys.getStrings(Tag.WorklistLabel) == null || keys.getStrings(Tag.WorklistLabel).length == 0)
-                && mwlWorklistLabelFilters.length > 0)
-            keys.setString(Tag.WorklistLabel, VR.LO, mwlWorklistLabelFilters);
-        String[] upsWorklistLabelFilters = ae.getAEExtension(ArchiveAEExtension.class).getUPSWorklistLabelFilters();
-        if ((keys.getStrings(Tag.WorklistLabel) == null || keys.getStrings(Tag.WorklistLabel).length == 0)
-                && upsWorklistLabelFilters.length > 0)
-            keys.setString(Tag.WorklistLabel, VR.LO, upsWorklistLabelFilters);
+        if (model == Model.MWL) {
+            String[] mwlWorklistLabelFilters = ae.getAEExtension(ArchiveAEExtension.class).getMWLWorklistLabelFilters();
+            if ((keys.getStrings(Tag.WorklistLabel) == null || keys.getStrings(Tag.WorklistLabel).length == 0)
+                    && mwlWorklistLabelFilters.length > 0)
+                keys.setString(Tag.WorklistLabel, VR.LO, mwlWorklistLabelFilters);
+        }
+        if (model == Model.UPS) {
+            String[] upsWorklistLabelFilters = ae.getAEExtension(ArchiveAEExtension.class).getUPSWorklistLabelFilters();
+            if ((keys.getStrings(Tag.WorklistLabel) == null || keys.getStrings(Tag.WorklistLabel).length == 0)
+                    && upsWorklistLabelFilters.length > 0)
+                keys.setString(Tag.WorklistLabel, VR.LO, upsWorklistLabelFilters);
+        }
         ctx.setOrderByTags(queryAttrs.getOrderByTags());
         return ctx;
     }
