@@ -791,8 +791,8 @@ public class UPSServiceEJB {
         if (rule.getScheduledHumanPerformers().length > 0 && !attrs.contains(Tag.ScheduledHumanPerformersSequence))
             UPSUtils.setScheduledHumanPerformerItems(attrs,
                     rule.getScheduledHumanPerformers(),
-                    rule.getScheduledHumanPerformerName(attrs),
-                    rule.getScheduledHumanPerformerOrganization(attrs));
+                    rule.getScheduledHumanPerformerName(storeCtx.getAttributes()),
+                    rule.getScheduledHumanPerformerOrganization(storeCtx.getAttributes()));
         if (!attrs.contains(Tag.ScheduledWorkitemCodeSequence)) {
             UPSUtils.setCode(attrs, Tag.ScheduledWorkitemCodeSequence, rule.getScheduledWorkitemCode());
         }
