@@ -1903,7 +1903,8 @@ export class StudyService {
                                 id: "study_edit_study",
                                 title: $localize `:@@study.edit_this_study:Edit this study`,
                                 showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return  !j4care.is(options,"trash.active") &&
+                                        this.selectedWebServiceHasClass(options.selectedWebService,'DCM4CHEE_ARC_AET')
                                 },
                                 permission: {
                                     id: 'action-studies-study',
@@ -1944,7 +1945,8 @@ export class StudyService {
                                 id: "study_modify_expired_date",
                                 title: $localize `:@@set_change_expired_date:Set/Change expired date`,
                                 showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return !j4care.is(options,"trash.active") &&
+                                        this.selectedWebServiceHasClass(options.selectedWebService,'DCM4CHEE_ARC_AET')
                                 },
                                 permission: {
                                     id: 'action-studies-study',
@@ -2005,7 +2007,7 @@ export class StudyService {
                                 id: "study_verify_storage",
                                 title: $localize `:@@study.verify_storage_commitment:Verify storage commitment`,
                                 showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return !j4care.is(options,"trash.active") && this.selectedWebServiceHasClass(options.selectedWebService,'DCM4CHEE_ARC_AET')
                                 },
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
@@ -2048,6 +2050,9 @@ export class StudyService {
                                 permission: {
                                     id: 'action-studies-study',
                                     param: 'upload'
+                                },
+                                showIf:(e,config)=>{
+                                    return !j4care.is(options,"trash.active")
                                 }
                             }, {
                                 icon: {
@@ -2091,7 +2096,7 @@ export class StudyService {
                                     param: 'export'
                                 },
                                 showIf:(e)=>{
-                                    return options.internal || this.webAppGroupHasClass(options.studyWebService, "MOVE");
+                                    return !j4care.is(options,"trash.active") && (options.internal || this.webAppGroupHasClass(options.studyWebService, 'MOVE'));
                                 }
                             }, {
                                 icon: {
@@ -2156,7 +2161,7 @@ export class StudyService {
                                 id: "study_update_access_control_id",
                                 title: $localize `:@@study.update_study_access_control_id:Update Study Access Control ID`,
                                 showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return !j4care.is(options,"trash.active") && this.selectedWebServiceHasClass(options.selectedWebService,'DCM4CHEE_ARC_AET')
                                 },
                                 permission: {
                                     id: 'action-studies-study',
@@ -2178,7 +2183,7 @@ export class StudyService {
                                 id: "study_send_storage_commit",
                                 title: $localize `:@@send_storage_commitment_request_for_study:Send Storage Commitment Request for this study`,
                                 showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return !j4care.is(options,"trash.active") && this.selectedWebServiceHasClass(options.selectedWebService,'DCM4CHEE_ARC_AET')
                                 },
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
@@ -2200,7 +2205,7 @@ export class StudyService {
                                 id: "study_send_instance_availability_notification",
                                 title: $localize `:@@send_instance_availability_notification_for_this_study:Send Instance Availability Notification for this study`,
                                 showIf:(e,config)=>{
-                                    return  this.selectedWebServiceHasClass(options.selectedWebService,"DCM4CHEE_ARC_AET")
+                                    return !j4care.is(options,"trash.active") && this.selectedWebServiceHasClass(options.selectedWebService,'DCM4CHEE_ARC_AET')
                                 },
                                 permission: {
                                     id: 'action-studies-verify_storage_commitment',
@@ -2247,7 +2252,10 @@ export class StudyService {
                                     }, e);
                                 },
                                 id: "create_fhir",
-                                title: $localize `:@@create_FHIR_ImagingStudy:Create FHIR Imaging Study`
+                                title: $localize `:@@create_FHIR_ImagingStudy:Create FHIR Imaging Study`,
+                                showIf: (e, config) => {
+                                    return !j4care.is(options,"trash.active");
+                                }
 /*                                ,
                                 permission: {
                                     id: 'action-studies-create-fhir',
