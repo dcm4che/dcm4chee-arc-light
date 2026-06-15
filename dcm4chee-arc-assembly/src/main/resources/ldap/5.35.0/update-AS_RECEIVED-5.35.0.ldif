@@ -1,15 +1,6 @@
 version: 1
 
-dn: cn=RemoveEncapsulatedPixelDataValueTotalLength,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
-changetype: add
-dcmMergeAttribute: EncapsulatedPixelDataValueTotalLength!
-dcmDIMSE: C_STORE_RQ
-dicomTransferRole: SCP
-objectClass: dcmArchiveAttributeCoercion2
-dcmURI: merge-attrs:
-cn: RemoveEncapsulatedPixelDataValueTotalLength
-
-dn: cn=CT Image Storage - For Processing SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: cn=CT Image Storage - For Processing SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.2.3
 dicomTransferRole: SCU
@@ -34,7 +25,7 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: CT Image Storage - For Processing SCU
 
-dn: cn=Enhanced CT Image Storage - For Processing SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: cn=Enhanced CT Image Storage - For Processing SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.2.4
 dicomTransferRole: SCU
@@ -59,7 +50,7 @@ objectClass: dicomTransferCapability
 objectClass: dcmTransferCapability
 cn: Enhanced CT Image Storage - For Processing SCU
 
-dn: cn=Legacy Converted Enhanced CT Image Storage - For Processing SCU,dicomAETitle=IOCM_REGULAR_USE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
+dn: cn=Legacy Converted Enhanced CT Image Storage - For Processing SCU,dicomAETitle=AS_RECEIVED,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 changetype: add
 dicomSOPClass: 1.2.840.10008.5.1.4.1.1.2.5
 dicomTransferRole: SCU
