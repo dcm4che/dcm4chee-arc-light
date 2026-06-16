@@ -79,10 +79,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -322,10 +319,9 @@ public class ArchiveServiceImpl implements ArchiveService {
             LOG.warn("Failed to read git.properties", e);
             return;
         }
+        String version = System.getenv("ARCHIVE_VERSION");
         String[] versions = {
-                "master".equals(gitProps.getProperty("git.branch"))
-                        ? gitProps.getProperty("git.build.version")
-                        : gitProps.getProperty("git.build.version") + '-' + gitProps.getProperty("git.branch"),
+                version != null ? version : gitProps.getProperty("git.build.version"),
                 gitProps.getProperty("git.commit.id.abbrev"),
                 gitProps.getProperty("git.commit.time")
         };
