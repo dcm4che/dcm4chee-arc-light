@@ -205,7 +205,21 @@ import java.io.IOException;
         "/zh/study/*",
         "/zh/permission-denied",
         "/zh/device/*",
-        "/zh/configuration/*"
+        "/zh/configuration/*",
+        "/sr/statistics/*",
+        "/sr/dicom-route",
+        "/sr/workflow-management",
+        "/sr/xds",
+        "/sr/lifecycle-management",
+        "/sr/monitoring/*",
+        "/sr/correct-data/*",
+        "/sr/audit-record-repository/*",
+        "/sr/migration/*",
+        "/sr/agfa-migration/*",
+        "/sr/study/*",
+        "/sr/permission-denied",
+        "/sr/device/*",
+        "/sr/configuration/*"
 })
 public class UrlRewriting implements Filter {
     @Override
