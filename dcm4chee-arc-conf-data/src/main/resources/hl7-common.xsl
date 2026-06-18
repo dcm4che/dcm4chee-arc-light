@@ -51,16 +51,21 @@
         </xsl:call-template>
       </Item>
       <xsl:for-each select="$cx/repeat">
-        <Item number="{position() + 1}">
-          <xsl:call-template name="cx2pidAttrs">
-            <xsl:with-param name="cx" select="."/>
-            <xsl:with-param name="default-pid-issuer" select="''"/>
-            <xsl:with-param name="default-pid-type" select="''"/>
-          </xsl:call-template>
-        </Item>
+        <xsl:variable name="itemNo" select="position() + 1"/>
+        <xsl:variable name="pidCX" select="."/>
+        <xsl:if test="normalize-space($pidCX/text()) != '' and normalize-space($pidCX/text()) != '&quot;&quot;'">
+          <Item number="{$itemNo}">
+            <xsl:call-template name="cx2pidAttrs">
+              <xsl:with-param name="cx" select="$pidCX"/>
+              <xsl:with-param name="default-pid-issuer" select="''"/>
+              <xsl:with-param name="default-pid-type" select="''"/>
+            </xsl:call-template>
+          </Item>
+        </xsl:if>
       </xsl:for-each>
       <xsl:choose>
-        <xsl:when test="string-length($chip) > 0 and string-length($tattoo) > 0">
+        <xsl:when test="normalize-space($chip/text()) != '' and normalize-space($chip/text()) != '&quot;&quot;'
+                        and normalize-space($tattoo/text()) != '' and normalize-space($tattoo/text()) != '&quot;&quot;'">
           <Item number="{$repeatPatientIdentifiers + 1 + 1}">
             <xsl:call-template name="cx2pidAttrs">
               <xsl:with-param name="cx" select="$chip"/>
@@ -76,7 +81,8 @@
             </xsl:call-template>
           </Item>
         </xsl:when>
-        <xsl:when test="string-length($chip) > 0 or string-length($tattoo) > 0">
+        <xsl:when test="(normalize-space($chip/text()) != '' and normalize-space($chip/text()) != '&quot;&quot;')
+                        or (normalize-space($tattoo/text()) != '' and normalize-space($tattoo/text()) != '&quot;&quot;')">
           <Item number="{$repeatPatientIdentifiers + 1 + 1}">
             <xsl:choose>
               <xsl:when test="string-length($chip) > 0">
@@ -212,65 +218,68 @@
     <xsl:param name="cx"/>
     <xsl:param name="default-pid-issuer"/>
     <xsl:param name="default-pid-type"/>
+    <xsl:variable name="pid" select="$cx/text()" />
     <xsl:variable name="hd" select="$cx/component[3]" />
     <xsl:variable name="pid-type" select="$cx/component[4]" />
 
     <!-- Patient ID -->
     <xsl:call-template name="attr">
-      <xsl:with-param name="val" select="$cx/text()"/>
+      <xsl:with-param name="val" select="$pid"/>
       <xsl:with-param name="vr" select="'LO'"/>
       <xsl:with-param name="tag" select="'00100020'"/>
     </xsl:call-template>
 
-    <!-- Issuer of Patient ID -->
-    <xsl:call-template name="attr">
-      <xsl:with-param name="vr" select="'LO'"/>
-      <xsl:with-param name="tag" select="'00100021'"/>
-      <xsl:with-param name="val">
-        <xsl:choose>
-          <xsl:when test="$hd">
-            <xsl:value-of select="$hd/text()"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$default-pid-issuer"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:with-param>
-    </xsl:call-template>
+    <xsl:if test="normalize-space($pid) != '' and normalize-space($pid) != '&quot;&quot;'">
+      <!-- Issuer of Patient ID -->
+      <xsl:call-template name="attr">
+        <xsl:with-param name="vr" select="'LO'"/>
+        <xsl:with-param name="tag" select="'00100021'"/>
+        <xsl:with-param name="val">
+          <xsl:choose>
+            <xsl:when test="$hd">
+              <xsl:value-of select="$hd/text()"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$default-pid-issuer"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:with-param>
+      </xsl:call-template>
 
-    <!-- Issuer of Patient ID Qualifiers Sequence -->
-    <xsl:if test="$hd and $hd/subcomponent[2]">
-      <DicomAttribute tag="00100024" vr="SQ">
-        <Item number="1">
-          <xsl:call-template name="attr">
-            <xsl:with-param name="val" select="$hd/subcomponent[1]"/>
-            <xsl:with-param name="vr" select="'UT'"/>
-            <xsl:with-param name="tag" select="'00400032'"/>
-          </xsl:call-template>
-          <xsl:call-template name="attr">
-            <xsl:with-param name="val" select="$hd/subcomponent[2]"/>
-            <xsl:with-param name="vr" select="'CS'"/>
-            <xsl:with-param name="tag" select="'00400033'"/>
-          </xsl:call-template>
-        </Item>
-      </DicomAttribute>
+      <!-- Issuer of Patient ID Qualifiers Sequence -->
+      <xsl:if test="$hd and $hd/subcomponent[2]">
+        <DicomAttribute tag="00100024" vr="SQ">
+          <Item number="1">
+            <xsl:call-template name="attr">
+              <xsl:with-param name="val" select="$hd/subcomponent[1]"/>
+              <xsl:with-param name="vr" select="'UT'"/>
+              <xsl:with-param name="tag" select="'00400032'"/>
+            </xsl:call-template>
+            <xsl:call-template name="attr">
+              <xsl:with-param name="val" select="$hd/subcomponent[2]"/>
+              <xsl:with-param name="vr" select="'CS'"/>
+              <xsl:with-param name="tag" select="'00400033'"/>
+            </xsl:call-template>
+          </Item>
+        </DicomAttribute>
+      </xsl:if>
+
+      <!-- Type of Patient ID -->
+      <xsl:call-template name="attr">
+        <xsl:with-param name="vr" select="'CS'"/>
+        <xsl:with-param name="tag" select="'00100022'"/>
+        <xsl:with-param name="val">
+          <xsl:choose>
+            <xsl:when test="$pid-type">
+              <xsl:value-of select="$pid-type"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$default-pid-type"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:with-param>
+      </xsl:call-template>
     </xsl:if>
-
-    <!-- Type of Patient ID -->
-    <xsl:call-template name="attr">
-      <xsl:with-param name="vr" select="'CS'"/>
-      <xsl:with-param name="tag" select="'00100022'"/>
-      <xsl:with-param name="val">
-        <xsl:choose>
-          <xsl:when test="$pid-type">
-            <xsl:value-of select="$pid-type"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$default-pid-type"/>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:with-param>
-    </xsl:call-template>
   </xsl:template>
 
   <xsl:template name="xpn2pnAttr">
