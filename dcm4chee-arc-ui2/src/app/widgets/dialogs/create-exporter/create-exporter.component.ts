@@ -85,7 +85,7 @@ export class CreateExporterComponent implements OnInit{
                 "title": $localize `:@@create-exporter.export_priority:Export Priority`,
                 "description": $localize `:@@jms_priority_level_for_processing_the_export_task_from_0_lowest_to_9_highest:Task Priority Level for processing the Export Task from 0 (lowest) to 9 (highest).`,
                 "type": "integer",
-                "default" : 4,
+                "default": 4,
                 "minimum": 0,
                 "maximum": 9
             },

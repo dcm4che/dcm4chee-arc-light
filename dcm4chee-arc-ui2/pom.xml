@@ -153,7 +153,7 @@
           <plugin>
             <artifactId>maven-war-plugin</artifactId>
             <configuration>
-              <dependentWarIncludes>de/**,en/**,es/**,hi/**,it/**,ja/**,mr/**,ru/**,zh/**</dependentWarIncludes>
+              <dependentWarIncludes>de/**,en/**,es/**,hi/**,it/**,ja/**,mr/**,ru/**,sr/**,zh/**</dependentWarIncludes>
               <webXml>${project.basedir}/src/main/webxml/web.xml</webXml>
               <webResources>
                 <resource>
@@ -184,7 +184,7 @@
                   <goal>war</goal>
                 </goals>
                 <configuration>
-                  <dependentWarIncludes>de/**,en/**,es/**,hi/**,it/**,ja/**,mr/**,ru/**,zh/**</dependentWarIncludes>
+                  <dependentWarIncludes>de/**,en/**,es/**,hi/**,it/**,ja/**,mr/**,ru/**,sr/**,zh/**</dependentWarIncludes>
                   <classifier>${secure-classifier}</classifier>
                 </configuration>
               </execution>

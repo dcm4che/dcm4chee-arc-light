@@ -28,6 +28,7 @@
               "pt",
               "it",
               "ru",
+              "sr",
               "zh"
             ],
             "allowedCommonJsDependencies": [
@@ -521,6 +522,10 @@
           "ru": {
             "translation": "target/dcm4chee-arc-lang/ru.json",
             "baseHref": "/dcm4chee-arc/ui2/ru/"
+          },
+          "sr": {
+            "translation": "target/dcm4chee-arc-lang/sr.json",
+            "baseHref": "/dcm4chee-arc/ui2/sr/"
           },
           "zh": {
             "translation": "target/dcm4chee-arc-lang/zh.json",
