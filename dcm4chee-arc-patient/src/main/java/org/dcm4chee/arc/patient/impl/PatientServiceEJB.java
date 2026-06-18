@@ -820,7 +820,7 @@ public class PatientServiceEJB {
                 while (opids.hasNext()) {
                     Attributes item = opids.next();
                     IDWithIssuer opid = IDWithIssuer.pidOf(item);
-                    if (containsMatchingPatientID(prevPatientIDs, opid)) {
+                    if (opid != null && containsMatchingPatientID(prevPatientIDs, opid)) {
                         opids.remove();
                         pidUpdated++;
                     } else if (pid == null) {
