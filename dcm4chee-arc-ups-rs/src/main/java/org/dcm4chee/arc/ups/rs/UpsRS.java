@@ -166,10 +166,26 @@ public class UpsRS {
 
     @PUT
     @Path("/workitems/{workitem}/state/{requester}")
-    public Response changeUPSState(
+    public Response changeUPSState1(
             @PathParam("workitem") String iuid,
             @PathParam("requester") String requester,
             InputStream in) {
+        return changeUPSState(iuid, requester, in);
+    }
+
+    @PUT
+    @Path("/workitems/{workitem}/state")
+    public Response changeUPSState2(
+            @PathParam("workitem") String iuid,
+            @QueryParam("requester") String requester,
+            InputStream in) {
+        if (requester == null)
+            return errResponse("Missing Requester AE Title", Response.Status.BAD_REQUEST);
+
+        return changeUPSState(iuid, requester, in);
+    }
+
+    private Response changeUPSState(String iuid, String requester, InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
@@ -209,6 +225,17 @@ public class UpsRS {
     }
 
     @POST
+    @Path("/workitems/{workitem}/cancelrequest")
+    public Response requestUPSCancel2(
+            @PathParam("workitem") String iuid,
+            @QueryParam("requester") String requester) {
+        if (requester == null)
+            return errResponse("Missing Requester AE Title", Response.Status.BAD_REQUEST);
+
+        return requestUPSCancel(iuid, requester);
+    }
+
+    @POST
     @Path("/workitems/{workitem}/cancelrequest/{requester}")
     @Consumes({"application/dicom+json", "application/dicom+xml"})
     public Response requestUPSCancel(
@@ -220,6 +247,19 @@ public class UpsRS {
             return unsupportedMediaType();
 
         return requestUPSCancel(iuid, requester, inputType.parse(in));
+    }
+
+    @POST
+    @Path("/workitems/{workitem}/cancelrequest")
+    @Consumes({"application/dicom+json", "application/dicom+xml"})
+    public Response requestUPSCancel2(
+            @PathParam("workitem") String iuid,
+            @QueryParam("requester") String requester,
+            InputStream in) {
+        if (requester == null)
+            return errResponse("Missing Requester AE Title", Response.Status.BAD_REQUEST);
+
+        return requestUPSCancel(iuid, requester, in);
     }
 
     @POST
@@ -458,6 +498,18 @@ public class UpsRS {
         LOG.info("Response Status : Unsupported Media Type. Content Type in request : {}", headers.getMediaType());
         return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE)
                 .header("Accept", Arrays.asList(MediaTypes.APPLICATION_DICOM_JSON_TYPE, MediaTypes.APPLICATION_DICOM_XML_TYPE))
+                .build();
+    }
+
+    private Response errResponse(String msg, Response.Status status) {
+        return errResponseAsTextPlain("{\"errorMessage\":\"" + msg + "\"}", status);
+    }
+
+    private Response errResponseAsTextPlain(String errorMsg, Response.Status status) {
+        LOG.info("Response {} caused by {}", status, errorMsg);
+        return Response.status(status)
+                .entity(errorMsg)
+                .type("text/plain")
                 .build();
     }
 
