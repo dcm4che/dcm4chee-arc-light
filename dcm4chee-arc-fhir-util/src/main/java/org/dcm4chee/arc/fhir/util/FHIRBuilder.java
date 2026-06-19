@@ -181,7 +181,7 @@ public class FHIRBuilder {
                     writeEmptyElement("uid", "value", inst.getString(Tag.SOPInstanceUID));
                     writer.writeStartElement("sopClass");
                     writeEmptyElement("system", "value", "urn:ietf:rfc:3986");
-                    writeEmptyElement("value", "value",
+                    writeEmptyElement("code", "value",
                             "urn:oid:" + inst.getString(Tag.SOPClassUID));
                     writer.writeEndElement();
                     writeEmptyElement("number", "value",
