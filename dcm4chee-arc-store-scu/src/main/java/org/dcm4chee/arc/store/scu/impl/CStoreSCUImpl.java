@@ -123,26 +123,43 @@ public class CStoreSCUImpl implements CStoreSCU {
             InstanceLocations inst = iter.next();
             String cuid = inst.getSopClassUID();
             TransferCapability localTC = transferCapabilitiesAE.getTransferCapabilityFor(cuid, SCU);
-            TransferCapability destTC = noDestinationRestriction ? null : destAE.getTransferCapabilityFor(cuid, SCP);
-            List<Location> locations = inst.getLocations();
-            if (!aarq.containsPresentationContextFor(cuid) && !isVideo(locations)) {
+            if (localTC != null) {
+                List<Location> locations = inst.getLocations();
                 if (noDestinationRestriction) {
-                    addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, localTC);
-                    addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, localTC);
-                } else {
-                    addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, localTC, destTC);
-                    addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, localTC, destTC);
-                }
-            }
-            for (Location location : locations) {
-                String tsuid = location.getTransferSyntaxUID();
-                if (!tsuid.equals(UID.ImplicitVRLittleEndian) &&
-                        !tsuid.equals(UID.ExplicitVRLittleEndian))
-                    if (noDestinationRestriction) {
-                        addPresentationContext(aarq, cuid, tsuid, localTC);
-                    } else {
-                        addPresentationContext(aarq, cuid, tsuid, localTC, destTC);
+                    if (!aarq.containsPresentationContextFor(cuid) && !isVideo(locations)) {
+                        addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, localTC);
+                        addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, localTC);
                     }
+                    for (Location location : locations) {
+                        String tsuid = location.getTransferSyntaxUID();
+                        if (!tsuid.equals(UID.ImplicitVRLittleEndian) &&
+                                !tsuid.equals(UID.ExplicitVRLittleEndian))
+                            addPresentationContext(aarq, cuid, tsuid, localTC);
+                    }
+                } else {
+                    TransferCapability destTC = destAE.getTransferCapabilityFor(cuid, SCP);
+                    if (destTC != null) {
+                        if (!aarq.containsPresentationContextFor(cuid) && !isVideo(locations)) {
+                            addPresentationContext(aarq, cuid, UID.ImplicitVRLittleEndian, localTC, destTC);
+                            addPresentationContext(aarq, cuid, UID.ExplicitVRLittleEndian, localTC, destTC);
+                        }
+                        String[] preferredTransferSyntaxes = destTC.preferredTransferSyntaxes();
+                        if (preferredTransferSyntaxes.length > 0) {
+                            for (String tsuid : destTC.getTransferSyntaxes()) {
+                                if (!tsuid.equals(UID.ImplicitVRLittleEndian) &&
+                                        !tsuid.equals(UID.ExplicitVRLittleEndian))
+                                    addPresentationContext(aarq, cuid, tsuid, localTC);
+                            }
+                        } else {
+                            for (Location location : locations) {
+                                String tsuid = location.getTransferSyntaxUID();
+                                if (!tsuid.equals(UID.ImplicitVRLittleEndian) &&
+                                        !tsuid.equals(UID.ExplicitVRLittleEndian))
+                                    addPresentationContext(aarq, cuid, tsuid, localTC, destTC);
+                            }
+                        }
+                    }
+                }
             }
         }
         return aarq;

@@ -50,6 +50,7 @@ import org.dcm4che3.net.*;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.net.service.RetrieveTask;
 import org.dcm4che3.util.SafeClose;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion;
 import org.dcm4chee.arc.conf.ArchiveAttributeCoercion2;
@@ -207,10 +208,12 @@ final class RetrieveTaskImpl implements RetrieveTask {
         String iuid = inst.getSopInstanceUID();
         String cuid = inst.getSopClassUID();
         int priority = ctx.getPriority();
+        TransferCapability destTC = ctx.getDestinationAE().getTransferCapabilityFor(cuid, TransferCapability.Role.SCP);
         Set<String> tsuids = storeas.getTransferSyntaxesFor(cuid);
         try {
             RetrieveService service = ctx.getRetrieveService();
-            try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false)) {
+            try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false,
+                    destTC != null ? destTC.preferredTransferSyntaxes() : StringUtils.EMPTY_STRING)) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
                 AttributesCoercion coerce;
                 List<ArchiveAttributeCoercion2> coercions = service.getArchiveAttributeCoercions(ctx, inst);

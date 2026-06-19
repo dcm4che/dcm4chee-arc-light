@@ -653,7 +653,8 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Override
     public Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst,
-                                     Collection<String> tsuids, boolean fmi) throws IOException {
+                                     Collection<String> tsuids, boolean fmi,
+                                     String... prefTransferSyntaxes) throws IOException {
         removeUnsupportedTransferSyntax(inst, tsuids);
         LocationInputStream locationInputStream = openLocationInputStream(ctx, inst);
         Transcoder transcoder = new Transcoder(toDicomInputStream(locationInputStream));
@@ -662,7 +663,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         transcoder.setBulkDataDescriptor(arcAE.getBulkDataDescriptor());
         transcoder.setBulkDataDirectory(arcAE.getBulkDataSpoolDirectoryFile());
         transcoder.setConcatenateBulkDataFiles(true);
-        transcoder.setDestinationTransferSyntax(selectTransferSyntax(locationInputStream, tsuids));
+        transcoder.setDestinationTransferSyntax(selectTransferSyntax(inst, locationInputStream, tsuids, prefTransferSyntaxes));
         transcoder.setCloseOutputStream(false);
         transcoder.setIncludeFileMetaInformation(fmi);
         return transcoder;
@@ -687,8 +688,18 @@ public class RetrieveServiceImpl implements RetrieveService {
             throw new NoPresentationContextException(inst.getSopClassUID(), prev.getTransferSyntaxUID());
     }
 
-    private static String selectTransferSyntax(LocationInputStream lis, Collection<String> tsuids) {
+    private static String selectTransferSyntax(InstanceLocations inst, LocationInputStream lis, Collection<String> tsuids,
+                                               String... prefTransferSyntaxes) {
         String tsuid = lis.location.getTransferSyntaxUID();
+        for (String prefTransferSyntax : prefTransferSyntaxes) {
+            if (tsuids.contains(prefTransferSyntax)
+                    && ( inst.isImage()
+                        || prefTransferSyntax.equals(UID.ExplicitVRLittleEndian)
+                        || prefTransferSyntax.equals(UID.ImplicitVRLittleEndian))) {
+                tsuid = prefTransferSyntax;
+                break;
+            }
+        }
         return tsuids.isEmpty() || tsuids.contains(tsuid)
                 ? tsuid
                 : tsuids.contains(UID.ExplicitVRLittleEndian)

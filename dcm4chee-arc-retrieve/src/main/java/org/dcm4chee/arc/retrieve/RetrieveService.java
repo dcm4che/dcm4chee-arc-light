@@ -131,8 +131,8 @@ public interface RetrieveService {
 
     MetricsService getMetricsService();
 
-    Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi)
-            throws IOException;
+    Transcoder openTranscoder(RetrieveContext ctx, InstanceLocations inst, Collection<String> tsuids, boolean fmi,
+                              String... prefTransferSyntaxes) throws IOException;
 
     DicomInputStream openDicomInputStream(RetrieveContext ctx, InstanceLocations inst) throws IOException;
 
