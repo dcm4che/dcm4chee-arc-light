@@ -310,25 +310,6 @@ public class FHIRBuilder {
             return false;
         }
 
-        private void writeOrganizationExtension(String reference) throws XMLStreamException {
-            writer.writeStartElement("extension");
-            writer.writeAttribute("url", "http://esveikata.lt/Profile/ltnhr-imagingstudy#organization");
-            writer.writeStartElement("valueResource");
-            writeEmptyElement("reference", "value", reference);
-            writer.writeEndElement();
-            writer.writeEndElement();
-        }
-
-        private void writeExtension(String url, String valueType, String value)
-                throws XMLStreamException {
-            if (value != null) {
-                writer.writeStartElement("extension");
-                writer.writeAttribute("url", url);
-                writeEmptyElement(valueType, "value", value);
-                writer.writeEndElement();
-            }
-        }
-
         private boolean writePractitioner(String id, String name)
                 throws XMLStreamException {
             if (name == null) return false;
