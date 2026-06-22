@@ -1145,7 +1145,9 @@ public class StoreServiceEJB {
         boolean updated = attrs.updateSelected(updatePolicy, ctx.getAttributes(), updateInfo.modified, filter.getSelection(false));
         String[] accessControlIDs = accessControlIDs(ctx, Entity.Series);
         boolean updateAccessControlIDs = !series.containsAllAccessControlIDs(accessControlIDs);
-        if (!updated && !updateAccessControlIDs) {
+        ArchiveCompressionRule compressionRule = ctx.getCompressionRule();
+        boolean updateCompressionTime = updateCompressionTime(series.getCompressionTime(), compressionRule);
+        if (!updated && !updateAccessControlIDs && !updateCompressionTime) {
             resetSeriesSizeAndExternalRetrieveAET(series);
             return series;
         }
@@ -1167,9 +1169,20 @@ public class StoreServiceEJB {
         if (updateAccessControlIDs) {
             series.addAccessControlIDs(accessControlIDs);
         }
+        if (updateCompressionTime) {
+            series.setCompressionTime(
+                    new Date(System.currentTimeMillis() + compressionRule.getDelay().getSeconds() * 1000L));
+            series.setCompressionTransferSyntaxUID(compressionRule.getTransferSyntax());
+            series.setCompressionImageWriteParams(compressionRule.getImageWriteParams());
+        }
         series.resetSize();
         series.resetExternalRetrieveAET();
         return series;
+    }
+
+    private static boolean updateCompressionTime(Date compressionTime, ArchiveCompressionRule compressionRule) {
+        return compressionRule != null && compressionRule.getDelay() != null &&
+                (compressionTime == null || compressionTime.getTime() < System.currentTimeMillis());
     }
 
     private void resetSeriesSizeAndExternalRetrieveAET(Series series) {
