@@ -57,6 +57,7 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.deident.DeIdentificationAttributesCoercion;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.imageio.codec.Transcoder;
+import org.dcm4che3.imageio.codec.TransferSyntaxType;
 import org.dcm4che3.io.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.*;
@@ -693,9 +694,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         String tsuid = lis.location.getTransferSyntaxUID();
         for (String prefTransferSyntax : prefTransferSyntaxes) {
             if (tsuids.contains(prefTransferSyntax)
-                    && ( inst.isImage()
-                        || prefTransferSyntax.equals(UID.ExplicitVRLittleEndian)
-                        || prefTransferSyntax.equals(UID.ImplicitVRLittleEndian))) {
+                    && isTranscodable(inst, prefTransferSyntax)) {
                 tsuid = prefTransferSyntax;
                 break;
             }
@@ -705,6 +704,37 @@ public class RetrieveServiceImpl implements RetrieveService {
                 : tsuids.contains(UID.ExplicitVRLittleEndian)
                 ? UID.ExplicitVRLittleEndian
                 : UID.ImplicitVRLittleEndian;
+    }
+
+    private static boolean isTranscodable(InstanceLocations inst, String tsuid) {
+        if (inst.isVideo()) {
+            return false;
+        }
+        if (tsuid.equals(UID.ExplicitVRLittleEndian)
+                || tsuid.equals(UID.ImplicitVRLittleEndian)) {
+            return true;
+        }
+        if (!inst.isImage()) {
+            return false;
+        }
+        Attributes attrs = inst.getAttributes();
+        int bitsAllocated = attrs.getInt(Tag.BitsAllocated, 8);
+        int bitsStored = attrs.getInt(Tag.BitsStored, bitsAllocated);
+        int pixelRepresentation = attrs.getInt(Tag.PixelRepresentation, 0);
+        switch (tsuid) {
+            case UID.JPEGBaseline8Bit:
+                return bitsStored == 8;
+            case UID.JPEGExtended12Bit:
+                return bitsStored <= 12 && pixelRepresentation == 0;
+            case UID.JPEGLossless:
+            case UID.JPEGLosslessSV1:
+            case UID.JPEGLSLossless:
+            case UID.JPEGLSNearLossless:
+            case UID.JPEG2000Lossless:
+            case UID.JPEG2000:
+                return true;
+        }
+        return false;
     }
 
     @Override
