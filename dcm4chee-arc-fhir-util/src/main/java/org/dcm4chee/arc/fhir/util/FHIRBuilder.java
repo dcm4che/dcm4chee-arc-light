@@ -165,7 +165,7 @@ public class FHIRBuilder {
                 Attributes series = seriesOfInstances.get(0);
                 String seriesIUID = series.getString(Tag.SeriesInstanceUID);
                 writer.writeStartElement("series");
-                writeEmptyElement("uid", "value", seriesIUID);
+                writeEmptyElement("uid", "value", LTNHR_V1 ? "urn:oid:" + seriesIUID : seriesIUID);
                 writeEmptyElement("number", "value", series.getInt(Tag.SeriesNumber, 0));
                 writeModalityNotNull(series.getString(Tag.Modality));
                 writeEmptyElementNotNull("description", "value", series.getString(Tag.SeriesDescription));
@@ -178,7 +178,8 @@ public class FHIRBuilder {
                 writeEmptyElementNotNull("started", "value", seriesStartDate(series), ISO_DATE_TIME);
                 for (Attributes inst : seriesOfInstances) {
                     writer.writeStartElement("instance");
-                    writeEmptyElement("uid", "value", inst.getString(Tag.SOPInstanceUID));
+                    String sopIUID = inst.getString(Tag.SOPInstanceUID);
+                    writeEmptyElement("uid", "value", LTNHR_V1 ? "urn:oid:" + sopIUID : sopIUID);
                     writer.writeStartElement("sopClass");
                     writeEmptyElement("system", "value", "urn:ietf:rfc:3986");
                     writeEmptyElement("code", "value",
