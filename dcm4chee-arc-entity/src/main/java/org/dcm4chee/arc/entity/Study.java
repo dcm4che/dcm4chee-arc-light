@@ -328,7 +328,7 @@ public class Study {
     private String studyCustomAttribute3;
 
     @Column(name = "access_control_id")
-    private String accessControlID = "*";
+    private String accessControlID;
 
     @ElementCollection
     @CollectionTable(name = "study_access_control_id", joinColumns = @JoinColumn(name = "study_fk"),
