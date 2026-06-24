@@ -1973,7 +1973,7 @@ export class StudyService {
                                 }
                             }, {
                                 icon: {
-                                    svgPath:`/assets/img/restore_file.svg`,
+                                    svgPath:`assets/img/restore_file.svg`,
                                     width:20,
                                     height:25
                                 },
@@ -2554,7 +2554,7 @@ export class StudyService {
                                 }
                             }, {
                                 icon: {
-                                    svgPath:`/assets/img/restore_file.svg`,
+                                    svgPath:`assets/img/restore_file.svg`,
                                     width:20,
                                     height:25
                                 },
