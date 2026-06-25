@@ -47,6 +47,7 @@ import org.dcm4che3.hl7.HL7ContentHandler;
 import org.dcm4che3.hl7.HL7Parser;
 import org.dcm4che3.io.ContentHandlerAdapter;
 import org.dcm4che3.io.SAXTransformer.SetupTransformer;
+import org.dcm4che3.io.SAXTransformerFactoryLazyHolder;
 import org.dcm4che3.io.SAXWriter;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
@@ -56,9 +57,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import java.io.*;
 
@@ -69,8 +68,6 @@ import java.io.*;
 public class SAXTransformer {
 
     private SAXTransformer() {}
-
-    private static SAXTransformerFactory factory = (SAXTransformerFactory) TransformerFactory.newInstance();
 
     public static Attributes transform(
             UnparsedHL7Message msg, ArchiveHL7ApplicationExtension arcHL7App, String uri, SetupTransformer setup)
@@ -83,7 +80,7 @@ public class SAXTransformer {
                 : HL7Charset.toDicomCharacterSetCode(hl7charset);
         if (dicomCharset != null)
             attrs.setString(Tag.SpecificCharacterSet, VR.CS, dicomCharset);
-        TransformerHandler th = factory.newTransformerHandler(tpl);
+        TransformerHandler th = SAXTransformerFactoryLazyHolder.getInstance().newTransformerHandler(tpl);
         th.setResult(new SAXResult(new ContentHandlerAdapter(attrs)));
         if (setup != null)
             setup.setup(th.getTransformer());
@@ -98,7 +95,7 @@ public class SAXTransformer {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         Templates tpl = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(uri));
-        TransformerHandler th = factory.newTransformerHandler(tpl);
+        TransformerHandler th = SAXTransformerFactoryLazyHolder.getInstance().newTransformerHandler(tpl);
         th.setResult(new SAXResult(new HL7ContentHandler(new OutputStreamWriter(out, HL7Charset.toCharsetName(hl7charset)))));
         if (setup != null)
             setup.setup(th.getTransformer());
