@@ -94,7 +94,7 @@ public class MPPS {
     public static final String FIND_BY_PATIENT = "MPPS.findByPatient";
     public static final String DELETE_BY_PATIENT = "MPPS.deleteByPatient";
     public static final String FIND_BY_SOP_INSTANCE_UID =  "MPPS.findBySOPInstanceUID";
-    public static final String FIND_BY_SOP_INSTANCE_UID_EAGER =  "MPPS.findBySOPInstanceUID";
+    public static final String FIND_BY_SOP_INSTANCE_UID_EAGER =  "MPPS.findBySOPInstanceUIDEager";
 
     public static final String IN_PROGRESS = "IN PROGRESS";
     public static final String COMPLETED = "COMPLETED";
