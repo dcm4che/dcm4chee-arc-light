@@ -131,7 +131,7 @@ public class ArchiveDeviceProducer {
         ZipEntry entry;
         try {
             while ((entry = input.getNextEntry()) != null) {
-                if (!entry.isDirectory() && !basePath.resolve(entry.getName()).startsWith(basePath)) {
+                if (!entry.isDirectory() && !basePath.resolve(entry.getName()).normalize().startsWith(basePath)) {
                     throw new IOException("ZIP entry outside unpack directory: " + entry.getName());
                 }
             }
