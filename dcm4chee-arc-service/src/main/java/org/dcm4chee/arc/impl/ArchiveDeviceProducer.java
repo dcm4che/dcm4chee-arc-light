@@ -132,9 +132,13 @@ public class ArchiveDeviceProducer {
         try {
             while ((entry = input.getNextEntry()) != null) {
                 if (!entry.isDirectory()) {
-                    Path filePath = basePath.resolve(entry.getName());
-                    Files.createDirectories(filePath.getParent());
-                    Files.copy(input, filePath, StandardCopyOption.REPLACE_EXISTING);
+                    if (entry.getName().contains("../")) {
+                        LOG.warn("Ignore entry {} from Device Vendor Data for security reasons", entry.getName());
+                    } else {
+                        Path filePath = basePath.resolve(entry.getName());
+                        Files.createDirectories(filePath.getParent());
+                        Files.copy(input, filePath, StandardCopyOption.REPLACE_EXISTING);
+                    }
                 }
             }
         } catch (IOException e) {
