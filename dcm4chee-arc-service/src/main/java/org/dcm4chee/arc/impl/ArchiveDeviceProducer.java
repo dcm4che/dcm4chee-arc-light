@@ -126,19 +126,21 @@ public class ArchiveDeviceProducer {
             return;
         }
 
-        Path basePath = Paths.get(URI.create(StringUtils.replaceSystemProperties(unzipTo)));
+        Path basePath = Paths.get(URI.create(StringUtils.replaceSystemProperties(unzipTo))).normalize();
         ZipInputStream input = new ZipInputStream(new ByteArrayInputStream(vendorData[0]));
         ZipEntry entry;
         try {
             while ((entry = input.getNextEntry()) != null) {
+                if (!entry.isDirectory() && !basePath.resolve(entry.getName()).startsWith(basePath)) {
+                    throw new IOException("ZIP entry outside unpack directory: " + entry.getName());
+                }
+            }
+            input = new ZipInputStream(new ByteArrayInputStream(vendorData[0]));
+            while ((entry = input.getNextEntry()) != null) {
                 if (!entry.isDirectory()) {
-                    if (entry.getName().contains("../")) {
-                        LOG.warn("Ignore entry {} from Device Vendor Data for security reasons", entry.getName());
-                    } else {
-                        Path filePath = basePath.resolve(entry.getName());
-                        Files.createDirectories(filePath.getParent());
-                        Files.copy(input, filePath, StandardCopyOption.REPLACE_EXISTING);
-                    }
+                    Path filePath = basePath.resolve(entry.getName());
+                    Files.createDirectories(filePath.getParent());
+                    Files.copy(input, filePath, StandardCopyOption.REPLACE_EXISTING);
                 }
             }
         } catch (IOException e) {
