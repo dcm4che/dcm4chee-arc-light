@@ -47,7 +47,7 @@ import org.dcm4che3.hl7.HL7ContentHandler;
 import org.dcm4che3.hl7.HL7Parser;
 import org.dcm4che3.io.ContentHandlerAdapter;
 import org.dcm4che3.io.SAXTransformer.SetupTransformer;
-import org.dcm4che3.io.SAXTransformerFactoryLazyHolder;
+import org.dcm4che3.io.SAXTransformerFactoryHolder;
 import org.dcm4che3.io.SAXWriter;
 import org.dcm4che3.io.TemplatesCache;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
@@ -80,7 +80,7 @@ public class SAXTransformer {
                 : HL7Charset.toDicomCharacterSetCode(hl7charset);
         if (dicomCharset != null)
             attrs.setString(Tag.SpecificCharacterSet, VR.CS, dicomCharset);
-        TransformerHandler th = SAXTransformerFactoryLazyHolder.getInstance().newTransformerHandler(tpl);
+        TransformerHandler th = SAXTransformerFactoryHolder.factory.newTransformerHandler(tpl);
         th.setResult(new SAXResult(new ContentHandlerAdapter(attrs)));
         if (setup != null)
             setup.setup(th.getTransformer());
@@ -95,7 +95,7 @@ public class SAXTransformer {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         Templates tpl = TemplatesCache.getDefault().get(StringUtils.replaceSystemProperties(uri));
-        TransformerHandler th = SAXTransformerFactoryLazyHolder.getInstance().newTransformerHandler(tpl);
+        TransformerHandler th = SAXTransformerFactoryHolder.factory.newTransformerHandler(tpl);
         th.setResult(new SAXResult(new HL7ContentHandler(new OutputStreamWriter(out, HL7Charset.toCharsetName(hl7charset)))));
         if (setup != null)
             setup.setup(th.getTransformer());
