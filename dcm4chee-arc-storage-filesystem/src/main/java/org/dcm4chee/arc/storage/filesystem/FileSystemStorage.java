@@ -65,7 +65,7 @@ public class FileSystemStorage extends AbstractStorage {
     private static final Logger LOG = LoggerFactory.getLogger(FileSystemStorage.class);
     private static final int COPY_BUFFER_SIZE = 8192;
 
-    private final URI rootURI;
+    private final Path rootPath;
     private final Path checkMountFilePath;
     private final Path checkExistFilePath;
     private final CreateDirectories createDirectories;
@@ -77,11 +77,11 @@ public class FileSystemStorage extends AbstractStorage {
 
     public FileSystemStorage(StorageDescriptor descriptor, MetricsService metricsService) {
         super(descriptor, metricsService);
-        rootURI = ensureTrailingSlash(descriptor.getStorageURI());
+        rootPath = Paths.get(descriptor.getStorageURI()).normalize();
         String checkMountFile = descriptor.getCheckMountFilePath();
-        checkMountFilePath = checkMountFile != null ?  Paths.get(rootURI.resolve(checkMountFile)) : null;
+        checkMountFilePath = checkMountFile != null ? rootPath.resolve(checkMountFile) : null;
         String checkExistFile = descriptor.getCheckExistFilePath();
-        checkExistFilePath = checkExistFile != null ?  Paths.get(rootURI.resolve(checkExistFile)) : null;
+        checkExistFilePath = checkExistFile != null ? rootPath.resolve(checkExistFile) : null;
         createDirectories = descriptor.isAltCreateDirectories()
             ? FileSystemStorage::altCreateDirectories
             : Files::createDirectories;
@@ -131,13 +131,13 @@ public class FileSystemStorage extends AbstractStorage {
 
     @Override
     protected boolean existsA(ReadContext ctx) {
-        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
+        Path path = rootPath.resolve(ctx.getStoragePath());
         return Files.exists(path);
     }
 
     @Override
     protected long getContentLengthA(ReadContext ctx) throws IOException {
-        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
+        Path path = rootPath.resolve(ctx.getStoragePath());
         return Files.size(path);
     }
 
@@ -147,9 +147,8 @@ public class FileSystemStorage extends AbstractStorage {
     }
 
     private FileStore getFileStore() throws IOException {
-        Path dir = Paths.get(rootURI);
-        createDirectories(dir);
-        return Files.getFileStore(dir);
+        createDirectories(rootPath);
+        return Files.getFileStore(rootPath);
     }
 
     private Path createDirectories(Path path) throws IOException {
@@ -172,12 +171,12 @@ public class FileSystemStorage extends AbstractStorage {
 
     @Override
     protected OutputStream openOutputStreamA(WriteContext ctx) throws IOException {
-        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
+        Path path = rootPath.resolve(ctx.getStoragePath());
         Path dir = path.getParent();
         createDirectories(dir);
         while (true)
             try {
-                ctx.setStoragePath(rootURI.relativize(path.toUri()).toString());
+                ctx.setStoragePath(rootPath.relativize(path).toString());
                 return Files.newOutputStream(path, descriptor.getFileOpenOptions());
             } catch (FileAlreadyExistsException e) {
                 switch (descriptor.getOnStoragePathAlreadyExists()) {
@@ -209,19 +208,18 @@ public class FileSystemStorage extends AbstractStorage {
 
     @Override
     protected InputStream openInputStreamA(ReadContext ctx) throws IOException {
-        Path path = Paths.get(rootURI.resolve(ctx.getStoragePath()));
+        Path path = rootPath.resolve(ctx.getStoragePath());
         return Files.newInputStream(path);
     }
 
     @Override
     protected void deleteObjectA(String storagePath) throws IOException {
-        Path path = Paths.get(rootURI.resolve(storagePath));
+        Path path = rootPath.resolve(storagePath);
         Files.delete(path);
         deleteEmptyDirectories(path);
     }
 
     private void deleteEmptyDirectories(Path path) {
-        Path rootPath = Paths.get(rootURI);
         Path dirPath = path.getParent();
         while (!dirPath.equals(rootPath)) {
             try {
@@ -238,6 +236,6 @@ public class FileSystemStorage extends AbstractStorage {
 
     @Override
     public String toString() {
-        return "FileSystemStorage{" + rootURI + '}';
+        return "FileSystemStorage{" + descriptor.getStorageURI() + '}';
     }
 }
