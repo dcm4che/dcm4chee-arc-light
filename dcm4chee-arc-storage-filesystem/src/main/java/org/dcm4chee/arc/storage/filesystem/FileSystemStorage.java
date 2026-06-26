@@ -171,7 +171,13 @@ public class FileSystemStorage extends AbstractStorage {
 
     @Override
     protected OutputStream openOutputStreamA(WriteContext ctx) throws IOException {
-        Path path = rootPath.resolve(ctx.getStoragePath());
+        if (rootPath.startsWith(System.getProperty("jboss.home.dir"))) {
+            throw new IOException("Storage root path inside Wildfly home directory: " + rootPath);
+        }
+        Path path = rootPath.resolve(ctx.getStoragePath()).normalize();
+        if (!path.startsWith(rootPath)) {
+            throw new IOException("Storage path escapes root path: " + ctx.getStoragePath());
+        }
         Path dir = path.getParent();
         createDirectories(dir);
         while (true)
