@@ -10289,7 +10289,36 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.httpErrorHandler.handleError(err);
         });
     }
+    downloadMPPSCsv(){
+        this.confirm({
+            content:$localize `:@@use_semicolon_delimiter:Do you want to use semicolon as delimiter?`,
+            cancelButton:$localize `:@@no:No`,
+            saveButton:$localize `:@@Yes:Yes`,
+            result:$localize `:@@yes:yes`
+        }).subscribe((ok)=>{
+            let semicolon = false;
+            if(ok)
+                semicolon = true;
+            let token;
+            this.service.getTokenService(this.studyWebService).subscribe((response)=>{
+                if(!this.appService.global.notSecure){
+                    token = response.token;
+                }
+                let filterClone = this.getFilterClone();
+                delete filterClone.offset;
+                delete filterClone.limit;
+                filterClone["accept"] = `text/csv${(semicolon?';delimiter=semicolon':'')}`;
+                if(!this.appService.global.notSecure){
+                    filterClone["access_token"] = token;
+                }
 
+                const url = this.service.getDicomURL("mpps", this.studyWebService.selectedWebService);
+                j4care.downloadFile(`${url}?${this.appService.param(filterClone)}`,"mpps.csv")
+            },err=>{
+                console.error(err);
+            });
+        })
+    }
     getSOPClassUIDName(classUID){
         try{
             return DCM4CHE.SOPClass.nameOf(classUID);

@@ -66,30 +66,34 @@
                                 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps'))"
                       [permission]="{id:'action-studies-more_function',param:'visible'}"
               ></dcm-drop-down>
-<!--              <dcm-drop-down
-                   i18n-placeholder="@@placeholder.study.primary_aet" placeholder="Primary AET"
-                  [options]="diffOptions.aes"
-                  [editable]="false"
-                  [(model)]="diffOptions.primaryAET"
-                  [showSearchField]="false"
-                  [multiSelectMode]="false"
-                  (modelChange)="moreFunctionChanged($event)"
-                  [showStar]="false"
-                  *ngIf="studyConfig && studyConfig.tab === 'diff'"
-                  [permission]="{id:'action-studies-more_function',param:'visible'}"
-              ></dcm-drop-down>
-              <dcm-drop-down
-                       i18n-placeholder="@@placeholder.study.secondary_aet" placeholder="Secondary AET"
-                      [options]="diffOptions.aes"
-                      [editable]="false"
-                      [(model)]="diffOptions.secondaryAET"
-                      [showSearchField]="false"
-                      [multiSelectMode]="false"
-                      (modelChange)="actionsSelectionsChanged($event)"
-                      [showStar]="false"
-                      *ngIf="studyConfig && studyConfig.tab === 'diff'"
-                      [permission]="{id:'action-studies-more_function',param:'visible'}"
-              ></dcm-drop-down>-->
+                @if (patients && patients.length > 0 && studyConfig && studyConfig.tab === 'mpps') {
+                    <div (click)="downloadMPPSCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text" i18n="@@download_csv">Download CSV</span></div>
+                }
+
+                <!--              <dcm-drop-down
+                                   i18n-placeholder="@@placeholder.study.primary_aet" placeholder="Primary AET"
+                                  [options]="diffOptions.aes"
+                                  [editable]="false"
+                                  [(model)]="diffOptions.primaryAET"
+                                  [showSearchField]="false"
+                                  [multiSelectMode]="false"
+                                  (modelChange)="moreFunctionChanged($event)"
+                                  [showStar]="false"
+                                  *ngIf="studyConfig && studyConfig.tab === 'diff'"
+                                  [permission]="{id:'action-studies-more_function',param:'visible'}"
+                              ></dcm-drop-down>
+                              <dcm-drop-down
+                                       i18n-placeholder="@@placeholder.study.secondary_aet" placeholder="Secondary AET"
+                                      [options]="diffOptions.aes"
+                                      [editable]="false"
+                                      [(model)]="diffOptions.secondaryAET"
+                                      [showSearchField]="false"
+                                      [multiSelectMode]="false"
+                                      (modelChange)="actionsSelectionsChanged($event)"
+                                      [showStar]="false"
+                                      *ngIf="studyConfig && studyConfig.tab === 'diff'"
+                                      [permission]="{id:'action-studies-more_function',param:'visible'}"
+                              ></dcm-drop-down>-->
             </div>
           </div>
             <div class="filter_block" *ngIf="((patients && patients.length > 0) || (studyConfig && studyConfig.tab === 'diff'))">
