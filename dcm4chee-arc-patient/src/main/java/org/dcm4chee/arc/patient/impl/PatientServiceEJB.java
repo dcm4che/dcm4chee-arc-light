@@ -59,7 +59,7 @@ import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.conf.HL7ReferredMergedPatientPolicy;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.*;
-import org.hibernate.annotations.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -739,7 +739,7 @@ public class PatientServiceEJB {
     public void testSupplementIssuers(CriteriaQuery<PatientID> query, int fetchSize,
             Set<IDWithIssuer> success, Map<IDWithIssuer, Long> ambiguous, AttributesFormat issuer) {
         try (Stream<PatientID> resultStream =
-                     em.createQuery(query).setHint(QueryHints.FETCH_SIZE, fetchSize).getResultStream()) {
+                     em.createQuery(query).setHint(AvailableHints.HINT_FETCH_SIZE, fetchSize).getResultStream()) {
             resultStream
                     .map(pid -> new IDWithIssuer(pid.getID(), issuer.format(pid.getPatient().getAttributes())))
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))

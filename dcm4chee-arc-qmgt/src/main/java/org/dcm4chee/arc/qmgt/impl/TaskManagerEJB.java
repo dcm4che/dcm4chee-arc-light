@@ -58,7 +58,7 @@ import org.dcm4chee.arc.entity.Task_;
 import org.dcm4chee.arc.qmgt.Outcome;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.TaskQueryParam;
-import org.hibernate.annotations.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -204,7 +204,7 @@ public class TaskManagerEJB {
             query.setFirstResult(offset);
         if (limit > 0)
             query.setMaxResults(limit);
-        try (Stream<Task> resultStream = query.setHint(QueryHints.FETCH_SIZE, fetchSize()).getResultStream()) {
+        try (Stream<Task> resultStream = query.setHint(AvailableHints.HINT_FETCH_SIZE, fetchSize()).getResultStream()) {
             resultStream.forEach(action);
         }
     }

@@ -56,7 +56,7 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.query.Query;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
-import org.hibernate.annotations.QueryHints;
+import org.hibernate.jpa.AvailableHints;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -107,7 +107,7 @@ abstract class AbstractQuery implements Query {
         matches = 0;
         close(resultStream);
         TypedQuery<Tuple> query = em.createQuery(multiselect())
-                .setHint(QueryHints.FETCH_SIZE, fetchSize);
+                .setHint(AvailableHints.HINT_FETCH_SIZE, fetchSize);
         if (offset > 0)
             query.setFirstResult(offset);
         if (limit > 0)
@@ -129,7 +129,7 @@ abstract class AbstractQuery implements Query {
     @Override
     public Stream<Long> withUnknownSize(int fetchSize) {
         return em.createQuery(withUnknownSize())
-                .setHint(QueryHints.FETCH_SIZE, fetchSize)
+                .setHint(AvailableHints.HINT_FETCH_SIZE, fetchSize)
                 .getResultStream();
     }
 
