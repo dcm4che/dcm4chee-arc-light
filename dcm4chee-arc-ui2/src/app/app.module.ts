@@ -1,5 +1,5 @@
 import { BrowserModule, Title, provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import {LOCALE_ID, NgModule} from '@angular/core';
+import {LOCALE_ID, NgModule, provideZoneChangeDetection} from '@angular/core';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NavigationError, NoPreloading, Router, RouterModule} from '@angular/router';
 import {AppComponent} from './app.component';
@@ -331,6 +331,7 @@ import { MatFormFieldModule} from '@angular/material/form-field';
         },
         // { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: MY_FORMATS },
         { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
+        provideZoneChangeDetection(),
         provideHttpClient(withInterceptorsFromDi()),
         provideClientHydration(withEventReplay()),
     ] })
