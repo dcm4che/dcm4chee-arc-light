@@ -99,7 +99,7 @@ export class AppService implements OnInit, OnDestroy{
         this._dcm4cheeArcConfig = value;
     }
 
-    private _isRole = function(role){
+    private _isRole = (role) => {
         if (this.user){
             if (this.user.user === null && this.user.roles.length === 0){
                 return true;

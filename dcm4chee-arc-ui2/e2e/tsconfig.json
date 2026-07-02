@@ -4,7 +4,7 @@
     "declaration": false,
     "experimentalDecorators": true,
     "module": "commonjs",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "outDir": "../dist/out-tsc-e2e",
     "sourceMap": true,
     "target": "es5",

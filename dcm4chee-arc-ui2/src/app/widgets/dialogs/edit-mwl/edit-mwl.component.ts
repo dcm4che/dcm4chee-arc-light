@@ -169,7 +169,7 @@ export class EditMwlComponent {
                 this._mwl.attrs[attrcode]  = this.iod[attrcode];
                 this.opendropdown = false;
             }
-            setTimeout(function(){
+            setTimeout(() => {
                 this.lastPressedCode = 0;
             }, 1000);
         }

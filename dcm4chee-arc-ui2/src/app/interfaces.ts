@@ -287,12 +287,14 @@ export class DicomNetworkConnection{
 export type HttpMethod = "get"|"head"|"post"|"put"|"delete"|"option";
 
 export interface DcmWebAppRequestParam {
-    doNotEncode:boolean;
-    header:any;
-    dcmWebApp:DcmWebApp;
-    params:any;
-    data:any;
-    observe:string;
+    url?: string;
+    doNotEncode?: boolean;
+    header?: any;
+    dcmWebApp?: DcmWebApp;
+    params?: any;
+    data?: any;
+    observe?: string;
+    responseType?: any;
 }
 
 export interface MetricsDescriptors{

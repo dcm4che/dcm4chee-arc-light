@@ -433,7 +433,7 @@ export class AppComponent implements OnInit {
     }
 
     progress() {
-        let changeTo = function (t) {
+        let changeTo = (t) => {
             this.progressValue = t;
         };
 

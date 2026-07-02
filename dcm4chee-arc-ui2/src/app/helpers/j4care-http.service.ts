@@ -268,7 +268,7 @@ export class J4careHttpService{
                 try{
                     resjson = res.json();
                     console.log("getRealm Response:",res);
-                }catch (e){
+                }catch (e:any){
                     // j4care.log("error on extracting json",e);
                     if(_.hasIn(e, "message") && e.message.indexOf(".json") > -1){
                         resjson = res;

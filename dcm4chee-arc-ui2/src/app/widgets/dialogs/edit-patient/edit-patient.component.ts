@@ -218,7 +218,7 @@ export class EditPatientComponent {
                 this.patient.attrs[attrcode]  = this._iod[attrcode];
                 this.opendropdown = false;
             }
-            setTimeout(function(){
+            setTimeout(() => {
                 this.lastPressedCode = 0;
             }, 1000);
         }

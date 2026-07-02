@@ -190,7 +190,7 @@ export class ModifyUpsComponent {
                 this.ups.attrs[attrcode]  = this.iod[attrcode];
                 this.opendropdown = false;
             }
-            setTimeout(function(){
+            setTimeout(() => {
                 this.lastPressedCode = 0;
             }, 1000);
         }

@@ -223,7 +223,7 @@ export class EditSeriesComponent{
                 this._seriesResult.series.attrs[attrcode]  = this._iod[attrcode];
                 this.opendropdown = false;
             }
-            setTimeout(function(){
+            setTimeout(() => {
                 this.lastPressedCode = 0;
             }, 1000);
         }

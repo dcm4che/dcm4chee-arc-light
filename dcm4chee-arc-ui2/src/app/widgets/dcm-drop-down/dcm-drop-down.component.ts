@@ -195,7 +195,7 @@ export class DcmDropDownComponent implements OnInit {
     }
     selectElementInTreeByValue(values){
         try {
-            let valueCopy = Array.from(values);
+            let valueCopy = Array.from(values) as string[];
             let i = valueCopy.length;
             while(i--){
                 this._optionsTree.forEach(optionBlock=>{
@@ -208,7 +208,7 @@ export class DcmDropDownComponent implements OnInit {
                 });
             }
             if(valueCopy.length > 0){
-                valueCopy.forEach((value:string)=>{
+                valueCopy.forEach((value) => {
                     this.optionsTree[0].options.unshift(new SelectDropdown(value, value,undefined,undefined,undefined,undefined,true));
                 })
             }

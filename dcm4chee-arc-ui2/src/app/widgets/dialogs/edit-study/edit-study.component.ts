@@ -271,7 +271,7 @@ export class EditStudyComponent{
                 this._studyResult.study.attrs[attrcode]  = this._iod[attrcode];
                 this.opendropdown = false;
             }
-            setTimeout(function(){
+            setTimeout(() => {
                 this.lastPressedCode = 0;
             }, 1000);
         }
