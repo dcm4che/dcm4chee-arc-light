@@ -467,8 +467,14 @@
     "/aets/{aet}/rs/workitems/{workitem}/state/{requester}": {
       "$ref": "paths/workitems.json#/state"
     },
+    "/aets/{aet}/rs/workitems/{workitem}/state": {
+      "$ref": "paths/workitems.json#/state2"
+    },
     "/aets/{aet}/rs/workitems/{workitem}/cancelrequest/{requester}": {
       "$ref": "paths/workitems.json#/cancelrequest"
+    },
+    "/aets/{aet}/rs/workitems/{workitem}/cancelrequest": {
+      "$ref": "paths/workitems.json#/cancelrequest2"
     },
     "/aets/{aet}/rs/workitems/{workitem}/reschedule": {
       "$ref": "paths/workitems.json#/reschedule"

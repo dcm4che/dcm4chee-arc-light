@@ -276,6 +276,15 @@
       "type": "string"
     }
   },
+  "requester": {
+    "name": "requester",
+    "in": "query",
+    "description": "AET of a Requester",
+    "required": true,
+    "schema": {
+      "type": "string"
+    }
+  },
   "subscriberPathParam": {
     "name": "subscriber",
     "in": "path",
@@ -883,6 +892,14 @@
     "schema": {
       "type": "boolean",
       "default": false
+    }
+  },
+  "Transaction-uid": {
+    "name": "Transaction-uid",
+    "in": "query",
+    "description": "Transaction UID (0008,1195) required to update IN PROGRESS UPS Workitems.",
+    "schema": {
+      "type": "string"
     }
   },
   "mwlimportdelete": {

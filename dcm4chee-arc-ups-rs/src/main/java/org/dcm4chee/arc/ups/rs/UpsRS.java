@@ -152,7 +152,10 @@ public class UpsRS {
 
     @POST
     @Path("/workitems/{workitem}")
-    public Response updateUPS(@PathParam("workitem") String iuid, InputStream in) {
+    public Response updateUPS2(
+            @PathParam("workitem") String iuid,
+            @QueryParam("Transaction-uid") String transactionUID,
+            InputStream in) {
         ArchiveAEExtension arcAE = getArchiveAE();
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))
@@ -161,7 +164,7 @@ public class UpsRS {
         if (inputType == null)
             return unsupportedMediaType();
 
-        return updateUPS(iuid, inputType.parse(in));
+        return updateUPS(iuid, inputType.parse(in), transactionUID);
     }
 
     @PUT
@@ -434,10 +437,12 @@ public class UpsRS {
         return Response.created(locationOf(ctx)).build();
     }
 
-    private Response updateUPS(String iuid, Attributes attrs) {
+    private Response updateUPS(String iuid, Attributes attrs, String transactionUID) {
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
         ctx.setUPSInstanceUID(iuid);
         ctx.setAttributes(attrs);
+        if (transactionUID != null)
+            ctx.getAttributes().setString(Tag.TransactionUID, VR.UI, transactionUID);
         try {
             service.updateUPS(ctx);
         } catch (DicomServiceException e) {

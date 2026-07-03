@@ -140,6 +140,9 @@
         },
         {
           "$ref": "../parameters.json#/workitem"
+        },
+        {
+          "$ref": "../parameters.json#/Transaction-uid"
         }
       ],
       "requestBody": {
@@ -204,6 +207,46 @@
       }
     }
   },
+  "state2": {
+    "put": {
+      "tags": [
+        "UPS-RS"
+      ],
+      "summary": "Change Workitem State (conformant with DICOM PS3.18)",
+      "operationId": "ChangeWorkitemState2",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/workitemPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/requester"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/workitemState"
+      },
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/workitemState"
+        },
+        "400": {
+          "description": "The request cannot be performed, because it is invalid given the current state of the Target Workitem, or the Transaction UID is missing or incorrect or Missing Requester AE Title."
+        },
+        "404": {
+          "description": "The Target Workitem was not found."
+        },
+        "409": {
+          "description": "The request is inconsistent with the current state of the Target Workitem."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
   "cancelrequest": {
     "post": {
       "tags": [
@@ -231,6 +274,46 @@
         },
         "400": {
           "description": "There was a problem with the syntax of the request."
+        },
+        "404": {
+          "description": "The Target Workitem was not found."
+        },
+        "409": {
+          "description": "The request is inconsistent with the current state of the Target Workitem. For example, the Target Workitem is in the SCHEDULED or COMPLETED state."
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "cancelrequest2": {
+    "post": {
+      "tags": [
+        "UPS-RS"
+      ],
+      "summary": "Request Cancellation of Workitem (conformant with DICOM PS3.18)",
+      "operationId": "RequestWorkitemCancellation2",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/workitemPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/requester"
+        }
+      ],
+      "requestBody": {
+        "$ref": "../requestBodies.json#/workitemCancelrequest"
+      },
+      "responses": {
+        "202": {
+          "description": "The request was accepted by the origin server, but the Target Workitem state has not necessarily changed yet."
+        },
+        "400": {
+          "description": "There was a problem with the syntax of the request or Missing Requester AE Title."
         },
         "404": {
           "description": "The Target Workitem was not found."
