@@ -3399,7 +3399,7 @@ dcmCheckMountFilePath: NO_MOUNT
 dcmDigestAlgorithm: MD5
 objectClass: dcmStorage
 dcmStorageID: fs1
-dcmURI: ${jboss.server.data.url}/fs1/
+dcmURI: ${jboss.home.url}/../storage/fs1/
 
 dn: cn=Merge MWL MPPS,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmDIMSE: N_CREATE_RQ
@@ -3731,7 +3731,7 @@ dcmCheckMountFilePath: NO_MOUNT
 dcmStoragePathFormat: {now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.json
 objectClass: dcmStorage
 dcmStorageID: metadata
-dcmURI: ${jboss.server.data.url}/metadata/
+dcmURI: ${jboss.home.url}/../storage/metadata/
 
 dn: dcmStorageID=nearline,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmInstanceAvailability: NEARLINE
@@ -3739,7 +3739,7 @@ dcmCheckMountFilePath: NO_MOUNT
 dcmStoragePathFormat: {now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}
 objectClass: dcmStorage
 dcmStorageID: nearline
-dcmURI: ${jboss.server.data.url}/nearline/
+dcmURI: ${jboss.home.url}/../storage/nearline/
 
 dn: dicomAETitle=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomNetworkConnectionReference: cn=dicom,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
@@ -3843,21 +3843,21 @@ dcmCheckMountFilePath: NO_MOUNT
 dcmStoragePathFormat: {0020000D}-{0020000E}.json
 objectClass: dcmStorage
 dcmStorageID: qido-json
-dcmURI: ${jboss.server.data.url}/qido/
+dcmURI: ${jboss.home.url}/../storage/qido/
 
 dn: dcmStorageID=wado-jpeg,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmCheckMountFilePath: NO_MOUNT
 dcmStoragePathFormat: {0020000D}/{0020000E}/{00080018}/{00081160}.jpeg
 objectClass: dcmStorage
 dcmStorageID: wado-jpeg
-dcmURI: ${jboss.server.data.url}/wado/
+dcmURI: ${jboss.home.url}/../storage/wado/
 
 dn: dcmStorageID=wado-json,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dcmCheckMountFilePath: NO_MOUNT
 dcmStoragePathFormat: {0020000D}-{0020000E}.json
 objectClass: dcmStorage
 dcmStorageID: wado-json
-dcmURI: ${jboss.server.data.url}/wado/
+dcmURI: ${jboss.home.url}/../storage/wado/
 
 dn: dcmWebAppName=DCM4CHEE,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Hide instances rejected for Quality Reasons
@@ -4139,7 +4139,7 @@ dcmCheckMountFilePath: NO_MOUNT
 dcmStoragePathFormat: {now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{now,date,HHmmss}.zip
 objectClass: dcmStorage
 dcmStorageID: series-metadata
-dcmURI: ${jboss.server.data.url}/series-metadata/
+dcmURI: ${jboss.home.url}/../storage/series-metadata/
 
 dn: dcmWebAppName=IOCM_WRONG_MWL,dicomDeviceName=dcm4chee-arc,cn=Devices,cn=DICOM Configuration,dc=dcm4che,dc=org
 dicomDescription: Only show instances rejected for Incorrect Modality Worklist Entry

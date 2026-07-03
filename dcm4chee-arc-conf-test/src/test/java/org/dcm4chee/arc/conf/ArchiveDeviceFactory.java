@@ -1289,25 +1289,25 @@ class ArchiveDeviceFactory {
     static final String PIX_CONSUMER = "DCM4CHEE|DCM4CHEE";
     static final String PIX_MANAGER = "HL7RCV|DCM4CHEE";
     static final String STORAGE_ID = "fs1";
-    static final String STORAGE_URI = "${jboss.server.data.url}/fs1/";
+    static final String STORAGE_URI = "${jboss.home.url}/../storage/fs1/";
     static final String NEARLINE_STORAGE_ID = "nearline";
-    static final String NEARLINE_STORAGE_URI = "${jboss.server.data.url}/nearline/";
+    static final String NEARLINE_STORAGE_URI = "${jboss.home.url}/../storage/nearline/";
     static final String NEARLINE_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}";
     static final String METADATA_STORAGE_ID = "metadata";
-    static final String METADATA_STORAGE_URI = "${jboss.server.data.url}/metadata/";
+    static final String METADATA_STORAGE_URI = "${jboss.home.url}/../storage/metadata/";
     static final String METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{00080018,hash}.json";
     static final String SERIES_METADATA_STORAGE_ID = "series-metadata";
-    static final String SERIES_METADATA_STORAGE_URI = "${jboss.server.data.url}/series-metadata/";
+    static final String SERIES_METADATA_STORAGE_URI = "${jboss.home.url}/../storage/series-metadata/";
     static final String SERIES_METADATA_PATH_FORMAT = "{now,date,yyyy/MM/dd}/{0020000D,hash}/{0020000E,hash}/{now,date,HHmmss}.zip";
     static final Duration SERIES_METADATA_DELAY = Duration.valueOf("PT2M");
     static final Duration SERIES_METADATA_POLLING_INTERVAL = Duration.valueOf("PT1M");
     static final String WADO_JPEG_STORAGE_ID = "wado-jpeg";
-    static final String WADO_JPEG_STORAGE_URI = "${jboss.server.data.url}/wado/";
+    static final String WADO_JPEG_STORAGE_URI = "${jboss.home.url}/../storage/wado/";
     static final String WADO_JPEG_PATH_FORMAT = "{0020000D}/{0020000E}/{00080018}/{00081160}.jpeg";
     static final String WADO_JSON_STORAGE_ID = "wado-json";
     static final String QIDO_JSON_STORAGE_ID = "qido-json";
-    static final String WADO_JSON_STORAGE_URI = "${jboss.server.data.url}/wado/";
-    static final String QIDO_JSON_STORAGE_URI = "${jboss.server.data.url}/qido/";
+    static final String WADO_JSON_STORAGE_URI = "${jboss.home.url}/../storage/wado/";
+    static final String QIDO_JSON_STORAGE_URI = "${jboss.home.url}/../storage/qido/";
     static final String WADO_JSON_PATH_FORMAT = "{0020000D}-{0020000E}.json";
     static final String QIDO_JSON_PATH_FORMAT = "{0020000D}-{0020000E}.json";
     static final boolean SEND_PENDING_C_GET = true;
@@ -1401,7 +1401,7 @@ class ArchiveDeviceFactory {
     static final String BULK_DATA_LENGTH_THRESHOLD = "DS,FD,FL,IS,LT,OB,OD,OF,OL,OW,UC,UN,UR,UT=1024";
 
     static {
-        System.setProperty("jboss.server.data.url", "file:///opt/wildfly/standalone/data");
+        System.setProperty("jboss.home.url", "file:///opt/wildfly");
         System.setProperty("jboss.server.temp.url", "file:///opt/wildfly/standalone/tmp");
     }
 
