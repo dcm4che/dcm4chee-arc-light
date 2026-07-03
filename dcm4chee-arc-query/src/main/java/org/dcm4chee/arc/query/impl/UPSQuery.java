@@ -73,6 +73,13 @@ public class UPSQuery extends AbstractQuery {
         this.ups = q.from(UPS.class);
         this.patient = ups.join(UPS_.patient);
         return order(restrict(q, patient, ups)).multiselect(
+                patient.get(Patient_.pk),
+                patient.get(Patient_.numberOfStudies),
+                patient.get(Patient_.createdTime),
+                patient.get(Patient_.updatedTime),
+                patient.get(Patient_.verificationTime),
+                patient.get(Patient_.verificationStatus),
+                patient.get(Patient_.failedVerifications),
                 ups.get(UPS_.upsInstanceUID),
                 ups.get(UPS_.updatedTime),
                 patientAttrBlob = patient.join(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes),
@@ -99,6 +106,7 @@ public class UPSQuery extends AbstractQuery {
         attrs.setString(Tag.SOPInstanceUID, VR.UI, results.get(ups.get(UPS_.upsInstanceUID)));
         attrs.setDate(Tag.ScheduledProcedureStepModificationDateTime, VR.DT,
                 results.get(ups.get(UPS_.updatedTime)));
+        PatientQuery.addPatientQRAttrs(patient, context, results, attrs);
         return attrs;
     }
 
