@@ -212,7 +212,7 @@
       "tags": [
         "UPS-RS"
       ],
-      "summary": "Change Workitem State (conformant with DICOM PS3.18)",
+      "summary": "Change Workitem State (conformant with DICOM PS3.18 2026c)",
       "operationId": "ChangeWorkitemState2",
       "parameters": [
         {
@@ -292,7 +292,7 @@
       "tags": [
         "UPS-RS"
       ],
-      "summary": "Request Cancellation of Workitem (conformant with DICOM PS3.18)",
+      "summary": "Request Cancellation of Workitem (conformant with DICOM PS3.18 2026c)",
       "operationId": "RequestWorkitemCancellation2",
       "parameters": [
         {
