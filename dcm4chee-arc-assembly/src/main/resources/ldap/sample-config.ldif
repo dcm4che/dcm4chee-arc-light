@@ -3177,6 +3177,7 @@ dcmTag: 00081084
 dcmTag: 00101010
 dcmTag: 00101020
 dcmTag: 00101021
+dcmTag: 00101022
 dcmTag: 00101023
 dcmTag: 00101024
 dcmTag: 00101030
@@ -3328,6 +3329,7 @@ dcmTag: 00321067
 dcmTag: 00380010
 dcmTag: 00380014
 dcmTag: 00380016
+dcmTag: 00380050
 dcmTag: 00380060
 dcmTag: 00380062
 dcmTag: 00380064
@@ -3468,7 +3470,6 @@ dcmTag: 00120063
 dcmTag: 00120064
 dcmTag: 00120081
 dcmTag: 00120082
-dcmTag: 00380050
 dcmTag: 00380100
 dcmTag: 00380502
 dcmTag: 00403001

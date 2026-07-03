@@ -334,7 +334,6 @@ class ArchiveDeviceFactory {
             Tag.DeidentificationMethodCodeSequence,
             Tag.ClinicalTrialProtocolEthicsCommitteeName,
             Tag.ClinicalTrialProtocolEthicsCommitteeApprovalNumber,
-            Tag.SpecialNeeds,
             Tag.PertinentDocumentsSequence,
             Tag.PatientClinicalTrialParticipationSequence,
             Tag.ConfidentialityConstraintOnPatientDataDescription
@@ -363,6 +362,7 @@ class ArchiveDeviceFactory {
             Tag.Allergies,
             Tag.SmokingStatus,
             Tag.PregnancyStatus,
+            Tag.SpecialNeeds,
             Tag.LastMenstrualDate,
             Tag.PatientState,
             Tag.AdmittingDiagnosesDescription,
@@ -698,6 +698,7 @@ class ArchiveDeviceFactory {
             Tag.SmokingStatus,
             Tag.PregnancyStatus,
             Tag.LastMenstrualDate,
+            Tag.PatientBodyMassIndex,
             Tag.StudyInstanceUID,
             Tag.ReasonForVisit,
             Tag.ReasonForVisitCodeSequence,

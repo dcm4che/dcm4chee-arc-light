@@ -110,10 +110,22 @@
   "00101030": { "vr": "DS" },
   "00102180": { "vr": "SH" },
   "001021B0": { "vr": "LT" },
-  "00102203": { "vr": "CS" },
+  "00102203": { "vr": "CS",
+    "enum": [
+      "ALTERED",
+      "UNALTERED"
+    ]
+  },
   "00102000": { "vr": "LO", "multi": true, "required": 2 },
   "00102110": { "vr": "LO", "multi": true, "required": 2 },
-  "001021C0": { "vr": "US", "required": 2 },
+  "001021C0": { "vr": "US", "required": 2,
+    "enum": [
+      "0001H",
+      "0002H",
+      "0003H",
+      "0004H"
+    ]
+  },
   "0020000D": { "vr": "UI", "required": 1 },
   "00321031": { "vr": "SQ",
     "items": {
