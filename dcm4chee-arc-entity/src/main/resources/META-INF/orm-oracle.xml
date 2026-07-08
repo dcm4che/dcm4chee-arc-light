@@ -39,18 +39,18 @@
   ~ **** END LICENSE BLOCK *****
   -->
 
-<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" version="2.1">
+<entity-mappings xmlns="https://jakarta.ee/xml/ns/persistence/orm" version="3.1">
 
   <package>org.dcm4chee.arc.entity</package>
 
   <access>FIELD</access>
 
   <entity class="org.dcm4chee.arc.entity.AttributesBlob">
-    <sequence-generator name="dicomattrs_pk_seq" sequence-name="dicomattrs_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="dicomattrs_pk_seq"/>
+        <sequence-generator name="dicomattrs_pk_seq" sequence-name="dicomattrs_pk_seq" allocation-size="1"/>
       </id>
       <basic name="encodedAttributes" optional="false">
         <column name="attrs" column-definition="${blob}"/>
@@ -59,11 +59,11 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.UIDMap">
-    <sequence-generator name="uidmap_pk_seq" sequence-name="uidmap_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="uidmap_pk_seq"/>
+        <sequence-generator name="uidmap_pk_seq" sequence-name="uidmap_pk_seq" allocation-size="1"/>
       </id>
       <basic name="encodedMap" optional="false">
         <column name="uidmap" column-definition="${blob}"/>
@@ -72,11 +72,11 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.CodeEntity">
-    <sequence-generator name="code_pk_seq" sequence-name="code_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="code_pk_seq"/>
+        <sequence-generator name="code_pk_seq" sequence-name="code_pk_seq" allocation-size="1"/>
       </id>
       <basic name="codeMeaning" optional="false">
         <column name="code_meaning" column-definition="nvarchar2(255)" />
@@ -85,11 +85,11 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.ContentItem">
-    <sequence-generator name="content_item_pk_seq" sequence-name="content_item_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="content_item_pk_seq"/>
+        <sequence-generator name="content_item_pk_seq" sequence-name="content_item_pk_seq" allocation-size="1"/>
       </id>
       <basic name="textValue" optional="false">
         <column name="text_value" column-definition="nvarchar2(255)" />
@@ -98,21 +98,21 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.IanTask">
-    <sequence-generator name="ian_task_pk_seq" sequence-name="ian_task_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="ian_task_pk_seq"/>
+        <sequence-generator name="ian_task_pk_seq" sequence-name="ian_task_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.HL7PSUTask">
-    <sequence-generator name="hl7psu_task_pk_seq" sequence-name="hl7psu_task_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="hl7psu_task_pk_seq"/>
+        <sequence-generator name="hl7psu_task_pk_seq" sequence-name="hl7psu_task_pk_seq" allocation-size="1"/>
       </id>
       <basic name="accessionNumber" optional="false">
         <column name="accession_no" column-definition="nvarchar2(255)" />
@@ -121,51 +121,51 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Instance">
-    <sequence-generator name="instance_pk_seq" sequence-name="instance_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="instance_pk_seq"/>
+        <sequence-generator name="instance_pk_seq" sequence-name="instance_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Location">
-    <sequence-generator name="location_pk_seq" sequence-name="location_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="location_pk_seq"/>
+        <sequence-generator name="location_pk_seq" sequence-name="location_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Metadata">
-    <sequence-generator name="metadata_pk_seq" sequence-name="metadata_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="metadata_pk_seq"/>
+        <sequence-generator name="metadata_pk_seq" sequence-name="metadata_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.MPPS">
-    <sequence-generator name="mpps_pk_seq" sequence-name="mpps_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="mpps_pk_seq"/>
+        <sequence-generator name="mpps_pk_seq" sequence-name="mpps_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.MWLItem">
-    <sequence-generator name="mwl_item_pk_seq" sequence-name="mwl_item_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="mwl_item_pk_seq"/>
+        <sequence-generator name="mwl_item_pk_seq" sequence-name="mwl_item_pk_seq" allocation-size="1"/>
       </id>
       <basic name="accessionNumber" optional="false">
         <column name="accession_no" column-definition="nvarchar2(255)" />
@@ -189,41 +189,41 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.KeyValue">
-    <sequence-generator name="key_value2_pk_seq" sequence-name="key_value2_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="key_value2_pk_seq"/>
+        <sequence-generator name="key_value2_pk_seq" sequence-name="key_value2_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Patient">
-    <sequence-generator name="patient_pk_seq" sequence-name="patient_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="patient_pk_seq"/>
+        <sequence-generator name="patient_pk_seq" sequence-name="patient_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.PatientID">
-    <sequence-generator name="patient_id_pk_seq" sequence-name="patient_id_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="patient_id_pk_seq"/>
+        <sequence-generator name="patient_id_pk_seq" sequence-name="patient_id_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.PersonName">
-    <sequence-generator name="person_name_pk_seq" sequence-name="person_name_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="person_name_pk_seq"/>
+        <sequence-generator name="person_name_pk_seq" sequence-name="person_name_pk_seq" allocation-size="1"/>
       </id>
       <basic name="alphabeticName">
         <column name="alphabetic_name" column-definition="nvarchar2(255)"/>
@@ -238,11 +238,11 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Task">
-    <sequence-generator name="task_pk_seq" sequence-name="task_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="task_pk_seq"/>
+        <sequence-generator name="task_pk_seq" sequence-name="task_pk_seq" allocation-size="1"/>
       </id>
       <basic name="payload">
         <column name="payload" updatable="false" column-definition="${blob}"/>
@@ -251,21 +251,21 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.RejectedInstance">
-    <sequence-generator name="rejected_instance_pk_seq" sequence-name="rejected_instance_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="rejected_instance_pk_seq"/>
+        <sequence-generator name="rejected_instance_pk_seq" sequence-name="rejected_instance_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Series">
-    <sequence-generator name="series_pk_seq" sequence-name="series_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="series_pk_seq"/>
+        <sequence-generator name="series_pk_seq" sequence-name="series_pk_seq" allocation-size="1"/>
       </id>
       <basic name="institutionalDepartmentName" optional="false">
         <column name="department" column-definition="nvarchar2(255)" />
@@ -283,21 +283,21 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.SeriesQueryAttributes">
-    <sequence-generator name="series_query_attrs_pk_seq" sequence-name="series_query_attrs_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="series_query_attrs_pk_seq"/>
+        <sequence-generator name="series_query_attrs_pk_seq" sequence-name="series_query_attrs_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.SeriesRequestAttributes">
-    <sequence-generator name="series_req_pk_seq" sequence-name="series_req_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="series_req_pk_seq"/>
+        <sequence-generator name="series_req_pk_seq" sequence-name="series_req_pk_seq" allocation-size="1"/>
       </id>
       <basic name="accessionNumber" optional="false">
         <column name="accession_no" column-definition="nvarchar2(255)" />
@@ -315,11 +315,11 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.InstanceRequestAttributes">
-    <sequence-generator name="instance_req_pk_seq" sequence-name="instance_req_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="instance_req_pk_seq"/>
+        <sequence-generator name="instance_req_pk_seq" sequence-name="instance_req_pk_seq" allocation-size="1"/>
       </id>
       <basic name="accessionNumber" optional="false">
         <column name="accession_no" column-definition="nvarchar2(255)" />
@@ -337,31 +337,31 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.SoundexCode">
-    <sequence-generator name="soundex_code_pk_seq" sequence-name="soundex_code_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="soundex_code_pk_seq"/>
+        <sequence-generator name="soundex_code_pk_seq" sequence-name="soundex_code_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.StgCmtResult">
-    <sequence-generator name="stgcmt_result_pk_seq" sequence-name="stgcmt_result_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="stgcmt_result_pk_seq"/>
+        <sequence-generator name="stgcmt_result_pk_seq" sequence-name="stgcmt_result_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Study">
-    <sequence-generator name="study_pk_seq" sequence-name="study_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="study_pk_seq"/>
+        <sequence-generator name="study_pk_seq" sequence-name="study_pk_seq" allocation-size="1"/>
       </id>
       <basic name="accessionNumber" optional="false">
         <column name="accession_no" column-definition="nvarchar2(255)" />
@@ -379,31 +379,31 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.StudyQueryAttributes">
-    <sequence-generator name="study_query_attrs_pk_seq" sequence-name="study_query_attrs_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="study_query_attrs_pk_seq"/>
+        <sequence-generator name="study_query_attrs_pk_seq" sequence-name="study_query_attrs_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.VerifyingObserver">
-    <sequence-generator name="verify_observer_pk_seq" sequence-name="verify_observer_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="verify_observer_pk_seq"/>
+        <sequence-generator name="verify_observer_pk_seq" sequence-name="verify_observer_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.UPS">
-    <sequence-generator name="ups_pk_seq" sequence-name="ups_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="ups_pk_seq"/>
+        <sequence-generator name="ups_pk_seq" sequence-name="ups_pk_seq" allocation-size="1"/>
       </id>
       <basic name="admissionID" optional="false">
         <column name="admission_id" column-definition="nvarchar2(255)" />
@@ -418,11 +418,11 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.UPSRequest">
-    <sequence-generator name="ups_request_pk_seq" sequence-name="ups_request_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="ups_request_pk_seq"/>
+        <sequence-generator name="ups_request_pk_seq" sequence-name="ups_request_pk_seq" allocation-size="1"/>
       </id>
       <basic name="accessionNumber" optional="false">
         <column name="accession_no" column-definition="nvarchar2(255)" />
@@ -437,21 +437,21 @@
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.Subscription">
-    <sequence-generator name="subscription_pk_seq" sequence-name="subscription_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="subscription_pk_seq"/>
+        <sequence-generator name="subscription_pk_seq" sequence-name="subscription_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>
 
   <entity class="org.dcm4chee.arc.entity.GlobalSubscription">
-    <sequence-generator name="global_subscription_pk_seq" sequence-name="global_subscription_pk_seq" allocation-size="1"/>
     <attributes>
       <id name="pk">
         <column name="pk"/>
         <generated-value strategy="SEQUENCE" generator="global_subscription_pk_seq"/>
+        <sequence-generator name="global_subscription_pk_seq" sequence-name="global_subscription_pk_seq" allocation-size="1"/>
       </id>
     </attributes>
   </entity>

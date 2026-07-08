@@ -39,7 +39,7 @@
   ~ **** END LICENSE BLOCK *****
   -->
 
-<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.1">
   <persistence-unit name="dcm4chee-arc">
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     <jta-data-source>${ds}</jta-data-source>

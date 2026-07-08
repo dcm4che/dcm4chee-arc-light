@@ -39,7 +39,7 @@
   ~ **** END LICENSE BLOCK *****
   -->
 
-<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm" version="2.1">
+<entity-mappings xmlns="https://jakarta.ee/xml/ns/persistence/orm" version="3.1">
 
   <package>org.dcm4chee.arc.entity</package>
 
