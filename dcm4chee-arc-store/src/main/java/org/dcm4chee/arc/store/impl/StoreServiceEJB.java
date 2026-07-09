@@ -382,7 +382,10 @@ public class StoreServiceEJB {
     private DicomServiceException subsequentOccurrenceOfRejectedObject(RejectedInstance rejectedInstance) {
         return new DicomServiceException(StoreService.SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT,
                 MessageFormat.format(StoreService.SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT_MSG,
-                        rejectedInstance.getSopInstanceUID(), rejectedInstance.getRejectionNoteCode()));
+                        rejectedInstance.getStudyInstanceUID(),
+                        rejectedInstance.getSeriesInstanceUID(),
+                        rejectedInstance.getSopInstanceUID(),
+                        rejectedInstance.getRejectionNoteCode()));
     }
 
     private boolean hasLocationWithEqualDigest(StoreContext ctx, Instance prevInstance) {

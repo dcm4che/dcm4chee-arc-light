@@ -81,7 +81,7 @@ public interface StoreService {
     int RELATIONAL_MISMATCH = 0xA77B;
 
     String DUPLICATE_REJECTION_NOTE_MSG = "Rejection Note [uid={0}] already received.";
-    String SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT_MSG = "Subsequent occurrence of rejected Object [uid={0}, rejection={1}]";
+    String SUBSEQUENT_OCCURRENCE_OF_REJECTED_OBJECT_MSG = "Subsequent occurrence of rejected Object [StudyIUID={0}, SeriesIUID={1}, SOPIUID={2}, rejection={3}]";
     String REJECTION_FAILED_NO_SUCH_INSTANCE_MSG = "Failed to reject Instance[uid={0}] - no such Instance.";
     String REJECTION_FAILED_NO_SUCH_SERIES_MSG = "Failed to reject Instance of Series[uid={0}] - no such Series.";
     String REJECTION_FAILED_CLASS_INSTANCE_CONFLICT_MSG  = "Failed to reject Instance[uid={0}] - class-instance conflict.";
