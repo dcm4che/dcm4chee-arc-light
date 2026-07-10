@@ -52,7 +52,6 @@ export class UploadDicomComponent implements OnInit{
         private $http:J4careHttpService,
         private service: UploadDicomService,
         public mainservice:AppService,
-        private studieService:StudiesService,
         private studyService:StudyService,
         private httpErrorHandler:HttpErrorHandler,
         private _keycloakService: KeycloakService,

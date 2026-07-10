@@ -208,7 +208,6 @@ export class UploadFilesComponent implements OnInit {
         public mainservice:AppService,
         public $http:J4careHttpService,
         private studyService:StudyService,
-        private uploadDicomService:UploadDicomService,
         private _keycloakService: KeycloakService,
         private service:UploadFilesService,
         private changeDetector: ChangeDetectorRef) {
