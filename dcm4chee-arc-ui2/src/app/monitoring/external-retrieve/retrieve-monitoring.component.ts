@@ -1,5 +1,5 @@
-import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
-import {AppService} from "../../app.service";
+import { Component, Input, OnDestroy, OnInit, ViewContainerRef, ChangeDetectorRef } from '@angular/core';
+import {AppService} from '../../app.service';
 import * as _ from 'lodash-es';
 import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
@@ -71,13 +71,13 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     allActionsActive = [];
     allActionsOptions = [
         {
-            value:"cancel",
+            value:'cancel',
             label:$localize `:@@cancel_all_matching_tasks:Cancel all matching tasks`
         },{
-            value:"reschedule",
+            value:'reschedule',
             label:$localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`
         },{
-            value:"delete",
+            value:'delete',
             label:$localize `:@@delete_all_matching_tasks:Delete all matching tasks`
         }
     ];
@@ -109,7 +109,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
       public viewContainerRef: ViewContainerRef,
       private permissionService:PermissionService,
       private deviceService:DevicesService,
-      private _keycloakService: KeycloakService
+      private _keycloakService: KeycloakService,
+      private changeDetector: ChangeDetectorRef
     ) { }
 
     ngOnInit(){
@@ -117,12 +118,13 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     }
     initCheck(retries){
         let $this = this;
-        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,'global.notSecure') && this.mainservice.global.notSecure)){
 
             this.route.queryParams.subscribe(params => {
-                console.log("params",params);
+                console.log('params',params);
                 this.urlParam = Object.assign({},params);
                 this.init();
+                this.changeDetector.detectChanges();
             });
         }else{
             if (retries){
@@ -214,12 +216,13 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             this.devices = (<any[]>response[2])
                 .filter(dev => dev.hasArcDevExt)
                 .map(device => {
-                return {
-                    value:device.dicomDeviceName,
-                    text:device.dicomDeviceName
-                }
-            });
+                    return {
+                        value:device.dicomDeviceName,
+                        text:device.dicomDeviceName
+                    }
+                });
             this.initSchema();
+            this.changeDetector.detectChanges();
         });
         this.initExporters(2);
         this.onFormChange(this.filterObject);
@@ -287,14 +290,14 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         this.tableConfigNormal = {
             table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action, {grouped:false, filterObject:this.filterObject})),
             filter:this.filterObject,
-            search:"",
+            search:'',
             showAttributes:false,
             calculate:false
         };
         this.tableConfigGrouped = {
             table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action, {grouped:true, filterObject:this.filterObject})),
             filter:this.filterObject,
-            search:"",
+            search:'',
             showAttributes:false,
             calculate:false
         };
@@ -303,28 +306,28 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
 
     action(mode, match){
         switch(mode){
-            case "cancel-selected":
+            case 'cancel-selected':
                 this.executeAll('cancel');
                 break;
-            case "reschedule-selected":
+            case 'reschedule-selected':
                 this.executeAll('reschedule');
                 break;
-            case "delete-selected":
+            case 'delete-selected':
                 this.executeAll('delete');
                 break;
-            case "delete":
+            case 'delete':
                 this.delete(match);
                 break;
-            case "cancel":
+            case 'cancel':
                 this.cancel(match);
                 break;
-            case "reschedule":
+            case 'reschedule':
                 this.reschedule(match);
                 break;
-            case "task-detail":
+            case 'task-detail':
                 this.showTaskDetail(match);
                 break;
-            case "delete-batched":
+            case 'delete-batched':
                 this.deleteBatchedTask(match);
                 break;
         }
@@ -359,12 +362,13 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                 delete filterClone.offset;
                 delete filterClone.limit;
                 if(!this.mainservice.global.notSecure)
-                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`,"retrieve.csv")
+                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`,'retrieve.csv')
                 else
-                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`,"retrieve.csv")
+                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/retrieve?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`,'retrieve.csv')
             });
         })
     }
+
     uploadCsv(){
         this.dialogRef = this.dialog.open(CsvUploadComponent, {
             height: 'auto',
@@ -378,62 +382,62 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             batchID:this.filterObject['batchID']||'',
             formSchema:[
                 {
-                    tag:"range-picker-time",
-                    type:"text",
-                    filterKey:"scheduledTime",
+                    tag:'range-picker-time',
+                    type:'text',
+                    filterKey:'scheduledTime',
                     description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                 },
                 {
-                    tag:"input",
-                    type:"checkbox",
-                    filterKey:"semicolon",
+                    tag:'input',
+                    type:'checkbox',
+                    filterKey:'semicolon',
                     description:$localize `:@@use_semicolon_as_delimiter:Use semicolon as delimiter`
                 },
                 {
-                    tag:"select",
+                    tag:'select',
                     options:this.remoteAET,
                     showStar:true,
-                    filterKey:"LocalAET",
+                    filterKey:'LocalAET',
                     description:$localize `:@@local_aet:Local AET`,
                     placeholder:$localize `:@@local_aet:Local AET`,
                     validation:Validators.required
                 },{
-                    tag:"select",
+                    tag:'select',
                     options:this.remoteAET,
                     showStar:true,
-                    filterKey:"RemoteAET",
+                    filterKey:'RemoteAET',
                     description:$localize `:@@remote_aet:Remote AET`,
                     placeholder:$localize `:@@remote_aet:Remote AET`,
                     validation:Validators.required
                 },{
-                    tag:"input",
-                    type:"number",
-                    filterKey:"field",
+                    tag:'input',
+                    type:'number',
+                    filterKey:'field',
                     description:$localize `:@@field:Field`,
                     placeholder:$localize `:@@field:Field`,
                     validation:[Validators.minLength(1),Validators.min(1)],
                     defaultValue:1
                 },{
-                    tag:"select",
+                    tag:'select',
                     options:this.remoteAET,
                     showStar:true,
-                    filterKey:"DestinationAET",
+                    filterKey:'DestinationAET',
                     description:$localize `:@@destination_aet:Destination AET`,
                     placeholder:$localize `:@@destination_aet:Destination AET`,
                     validation:Validators.required
                 }
                 ,{
-                    tag:"select",
+                    tag:'select',
                     options:this.queueNames,
                     showStar:true,
-                    filterKey:"dcmQueueName",
+                    filterKey:'dcmQueueName',
                     placeholder:$localize `:@@queue_name:Queue Name`,
                     description:$localize `:@@queue_name:Queue Name`
                 },
                 {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"batchID",
+                    tag:'input',
+                    type:'text',
+                    filterKey:'batchID',
                     description:$localize `:@@batch_id:Batch ID`,
                     placeholder:$localize `:@@batch_id:Batch ID`
                 }
@@ -449,11 +453,12 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{
             if(ok){
-                console.log("ok",ok);
+                console.log('ok',ok);
                 //TODO
             }
         });
     }
+
     allActionChanged(e){
         let text = $localize `:@@matching_task_question:Are you sure, you want to ${Globalvar.getActionText(this.allAction)} all matching tasks?`;
         let filter = Object.assign({}, this.filterObject);
@@ -527,6 +532,8 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
 
             this.allAction = "";
             this.allAction = undefined;
+            this.changeDetector.detectChanges();
+
     }
     deleteBatchedTask(batchedTask){
         this.confirm({
@@ -535,12 +542,12 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             if(ok){
                 if(batchedTask.batchID){
                     let filter = Object.assign({},this.filterObject);
-                    filter["batchID"] = batchedTask.batchID;
-                    delete filter["limit"];
-                    delete filter["offset"];
+                    filter['batchID'] = batchedTask.batchID;
+                    delete filter['limit'];
+                    delete filter['offset'];
                     this.service.deleteAll(filter).subscribe((res)=>{
                         this.cfpLoadingBar.complete();
-                        if(_.hasIn(res,"count")){
+                        if(_.hasIn(res,'count')){
                             this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
                         }else{
                             this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`);
@@ -620,14 +627,14 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         this.deviceService.selectParameters((res)=>{
                 if(res){
                     let filter = {};
-                    if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
-                        filter["newDeviceName"] = res.schema_model.newDeviceName;
+                    if(_.hasIn(res, 'schema_model.newDeviceName') && res.schema_model.newDeviceName != ''){
+                        filter['newDeviceName'] = res.schema_model.newDeviceName;
                     }
-                    if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
-                        filter["scheduledTime"] = res.schema_model.scheduledTime;
+                    if(_.hasIn(res, 'schema_model.scheduledTime') && res.schema_model.scheduledTime != ''){
+                        filter['scheduledTime'] = res.schema_model.scheduledTime;
                     }
-                    if(_.hasIn(res, "schema_model.newQueueName") && res.schema_model.newQueueName != ""){
-                        filter["newQueueName"] = res.schema_model.newQueueName;
+                    if(_.hasIn(res, 'schema_model.newQueueName') && res.schema_model.newQueueName != ''){
+                        filter['newQueueName'] = res.schema_model.newQueueName;
                     }
                     $this.cfpLoadingBar.start();
                     this.service.reschedule(match.taskID, filter)
@@ -673,14 +680,14 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                 setTimeout(()=>{
                     this.getTasks(this.externalRetrieveEntries[0].offset || 0);
                     this.cfpLoadingBar.complete();
-                },300);
+                },500);
             }
         });
     }
     onSubmit(object){
-        if(_.hasIn(object,"id") && _.hasIn(object,"model")){
+        if(_.hasIn(object,'id') && _.hasIn(object,'model')){
             this.filterObject = object.model;
-            if(object.id === "count"){
+            if(object.id === 'count'){
                 this.getCount();
             }else{
                 // this.getTasks(0);
@@ -1465,6 +1472,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     $this.externalRetrieveEntries = [];
                     this.mainservice.showMsg($localize `:@@no_tasks_found:No tasks found!`)
                 }
+                this.changeDetector.detectChanges();
             },
             err => {
                 $this.externalRetrieveEntries = [];
@@ -1509,7 +1517,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
         }
     }
     prev(){
-        if(this.filterObject["offset"] > 0){
+        if(this.filterObject['offset'] > 0){
             let filter = Object.assign({},this.filterObject);
             if(filter['limit'])
                 this.filterObject['offset'] = filter['offset'] = filter['offset']*1 - this.filterObject['limit']*1;
@@ -1524,12 +1532,14 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             if (rawSec > 59) {
                 min = parseInt(((rawSec / 60)).toString());
                 sec = Math.round(((rawSec / 60) - min) * 60);
+                if(sec === 0)
+                    sec = '00';
                 return `${min} min ${sec} s`;
             } else {
                 return `${Math.round(rawSec)} s`;
             }
-        }catch(e: unknown){
-            return "-";
+        }catch(e){
+            return '-';
         }
     }
     getCount(){
@@ -1539,11 +1549,12 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
             try{
                 this.count = count.count;
             }catch (e){
-                this.count = "";
+                this.count = '';
             }
             this.urlParam = {};
             this.initSchema();
             this.cfpLoadingBar.complete();
+            this.changeDetector.detectChanges();
         },(err)=>{
             this.cfpLoadingBar.complete();
             this.initSchema();
@@ -1553,16 +1564,18 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
     initExporters(retries) {
         let $this = this;
         this.service.getExporters().subscribe(
-                (res) => {$this.exporters = res;
-                    if (res && res[0] && res[0].id){
-                        $this.exporterID = res[0].id;
-                    }
-                    // $this.mainservice.setGlobal({exporterID:$this.exporterID});
-                },
-                (res) => {
-                    if (retries)
-                        $this.initExporters(retries - 1);
-                });
+            (res) => {
+                $this.exporters = res;
+                if (res && res[0] && res[0].id){
+                    $this.exporterID = res[0].id;
+                }
+                // $this.mainservice.setGlobal({exporterID:$this.exporterID});
+                this.changeDetector.detectChanges();
+            },
+            (res) => {
+                if (retries)
+                    $this.initExporters(retries - 1);
+            });
     }
 /*    getDevices(){
         this.cfpLoadingBar.start();
@@ -1587,6 +1600,7 @@ export class RetrieveMonitoringComponent implements OnInit,OnDestroy {
                     }
                 })
                 .map(name=> new SelectDropdown(name.name, name.description));
+            this.changeDetector.detectChanges();
         },err=>{
             this.httpErrorHandler.handleError(err);
         })

@@ -101,7 +101,7 @@ declare var DCM4CHE: any;
     animations: [
         trigger('showHide', [
             state('show', style({
-                padding: '*',
+                padding: "*",
                 height: '*',
                 opacity: 1
             })),
@@ -111,10 +111,10 @@ declare var DCM4CHE: any;
                 height: '0px',
                 margin: '0'
             })),
-            transition('show => hide', [
+            transition("show => hide", [
                 animate('0.2s')
             ]),
-            transition('hide => show', [
+            transition("hide => show", [
                 animate('0.3s')
             ])
         ])
@@ -148,7 +148,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     Object = Object;
     studyConfig:StudyPageConfig = {
-        tab:"study",
+        tab:'study',
         title:$localize `:@@studies:Studies`
     };
 
@@ -173,7 +173,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         filterModel:{
             limit:20,
             offset:0,
-            includefield:"all"
+            includefield:'all'
         },
         expand:false,
         quantityText:{
@@ -191,7 +191,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this._filter = value;
     }
 
-    applicationEntities = {
+    applicationEntities:any = {
         aes:[],
         aets:[],
         aetsAreSet:false
@@ -223,56 +223,56 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     moreFunctionConfig = {
         placeholder: $localize `:@@more_functions:More functions`,
         options:[
-            new SelectDropdown("create_patient",$localize `:@@study.create_patient:Create patient`),
-            new SelectDropdown("supplement_issuer",$localize `:@@supplement_issuer:Supplement Issuer`),
-            new SelectDropdown("update_charset",$localize `:@@update_charset:Update Character Set of Patients`),
-            new SelectDropdown("create_ups",$localize `:@@create_new_ups:Create new UPS Workitem`),
-            new SelectDropdown("subscribe_uwl",$localize `:@@subscribe_uwl:Subscribe to Unified Worklist`),
-            new SelectDropdown("unsubscribe_uwl",$localize `:@@unsubscribe_uwl:Unsubscribe from Unified Worklist`),
-            new SelectDropdown("suspend_uwl",$localize `:@@suspend_uwl:Suspend Unified Worklist`),
-            new SelectDropdown("upload_dicom",$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
-            new SelectDropdown("permanent_delete",$localize `:@@study.short_permanent_delete:Permanent delete rejected instances`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
-            new SelectDropdown("export_multiple_study",$localize `:@@study.export_multiple:Export matching studies`),
-            new SelectDropdown("apply_retention_multiple_series",$localize `:@@study.apply_retention_multiple_series:Apply retention policy to matching series`),
-            new SelectDropdown("export_multiple_series",$localize `:@@study.export_multiple_series:Export matching series`),
-            new SelectDropdown("reject_multiple_study",$localize `:@@study.reject_multiple:Reject matching studies`),
-            new SelectDropdown("reject_multiple_series",$localize `:@@study.reject_multiple_series:Reject matching series`),
-            new SelectDropdown("retrieve_multiple",$localize `:@@study.retrieve_multiple:Retrieve matching studies`),
-            new SelectDropdown("update_access_control_id_to_matching",$localize `:@@study.update_access_control_id_to_matching:Update access Control ID to matching studies`),
-            new SelectDropdown("update_access_control_id_to_matching_series",$localize `:@@study.update_access_control_id_to_matching_series:Update access Control ID to matching series`),
-            new SelectDropdown("storage_verification_studies",$localize `:@@storage_verification_studies:Storage Verification Studies`),
-            new SelectDropdown("storage_verification_series",$localize `:@@storage_verification_series:Storage Verification Series`),
-            new SelectDropdown("download_patients",$localize `:@@study.download_patients:Download patients as CSV`),
-            new SelectDropdown("download_studies",$localize `:@@study.download_studies:Download studies as CSV`),
-            new SelectDropdown("download_series",$localize `:@@study.download_series:Download series as CSV`),
-            new SelectDropdown("download_mwl",$localize `:@@study.download_mwl:Download MWL as CSV`),
-            new SelectDropdown("download_uwl",$localize `:@@study.download_uwl:Download UPS Workitems as CSV`),
-            new SelectDropdown("trigger_diff",$localize `:@@trigger_diff:Trigger Diff`),
-            new SelectDropdown("change_sps_status_on_matching",$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
-            new SelectDropdown("import_matching_sps_to_archive",$localize `:@@mwl.import_matching_sps_to_archive:Import matching SPS to archive`),
-            new SelectDropdown("schedule_storage_commit_for_matching_studies",$localize `:@@schedule_storage_commit_for_matching_studies:Schedule Storage Commitment for matching Studies`),
-            new SelectDropdown("schedule_storage_commit_for_matching_series",$localize `:@@schedule_storage_commit_for_matching_series:Schedule Storage Commitment for matching Series`),
-            new SelectDropdown("instance_availability_notification_for_matching_studies",$localize `:@@instance_availability_notification_for_matching_studies:Instance Availability Notification for matching Studies`),
-            new SelectDropdown("instance_availability_notification_for_matching_series",$localize `:@@instance_availability_notification_for_matching_series:Instance Availability Notification for matching Series`),
-            new SelectDropdown("update_matching_studies", $localize `:@@update_matching_studies:Update matching Studies`),
-            new SelectDropdown("update_matching_series", $localize `:@@update_matching_series:Update matching Series`)
+            new SelectDropdown('create_patient',$localize `:@@study.create_patient:Create patient`),
+            new SelectDropdown('supplement_issuer',$localize `:@@supplement_issuer:Supplement Issuer`),
+            new SelectDropdown('update_charset',$localize `:@@update_charset:Update Character Set of Patients`),
+            new SelectDropdown('create_ups',$localize `:@@create_new_ups:Create new UPS Workitem`),
+            new SelectDropdown('subscribe_uwl',$localize `:@@subscribe_uwl:Subscribe to Unified Worklist`),
+            new SelectDropdown('unsubscribe_uwl',$localize `:@@unsubscribe_uwl:Unsubscribe from Unified Worklist`),
+            new SelectDropdown('suspend_uwl',$localize `:@@suspend_uwl:Suspend Unified Worklist`),
+            new SelectDropdown('upload_dicom',$localize`:@@study.upload_dicom_object:Upload DICOM Object`),
+            new SelectDropdown('permanent_delete',$localize `:@@study.short_permanent_delete:Permanent delete rejected instances`, $localize `:@@study.permanent_delete:Delete rejected Instances permanently`),
+            new SelectDropdown('export_multiple_study',$localize `:@@study.export_multiple:Export matching studies`),
+            new SelectDropdown('apply_retention_multiple_series',$localize `:@@study.apply_retention_multiple_series:Apply retention policy to matching series`),
+            new SelectDropdown('export_multiple_series',$localize `:@@study.export_multiple_series:Export matching series`),
+            new SelectDropdown('reject_multiple_study',$localize `:@@study.reject_multiple:Reject matching studies`),
+            new SelectDropdown('reject_multiple_series',$localize `:@@study.reject_multiple_series:Reject matching series`),
+            new SelectDropdown('retrieve_multiple',$localize `:@@study.retrieve_multiple:Retrieve matching studies`),
+            new SelectDropdown('update_access_control_id_to_matching',$localize `:@@study.update_access_control_id_to_matching:Update access Control ID to matching studies`),
+            new SelectDropdown('update_access_control_id_to_matching_series',$localize `:@@study.update_access_control_id_to_matching_series:Update access Control ID to matching series`),
+            new SelectDropdown('storage_verification_studies',$localize `:@@storage_verification_studies:Storage Verification Studies`),
+            new SelectDropdown('storage_verification_series',$localize `:@@storage_verification_series:Storage Verification Series`),
+            new SelectDropdown('download_patients',$localize `:@@study.download_patients:Download patients as CSV`),
+            new SelectDropdown('download_studies',$localize `:@@study.download_studies:Download studies as CSV`),
+            new SelectDropdown('download_series',$localize `:@@study.download_series:Download series as CSV`),
+            new SelectDropdown('download_mwl',$localize `:@@study.download_mwl:Download MWL as CSV`),
+            new SelectDropdown('download_uwl',$localize `:@@study.download_uwl:Download UPS Workitems as CSV`),
+            new SelectDropdown('trigger_diff',$localize `:@@trigger_diff:Trigger Diff`),
+            new SelectDropdown('change_sps_status_on_matching',$localize `:@@mwl.change_sps_status_on_matching:Change SPS Status on matching MWL`),
+            new SelectDropdown('import_matching_sps_to_archive',$localize `:@@mwl.import_matching_sps_to_archive:Import matching SPS to archive`),
+            new SelectDropdown('schedule_storage_commit_for_matching_studies',$localize `:@@schedule_storage_commit_for_matching_studies:Schedule Storage Commitment for matching Studies`),
+            new SelectDropdown('schedule_storage_commit_for_matching_series',$localize `:@@schedule_storage_commit_for_matching_series:Schedule Storage Commitment for matching Series`),
+            new SelectDropdown('instance_availability_notification_for_matching_studies',$localize `:@@instance_availability_notification_for_matching_studies:Instance Availability Notification for matching Studies`),
+            new SelectDropdown('instance_availability_notification_for_matching_series',$localize `:@@instance_availability_notification_for_matching_series:Instance Availability Notification for matching Series`),
+            new SelectDropdown('update_matching_studies', $localize `:@@update_matching_studies:Update matching Studies`),
+            new SelectDropdown('update_matching_series', $localize `:@@update_matching_series:Update matching Series`)
         ],
         model:undefined
     };
     actionsSelections = {
         placeholder: $localize `:@@actions_for_selections:Actions for selections`,
         options:[
-            new SelectDropdown("toggle_checkboxes", $localize `:@@toggle_checkboxes:Toggle checkboxes`, $localize `:@@toggle_checkboxes_for_selection:Toggle checkboxes for selection`),
-            new SelectDropdown("export_object", $localize `:@@study.short_export_object:Export selections`, $localize `:@@study.export_object:Export selected studies, series or instances`),
-            new SelectDropdown("retrieve_object", $localize `:@@retrieve_selections:Retrieve selections`, $localize `:@@retrieve_selected_studies_series_instances:Retrieve selected studies, series or instances`),
-            new SelectDropdown("reject_object", $localize `:@@study.short_reject_object:Reject selections`, $localize `:@@study.reject_object:Reject selected studies, series or instances`),
-            new SelectDropdown("restore_object", $localize `:@@study.short_restore_object:Restore selections`, $localize `:@@study.restore_object:Restore selected studies, series or instances`),
-            new SelectDropdown("update_access_control_id_to_selections", $localize `:@@study.short_update_access_control_id_to_selections:Access Control ID to selections`, $localize `:@@study.update_access_control_id_to_selections:Updated Access Control ID to selected studies`),
-            new SelectDropdown("storage_verification_for_selections", $localize `:@@storage_verification_selections:Storage Verification for selections`, $localize `:@@storage_verification_selected_objects:Storage Verification for selected objects`),
-            new SelectDropdown("send_storage_commitment_request_for_selections", $localize `:@@send_storage_commitment_request_for_selections:Send Storage Commitment Request for selections`, $localize `:@@send_storage_commitment_request_for_selected_objects:Send Storage Commitment Request for selected objects`),
-            new SelectDropdown("send_ian_request_for_selections", $localize `:@@send_ian_request_for_selections:Send IAN for selections`, $localize `:@@send_instance_availability_notification_request_for_selected_objects:Send Instance Availability Notification Request for selected objects`),
-            new SelectDropdown("delete_object", $localize `:@@study.short_delete_object:Delete selections`, $localize `:@@study.delete_object:Delete selected studies, series or instances permanently`),
-            new SelectDropdown("change_sps_status_on_selections", $localize `:@@sps_status_on_selections:SPS Status on selections`, $localize `:@@change_sps_status_on_selected_mwl:Change SPS Status on selected MWL`)
+            new SelectDropdown('toggle_checkboxes', $localize `:@@toggle_checkboxes:Toggle checkboxes`, $localize `:@@toggle_checkboxes_for_selection:Toggle checkboxes for selection`),
+            new SelectDropdown('export_object', $localize `:@@study.short_export_object:Export selections`, $localize `:@@study.export_object:Export selected studies, series or instances`),
+            new SelectDropdown('retrieve_object', $localize `:@@retrieve_selections:Retrieve selections`, $localize `:@@retrieve_selected_studies_series_instances:Retrieve selected studies, series or instances`),
+            new SelectDropdown('reject_object', $localize `:@@study.short_reject_object:Reject selections`, $localize `:@@study.reject_object:Reject selected studies, series or instances`),
+            new SelectDropdown('restore_object', $localize `:@@study.short_restore_object:Restore selections`, $localize `:@@study.restore_object:Restore selected studies, series or instances`),
+            new SelectDropdown('update_access_control_id_to_selections', $localize `:@@study.short_update_access_control_id_to_selections:Access Control ID to selections`, $localize `:@@study.update_access_control_id_to_selections:Updated Access Control ID to selected studies`),
+            new SelectDropdown('storage_verification_for_selections', $localize `:@@storage_verification_selections:Storage Verification for selections`, $localize `:@@storage_verification_selected_objects:Storage Verification for selected objects`),
+            new SelectDropdown('send_storage_commitment_request_for_selections', $localize `:@@send_storage_commitment_request_for_selections:Send Storage Commitment Request for selections`, $localize `:@@send_storage_commitment_request_for_selected_objects:Send Storage Commitment Request for selected objects`),
+            new SelectDropdown('send_ian_request_for_selections', $localize `:@@send_ian_request_for_selections:Send IAN for selections`, $localize `:@@send_instance_availability_notification_request_for_selected_objects:Send Instance Availability Notification Request for selected objects`),
+            new SelectDropdown('delete_object', $localize `:@@study.short_delete_object:Delete selections`, $localize `:@@study.delete_object:Delete selected studies, series or instances permanently`),
+            new SelectDropdown('change_sps_status_on_selections', $localize `:@@sps_status_on_selections:SPS Status on selections`, $localize `:@@change_sps_status_on_selected_mwl:Change SPS Status on selected MWL`)
         ],
         model:undefined
     };
@@ -284,14 +284,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     patients1:Patient1Dicom[] = [];
     studies:Study1Dicom[] = [];
     moreState = {
-        "study":false,
-        "patient":false,
-        "series":false,
-        "mwl":false,
-        "mpps":false,
-        "uwl":false,
-        "diff":false,
-        "export":false
+        'study':false,
+        'patient':false,
+        'series':false,
+        'mwl':false,
+        'mpps':false,
+        'uwl':false,
+        'diff':false,
+        'export':false
     };
     queues;
     retrieveQueues;
@@ -304,13 +304,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         size:[]
     };
     checkboxFunctions = false;
-    currentWebAppClass = "QIDO_RS";
+    currentWebAppClass = 'QIDO_RS';
     diffAttributeSets:SelectDropdown<DiffAttributeSet>[];
     storages:SelectDropdown<StorageSystems>[];
     institutions:SelectDropdown<string>[];
     headerTop = {
-        "true":undefined,
-        "false":undefined
+        'true':undefined,
+        'false':undefined
     }
     filterTemplate;
     fhirWebAppsSelectDropdowns:StudyWebService;
@@ -355,12 +355,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }else{
             this.selectedElements = new SelectionActionElement({});
         }
-        console.log("this.studyWebService",this.studyWebService);
+        console.log('this.studyWebService',this.studyWebService);
         this.getPatientAttributeFilters();
         this.getStudyAttributeFilters();
 /*        this.route.queryParams.subscribe(queryParams=>{
-            console.log("in query paramt",queryParams);
-            console.log("filter",this.service.getFilterKeysFromTab(this.studyConfig.tab || "study"));
+            console.log('in query paramt',queryParams);
+            console.log('filter',this.service.getFilterKeysFromTab(this.studyConfig.tab || 'study'));
 
 
         });*/
@@ -372,8 +372,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.internal = !this.internal;
             this.service.clearFilterObject(params.tab, this.filter);
             this.studyConfig.tab = undefined;
-            console.log("this.studyWebService",this.studyWebService);
+            console.log('this.studyWebService',this.studyWebService);
             setTimeout(()=>{
+                try{
+
+
                 this.internal = !this.internal;
                 this.studyConfig.tab = params.tab;
                 this.route.queryParams.subscribe(queryParams=>{
@@ -393,44 +396,44 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         this.currentWebAppClass = "QIDO_RS";
                                     }*/
                 switch (this.studyConfig.tab) {
-                    case "diff":
-                        this.currentWebAppClass = "DCM4CHEE_ARC_AET_DIFF";
+                    case 'diff':
+                        this.currentWebAppClass = 'DCM4CHEE_ARC_AET_DIFF';
                         break;
-                    case "mwl":
-                        this.currentWebAppClass = "MWL_RS";
+                    case 'mwl':
+                        this.currentWebAppClass = 'MWL_RS';
                         break;
-                    case "mpps":
-                        this.currentWebAppClass = "MPPS_RS";
+                    case 'mpps':
+                        this.currentWebAppClass = 'MPPS_RS';
                         break;
-                    case "uwl":
-                        this.currentWebAppClass = "UPS_RS";
+                    case 'uwl':
+                        this.currentWebAppClass = 'UPS_RS';
                         break;
                     default:
-                        this.currentWebAppClass = "QIDO_RS";
+                        this.currentWebAppClass = 'QIDO_RS';
                 }
-                if(_.hasIn(this.studyWebService,"selectedWebService.dcmWebAppName") && !_.hasIn(this._filter,"filterModel.webApp")){
-                    this._filter.filterModel["webApp"] = this.studyWebService.selectedWebService.dcmWebAppName;
+                if(_.hasIn(this.studyWebService,'selectedWebService.dcmWebAppName') && !_.hasIn(this._filter,'filterModel.webApp')){
+                    this._filter.filterModel['webApp'] = this.studyWebService.selectedWebService.dcmWebAppName;
                 };
                 this.studyConfig.title = this.tabToTitleMap(params.tab);
                 this.initWebApps();
-                if(this.studyConfig.tab === "diff"){
+                if(this.studyConfig.tab === 'diff'){
                     this.getDiffAttributeSet(this, ()=>{
                         this.route.queryParams.subscribe(queryParams=>{
-                           if(_.hasIn(queryParams,"taskID") || _.hasIn(queryParams,"batchID")){
+                           if(_.hasIn(queryParams,'taskID') || _.hasIn(queryParams,'batchID')){
                                if(queryParams.batchID){
-                                   this.filter.filterModel["batchID"] = queryParams.batchID;
+                                   this.filter.filterModel['batchID'] = queryParams.batchID;
                                }
                                if(queryParams.different){
-                                   this.filter.filterModel["different"] = queryParams.different;
+                                   this.filter.filterModel['different'] = queryParams.different;
                                }
                                if(queryParams.comparefield){
-                                   this.filter.filterModel["comparefield"] = queryParams.comparefield;
+                                   this.filter.filterModel['comparefield'] = queryParams.comparefield;
                                }
                                if(queryParams.missing){
-                                   this.filter.filterModel["missing"] = queryParams.missing;
+                                   this.filter.filterModel['missing'] = queryParams.missing;
                                }
                                if(queryParams.taskID){
-                                   this.filter.filterModel["taskID"] = queryParams.taskID;
+                                   this.filter.filterModel['taskID'] = queryParams.taskID;
                                }
                                this.getDiff(_.cloneDeep(this.filter.filterModel));
                            }
@@ -438,22 +441,22 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.initWebApps();
                     });
                 }
-                if (this.studyConfig.tab === "study" || this.studyConfig.tab === "series" || this.studyConfig.tab === "diff") {
-                    this.getInstitutions(this, "Series", () => {
+                if (this.studyConfig.tab === 'study' || this.studyConfig.tab === 'series' || this.studyConfig.tab === 'diff') {
+                    this.getInstitutions(this, 'Series', () => {
                         this.getStorages(this, () => {
                             this.initWebApps();
                         });
                     });
                 }
-                if (this.studyConfig.tab === "mwl") {
-                    this.getInstitutions(this, "MWL",() => {
+                if (this.studyConfig.tab === 'mwl') {
+                    this.getInstitutions(this, 'MWL',() => {
                         this.initWebApps();
                     });
                 }
                 this.more = false;
                 this._filter.filterModel.offset = 0;
                 this.setTableSchema();
-                if(this.studyConfig.tab != "study" && this.studyConfig.tab != "series" && this.studyConfig.tab != "diff"){
+                if(this.studyConfig.tab != 'study' && this.studyConfig.tab != 'series' && this.studyConfig.tab != 'diff'){
                     this.initWebApps();
                 }
                 /*                    if(!this.studyWebService){
@@ -464,17 +467,22 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         this.getQueueNames();
                                     }*/
                 // }
+                }catch(e){
+                    console.error('in error',e);
+                }
+                console.log('timeoutend1')
             },1);
-        });
+
+            this.changeDetector.detectChanges();});
         this.moreFunctionConfig.options.filter(option=>{
-            if(option.value === "retrieve_multiple" || option.value === "import_matching_sps_to_archive"){
+            if(option.value === 'retrieve_multiple' || option.value === 'import_matching_sps_to_archive'){
                 return !this.internal;
             }else{
                 return true;
             }
         });
         this.actionsSelections.options.filter(option=>{
-            if(option.value === "retrieve_object"){
+            if(option.value === 'retrieve_object'){
                 return !this.internal;
             }else{
                 return true;
@@ -493,7 +501,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if(this.filterTemplate && this.studyWebService && this.studyWebService.selectDropdownWebServices && this.studyWebService.selectDropdownWebServices.length > 0){
             this.filter.filterModel = {};
             Object.keys(this.filterTemplate).forEach(key=>{
-                if(key === "webApp"){
+                if(key === 'webApp'){
                     this.studyWebService.seletWebAppFromWebAppName(this.filterTemplate.webApp);
                 }else{
                     this.filter.filterModel[key] = this.filterTemplate[key];
@@ -506,13 +514,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     tabToTitleMap(tab:DicomMode){
         return {
-            "study": $localize `:@@studies:Studies`,
-            "patient": $localize `:@@patients:Patients`,
-            "series": $localize `:@@series:Series`,
-            "mwl": $localize `:@@mwl:MWL`,
-            "uwl": $localize `:@@uwl:UWL`,
-            "diff": $localize `:@@study.difference:Difference`,
-            "mpps": $localize `:@@mpps:MPPS`
+            'study': $localize `:@@studies:Studies`,
+            'patient': $localize `:@@patients:Patients`,
+            'series': $localize `:@@series:Series`,
+            'mwl': $localize `:@@mwl:MWL`,
+            'uwl': $localize `:@@uwl:UWL`,
+            'diff': $localize `:@@study.difference:Difference`,
+            'mpps': $localize `:@@mpps:MPPS`
         }[tab] || $localize `:@@studies:Studies`;
     };
 
@@ -541,7 +549,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.setTopToTableHeader();
        },1);
     }
-    @HostListener("window:scroll", ['$event'])
+    @HostListener('window:scroll', ['$event'])
     onWindowScroll(e) {
         let html = document.documentElement;
         if(html.scrollTop > 63){
@@ -558,107 +566,107 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
 
     moreFunctionChanged(e){
-        console.log("e",e);
+        console.log('e',e);
         switch (e){
-            case "create_patient":
+            case 'create_patient':
                 this.createPatient();
                 break;
-            case "supplement_issuer":
+            case 'supplement_issuer':
                 this.supplementIssuer();
                 break;
-            case "update_charset":
+            case 'update_charset':
                 this.updateCharset();
                 break;
-            case "create_ups":
+            case 'create_ups':
                 this.createUPS();
                 break;
-            case "subscribe_uwl":
-                this.subscribeUWL(undefined, "uwl",
+            case 'subscribe_uwl':
+                this.subscribeUWL(undefined, 'uwl',
                     $localize `:@@subscribe_uwl:Subscribe to Unified Worklist`,
                     $localize `:@@uwl_subscribed_successfully:Unified Worklist subscribed successfully!`);
                 break;
-            case "unsubscribe_uwl":
+            case 'unsubscribe_uwl':
                 this.unsubscribeOrSuspendUWL(false);
                 break;
-            case "suspend_uwl":
+            case 'suspend_uwl':
                 this.unsubscribeOrSuspendUWL(true);
                 break;
-            case "permanent_delete":
+            case 'permanent_delete':
                 this.deleteRejectedInstances();
                 break;
-            case "upload_dicom":
+            case 'upload_dicom':
                 this.uploadDicom();
                break;
-            case "export_multiple_study":
-                this.exportMatching($localize `:@@study.export_all_matching_studies:Export all matching studies`, "study");
+            case 'export_multiple_study':
+                this.exportMatching($localize `:@@study.export_all_matching_studies:Export all matching studies`, 'study');
                break;
-            case "apply_retention_multiple_series":
+            case 'apply_retention_multiple_series':
                 this.applyRetentionPolicyMatchingSeries();
                break;
-            case "export_multiple_series":
-                this.exportMatching($localize `:@@study.export_all_matching_series:Export all matching series`, "series");
+            case 'export_multiple_series':
+                this.exportMatching($localize `:@@study.export_all_matching_series:Export all matching series`, 'series');
                break;
-            case "reject_multiple_study":
+            case 'reject_multiple_study':
                 this.rejectMatchingStudies();
                break;
-            case "reject_multiple_series":
+            case 'reject_multiple_series':
                 this.rejectMatchingSeries();
                break;
-            case "retrieve_multiple":
+            case 'retrieve_multiple':
                 this.retrieveMultipleStudies();
                break;
-            case "storage_verification_studies":
+            case 'storage_verification_studies':
                 this.storageVerificationStudies();
                break;
-            case "storage_verification_series":
+            case 'storage_verification_series':
                 this.storageVerificationSeries();
                break;
-            case "download_patients":
-                this.downloadCSV(undefined, "patient");
+            case 'download_patients':
+                this.downloadCSV(undefined, 'patient');
                 break;
-            case "download_studies":
-                this.downloadCSV(undefined, "study");
+            case 'download_studies':
+                this.downloadCSV(undefined, 'study');
                break;
-            case "download_series":
-                this.downloadCSV(undefined, "series");
+            case 'download_series':
+                this.downloadCSV(undefined, 'series');
                break;
-            case "download_mwl":
-                this.downloadCSV(undefined, "mwl");
+            case 'download_mwl':
+                this.downloadCSV(undefined, 'mwl');
                 break;
-            case "download_uwl":
-                this.downloadCSV(undefined, "uwl");
+            case 'download_uwl':
+                this.downloadCSV(undefined, 'uwl');
                 break;
-            case "update_access_control_id_to_matching":
-                this.updateAccessControlId("matching_studies", e);
+            case 'update_access_control_id_to_matching':
+                this.updateAccessControlId('matching_studies', e);
                break;
-            case "update_access_control_id_to_matching_series":
-                this.updateAccessControlId("matching_series", e);
+            case 'update_access_control_id_to_matching_series':
+                this.updateAccessControlId('matching_series', e);
                 break;
-            case "schedule_storage_commit_for_matching_studies":
+            case 'schedule_storage_commit_for_matching_studies':
                 this.sendStorageCommitmentRequestMatchingStudies();
                break;
-            case "schedule_storage_commit_for_matching_series":
+            case 'schedule_storage_commit_for_matching_series':
                 this.sendStorageCommitmentRequestMatchingSeries();
                break;
-            case "instance_availability_notification_for_matching_studies":
+            case 'instance_availability_notification_for_matching_studies':
                 this.sendInstanceAvailabilityNotificationMatchingStudies();
                break;
-            case "instance_availability_notification_for_matching_series":
+            case 'instance_availability_notification_for_matching_series':
                 this.sendInstanceAvailabilityNotificationMatchingSeries();
                break;
-            case "update_matching_studies":
+            case 'update_matching_studies':
                 this.updateMatchingStudies();
                 break;
-            case "update_matching_series":
+            case 'update_matching_series':
                 this.updateMatchingSeries();
                 break;
-            case "create_ups_matching_studies":
+            case 'create_ups_matching_studies':
                 this.createUPSMatchingStudies();
                 break;
-            case "change_sps_status_on_matching":
-                this.changeSPSStatus(e, "matching");
+            case 'change_sps_status_on_matching':
+                this.changeSPSStatus(e, 'matching');
                break;
-            case "import_matching_sps_to_archive":
+            case 'import_matching_sps_to_archive':
                 this.importMatchingSPS();
                 break;
         }
@@ -667,41 +675,41 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         },1);
     }
     actionsSelectionsChanged(e){
-        if(e === "toggle_checkboxes"){
+        if(e === 'toggle_checkboxes'){
             this.tableParam.config.showCheckboxes = !this.tableParam.config.showCheckboxes;
             this.setTableSchema();
         }
-        if(e === "export_object"){
+        if(e === 'export_object'){
             this.exporter(
                 undefined,
                 $localize `:@@study.export_selected_object:Export selected objects`,
-               "multipleExportSelections",
+               'multipleExportSelections',
                 undefined,
                 undefined,
                 this.selectedElements
             );
         }
-        if (e === "retrieve_object")
+        if (e === 'retrieve_object')
             this.retrieveObject(undefined,undefined,this.selectedElements);
-        if(e === "reject_object" || e === "restore_object"){
+        if(e === 'reject_object' || e === 'restore_object'){
             this.rejectRestoreMultipleObjects();
         }
-        if(e === "update_access_control_id_to_selections"){
-            this.updateAccessControlId("update_access_control_id_to_selections", e);
+        if(e === 'update_access_control_id_to_selections'){
+            this.updateAccessControlId('update_access_control_id_to_selections', e);
         }
-        if(e === "change_sps_status_on_selections"){
-            this.changeSPSStatus(e,"selected");
+        if(e === 'change_sps_status_on_selections'){
+            this.changeSPSStatus(e,'selected');
         }
-        if(e === "storage_verification_for_selections"){
+        if(e === 'storage_verification_for_selections'){
             this.storageCommitmen(undefined, undefined);
         }
-        if(e === "send_storage_commitment_request_for_selections"){
+        if(e === 'send_storage_commitment_request_for_selections'){
             this.sendStorageCommitmentRequestSingle();
         }
-        if(e === "send_ian_request_for_selections"){
+        if(e === 'send_ian_request_for_selections'){
             this.sendInstanceAvailabilityNotificationSingle();
         }
-        if(e === "delete_object"){
+        if(e === 'delete_object'){
             this.deleteSelectedObjects()
         }
         setTimeout(()=>{
@@ -709,33 +717,33 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         },1);
     }
     selectionAction(id){
-        console.log("this.patient",this.patients);
+        console.log('this.patient',this.patients);
         switch (id){
-            case "checkbox_functions":{
+            case 'checkbox_functions':{
                 this.checkboxFunctions = !this.checkboxFunctions;
                 break;
             }
-            case "copy":{
+            case 'copy':{
                 this.setSelectedElementAction(id);
                 this.resetSetSelectionObject(undefined, undefined, true);
                 break;
             }
-            case "move":{
+            case 'move':{
                 this.setSelectedElementAction(id);
                 this.resetSetSelectionObject(undefined, undefined, true);
                 break;
             }
-            case "link":{
+            case 'link':{
                 this.setSelectedElementAction(id);
                 this.resetSetSelectionObject(undefined, undefined, true);
                 break;
             }
-            case "patient_merge":{
-                this.setSelectedElementAction("merge");
+            case 'patient_merge':{
+                this.setSelectedElementAction('merge');
                 this.resetSetSelectionObject(undefined, undefined, true);
                 break;
             }
-            case "paste":{
+            case 'paste':{
                 this.paste();
                 break;
             }
@@ -770,6 +778,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 break;
             }
         }
+        this.changeDetector.detectChanges();
     }
     paste(){
         console.log("past,this.selectedEleents",this.selectedElements);
@@ -777,7 +786,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             if (!this.selectedElements.postActionElements || this.selectedElements.postActionElements.currentIndexes.length > 1) {
                 this.appService.showError($localize `:@@study.more_than_one_target_selected:More than one target selected!`);
             }
-            if (this.selectedElements.action == "merge" && this.selectedElements.preActionElements.currentIndexes.length > 1) {
+            if (this.selectedElements.action == 'merge' && this.selectedElements.preActionElements.currentIndexes.length > 1) {
                 this.appService.showError($localize `:@@study.more_than_one_source_patient_selected:More than one source patient selected for merge!`);
             }
             else {
@@ -797,8 +806,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.dialogRef.componentInstance.rjnotes = select;
                     this.dialogRef.componentInstance.title = this.service.getTextFromAction(this.selectedElements.action);
                     this.dialogRef.afterClosed().subscribe(result => {
-                        console.log("result",result);
-                        console.log("selectedElements",this.selectedElements);
+                        console.log('result',result);
+                        console.log('selectedElements',this.selectedElements);
                         if (result) {
                             this.cfpLoadingBar.start();
                             switch (this.selectedElements.action) {
@@ -809,33 +818,33 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                             this.clearClipboard();
                                             this.cfpLoadingBar.complete();
                                             this.onPasteEvent.emit({
-                                                mode:"success",
+                                                mode:'success',
                                                 response:res
                                             });
                                         }, (err) => {
                                             this.cfpLoadingBar.complete();
                                             this.httpErrorHandler.handleError(err);
                                             this.onPasteEvent.emit({
-                                                mode:"error",
+                                                mode:'error',
                                                 response:err
                                             });
                                         });
                                     break;
                                 case 'link':
                                     this.service.linkStudyToMwl(this.selectedElements, this.studyWebService.selectedWebService, result.reject).subscribe(res=>{
-                                        console.log("res",res);
+                                        console.log('res',res);
                                         this.cfpLoadingBar.complete();
                                         this.appService.showMsgCopyMoveLink(res, this.service.getTextFromAction(this.selectedElements.action));
                                         this.clearClipboard();
                                         this.onPasteEvent.emit({
-                                            mode:"success",
+                                            mode:'success',
                                             response:res
                                         });
                                     },err=>{
                                         this.cfpLoadingBar.complete();
                                         this.httpErrorHandler.handleError(err);
                                         this.onPasteEvent.emit({
-                                            mode:"error",
+                                            mode:'error',
                                             response:err
                                         });
                                     });
@@ -843,7 +852,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 default:
                                     this.service.copyMove(this.selectedElements, this.studyWebService.selectedWebService,result.reject).subscribe(res=>{
                                         try{
-                                            console.log("res",res);
+                                            console.log('res',res);
                                             this.appService.showMsgCopyMoveLink(res, this.service.getTextFromAction(this.selectedElements.action));
                                         }catch (e) {
                                             this.httpErrorHandler.handleError(res);
@@ -851,31 +860,32 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         this.clearClipboard();
                                         this.cfpLoadingBar.complete();
                                         this.onPasteEvent.emit({
-                                            mode:"success",
+                                            mode:'success',
                                             response:res
                                         });
                                     },err=>{
                                         this.cfpLoadingBar.complete();
                                         this.httpErrorHandler.handleError(err);
                                         this.onPasteEvent.emit({
-                                            mode:"error",
+                                            mode:'error',
                                             response:err
                                         });
                                     });
                             }
                         }else{
-/*                            if(this.selectedElements.action === "link" && this.studyConfig.tab === "mwl"){
-                                this.resetSetSelectionObject(["mwl"],false,true);
+/*                            if(this.selectedElements.action === 'link' && this.studyConfig.tab === 'mwl'){
+                                this.resetSetSelectionObject(['mwl'],false,true);
                             }else{*/
                                 this.clearClipboard();
                             // }
                             this.onPasteEvent.emit({
-                                mode:"cancel",
+                                mode:'cancel',
                                 response:this.selectedElements
                             });
                         }
                         this.dialogRef = null;
-                    });
+
+                        this.changeDetector.detectChanges();});
                 }
             }
         }else {
@@ -893,11 +903,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let newObject = {};
         selectedValue = selectedValue || false;
         resetIds = resetIds || [
-            "instance",
-            "series",
-            "patient",
-            "study",
-            "mwl"
+            'instance',
+            'series',
+            'patient',
+            'study',
+            'mwl'
         ];
         resetIds.forEach(id=>{
             newObject[id] = {};
@@ -913,7 +923,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         Object.keys(this.selectedElements.postActionElements[level]).forEach(id=>{
                             this.selectedElements.postActionElements.toggle(level,{id:id,idParts:[]}, {});
                         });
-                    }catch(e: unknown){
+                    }catch(e){
 
                     }
                 });
@@ -925,26 +935,26 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
 
         this.patients.forEach(patient=>{
-            if(resetIds.indexOf("patient") > -1){
+            if(resetIds.indexOf('patient') > -1){
                 patient.selected = selectedValue;
-                this.service.addObjectOnSelectedElements("patient", selectedValue, patient, this.selectedElements);
+                this.service.addObjectOnSelectedElements('patient', selectedValue, patient, this.selectedElements);
             }
-            if(patient.studies && resetIds.indexOf("study") > -1)
+            if(patient.studies && resetIds.indexOf('study') > -1)
                 patient.studies.forEach(study=>{
                     study.selected = selectedValue;
-                    this.service.addObjectOnSelectedElements("study", selectedValue, study, this.selectedElements);
-                    if(study.series && resetIds.indexOf("series") > -1)
+                    this.service.addObjectOnSelectedElements('study', selectedValue, study, this.selectedElements);
+                    if(study.series && resetIds.indexOf('series') > -1)
                         study.series.forEach(serie=>{
                             serie.selected = selectedValue;
-                            this.service.addObjectOnSelectedElements("series", selectedValue, serie, this.selectedElements);
-                            if(serie.instances && resetIds.indexOf("instance") > -1)
+                            this.service.addObjectOnSelectedElements('series', selectedValue, serie, this.selectedElements);
+                            if(serie.instances && resetIds.indexOf('instance') > -1)
                                 serie.instances.forEach(instance=>{
                                     instance.selected = selectedValue;
-                                    this.service.addObjectOnSelectedElements("instance", selectedValue, instance, this.selectedElements);
+                                    this.service.addObjectOnSelectedElements('instance', selectedValue, instance, this.selectedElements);
                                 })
                         })
                 });
-            if(patient.mwls && resetIds.indexOf("mwl") > -1){
+            if(patient.mwls && resetIds.indexOf('mwl') > -1){
                 patient.mwls.forEach(study=>{
                     study.selected = selectedValue;
                 });
@@ -954,24 +964,24 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     select(object, dicomLevel:DicomLevel){
         this.selectedElements.toggle(dicomLevel, this.service.getObjectUniqueId(object.attrs, dicomLevel), object);
-        console.log("selectedElements",this.selectedElements);
+        console.log('selectedElements',this.selectedElements);
     }
     clearClipboard(){
         this.resetSetSelectionObject(undefined,undefined,undefined,true);
     }
     onFilterClear(e){
-        console.log("e",e);
-        if(_.hasIn(e,"webApp") && e.webApp === ""){
+        console.log('e',e);
+        if(_.hasIn(e,'webApp') && e.webApp === ''){
             this.studyWebService.selectedWebService = undefined;
         }
     }
     onRemoveFromSelection(e){
-        console.log("e",e);
-        this.selectedElements.toggle(e.dicomLevel,e.uniqueSelectIdObject, e.object, "preActionElements");
+        console.log('e',e);
+        this.selectedElements.toggle(e.dicomLevel,e.uniqueSelectIdObject, e.object, 'preActionElements');
     }
     actions(id, model){
-        console.log("id",id);
-        console.log("model",model);
+        console.log('id',id);
+        console.log('model',model);
         if(this.studyWebService.selectedWebService){ //selectedWebAppService
 
             if(id.action === "select"){
@@ -1003,6 +1013,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }else{
                     model.showSeries = !model.showSeries;
                 }
+                this.changeDetector.detectChanges();
+
 
             }
             if(id.action === "toggle_instances"){
@@ -1056,94 +1068,94 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if(id.level === "instance"){
                     if(id.mode === "uncompressed"){
                         this.downloadURL(model);
-                    }else{
+                    } else {
                         this.downloadURL(model, "*");
                     }
                 }else{
                     this.downloadZip(model,id.level,id.mode);
                 }
             }
-            if(id.action === "reject"){
-                if(id.level === "study"){
+            if(id.action === 'reject'){
+                if(id.level === 'study'){
                     this.rejectStudy(model);
                 }
-                if(id.level === "series"){
+                if(id.level === 'series'){
                     this.rejectSeries(model);
                 }
-                if(id.level === "instance"){
+                if(id.level === 'instance'){
                     this.rejectInstance(model);
                 }
             }
-            if(id.action === "delete"){
-                if(id.level === "study"){
+            if(id.action === 'delete'){
+                if(id.level === 'study'){
                     this.deleteStudy(model);
                 }
             }
-            if(id.action === "verify_storage"){
+            if(id.action === 'verify_storage'){
                 this.storageCommitmen(id.level, model);
             }
             if(id.action === "study_restore" || id.action === "series_restore"){
                 this.restorePurged(id.level, model);
             }
-            if(id.action === "export"){
+            if(id.action === 'export'){
                 if(this.internal){
-                    if(id.level === "study"){
+                    if(id.level === 'study'){
                         this.exportStudy(model);
                     }
-                    if(id.level === "instance"){
+                    if(id.level === 'instance'){
                         this.exportInstance(model);
                     }
-                    if(id.level === "series"){
+                    if(id.level === 'series'){
                         this.exportSeries(model);
                     }
                 }else{
                     this.retrieveObject(id.level, model);
                 }
             }
-            if(id.action === "edit_study"){
+            if(id.action === 'edit_study'){
                 this.editStudy(model);
             }
-            if(id.action === "edit_series"){
+            if(id.action === 'edit_series'){
                 this.editSeries(model);
             }
-            if(id.action === "edit_study"){
-               // this.editMWL(model);
+            if(id.action === 'edit_study'){
+                // this.editMWL(model);
             }
-            if(id.action === "delete_mwl"){
-               this.deleteMWL(model);
+            if(id.action === 'delete_mwl'){
+                this.deleteMWL(model);
             }
-            if(id.action === "modify_expired_date"){
+            if(id.action === 'modify_expired_date'){
                 this.setExpiredDate(model);
             }
-            if(id.action === "modify_expired_date_series"){
+            if(id.action === 'modify_expired_date_series'){
                 this.setExpiredDateSeries(model);
             }
-            if(id.action === "mark_as_requested_unscheduled"){
+            if(id.action === 'mark_as_requested_unscheduled'){
                 this.markAsRequestedOrUnscheduled(model, id.level);
             }
-            if(id.action === "create_mwl"){
+            if(id.action === 'create_mwl'){
                 this.createMWL(model);
             }
-            if(id.action === "edit_mwl"){
-                console.log("id",id);
-                console.log("model", model);
+            if(id.action === 'edit_mwl'){
+                console.log('id',id);
+                console.log('model', model);
                 this.editMWL(model.patient,model);
             }
-            if(id.action === "download_csv"){
+            if(id.action === 'download_csv'){
                 this.downloadCSV(model.attrs, id.level);
             }
-            if(id.action === "open_viewer"){
+            if(id.action === 'open_viewer'){
                 this.openViewer(model.attrs, id.level);
             }
             if(id.action === "create_fhir"){
                 this.createFHIRImageStudy(model, id.level);
             }
-            if(id.action === "upload_file"){
+            if(id.action === 'upload_file'){
 /*                switch (id.level) {
-                    case "patient":
+                    case 'patient':
                         this.uploadInPatient(model);
                         break;
-                    case "mwl":
+                    case 'mwl':
                         this.uploadFile(model, id.level);
                         break;
                     default:
@@ -1157,19 +1169,19 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.uploadFile(model, id.level);
                 }*/
             }
-            if(id.action === "view"){
+            if(id.action === 'view'){
                 this.viewInstance(model);
             }
-            if(id.action === "update_access_control_id"){
+            if(id.action === 'update_access_control_id'){
                 this.updateAccessControlId(id.level, id.action, model);
             }
-            if(id.action === "change_sps_status"){
-                this.changeSPSStatus(model, "single");
+            if(id.action === 'change_sps_status'){
+                this.changeSPSStatus(model, 'single');
             }
-            if(id.action === "send_storage_commit"){
+            if(id.action === 'send_storage_commit'){
                 this.sendStorageCommitmentRequestSingle(id.level , model);
             }
-            if(id.action === "send_instance_availability_notification"){
+            if(id.action === 'send_instance_availability_notification'){
                 this.sendInstanceAvailabilityNotificationSingle(id.level , model);
             }
             if(id.action==="recreate_record"){
@@ -1178,13 +1190,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }else{
             this.appService.showError($localize `:@@study.no_webapp_selected:No Web Application Service was selected!`);
         }
+        this.changeDetector.detectChanges();
     }
 
     uploadDicom(){
         //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(UploadDicomComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
 /*        this.dialogRef.componentInstance.aes = this.aes;
         this.dialogRef.componentInstance.selectedAe = this.aetmodel.dicomAETitle;*/
@@ -1196,9 +1209,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     };
     uploadInPatient(object){
-        console.log("in uuploadInPatient",object);
+        console.log('in uuploadInPatient',object);
         this.service.createEmptyStudy(object.attrs, this.studyWebService.selectedWebService).subscribe(res=>{
-            this.uploadFile({attrs:res},"patient");
+            this.uploadFile({attrs:res},'patient');
         },err=>{
             this.httpErrorHandler.handleError(err);
         });
@@ -1207,52 +1220,52 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         // this.service.getUploadFileWebApp(this.studyWebService).subscribe((webApp:DcmWebApp)=>{
 
             let tempObject = _.cloneDeep(object);
-            if(mode === "mwl"){
+            if(mode === 'mwl'){
                 //perpare mwl object for study upload
                 let newObject = {
-                    "00400275":{
-                        "Value":[{}],
-                        "vr":"SQ"
+                    '00400275':{
+                        'Value':[{}],
+                        'vr':'SQ'
                     }
                 };
                 let inSequenceCodes = [
-                    "00401001",
-                    "00321060",
-                    "00400009",
-                    "00400007",
-                    "00400008"
+                    '00401001',
+                    '00321060',
+                    '00400009',
+                    '00400007',
+                    '00400008'
                 ];
                 let mapCodes = {
-                    "00401001":{
-                        "code":"00200010",
-                        "vr":"SH"
+                    '00401001':{
+                        'code':'00200010',
+                        'vr':'SH'
                     },
-                    "00321060":{
-                        "code":"00081030",
-                        "vr":"LO"
+                    '00321060':{
+                        'code':'00081030',
+                        'vr':'LO'
                     },
-                    "00400100":[
+                    '00400100':[
                         {
-                            "map":"Value[0]['00400002']",
-                            "code":"00080020",
-                            "vr":"DA"
+                            'map':"Value[0]['00400002']",
+                            'code':'00080020',
+                            'vr':'DA'
                         },
                         {
-                            "map":"Value[0]['00400003']",
-                            "code":"00080030",
-                            "vr":"TM"
+                            'map':"Value[0]['00400003']",
+                            'code':'00080030',
+                            'vr':'TM'
                         }
                     ]
                 };
                 let removeCode = [
-                    "00401001",
-                    //"00400100",
-                    "00321060",
-                    "00321064"
+                    '00401001',
+                    //'00400100',
+                    '00321060',
+                    '00321064'
                 ];
                 _.forEach(tempObject.attrs,(m,i)=>{
                     if(_.indexOf(inSequenceCodes,i) > -1){
-                        newObject["00400275"].Value[0][i] = m;
+                        newObject['00400275'].Value[0][i] = m;
                         this.service.mapCode(m,i,newObject,mapCodes);
                     }else{
                         if(_.indexOf(removeCode,i) === -1){
@@ -1283,7 +1296,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.dialogRef.componentInstance.tempAttributes = undefined;
             });
         // });
-    }
+
+        this.changeDetector.detectChanges();}
     deletePatientByPk(patient){
         const patientPk = this.service.getPatientPk(patient.attrs);
         let $this = this;
@@ -1341,7 +1355,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         (response) => {
                             this.appService.showMsg('MWL deleted successfully!');
                             this.cfpLoadingBar.complete();
-                            this.search("current",{id:"submit"});
+                            this.search('current',{id:'submit'});
                         },
                         (err) => {
                             this.httpErrorHandler.handleError(err);
@@ -1406,7 +1420,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
         }
 
-        // this.config.width = "800";
+        // this.config.width = '800';
 
         let $this = this;
         this.service.getMwlIod().subscribe((res) => {
@@ -1431,7 +1445,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if (result){
                     $this.service.clearPatientObject(mwlFiltered.attrs);
                     $this.service.convertStringToNumber(mwlFiltered.attrs);
-                    // StudiesService.convertDateToString($scope, "mwl");
+                    // StudiesService.convertDateToString($scope, 'mwl');
                     let local = {};
 
                     $this.service.appendPatientIdTo(patient.attrs, local);
@@ -1463,7 +1477,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }
                 $this.dialogRef = null;
             });
-        }, (err) => {
+
+            this.changeDetector.detectChanges();}, (err) => {
             console.log('error', err);
         });
     }
@@ -1525,48 +1540,48 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@destination_aet:Destination AET`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName == this.appService.archiveDeviceName),
-                            filterKey:"destination",
+                            filterKey:'destination',
                             description:$localize `:@@destination_aet:Destination AET`,
                             placeholder:$localize `:@@destination_aet:Destination AET`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@mwl.filter_by_scu:Filter By SCU`
                         },
                         {
-                            tag: "checkbox",
-                            filterKey: "filterbyscu",
+                            tag: 'checkbox',
+                            filterKey: 'filterbyscu',
                             description:$localize `:@@mwl.filter_by_scu_desc:Apply specified filter on matches returned by external MWL SCP`,
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@title.delete:Delete`
                         },
                         {
-                            tag: "checkbox",
-                            filterKey: "delete",
+                            tag: 'checkbox',
+                            filterKey: 'delete',
                             description:$localize `:@@mwl.delete_desc:Delete Scheduled Procedure Steps from local MWL not returned by external MWL SCP`,
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@test:Test`
                         },
                         {
-                            tag: "checkbox",
-                            filterKey: "test",
+                            tag: 'checkbox',
+                            filterKey: 'test',
                             description:$localize `:@@mwl.test_desc:Only test import from external MWL SCP without performing the operation`,
                         }
                     ]
@@ -1577,19 +1592,19 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             },
             saveButton: $localize `:@@IMPORT:IMPORT`
         }).subscribe((ok)=>{
-            if(ok && _.hasIn(ok, "schema_model.destination")){
+            if(ok && _.hasIn(ok, 'schema_model.destination')){
                 this.service.importMatchingSPS(this.studyWebService.selectedWebService,
                                                 ok.schema_model.destination,
                                                 this.createStudyFilterParams(true,true))
                             .subscribe(res => {
-                                console.log("res",res);
+                                console.log('res',res);
                                 this.cfpLoadingBar.complete();
-                                let count = _.get(res, "count");
-                                let created = _.hasIn(res, "created") ? _.get(res, "created") : '';
-                                let updated = _.hasIn(res, "updated") ? _.get(res, "updated") : '';
-                                let deleted = _.hasIn(res, "deleted") ? _.get(res, "deleted") : '';
-                                let failures = _.hasIn(res, "failures") ? _.get(res, "failures") : '';
-                                let error = _.hasIn(res, "error") ? _.get(res, "error") : '';
+                                let count = _.get(res, 'count');
+                                let created = _.hasIn(res, 'created') ? _.get(res, 'created') : '';
+                                let updated = _.hasIn(res, 'updated') ? _.get(res, 'updated') : '';
+                                let deleted = _.hasIn(res, 'deleted') ? _.get(res, 'deleted') : '';
+                                let failures = _.hasIn(res, 'failures') ? _.get(res, 'failures') : '';
+                                let error = _.hasIn(res, 'error') ? _.get(res, 'error') : '';
 
                                 let msg = `Count: ` + count;
                                 if (created != '')
@@ -1617,20 +1632,20 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
 
-    changeSPSStatus(model, spsMode?:("single"|"selected"|"matching")){
-        console.log("model",model);
-        console.log("status",_.get(model,"attrs[00400100].Value[0][00400020].Value[0]"));
-        console.log("spsID",_.get(model,"attrs[00400100].Value[0][00400009].Value[0]"));
+    changeSPSStatus(model, spsMode?:('single'|'selected'|'matching')){
+        console.log('model',model);
+        console.log('status',_.get(model,"attrs[00400100].Value[0][00400020].Value[0]"));
+        console.log('spsID',_.get(model,"attrs[00400100].Value[0][00400009].Value[0]"));
         const currentStatus = _.get(model,"attrs[00400100].Value[0][00400020].Value[0]");
         let headerMsg:string;
         switch (spsMode) {
-            case "single":
+            case 'single':
                 headerMsg = $localize `:@@change_sps_single:Change Scheduled Procedure Step Status of the MWL`;
                 break;
-            case "matching":
+            case 'matching':
                 headerMsg = $localize `:@@change_sps_matching:Change Scheduled Procedure Step Status of the matching MWL`;
                 break;
-            case "selected":
+            case 'selected':
                 headerMsg = $localize `:@@change_sps_selected:Change Scheduled Procedure Step Status of the selected MWL`;
                 break;
         }
@@ -1641,28 +1656,28 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label_large",
+                            tag:'label_large',
                             text:$localize `:@@select_scheduled_procedure_step_status:Select the Scheduled Procedure Step Status`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@sps_status:SPS Status`
                         },
                         {
-                            tag:"select",
+                            tag:'select',
                             options:[
-                                new SelectDropdown("SCHEDULED", $localize `:@@SCHEDULED:SCHEDULED`),
-                                new SelectDropdown("ARRIVED", $localize `:@@ARRIVED:ARRIVED`),
-                                new SelectDropdown("READY", $localize `:@@READY:READY`),
-                                new SelectDropdown("STARTED", $localize `:@@STARTED:STARTED`),
-                                new SelectDropdown("DEPARTED", $localize `:@@DEPARTED:DEPARTED`),
-                                new SelectDropdown("CANCELED", $localize `:@@CANCELED:CANCELED`),
-                                new SelectDropdown("DISCONTINUED", $localize `:@@DISCONTINUED:DISCONTINUED`),
-                                new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
+                                new SelectDropdown('SCHEDULED', $localize `:@@SCHEDULED:SCHEDULED`),
+                                new SelectDropdown('ARRIVED', $localize `:@@ARRIVED:ARRIVED`),
+                                new SelectDropdown('READY', $localize `:@@READY:READY`),
+                                new SelectDropdown('STARTED', $localize `:@@STARTED:STARTED`),
+                                new SelectDropdown('DEPARTED', $localize `:@@DEPARTED:DEPARTED`),
+                                new SelectDropdown('CANCELED', $localize `:@@CANCELED:CANCELED`),
+                                new SelectDropdown('DISCONTINUED', $localize `:@@DISCONTINUED:DISCONTINUED`),
+                                new SelectDropdown('COMPLETED', $localize `:@@COMPLETED:COMPLETED`),
                             ],
-                            filterKey:"spsState",
+                            filterKey:'spsState',
                             description:$localize `:@@scheduled_procedure_step_status:Scheduled Procedure Step Status`,
                             placeholder:$localize `:@@sps_status:SPS Status`
                         }
@@ -1676,10 +1691,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             },
             saveButton: $localize `:@@APPLY:APPLY`
         }).subscribe(ok=>{
-            if(ok && ok.schema_model.spsState &&  ((spsMode === "single" && ok.schema_model.spsState != currentStatus) || spsMode != "single")){
+            if(ok && ok.schema_model.spsState &&  ((spsMode === 'single' && ok.schema_model.spsState != currentStatus) || spsMode != 'single')){
                 this.cfpLoadingBar.start();
                 switch (spsMode) {
-                    case "single":
+                    case 'single':
                         this.service.changeSPSStatusSingleMWL(
                             this.studyWebService.selectedWebService,
                             ok.schema_model.spsState,
@@ -1693,17 +1708,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.httpErrorHandler.handleError(err);
                         });
                         break;
-                    case "matching":
+                    case 'matching':
                         this.service.changeSPSStatusMatchingMWL(this.studyWebService.selectedWebService,ok.schema_model.spsState, this.createStudyFilterParams(true,true, true)).subscribe(res=>{
                             this.cfpLoadingBar.complete();
                             this.appService.showMsgUpdateMatchingMWLs(res, $localize `:@@mwl.item_sps_status_changed_successfully:MWL Items' SPS Status changed successfully`);
-                            this.search("current",{id:"submit"});
+                            this.search('current',{id:'submit'});
                         },err=>{
                             this.cfpLoadingBar.complete();
                             this.httpErrorHandler.handleError(err);
                         });
                         break;
-                    case "selected":
+                    case 'selected':
                         this.service.changeSPSStatusSelectedMWL(
                             this.selectedElements,
                             this.studyWebService.selectedWebService,
@@ -1720,7 +1735,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 }
                                 this.clearClipboard();
                             }catch (e) {
-                                j4care.log("Error on change sps status on selected mode result",e);
+                                j4care.log('Error on change sps status on selected mode result',e);
                                 this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
                             }
                         },err=>{
@@ -1729,11 +1744,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         });
                         break;
                 }
-/*                if(spsMode === "matching"){
+/*                if(spsMode === 'matching'){
                     this.service.changeSPSStatusMatchingMWL(this.studyWebService.selectedWebService,ok.schema_model.spsState, this.createStudyFilterParams(true,true, true)).subscribe(res=>{
                         this.cfpLoadingBar.complete();
                         this.appService.showMsg($localize `:@@mwl.status_changed_successfully:Status changed successfully`);
-                        this.search("current",{id:"submit"});
+                        this.search('current',{id:'submit'});
                     },err=>{
                         this.cfpLoadingBar.complete();
                         this.httpErrorHandler.handleError(err);
@@ -1761,7 +1776,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     * @confirmparameters is an object that can contain title, content
     * */
     confirm(confirmparameters, width?:string){
-        width = width || '500px';
+        width = width || '510px';
         // this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
@@ -1776,13 +1791,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             let url;
             const target = this.studyWebService.selectedWebService['IID_URL_TARGET'] || '';
             let encodeValue = this.studyWebService.selectedWebService['IID_ENCODE'];
-            const encodeCheck:boolean = (encodeValue === undefined || encodeValue === "" || (encodeValue && encodeValue == "true") || (encodeValue && encodeValue == "True"));
+            const encodeCheck:boolean = (encodeValue === undefined || encodeValue === '' || (encodeValue && encodeValue == 'true') || (encodeValue && encodeValue == 'True'));
 
-            let configuredUrlString = mode === "study" ? this.studyWebService.selectedWebService['IID_STUDY_URL'] : this.studyWebService.selectedWebService['IID_PATIENT_URL'];
-            let studyUID = this.service.getStudyInstanceUID(model) || "";
+            let configuredUrlString = mode === 'study' ? this.studyWebService.selectedWebService['IID_STUDY_URL'] : this.studyWebService.selectedWebService['IID_PATIENT_URL'];
+            let studyUID = this.service.getStudyInstanceUID(model) || '';
             let patientID = this.service.getPatientId(model);
-            let patientBirthDate = _.get(model, "00100030.Value.0");
-            let accessionNumber = _.get(model, "00080050.Value.0");
+            let patientBirthDate = _.get(model, '00100030.Value.0');
+            let accessionNumber = _.get(model, '00080050.Value.0');
             let patientName = _.get(model, "00100010.Value[0].Alphabetic");
             let dcmWebServicePath = this.studyWebService.selectedWebService.dcmWebServicePath;
             let qidoBaseURL = j4care.getUrlFromDcmWebApplication(this.studyWebService.selectedWebService,this.appService.baseUrl, true);
@@ -1801,14 +1816,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     token = response.token;
                 }
                 substitutions = {
-                    "patientID": patientID,
-                    "patientBirthDate":patientBirthDate,
-                    "studyUID": studyUID,
-                    "patientName": patientName,
-                    "accessionNumber": accessionNumber,
-                    "access_token": token,
-                    "qidoBasePath": dcmWebServicePath,
-                    "qidoBaseURL": qidoBaseURL
+                    'patientID': patientID,
+                    'patientBirthDate':patientBirthDate,
+                    'studyUID': studyUID,
+                    'patientName': patientName,
+                    'accessionNumber': accessionNumber,
+                    'access_token': token,
+                    'qidoBasePath': dcmWebServicePath,
+                    'qidoBaseURL': qidoBaseURL
                 };
                 url = replaceDoubleBraces(configuredUrlString, substitutions).trim();
                 if(encodeCheck){
@@ -1821,9 +1836,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 } else {
                     window.open(url);
                 }
+                this.changeDetector.detectChanges();
             });
-        }catch(e: unknown){
-            j4care.log("Something went wrong while opening the Viewer",e);
+        }catch(e){
+            j4care.log('Something went wrong while opening the Viewer',e);
             this.appService.showError($localize `:@@study_error_on_opening_viewer:Something went wrong while opening the Viewer open the inspect to see more details`);
         }
     };
@@ -1853,15 +1869,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 urlObservable = this.service.wadoURL(this.studyWebService,inst.wadoQueryParams);
             }
             if(!contentType){
-                if(_.hasIn(inst,"attrs.00420012.Value.0") && inst.attrs['00420012'].Value[0] != ''){
+                if(_.hasIn(inst,'attrs.00420012.Value.0') && inst.attrs['00420012'].Value[0] != ''){
                     contentType = inst.attrs['00420012'].Value[0];
                 }
             }
-            if(!contentType || contentType.toLowerCase() === 'application/pdf' || contentType.toLowerCase().indexOf("video") > -1 || contentType.toLowerCase() === 'text/xml'){
+            if(!contentType || contentType.toLowerCase() === 'application/pdf' || contentType.toLowerCase().indexOf('video') > -1 || contentType.toLowerCase() === 'text/xml'){
                 // this.j4care.download(url);
                 this.service.renderURL(this.studyWebService, inst).subscribe(renderUrl=>{
                     if(!this.appService.global.notSecure){
-                        // console.log("te",this.service.renderURL(this.studyWebService, inst));
+                        // console.log('te',this.service.renderURL(this.studyWebService, inst));
                         WindowRefService.nativeWindow.open(renderUrl+ `&access_token=${token}`);
                     }else{
                         WindowRefService.nativeWindow.open(renderUrl);
@@ -1873,7 +1889,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.dialogRef = this.dialog.open(ViewerComponent, {
                         height: 'auto',
                         width: 'auto',
-                        panelClass:"viewer_dialog"
+                        panelClass:'viewer_dialog'
                     });
                     this.dialogRef.componentInstance.views = inst.views;
                     this.dialogRef.componentInstance.view = inst.view;
@@ -1881,10 +1897,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.dialogRef.componentInstance.contentType = contentType;
                     this.dialogRef.componentInstance.url = url;
                     this.dialogRef.afterClosed().subscribe();
+                    this.changeDetector.detectChanges();
                 })
             }
             // window.open(this.renderURL(inst));
-        });
+
+            this.changeDetector.detectChanges();});
     };
 
     applyRetentionPolicyMatchingSeries() {
@@ -1898,11 +1916,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.studyWebService.selectedWebService,
                 this.createStudyFilterParams(true,true)
             ).subscribe(res=>{
-                console.log("res",res);
+                console.log('res',res);
                 this.cfpLoadingBar.complete();
                 try{
-                    let count = res["count"];
-                    let studyInMsg = count == 1 ? "study" : "studies";
+                    let count = res['count'];
+                    let studyInMsg = count == 1 ? 'study' : 'studies';
                     let msg = count == 0
                         ? $localize `:@@study.apply_retention_policy_all_matching_series_msg_none:Configured Retention policies do not match with matching series <br>Or <br>Expiration State of studies of matching series is set to FROZEN`
                         : $localize `:@@study.apply_retention_policy_all_matching_series_msg:Configured Retention policies applied successfully to matching series of ${count} ${studyInMsg}`;
@@ -1916,7 +1934,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             });
         })
     }
-
     downloadCSV(attr?, mode?){
         let queryParameters = this.createQueryParams(0, 1000, this.createStudyFilterParams());
         this.confirm({
@@ -1937,39 +1954,39 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 let filterClone = _.cloneDeep(queryParameters);
                 delete filterClone['offset'];
                 delete filterClone['limit'];
-                filterClone["accept"] = `text/csv${(semicolon?';delimiter=semicolon':'')}`;
-                let fileName = "dcm4chee.csv";
+                filterClone['accept'] = `text/csv${(semicolon?';delimiter=semicolon':'')}`;
+                let fileName = 'dcm4chee.csv';
                 if(attr && mode){
-                    url = this.service.getDicomURL("study",this.studyWebService.selectedWebService);
-                    filterClone["PatientID"] =  j4care.valueOf(attr['00100020']);
-                    filterClone["IssuerOfPatientID"] = j4care.valueOf(attr['00100021']);
-                    if(mode === "series" && _.hasIn(attr,'0020000D')){
+                    url = this.service.getDicomURL('study',this.studyWebService.selectedWebService);
+                    filterClone['PatientID'] =  j4care.valueOf(attr['00100020']);
+                    filterClone['IssuerOfPatientID'] = j4care.valueOf(attr['00100021']);
+                    if(mode === 'series' && _.hasIn(attr,'0020000D')){
                         url =`${url}/${j4care.valueOf(attr['0020000D'])}/series`;
                         fileName = `${j4care.valueOf(attr['0020000D'])}.csv`;
                     }
-                    if(mode === "instance"){
+                    if(mode === 'instance'){
                         url =`${url}/${j4care.valueOf(attr['0020000D'])}/series/${j4care.valueOf(attr['0020000E'])}/instances`;
                         fileName = `${j4care.valueOf(attr['0020000D'])}_${j4care.valueOf(attr['0020000E'])}.csv`;
                     }
                 }else{
-                    if(attr === undefined && mode === "patient"){
-                        url = `${this.service.getDicomURL("patient",this.studyWebService.selectedWebService)}`;
+                    if(attr === undefined && mode === 'patient'){
+                        url = `${this.service.getDicomURL('patient',this.studyWebService.selectedWebService)}`;
                     }
-                    if(attr === undefined && mode === "study"){
-                        url = `${this.service.getDicomURL("study",this.studyWebService.selectedWebService)}`;
+                    if(attr === undefined && mode === 'study'){
+                        url = `${this.service.getDicomURL('study',this.studyWebService.selectedWebService)}`;
                     }
-                    if(attr === undefined && mode === "series"){
-                        url = `${this.service.getDicomURL("series",this.studyWebService.selectedWebService)}`;
+                    if(attr === undefined && mode === 'series'){
+                        url = `${this.service.getDicomURL('series',this.studyWebService.selectedWebService)}`;
                     }
-                    if(attr === undefined && mode === "mwl"){
-                        url = `${this.service.getDicomURL("mwl",this.studyWebService.selectedWebService)}`;
+                    if(attr === undefined && mode === 'mwl'){
+                        url = `${this.service.getDicomURL('mwl',this.studyWebService.selectedWebService)}`;
                     }
-                    if(attr === undefined && mode === "uwl"){
-                        url = `${this.service.getDicomURL("uwl",this.studyWebService.selectedWebService)}`;
+                    if(attr === undefined && mode === 'uwl'){
+                        url = `${this.service.getDicomURL('uwl',this.studyWebService.selectedWebService)}`;
                     }
                 }
                 if(!this.appService.global.notSecure){
-                    filterClone["access_token"] = token;
+                    filterClone['access_token'] = token;
                 }
                 j4care.downloadFile(`${url}?${this.appService.param(filterClone)}`,fileName);
                 // WindowRefService.nativeWindow.open(`${url}?${this.appService.param(filterClone)}`);
@@ -1985,22 +2002,22 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@compress:Compress`
                         },
                         {
-                            tag:"checkbox",
-                            filterKey:"compressed"
+                            tag:'checkbox',
+                            filterKey:'compressed'
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@including_dicomdir:Include DICOMDIR`
                         },
                         {
-                            tag:"checkbox",
-                            filterKey:"includingdicomdir"
+                            tag:'checkbox',
+                            filterKey:'includingdicomdir'
                         }
                     ]
                 ]
@@ -2016,14 +2033,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     accept:'application/zip'
                 };
                 // dicomdir:true
-                console.log("url",this.service.getDicomURL(mode, this.studyWebService.selectedWebService));
+                console.log('url',this.service.getDicomURL(mode, this.studyWebService.selectedWebService));
                 let url = this.service.studyURL(object.attrs, this.studyWebService.selectedWebService);
                 let fileName = this.service.studyFileName(object.attrs);
-                if(_.hasIn(ok,"schema_model.compressed") && _.get(ok,"schema_model.compressed")){
+                if(_.hasIn(ok,'schema_model.compressed') && _.get(ok,'schema_model.compressed')){
                     param.accept += ';transfer-syntax=*';
                 }
-                if(_.hasIn(ok,"schema_model.includingdicomdir") && _.get(ok,"schema_model.includingdicomdir")) {
-                    param["dicomdir"] = true;
+                if(_.hasIn(ok,'schema_model.includingdicomdir') && _.get(ok,'schema_model.includingdicomdir')) {
+                    param['dicomdir'] = true;
                 }
                 if(level === 'series'){
                     url = this.service.seriesURL(object.attrs, this.studyWebService.selectedWebService);
@@ -2044,31 +2061,31 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
     downloadURL(inst, transferSyntax?:string) {
         let token;
-        let url:string = "";
-        let fileName = "dcm4che.dcm";
+        let url:string = '';
+        let fileName = 'dcm4che.dcm';
         this.confirm({
-            content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText("instance")}:levelText:`,
+            content: $localize `:@@download_this_leveltext:Download this ${this.service.getLevelText('instance')}:levelText:`,
             doNotSave:true,
             form_schema:[
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@compress:Compress`
                         },
                         {
-                            tag:"checkbox",
-                            filterKey:"compressed"
+                            tag:'checkbox',
+                            filterKey:'compressed'
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@including_dicomdir:Include DICOMDIR`
                         },
                         {
-                            tag:"checkbox",
-                            filterKey:"includingdicomdir"
+                            tag:'checkbox',
+                            filterKey:'includingdicomdir'
                         }
                     ]
                 ]
@@ -2083,16 +2100,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     if (!this.appService.global.notSecure) {
                         token = response.token;
                     }
-                    var includeDicomDir = _.hasIn(ok,"schema_model.includingdicomdir") && _.get(ok,"schema_model.includingdicomdir");
+                    var includeDicomDir = _.hasIn(ok,'schema_model.includingdicomdir') && _.get(ok,'schema_model.includingdicomdir');
                     let exQueryParams = includeDicomDir === true
                                             ? {accept: 'application/zip'}
                                             : {contentType: 'application/dicom'};
-                    var compressed = _.hasIn(ok,"schema_model.compressed") && _.get(ok,"schema_model.compressed");
-                    console.log("keys", Object.keys(inst.wadoQueryParams));
-                    console.log("keys", Object.getOwnPropertyNames(inst.wadoQueryParams));
-                    console.log("keys", inst.wadoQueryParams);
+                    var compressed = _.hasIn(ok,'schema_model.compressed') && _.get(ok,'schema_model.compressed');
+                    console.log('keys', Object.keys(inst.wadoQueryParams));
+                    console.log('keys', Object.getOwnPropertyNames(inst.wadoQueryParams));
+                    console.log('keys', inst.wadoQueryParams);
                     if(includeDicomDir === true){
-                        exQueryParams["dicomdir"] = true;
+                        exQueryParams['dicomdir'] = true;
                         if(compressed === true)
                             exQueryParams.accept += ';transfer-syntax=*';
                         url = this.service.instanceURL(inst.attrs, this.studyWebService.selectedWebService);
@@ -2109,7 +2126,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         });
                     } else {
                         if(compressed === true)
-                            exQueryParams["transferSyntax"] = transferSyntax;
+                            exQueryParams['transferSyntax'] = transferSyntax;
                         this.service.wadoURL(this.studyWebService, inst.wadoQueryParams, exQueryParams).subscribe((urlWebApp: string) => {
                             if (!this.appService.global.notSecure) {
                                 // WindowRefService.nativeWindow.open(this.wadoURL(inst.wadoQueryParams, exQueryParams) + `&access_token=${token}`);
@@ -2134,13 +2151,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             offset: offset,
             limit: limit
         };
-/*        if(this._filter.filterModel["allAttributes"]){
-            params["includefield"] = 'all';
+/*        if(this._filter.filterModel['allAttributes']){
+            params['includefield'] = 'all';
         }
-        delete this._filter.filterModel["allAttributes"];*/
+        delete this._filter.filterModel['allAttributes'];*/
 
         for (let key in filter){
-            if ((filter[key] || filter[key] === false) && key != "allAttributes" && key != "webApp"){
+            if ((filter[key] || filter[key] === false) && key != 'allAttributes' && key != 'webApp'){
                 params[key] = filter[key];
             }
         }
@@ -2153,57 +2170,57 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             delete filter['ScheduledProcedureStepSequence.ScheduledProcedureStepStartTime'];
         }
         if(withoutPagination){
-            delete filter["offset"];
+            delete filter['offset'];
         }
         if(withoutDefaultQueryStudyParam){
-            delete filter["orderby"];
-            delete filter["includefield"];
-            delete filter["limit"];
+            delete filter['orderby'];
+            delete filter['includefield'];
+            delete filter['limit'];
         }
         return filter;
     }
     createPatientFilterParams(withoutPagination?:boolean) {
         let filter = this.getFilterClone();
         if(withoutPagination) {
-            delete filter["offset"];
-            delete filter["orderby"];
-            delete filter["limit"];
-            delete filter["includefield"];
+            delete filter['offset'];
+            delete filter['orderby'];
+            delete filter['limit'];
+            delete filter['includefield'];
         }
         return filter;
     }
     onSubPaginationClick(e){
-        console.log("e",e);
-        if(e.level === "instance"){
-            console.log("e.object",e.object);
-            if(e.direction === "next"){
+        console.log('e',e);
+        if(e.level === 'instance'){
+            console.log('e.object',e.object);
+            if(e.direction === 'next'){
                 this.getInstances(e.object,e.object.instances[0].offset * 1 + this._filter.filterModel.limit * 1);
             }
-            if(e.direction === "prev"){
+            if(e.direction === 'prev'){
                 this.getInstances(e.object,e.object.instances[0].offset - this._filter.filterModel.limit);
             }
 
         }
-        if(e.level === "series"){
-            console.log("e.object",e.object);
-            if(e.direction === "next"){
+        if(e.level === 'series'){
+            console.log('e.object',e.object);
+            if(e.direction === 'next'){
                 this.getSeriesOfStudy(e.object,e.object.series[0].offset * 1 + this._filter.filterModel.limit * 1);
             }
-            if(e.direction === "prev"){
+            if(e.direction === 'prev'){
                 this.getSeriesOfStudy(e.object,e.object.series[0].offset - this._filter.filterModel.limit);
             }
 
         }
-        if(e.level === "study"){
-            console.log("e.object",e.object);
+        if(e.level === 'study'){
+            console.log('e.object',e.object);
             let filterModel =  this.getFilterClone();
             if(filterModel.limit){
                 filterModel.limit++;
             }
-            if(e.direction === "next"){
+            if(e.direction === 'next'){
                 this.getAllStudiesToPatient(e.object,filterModel, e.object.studies[0].offset * 1 + this._filter.filterModel.limit * 1);
             }
-            if(e.direction === "prev"){
+            if(e.direction === 'prev'){
                 this.getAllStudiesToPatient(e.object,filterModel, e.object.studies[0].offset - this._filter.filterModel.limit);
             }
 
@@ -2212,51 +2229,51 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     getFilterClone():any{
         let filterModel =  _.clone(this._filter.filterModel);
-        // if(!filterModel["allAttributes"]){
-        //     filterModel["includefield"] = 'all';
+        // if(!filterModel['allAttributes']){
+        //     filterModel['includefield'] = 'all';
         // }
-        // delete filterModel["allAttributes"];
+        // delete filterModel['allAttributes'];
         delete filterModel.webApp;
 
         return j4care.clearEmptyObject(filterModel);
     }
 
     search(mode:('next'|'prev'|'current'), e){
-        console.log("e",e);
-        console.log("this",this.filter);
+        console.log('e',e);
+        console.log('this',this.filter);
         let filterModel =  this.getFilterClone();
-        if(this.studyWebService.selectedWebService || (this.studyConfig.tab === "diff" && _.hasIn(filterModel, "batchID"))){
+        if(this.studyWebService.selectedWebService || (this.studyConfig.tab === 'diff' && _.hasIn(filterModel, 'batchID'))){
 
             if(filterModel.limit){
                 filterModel.limit++;
             }
-            if(e.id === "submit"){
-                if(!mode || mode === "current"){
+            if(e.id === 'submit'){
+                if(!mode || mode === 'current'){
                     filterModel.offset = 0;
                     this.submit(filterModel);
                 }else{
-                    if(mode === "next" && this.more){
+                    if(mode === 'next' && this.more){
                         filterModel.offset = filterModel.offset * 1 + this._filter.filterModel.limit * 1;
                         this.submit(filterModel);
                     }
-                    if(mode === "prev" && filterModel.offset > 0){
+                    if(mode === 'prev' && filterModel.offset > 0){
                         filterModel.offset = filterModel.offset - this._filter.filterModel.limit;
                         this.submit(filterModel);
                     }
                 }
             }
-            if(e.id === "count"){
-                console.log("filter",this._filter.filterSchemaMain);
-                this.getQuantity("count")
+            if(e.id === 'count'){
+                console.log('filter',this._filter.filterSchemaMain);
+                this.getQuantity('count')
             }
-            if(e.id === "size"){
-                console.log("filter",this._filter.filterSchemaMain);
-                this.getQuantity("size")
+            if(e.id === 'size'){
+                console.log('filter',this._filter.filterSchemaMain);
+                this.getQuantity('size')
             }
-            if(e.id === "show_diff"){
+            if(e.id === 'show_diff'){
                 //
             }
-/*            if(e.id === "trigger_diff"){
+/*            if(e.id === 'trigger_diff'){
 /!*                filterModel.offset = filterModel.offset - this._filter.filterModel.limit;
                 this.submit(filterModel);*!/
             }*/
@@ -2283,37 +2300,37 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     triggerQueries(filterModel){
         switch (this.studyConfig.tab){
-            case "study":
+            case 'study':
                 this.getStudies(filterModel);
                 break;
-            case "patient":
+            case 'patient':
                 this.getPatients(filterModel);
                 break;
-            case "series":
+            case 'series':
                 this.getSeries(filterModel);
                 break;
-            case "mwl":
+            case 'mwl':
                 this.getMWL(filterModel);
                 break;
-            case "mpps":
+            case 'mpps':
                 this.getMPPS(filterModel);
                 break;
-            case "uwl":
+            case 'uwl':
                 this.getUWL(filterModel);
                 break;
-            case "diff":
+            case 'diff':
                 this.getDiff(filterModel);
                 break;
         }
     };
     getDiff(filterModel){
         this.cfpLoadingBar.start();
-        this.searchCurrentList = "";
+        this.searchCurrentList = '';
         delete filterModel.orderby;
 
-        if(_.hasIn(filterModel,"taskID") || (_.hasIn(filterModel,"batchID") && !this.studyWebService.selectedWebService)){
+        if(_.hasIn(filterModel,'taskID') || (_.hasIn(filterModel,'batchID') && !this.studyWebService.selectedWebService)){
             this.service.getDiff(filterModel,this.studyWebService).subscribe(res=>{
-                console.log("res",res);
+                console.log('res',res);
                 this.cfpLoadingBar.complete();
                 this.patients = [];
                 this._filter.filterModel.offset = filterModel.offset;
@@ -2322,26 +2339,28 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }else{
                     this.appService.showMsg($localize `:@@no_diff_res:No Diff Results found!`);
                 }
-            },err=>{
+
+                this.changeDetector.detectChanges();},err=>{
                 this.patients = [];
                 this.httpErrorHandler.handleError(err);
                 this.cfpLoadingBar.complete();
             });
         }else{
-            this.service.triggerDiff(filterModel, this.studyWebService,"study", "object").subscribe(res=>{
+            this.service.triggerDiff(filterModel, this.studyWebService,'study', 'object').subscribe(res=>{
                 this.cfpLoadingBar.complete();
                 this.patients = [];
                 this._filter.filterModel.offset = filterModel.offset;
                 if (_.size(res) > 0) {
                     this.prepareDiffData(res, filterModel.offset);
                 }else{
-                    if(_.hasIn(filterModel,"queue") && filterModel.queue === true){
+                    if(_.hasIn(filterModel,'queue') && filterModel.queue === true){
                         this.appService.showMsg($localize `:@@diff-pro.diff_triggered_successfully:Diff triggered successfully!`);
                     }else{
                         this.appService.showMsg($localize `:@@no_diff_res:No Diff Results found!`);
                     }
                 }
-            },err=>{
+
+                this.changeDetector.detectChanges();},err=>{
                 this.cfpLoadingBar.complete();
                 this.patients = [];
                 this.httpErrorHandler.handleError(err);
@@ -2362,7 +2381,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             filter['batchID'] = this.batchID;
         }*!/
         this.service.gitDiffTaskResults(filter,mode).subscribe(res=>{
-            console.log("res",res);
+            console.log('res',res);
             this.patients = [];
 /!*            this.morePatients = undefined;
             this.moreDiffs = undefined;
@@ -2379,7 +2398,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 });
             }
             this.cfpLoadingBar.complete();
-        },err=>{
+
+            this.changeDetector.detectChanges();},err=>{
             this.patients = [];
             this.httpErrorHandler.handleError(err);
             this.cfpLoadingBar.complete();
@@ -2388,16 +2408,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     prepareDiffData(res, offset){
         let haederCodes = [
-            "00200010",
-            "0020000D",
-            "00080020",
-            "00080030",
-            "00080090",
-            "00080050",
-            "00080061",
-            "00081030",
-            "00201206",
-            "00201208"
+            '00200010',
+            '0020000D',
+            '00080020',
+            '00080030',
+            '00080090',
+            '00080050',
+            '00080061',
+            '00081030',
+            '00201206',
+            '00201208'
         ];
         let index = 0;
         while (this.patientAttributes.dcmTag[index] && (this.patientAttributes.dcmTag[index] < '00201200')) {
@@ -2435,7 +2455,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this._filter.filterModel.offset + index,
                 diffHeaders
             );
-            console.log("diffHeaders",diffHeaders);
+            console.log('diffHeaders',diffHeaders);
 /*            study = {
                 patient: pat,
                 offset: offset + index,
@@ -2479,11 +2499,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 return true
             }else{
                 for(let p in param){
-                    if(param[p] == "")
+                    if(param[p] == '')
                         delete param[p];
                 }
             }
-            return (_.size(param) < 1) ? true : false;
+            return _.size(param) < 1;
 /*        }else{
             return false;
         }*/
@@ -2508,39 +2528,39 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         delete filterModel.orderby;
         delete filterModel.limit;
         delete filterModel.offset;
-        let quantityText = quantity === "count" ? $localize `:@@COUNT:COUNT`: $localize `:@@SIZE:SIZE`;
+        let quantityText = quantity === 'count' ? $localize `:@@COUNT:COUNT`: $localize `:@@SIZE:SIZE`;
 
-        _.set(this._filter.filterSchemaMain.schema,[...(this.filterButtonPath[quantity] || []),...["quantityText"]], false);
-        _.set(this._filter.filterSchemaMain.schema,[...(this.filterButtonPath[quantity] || []),...["text"]], quantityText);
-        _.set(this._filter.filterSchemaMain.schema,[...(this.filterButtonPath[quantity] || []),...["showDynamicLoader"]], true);
+        _.set(this._filter.filterSchemaMain.schema,[...(this.filterButtonPath[quantity] || []),...['quantityText']], false);
+        _.set(this._filter.filterSchemaMain.schema,[...(this.filterButtonPath[quantity] || []),...['text']], quantityText);
+        _.set(this._filter.filterSchemaMain.schema,[...(this.filterButtonPath[quantity] || []),...['showDynamicLoader']], true);
         this.getService(filterModel, <DicomResponseType>quantity).subscribe(studyCount=>{
-            console.log("studyCount",studyCount);
+            console.log('studyCount',studyCount);
             let value = studyCount[quantity];
-            if(quantity === "size"){
+            if(quantity === 'size'){
                 value = j4care.convertBtoHumanReadable(value,1);
             }
-            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["showRefreshIcon"]], false);
-            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["showDynamicLoader"]], false);
-            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["text"]], `( ${this.largeIntFormat.transform(value)} ) ${quantityText}`);
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['showRefreshIcon']], false);
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['showDynamicLoader']], false);
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['text']], `( ${this.largeIntFormat.transform(value)} ) ${quantityText}`);
         },err=>{
-            j4care.log("Something went wrong on search", err);
-            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["showRefreshIcon"]], true);
-            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["showDynamicLoader"]], false);
-            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...["text"]], quantityText);
+            j4care.log('Something went wrong on search', err);
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['showRefreshIcon']], true);
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['showDynamicLoader']], false);
+            _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['text']], quantityText);
             this.httpErrorHandler.handleError(err);
         })
     }
     getService(filterModel, quantity){
         switch (this.studyConfig.tab) {
-            case "uwl":
+            case 'uwl':
                 return this.service.getUWL(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
-            case "mwl":
+            case 'mwl':
                 return this.service.getMWL(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
-            case "mpps":
+            case 'mpps':
                 return this.service.getMPPS(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
-            case "patient":
+            case 'patient':
                 return this.service.getPatients(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
-            case "series":
+            case 'series':
                 return this.service.getSeries(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
             default:
                 return this.service.getStudies(filterModel, this.studyWebService.selectedWebService, <DicomResponseType>quantity);
@@ -2588,14 +2608,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }
                         // this.studies.pop();
                     }
-                    console.log("patient",this.patients);
+                    console.log('patient',this.patients);
                 } else {
                     this.appService.showMsg($localize `:@@study.no_matching_mwl:No matching Modality Worklist Entries found!`);
                 }
                 this.cfpLoadingBar.complete();
-            },
+
+                this.changeDetector.detectChanges();},
             (err) => {
-                j4care.log("Something went wrong on search", err);
+                j4care.log('Something went wrong on search', err);
                 this.cfpLoadingBar.complete();
                 this.httpErrorHandler.handleError(err);
             }
@@ -2604,9 +2625,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     getMPPS(filterModel){
         this.cfpLoadingBar.start();
-        this.searchCurrentList = "";
-        if(this.studyConfig.tab === "mpps" && !_.hasIn(filterModel,"includefield")){
-            filterModel["includefield"] = "all";
+        this.searchCurrentList = '';
+        if(this.studyConfig.tab === 'mpps' && !_.hasIn(filterModel,'includefield')){
+            filterModel['includefield'] = 'all';
         }
         this.service.getMPPS(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
                 this.patients = [];
@@ -2641,14 +2662,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.patients.pop();
                         }
                     }
-                    console.log("patient",this.patients);
+                    console.log('patient',this.patients);
                 } else {
                     this.appService.showMsg($localize `:@@study.no_matching_mpps:No matching Modality Performed Procedure Step entries found!`);
                 }
                 this.cfpLoadingBar.complete();
-            },
+
+                this.changeDetector.detectChanges();},
             (err) => {
-                j4care.log("Something went wrong on search", err);
+                j4care.log('Something went wrong on search', err);
                 this.cfpLoadingBar.complete();
                 this.httpErrorHandler.handleError(err);
             }
@@ -2657,9 +2679,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     getUWL(filterModel){
         this.cfpLoadingBar.start();
-        this.searchCurrentList = "";
-        if(this.studyConfig.tab === "uwl" && !_.hasIn(filterModel,"includefield")){
-            filterModel["includefield"] = "all";
+        this.searchCurrentList = '';
+        if(this.studyConfig.tab === 'uwl' && !_.hasIn(filterModel,'includefield')){
+            filterModel['includefield'] = 'all';
         }
         this.service.getUWL(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
 /*            if(!environment.production){
@@ -5774,14 +5796,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }
                         // this.studies.pop();
                     }
-                    console.log("patient",this.patients);
+                    console.log('patient',this.patients);
                 } else {
                     this.appService.showMsg($localize `:@@study.no_matching_uwl:No matching Unified Worklist Entries found!`);
                 }
                 this.cfpLoadingBar.complete();
-            },
+
+                this.changeDetector.detectChanges();},
             (err) => {
-                j4care.log("Something went wrong on search", err);
+                j4care.log('Something went wrong on search', err);
                 this.cfpLoadingBar.complete();
                 this.httpErrorHandler.handleError(err);
             }
@@ -5789,8 +5812,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
     getPatients(filterModel){
         this.cfpLoadingBar.start();
-        if(this.studyConfig.tab === "patient" && !_.hasIn(filterModel,"includefield")){
-            filterModel["includefield"] = "all";
+        if(this.studyConfig.tab === 'patient' && !_.hasIn(filterModel,'includefield')){
+            filterModel['includefield'] = 'all';
         }
         this.service.getPatients(filterModel,this.studyWebService.selectedWebService).subscribe((res) => {
             this.patients = [];
@@ -5807,23 +5830,24 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.appService.showMsg($localize `:@@study.no_patients_found:No matching Patients found!`);
             }
             this.cfpLoadingBar.complete();
-        },(err)=>{
-            j4care.log("Something went wrong on search", err);
+
+            this.changeDetector.detectChanges();},(err)=>{
+            j4care.log('Something went wrong on search', err);
             this.cfpLoadingBar.complete();
             this.httpErrorHandler.handleError(err);
         });
     }
     getAllStudiesToPatient(patient, filterModel, offset) {
         this.cfpLoadingBar.start();
-        this.searchCurrentList = "";
+        this.searchCurrentList = '';
 
         if (offset < 0) offset = 0;
-        filterModel["offset"] = offset;
+        filterModel['offset'] = offset;
         
-        filterModel["PatientID"] = (<string>_.get(patient.attrs, "['00100020'].Value[0]"));
-        filterModel["IssuerOfPatientID"] = (<string>_.get(patient.attrs, "['00100021'].Value[0]"));
-        filterModel["IssuerOfPatientIDQualifiersSequence.UniversalEntityID"] = (<string>_.get(patient.attrs, "['00100024'].Value[0]['00400032'].Value[0]"));
-        filterModel["IssuerOfPatientIDQualifiersSequence.UniversalEntityIDType"] = (_.get(patient.attrs, "['00100024'].Value[0]['00400033'].Value[0]"));
+        filterModel['PatientID'] = (<string>_.get(patient.attrs, "['00100020'].Value[0]"));
+        filterModel['IssuerOfPatientID'] = (<string>_.get(patient.attrs, "['00100021'].Value[0]"));
+        filterModel['IssuerOfPatientIDQualifiersSequence.UniversalEntityID'] = (<string>_.get(patient.attrs, "['00100024'].Value[0]['00400032'].Value[0]"));
+        filterModel['IssuerOfPatientIDQualifiersSequence.UniversalEntityIDType'] = (_.get(patient.attrs, "['00100024'].Value[0]['00400033'].Value[0]"));
         this.service.getStudies(filterModel, this.studyWebService.selectedWebService)
             .subscribe((res) => {
                 if (res && res.length > 0){
@@ -5838,6 +5862,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         );
                     });
                     patient.showStudies = true;
+                    this.patients = [...this.patients];
+                    this.patients1 = [...this.patients1];
                     if(hasMore){
                         patient.studies.pop();
                     }
@@ -5852,62 +5878,62 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     };
     getStudies(filterModel){
         this.cfpLoadingBar.start();
-        this.searchCurrentList = "";
+        this.searchCurrentList = '';
         this.service.getStudies(filterModel, this.studyWebService.selectedWebService)
             .subscribe(res => {
                 this.patients = [];
                 this._filter.filterModel.offset = filterModel.offset;
                 if(!environment.production) {
-/*                    res = [{"00080005":{"vr":"CS","Value":["ISO_IR 192"]},"00100010":{"vr":"PN","Value":[{"Alphabetic":"Aigner^Marie2"}]},"00100020":{"vr":"LO","Value":["MM13"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]},"00100030":{"vr":"DA","Value":["19860620"]},"00100040":{"vr":"CS","Value":["F"]},"00101002":{"vr":"SQ","Value":[{"00100020":{"vr":"LO","Value":["MM13"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM14"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM15"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}},{"00100020":{"vr":"LO","Value":["MM16"]},"00100021":{"vr":"LO","Value":["JMS"]},"00100024":{"vr":"SQ","Value":[{"00400032":{"vr":"UT","Value":["1.2.3"]},"00400033":{"vr":"CS","Value":["ISO"]}}]}}]},"00101060":{"vr":"PN"},"00201200":{"vr":"IS","Value":["0"]},"77770010":{"vr":"LO","Value":["DCM4CHEE Archive 5"]},"77771010":{"vr":"DT","Value":["20230704090740.748+0200"]},"77771011":{"vr":"DT","Value":["20230704090740.773+0200"]}}]*/
+/*                    res = [{'00080005':{'vr':'CS','Value':['ISO_IR 192']},'00100010':{'vr':'PN','Value':[{'Alphabetic':"Aigner^Marie2"}]},'00100020':{'vr':'LO','Value':['MM13']},'00100021':{'vr':'LO','Value':['JMS']},'00100024':{'vr':'SQ','Value':[{'00400032':{'vr':'UT','Value':['1.2.3']},'00400033':{'vr':'CS','Value':['ISO']}}]},'00100030':{'vr':'DA','Value':['19860620']},'00100040':{'vr':'CS','Value':['F']},'00101002':{'vr':'SQ','Value':[{'00100020':{'vr':'LO','Value':['MM13']},'00100021':{'vr':'LO','Value':['JMS']},'00100024':{'vr':'SQ','Value':[{'00400032':{'vr':'UT','Value':['1.2.3']},'00400033':{'vr':'CS','Value':['ISO']}}]}},{'00100020':{'vr':'LO','Value':['MM14']},'00100021':{'vr':'LO','Value':['JMS']},'00100024':{'vr':'SQ','Value':[{'00400032':{'vr':'UT','Value':['1.2.3']},'00400033':{'vr':'CS','Value':['ISO']}}]}},{'00100020':{'vr':'LO','Value':['MM15']},'00100021':{'vr':'LO','Value':['JMS']},'00100024':{'vr':'SQ','Value':[{'00400032':{'vr':'UT','Value':['1.2.3']},'00400033':{'vr':'CS','Value':['ISO']}}]}},{'00100020':{'vr':'LO','Value':['MM16']},'00100021':{'vr':'LO','Value':['JMS']},'00100024':{'vr':'SQ','Value':[{'00400032':{'vr':'UT','Value':['1.2.3']},'00400033':{'vr':'CS','Value':['ISO']}}]}}]},'00101060':{'vr':'PN'},'00201200':{'vr':'IS','Value':['0']},'77770010':{'vr':'LO','Value':['DCM4CHEE Archive 5']},'77771010':{'vr':'DT','Value':["20230704090740.748+0200"]},'77771011':{'vr':'DT','Value':["20230704090740.773+0200"]}}]*/
 
                     /*
                                         res = [{
-                                            "00080005": {"vr": "CS", "Value": ["ISO_IR 192"]},
-                                            "00100010": {"vr": "PN", "Value": [{"Alphabetic": "Aigner^Marie"}]},
-                                            "00100020": {"vr": "LO", "Value": ["MM2"]},
-                                            "00100021": {"vr": "LO", "Value": ["JMS"]},
-                                            "00100022": {"vr": "CS", "Value": ["BARCODE"]},
-                                            "00100024": {
-                                                "vr": "SQ",
-                                                "Value": [{
-                                                    "00400032": {"vr": "UT", "Value": ["1.2.3"]},
-                                                    "00400033": {"vr": "CS", "Value": ["ISO"]}
+                                            '00080005': {'vr': 'CS', 'Value': ['ISO_IR 192']},
+                                            '00100010': {'vr': 'PN', 'Value': [{'Alphabetic': "Aigner^Marie"}]},
+                                            '00100020': {'vr': 'LO', 'Value': ['MM2']},
+                                            '00100021': {'vr': 'LO', 'Value': ['JMS']},
+                                            '00100022': {'vr': 'CS', 'Value': ['BARCODE']},
+                                            '00100024': {
+                                                'vr': 'SQ',
+                                                'Value': [{
+                                                    '00400032': {'vr': 'UT', 'Value': ['1.2.3']},
+                                                    '00400033': {'vr': 'CS', 'Value': ['ISO']}
                                                 }]
                                             },
-                                            "00100030": {"vr": "DA", "Value": ["19560620"]},
-                                            "00100040": {"vr": "CS", "Value": ["F"]},
-                                            "00101002": {
-                                                "vr": "SQ",
-                                                "Value": [{
-                                                    "00100020": {"vr": "LO", "Value": ["MM2"]},
-                                                    "00100021": {"vr": "LO", "Value": ["JMS2"]}
+                                            '00100030': {'vr': 'DA', 'Value': ['19560620']},
+                                            '00100040': {'vr': 'CS', 'Value': ['F']},
+                                            '00101002': {
+                                                'vr': 'SQ',
+                                                'Value': [{
+                                                    '00100020': {'vr': 'LO', 'Value': ['MM2']},
+                                                    '00100021': {'vr': 'LO', 'Value': ['JMS2']}
                                                 }, {
-                                                    "00100020": {"vr": "LO", "Value": ["MM2"]},
-                                                    "00100021": {"vr": "LO", "Value": ["JMS22"]}
+                                                    '00100020': {'vr': 'LO', 'Value': ['MM2']},
+                                                    '00100021': {'vr': 'LO', 'Value': ['JMS22']}
                                                 }, {
-                                                    "00100020": {"vr": "LO", "Value": ["MM2"]},
-                                                    "00100024": {
-                                                        "vr": "SQ",
-                                                        "Value": [{
-                                                            "00400032": {"vr": "UT", "Value": ["1.2.3.4.5.6.7"]},
-                                                            "00400033": {"vr": "CS", "Value": ["ISO"]}
+                                                    '00100020': {'vr': 'LO', 'Value': ['MM2']},
+                                                    '00100024': {
+                                                        'vr': 'SQ',
+                                                        'Value': [{
+                                                            '00400032': {'vr': 'UT', 'Value': ['1.2.3.4.5.6.7']},
+                                                            '00400033': {'vr': 'CS', 'Value': ['ISO']}
                                                         }]
                                                     }
                                                 }, {
-                                                    "00100020": {"vr": "LO", "Value": ["TO123456"]},
-                                                    "00100021": {"vr": "LO", "Value": ["zxcv55"]},
-                                                    "00100022": {"vr": "CS", "Value": ["RFID"]}
+                                                    '00100020': {'vr': 'LO', 'Value': ['TO123456']},
+                                                    '00100021': {'vr': 'LO', 'Value': ['zxcv55']},
+                                                    '00100022': {'vr': 'CS', 'Value': ['RFID']}
                                                 }, {
-                                                    "00100020": {"vr": "LO", "Value": ["CH090986"]},
-                                                    "00100021": {"vr": "LO", "Value": ["zxcv55"]},
-                                                    "00100022": {"vr": "CS", "Value": ["BARCODE"]}
+                                                    '00100020': {'vr': 'LO', 'Value': ['CH090986']},
+                                                    '00100021': {'vr': 'LO', 'Value': ['zxcv55']},
+                                                    '00100022': {'vr': 'CS', 'Value': ['BARCODE']}
                                                 }]
                                             },
-                                            "00101060": {"vr": "PN"},
-                                            "00201200": {"vr": "IS", "Value": ["0"]},
-                                            "77770010": {"vr": "LO", "Value": ["DCM4CHEE Archive 5"]},
-                                            "77771010": {"vr": "DT", "Value": ["20230612094520.923+0200"]},
-                                            "77771011": {"vr": "DT", "Value": ["20230612094520.929+0200"]}
+                                            '00101060': {'vr': 'PN'},
+                                            '00201200': {'vr': 'IS', 'Value': ['0']},
+                                            '77770010': {'vr': 'LO', 'Value': ['DCM4CHEE Archive 5']},
+                                            '77771010': {'vr': 'DT', 'Value': ["20230612094520.923+0200"]},
+                                            '77771011': {'vr': 'DT', 'Value': ["20230612094520.929+0200"]}
                                         }]
                     */
                 }
@@ -5950,17 +5976,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.appService.showMsg($localize `:@@no_studies_found:No Studies found!`);
                 }
                 this.cfpLoadingBar.complete();
+                this.changeDetector.detectChanges();
             }, err => {
-                j4care.log("Something went wrong on search", err);
+                j4care.log('Something went wrong on search', err);
                 this.httpErrorHandler.handleError(err);
                 this.cfpLoadingBar.complete();
             });
     }
 
     getSeries(filterModel){
-        console.log("getSeriesCalled");
+        console.log('getSeriesCalled');
         this.cfpLoadingBar.start();
-        this.searchCurrentList = "";
+        this.searchCurrentList = '';
         this.service.getSeries(filterModel, this.studyWebService.selectedWebService)
             .subscribe(res => {
                 this.patients1 = [];
@@ -6026,13 +6053,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         }
                         // this.studies.pop();
                     }
-                    console.log("patient",this.patients1);
+                    console.log('patient',this.patients1);
                 }else{
                     this.appService.showMsg($localize `:@@no_series_found:No Series found!`);
                 }
                 this.cfpLoadingBar.complete();
-            }, err => {
-                j4care.log("Something went wrong on search", err);
+
+                this.changeDetector.detectChanges();}, err => {
+                j4care.log('Something went wrong on search', err);
                 this.httpErrorHandler.handleError(err);
                 this.cfpLoadingBar.complete();
             });
@@ -6044,13 +6072,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let filters = this.getFilterClone();
 
         if (offset < 0) offset = 0;
-        filters["offset"] = offset;
+        filters['offset'] = offset;
 
         if(filters.limit){
             filters.limit++;
         }
         delete filters.aet;
-        filters["orderby"] = 'SeriesNumber';
+        filters['orderby'] = 'SeriesNumber';
         this.service.getSeriesOfStudy(study.attrs['0020000D'].Value[0], filters, this.studyWebService.selectedWebService)
             .subscribe((res)=>{
                 if (res){
@@ -6072,17 +6100,20 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         if (hasMore) {
                             study.series.pop();
                         }
-                        console.log("study",study);
-                        console.log("patients",this.patients);
+                        console.log('study',study);
+                        console.log('patients',this.patients);
                         // StudiesService.trim(this);
                         study.showSeries = true;
+                        this.patients = [...this.patients];
+                        this.patients1 = [...this.patients1];
                     }
                 }else{
                     this.appService.showMsg($localize `:@@study.no_matching_series:No matching series found!`);
                 }
                 this.cfpLoadingBar.complete();
+                this.changeDetector.detectChanges();
             },(err)=>{
-                j4care.log("Something went wrong on search", err);
+                j4care.log('Something went wrong on search', err);
                 this.httpErrorHandler.handleError(err);
                 this.cfpLoadingBar.complete();
             });
@@ -6098,9 +6129,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         if(filters.limit){
             filters.limit++;
         }
-        filters["offset"] = offset;
+        filters['offset'] = offset;
         delete filters.aet;
-        filters["orderby"] = 'InstanceNumber';
+        filters['orderby'] = 'InstanceNumber';
         this.service.getInstances(series.attrs['0020000D'].Value[0], series.attrs['0020000E'].Value[0], filters, this.studyWebService.selectedWebService)
             .subscribe((res)=>{
                 if (res){
@@ -6140,58 +6171,60 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     }
                 }
                 this.cfpLoadingBar.complete();
+                this.patients = [...this.patients];
+                this.patients1 = [...this.patients1];
+                this.changeDetector.detectChanges();
         },(err)=>{
-                j4care.log("Something went wrong on search", err);
+                j4care.log('Something went wrong on search', err);
                 this.httpErrorHandler.handleError(err);
                 this.cfpLoadingBar.complete();
         });
     }
     entryFilterChanged(e?){
-        console.log("e",e);
-        console.log("this.studyWebService",this.studyWebService);
-        // this.selectedWebAppService = _.get(this.filter,"filterModel.webApp");
-/*        if(this.studyWebService.selectedDevice.dicomDeviceName != this.filter.filterEntryModel["device"] && this.filter.filterEntryModel["device"] && this.filter.filterEntryModel["device"] != ''){
-            this.deviceConfigurator.getDevice(this.filter.filterEntryModel["device"]).subscribe(device=>{
+        console.log('e',e);
+        console.log('this.studyWebService',this.studyWebService);
+        // this.selectedWebAppService = _.get(this.filter,'filterModel.webApp');
+/*        if(this.studyWebService.selectedDevice.dicomDeviceName != this.filter.filterEntryModel['device'] && this.filter.filterEntryModel['device'] && this.filter.filterEntryModel['device'] != ''){
+            this.deviceConfigurator.getDevice(this.filter.filterEntryModel['device']).subscribe(device=>{
                 this.studyWebService.selectedDeviceObject = device;
-                this._filter.filterSchemaEntry = this.service.getEntrySchema(this.studyWebService.devicesDropdown, this.studyWebService.getDcmWebAppServicesDropdown(["QIDO_RS"]));
+                this._filter.filterSchemaEntry = this.service.getEntrySchema(this.studyWebService.devicesDropdown, this.studyWebService.getDcmWebAppServicesDropdown(['QIDO_RS']));
             });
-            this._filter.filterEntryModel["webService"] = undefined;
+            this._filter.filterEntryModel['webService'] = undefined;
             this.studyWebService.dcmWebAppServices = undefined;
         }
-        if(!this.selectedWebAppService || this.selectedWebAppService.dcmWebAppName != this.filter.filterEntryModel["webService"]){
-            this.studyWebService.setSelectedWebAppByString(this.filter.filterEntryModel["webService"]);
+        if(!this.selectedWebAppService || this.selectedWebAppService.dcmWebAppName != this.filter.filterEntryModel['webService']){
+            this.studyWebService.setSelectedWebAppByString(this.filter.filterEntryModel['webService']);
         }*/
     }
 
     filterChanged(){
-        if(this.studyWebService && _.get(this.studyWebService,"selectedWebService.dcmWebAppName") != _.get(this.filter,"filterModel.webApp")){
-            this.studyWebService.seletWebAppFromWebAppName(_.get(this.filter,"filterModel.webApp"));
+        if(this.studyWebService && _.get(this.studyWebService,'selectedWebService.dcmWebAppName') != _.get(this.filter,'filterModel.webApp')){
+            this.studyWebService.seletWebAppFromWebAppName(_.get(this.filter,'filterModel.webApp'));
             this.onStudyWebServiceChange.emit(this.studyWebService);
-            this.internal = !(this.appService.archiveDeviceName && _.hasIn(this.studyWebService, "selectedWebService.dicomDeviceName") && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName);
+            this.internal = !(this.appService.archiveDeviceName && _.hasIn(this.studyWebService, 'selectedWebService.dicomDeviceName') && this.studyWebService.selectedWebService.dicomDeviceName != this.appService.archiveDeviceName);
             if(!this.internal){
                 delete this._filter.filterModel.includefield;
             }else{
-                this._filter.filterModel.includefield = "all";
+                this._filter.filterModel.includefield = 'all';
             }
             if(_.hasIn(this.studyWebService.selectedWebService,"dcmProperty[0]")){
                 this.studyWebService.selectedWebService.dcmProperty.forEach(propertie=>{
                     if(propertie.indexOf("MWLWorklistLabel=") > -1){
                         let mwlLabel = propertie;
-                        mwlLabel = mwlLabel.replace("MWLWorklistLabel=","");
-                        this.filter.filterModel.WorklistLabel = mwlLabel;
+                        mwlLabel = mwlLabel.replace("MWLWorklistLabel=",'');
                     }
                 })
             }
             this.setMainSchema();
 /*            this.moreFunctionConfig.options = this.moreFunctionConfig.options.filter(option=>{
-                console.log("option",option);
-                if(option.value === "retrieve_multiple"){
+                console.log('option',option);
+                if(option.value === 'retrieve_multiple'){
                     return !this.internal;
                 }else{
                     return true;
                 }
             });*/
-            // console.log("test",test);
+            // console.log('test',test);
             this.setTrash();
             this.patients = [];
 
@@ -6204,7 +6237,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     triggerSubmitOnQueryParams(){
         if(this.querySubmit && this.studyWebService && this.studyWebService.selectedWebService){
             this.querySubmit = false;
-            this.search("current", {id:"submit"});
+            this.search('current', {id:'submit'});
         }
     }
 
@@ -6212,67 +6245,67 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let internal = args[0];
         let studyConfig = args[1];
         return value.filter(option=>{
-            if(option.value === "create_patient"
-                || option.value === "supplement_issuer"
-                || option.value === "update_charset"
-                || option.value === "download_patients"){
-                return studyConfig && studyConfig.tab === "patient"
-                    && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET")
+            if(option.value === 'create_patient'
+                || option.value === 'supplement_issuer'
+                || option.value === 'update_charset'
+                || option.value === 'download_patients'){
+                return studyConfig && studyConfig.tab === 'patient'
+                    && this.service.webAppGroupHasClass(this.studyWebService,'DCM4CHEE_ARC_AET')
             }else{
-                 if(studyConfig && studyConfig.tab === "mwl"){
-                     return (option.value === "import_matching_sps_to_archive"
-                                    && !this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"))
-                                || (option.value === "change_sps_status_on_matching"
-                                    && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"))
-                                || (option.value === "download_mwl"
-                                    && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET"));
+                 if(studyConfig && studyConfig.tab === 'mwl'){
+                     return (option.value === 'import_matching_sps_to_archive'
+                                    && !this.service.webAppGroupHasClass(this.studyWebService,'DCM4CHEE_ARC_AET'))
+                                || (option.value === 'change_sps_status_on_matching'
+                                    && this.service.webAppGroupHasClass(this.studyWebService,'DCM4CHEE_ARC_AET'))
+                                || (option.value === 'download_mwl'
+                                    && this.service.webAppGroupHasClass(this.studyWebService,'DCM4CHEE_ARC_AET'));
                  }else{
-                    if(!(studyConfig && studyConfig.tab === "patient")){
-                        if(studyConfig && studyConfig.tab === "uwl"){
-                            return option.value === "download_uwl"
-                                || option.value === "create_ups"
-                                || option.value === "subscribe_uwl"
-                                || option.value === "unsubscribe_uwl"
-                                || option.value === "suspend_uwl";
+                    if(!(studyConfig && studyConfig.tab === 'patient')){
+                        if(studyConfig && studyConfig.tab === 'uwl'){
+                            return option.value === 'download_uwl'
+                                || option.value === 'create_ups'
+                                || option.value === 'subscribe_uwl'
+                                || option.value === 'unsubscribe_uwl'
+                                || option.value === 'suspend_uwl';
                         }else{
                             switch (option.value) {
-                                case "retrieve_multiple":
-                                    return (!internal || this.service.webAppGroupHasClass(this.studyWebService,"MOVE_MATCHING")) && (studyConfig && studyConfig.tab === "study");
-                                case "upload_dicom":
-                                    return this.service.webAppGroupHasClass(this.studyWebService,"STOW_RS")
-                                        && studyConfig && studyConfig.tab === "study";
-                                case "trigger_diff":
-                                    return studyConfig && studyConfig.tab === "diff";
-                                case "export_multiple_study":
-                                case "permanent_delete":
-                                case "download_studies":
-                                case "reject_multiple_study":
-                                case "update_access_control_id_to_matching":
-                                case "storage_verification_studies":
-                                case "schedule_storage_commit_for_matching_studies":
-                                case "instance_availability_notification_for_matching_studies":
-                                case "update_matching_studies":
-                                    return studyConfig && studyConfig.tab === "study"
-                                        && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
-                                case "apply_retention_multiple_series":
-                                case "export_multiple_series":
-                                case "reject_multiple_series":
-                                case "download_series":
-                                case "update_access_control_id_to_matching_series":
-                                case "storage_verification_series":
-                                case "schedule_storage_commit_for_matching_series":
-                                case "instance_availability_notification_for_matching_series":
-                                case "update_matching_series":
-                                    return studyConfig && studyConfig.tab === "series"
-                                        && this.service.webAppGroupHasClass(this.studyWebService,"DCM4CHEE_ARC_AET");
-                                case "change_sps_status_on_matching":
-                                case "download_mwl":
-                                case "import_matching_sps_to_archive":
-                                case "download_uwl":
-                                case "create_ups":
-                                case "subscribe_uwl":
-                                case "unsubscribe_uwl":
-                                case "suspend_uwl":
+                                case 'retrieve_multiple':
+                                    return (!internal || this.service.webAppGroupHasClass(this.studyWebService,'MOVE_MATCHING')) && (studyConfig && studyConfig.tab === 'study');
+                                case 'upload_dicom':
+                                    return this.service.webAppGroupHasClass(this.studyWebService,'STOW_RS')
+                                        && studyConfig && studyConfig.tab === 'study';
+                                case 'trigger_diff':
+                                    return studyConfig && studyConfig.tab === 'diff';
+                                case 'export_multiple_study':
+                                case 'permanent_delete':
+                                case 'download_studies':
+                                case 'reject_multiple_study':
+                                case 'update_access_control_id_to_matching':
+                                case 'storage_verification_studies':
+                                case 'schedule_storage_commit_for_matching_studies':
+                                case 'instance_availability_notification_for_matching_studies':
+                                case 'update_matching_studies':
+                                    return studyConfig && studyConfig.tab === 'study'
+                                        && this.service.webAppGroupHasClass(this.studyWebService,'DCM4CHEE_ARC_AET');
+                                case 'apply_retention_multiple_series':
+                                case 'export_multiple_series':
+                                case 'reject_multiple_series':
+                                case 'download_series':
+                                case 'update_access_control_id_to_matching_series':
+                                case 'storage_verification_series':
+                                case 'schedule_storage_commit_for_matching_series':
+                                case 'instance_availability_notification_for_matching_series':
+                                case 'update_matching_series':
+                                    return studyConfig && studyConfig.tab === 'series'
+                                        && this.service.webAppGroupHasClass(this.studyWebService,'DCM4CHEE_ARC_AET');
+                                case 'change_sps_status_on_matching':
+                                case 'download_mwl':
+                                case 'import_matching_sps_to_archive':
+                                case 'download_uwl':
+                                case 'create_ups':
+                                case 'subscribe_uwl':
+                                case 'unsubscribe_uwl':
+                                case 'suspend_uwl':
                                     return false;
                             }
                         }
@@ -6286,28 +6319,28 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     actionsSelectionsFilterPipe(value, args){
-        console.log("args",args);
+        console.log('args',args);
         let internal = args[0];
         let trashActive = args[1];
         let studyConfig = args[2];
         return value.filter(option=>{
             switch (option.value) {
-                case "delete_object":
+                case 'delete_object':
                     return internal && trashActive;
-                case "restore_object":
+                case 'restore_object':
                     return internal && trashActive;
-                case "reject_object":
-                    return !trashActive && studyConfig && (studyConfig.tab === "study" || studyConfig.tab === "series");
-                case "change_sps_status_on_selections":
-                    return studyConfig && studyConfig.tab === "mwl";
-                case "update_access_control_id_to_selections":
-                case "send_storage_commitment_request_for_selections":
-                case "send_ian_request_for_selections":
-                case "storage_verification_for_selections":
-                case "export_object":
-                    return internal && studyConfig && (studyConfig.tab === "study" || studyConfig.tab === "series");
-                case "retrieve_object":
-                    return !internal && studyConfig && studyConfig.tab === "study";
+                case 'reject_object':
+                    return !trashActive && studyConfig && (studyConfig.tab === 'study' || studyConfig.tab === 'series');
+                case 'change_sps_status_on_selections':
+                    return studyConfig && studyConfig.tab === 'mwl';
+                case 'update_access_control_id_to_selections':
+                case 'send_storage_commitment_request_for_selections':
+                case 'send_ian_request_for_selections':
+                case 'storage_verification_for_selections':
+                case 'export_object':
+                    return internal && studyConfig && (studyConfig.tab === 'study' || studyConfig.tab === 'series');
+                case 'retrieve_object':
+                    return !internal && studyConfig && studyConfig.tab === 'study';
                 default:
                     return true;
             }
@@ -6332,7 +6365,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             );
             this.changeDetector.detectChanges();
         }catch (e) {
-            j4care.log("Error on schema set",e);
+            console.error('setschema',e);
+            j4care.log('Error on schema set',e);
         }
     }
 
@@ -6369,24 +6403,26 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     accessLocationChange(e){
-        console.log("e",e.value);
+        console.log('e',e.value);
         this.setSchema();
     }
 
     getPatientAttributeFilters(){
         this.service.getAttributeFilter().subscribe(patientAttributes=>{
             this.patientAttributes = patientAttributes;
-        },err=>{
-            j4care.log("Something went wrong on getting Patient Attributes",err);
+
+            this.changeDetector.detectChanges();},err=>{
+            j4care.log('Something went wrong on getting Patient Attributes',err);
             this.httpErrorHandler.handleError(err);
         });
     }
 
     getStudyAttributeFilters(){
-        this.service.getAttributeFilter("Study").subscribe(studyAttributes=>{
+        this.service.getAttributeFilter('Study').subscribe(studyAttributes=>{
             this.studyAttributes = studyAttributes;
-        },err=>{
-            j4care.log("Something went wrong on getting Study Attributes",err);
+
+            this.changeDetector.detectChanges();},err=>{
+            j4care.log('Something went wrong on getting Study Attributes',err);
             this.httpErrorHandler.handleError(err);
         });
     }
@@ -6397,11 +6433,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.applicationEntities.aes = aes.map((ae:Aet)=>{
                 return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle,ae.dicomDescription,undefined,undefined,ae);
             });
-            console.log("filter",this.filter);
+            console.log('filter',this.filter);
             this.setSchema();
         },(err)=>{
             this.appService.showError($localize `:@@study.error_getting:_aets:Error getting AETs!`);
-            j4care.log("error getting aets in Study page",err);
+            j4care.log('error getting aets in Study page',err);
         });
     }*/
 
@@ -6443,25 +6479,25 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@issuer_of_patient:Issuer of Patient`
                         },
                         {
-                            tag: "input",
-                            type: "text",
-                            filterKey: "issuerOfPatient",
+                            tag: 'input',
+                            type: 'text',
+                            filterKey: 'issuerOfPatient',
                             description: $localize`:@@issuer_of_patient:Issuer of Patient`,
                             placeholder: $localize`:@@issuer_of_patient:Issuer of Patient`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@test:Test`
                         },
                         {
-                            tag: "checkbox",
-                            filterKey: "testSupplement",
+                            tag: 'checkbox',
+                            filterKey: 'testSupplement',
                             description:$localize `:@@supplement_issuer_test_only:Only test, without actually supplementing`,
                         }
                     ]
@@ -6480,6 +6516,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 this.studyWebService).subscribe(res => {
                     this.cfpLoadingBar.complete();
                     this.appService.showMsgSupplementIssuer(res);
+                    this.changeDetector.detectChanges();
                 }, err => {
                     this.cfpLoadingBar.complete();
                     this.appService.showMsgSupplementIssuer(err.error);
@@ -6497,96 +6534,96 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@charset:Character Set`
                         },
                         {
-                            tag: "select",
+                            tag: 'select',
                             options: [
                                 {
-                                    value: "ISO_IR 100",
-                                    text: $localize`:@dicom_specific_char.latin_alphabet_no._1:Latin alphabet No. 1`,
+                                    value: 'ISO_IR 100',
+                                    text: $localize`:@@dicom_specific_char.latin_alphabet_no._1:Latin alphabet No. 1`,
                                     title: $localize`:@@dicom_specific_char.latin_alphabet_no._1_desc:Latin alphabet No. 1 (ISO_IR 100)`
                                 },
                                 {
-                                    value: "ISO_IR 101",
-                                    text: $localize`:@dicom_specific_char.latin_alphabet_no._2:Latin alphabet No. 2`,
+                                    value: 'ISO_IR 101',
+                                    text: $localize`:@@dicom_specific_char.latin_alphabet_no._2:Latin alphabet No. 2`,
                                     title: $localize`:@@dicom_specific_char.latin_alphabet_no._2_desc:Latin alphabet No. 2 (ISO_IR 101)`
                                 },
                                 {
-                                    value: "ISO_IR 109",
-                                    text: $localize`:@dicom_specific_char.latin_alphabet_no._3:Latin alphabet No. 3`,
+                                    value: 'ISO_IR 109',
+                                    text: $localize`:@@dicom_specific_char.latin_alphabet_no._3:Latin alphabet No. 3`,
                                     title: $localize`:@@dicom_specific_char.latin_alphabet_no._3_desc:Latin alphabet No. 3 (ISO_IR 109)`
                                 },
                                 {
-                                    value: "ISO_IR 110",
-                                    text: $localize`:@dicom_specific_char.latin_alphabet_no._4:Latin alphabet No. 4`,
+                                    value: 'ISO_IR 110',
+                                    text: $localize`:@@dicom_specific_char.latin_alphabet_no._4:Latin alphabet No. 4`,
                                     title: $localize`:@@dicom_specific_char.latin_alphabet_no._4_desc:Latin alphabet No. 4 (ISO_IR 110)`
                                 },
                                 {
-                                    value: "ISO_IR 148",
-                                    text: $localize`:@dicom_specific_char.latin_alphabet_no_5:Latin alphabet No. 5`,
+                                    value: 'ISO_IR 148',
+                                    text: $localize`:@@dicom_specific_char.latin_alphabet_no_5:Latin alphabet No. 5`,
                                     title: $localize`:@@dicom_specific_char.latin_alphabet_no_5_desc:Latin alphabet No. 5 (ISO_IR 1148)`
                                 },
                                 {
-                                    value: "ISO_IR 127",
-                                    text: $localize`:@dicom_specific_char.arabic:Arabic`,
+                                    value: 'ISO_IR 127',
+                                    text: $localize`:@@dicom_specific_char.arabic:Arabic`,
                                     title: $localize`:@@dicom_specific_char.arabic_desc:Arabic (ISO_IR 127)`
                                 },
                                 {
-                                    value: "ISO_IR 144",
-                                    text: $localize`:@dicom_specific_char.cyrillic:Cyrillic`,
+                                    value: 'ISO_IR 144',
+                                    text: $localize`:@@dicom_specific_char.cyrillic:Cyrillic`,
                                     title: $localize`:@@dicom_specific_char.cyrillic_desc:Cyrillic (ISO_IR 144)`
                                 },
                                 {
-                                    value: "ISO_IR 126",
-                                    text: $localize`:@dicom_specific_char.greek:Greek`,
+                                    value: 'ISO_IR 126',
+                                    text: $localize`:@@dicom_specific_char.greek:Greek`,
                                     title: $localize`:@@dicom_specific_char.greek_desc:Greek (ISO_IR 126)`
                                 },
                                 {
-                                    value: "ISO_IR 138",
-                                    text: $localize`:@dicom_specific_char.hebrew:Hebrew`,
+                                    value: 'ISO_IR 138',
+                                    text: $localize`:@@dicom_specific_char.hebrew:Hebrew`,
                                     title: $localize`:@@dicom_specific_char.hebrew_desc:Hebrew (ISO_IR 138)`
                                 },
                                 {
-                                    value: "ISO_IR 13",
-                                    text: $localize`:@dicom_specific_char.japanese:Japanese`,
+                                    value: 'ISO_IR 13',
+                                    text: $localize`:@@dicom_specific_char.japanese:Japanese`,
                                     title: $localize`:@@dicom_specific_char.japanese_desc:Japanese (ISO_IR 13)`
                                 },
                                 {
-                                    value: "ISO_IR 166",
-                                    text: $localize`:@dicom_specific_char.thai:Thai`,
+                                    value: 'ISO_IR 166',
+                                    text: $localize`:@@dicom_specific_char.thai:Thai`,
                                     title: $localize`:@@dicom_specific_char.thai_desc:Thai (ISO_IR 166)`
                                 },
                                 {
-                                    value: "ISO_IR 192",
-                                    text: $localize`:@dicom_specific_char.unicode:Unicode in UTF-8`,
+                                    value: 'ISO_IR 192',
+                                    text: $localize`:@@dicom_specific_char.unicode:Unicode in UTF-8`,
                                     title: $localize`:@@dicom_specific_char.unicode_desc:Unicode in UTF-8 (ISO_IR 192)`
                                 },
                                 {
-                                    value: "GB18030",
-                                    text: $localize`:@dicom_specific_char.gb18030:GB18030`,
+                                    value: 'GB18030',
+                                    text: $localize`:@@dicom_specific_char.gb18030:GB18030`,
                                     title: $localize`:@@dicom_specific_char.gb18030_desc:GB18030 (GB18030)`
                                 },
                                 {
-                                    value: "GBK",
-                                    text: $localize`:@dicom_specific_char.gbk:GBK`,
+                                    value: 'GBK',
+                                    text: $localize`:@@dicom_specific_char.gbk:GBK`,
                                     title: $localize`:@@dicom_specific_char.gbk_desc:GBK (GBK)`
                                 }
                             ],
-                            filterKey: "charset",
+                            filterKey: 'charset',
                             description: $localize`:@@charset:Character Set`,
                             placeholder: $localize`:@@charset:Character Set`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@test:Test`
                         },
                         {
-                            tag: "checkbox",
-                            filterKey: "testUpdateCharset",
+                            tag: 'checkbox',
+                            filterKey: 'testUpdateCharset',
                             description:$localize `:@@update_charset_test_only:Only test, without actually updating charset`,
                         }
                     ]
@@ -6617,7 +6654,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     subscribeUWL(workitem, subscribeType:UPSSubscribeType, title:string, msg:string){
         this.modifyUPS(
             workitem,
-            "subscribe",
+            'subscribe',
             subscribeType,
             {
                 saveLabel: $localize `:@@SUBSCRIBE:SUBSCRIBE`,
@@ -6629,7 +6666,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     createUPS(){
         this.modifyUPS(
             undefined,
-            "create",
+            'create',
             undefined,
             {
                 saveLabel: $localize `:@@CREATE:CREATE`,
@@ -6641,7 +6678,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     cloneUPS(workitem){
         this.modifyUPS(
             workitem,
-            "clone",
+            'clone',
             undefined,
             {
                 saveLabel: $localize `:@@CLONE:CLONE`,
@@ -6653,7 +6690,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     editUPS(workitem){
         this.modifyUPS(
             workitem,
-            "edit",
+            'edit',
             undefined,
             {
                 saveLabel: $localize `:@@SAVE:SAVE`,
@@ -6666,26 +6703,26 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     modifyUPS(workitem, mode:UPSModifyMode,subscribeType:UPSSubscribeType,config:ModifyConfig, msg:string){
         let originalWorkitemObject;
         this.service.getUPSIod(mode).subscribe(iod=>{
-            if(mode === "edit" || mode === "clone" || (mode === "subscribe" && subscribeType === "ups")){
+            if(mode === 'edit' || mode === 'clone' || (mode === 'subscribe' && subscribeType === 'ups')){
                 originalWorkitemObject = _.cloneDeep(workitem);
                 workitem.attrs = j4care.intersection(workitem.attrs,iod);
-                if (mode === "clone") {
-                    delete workitem.attrs["00741000"];
-                    _.set(workitem.attrs, "00741000.Value[0]","SCHEDULED")
+                if (mode === 'clone') {
+                    delete workitem.attrs['00741000'];
+                    _.set(workitem.attrs, "00741000.Value[0]",'SCHEDULED')
                 }
             }
-            if((mode === "create" && !workitem) || (mode === "subscribe" && subscribeType === "uwl")){
+            if((mode === 'create' && !workitem) || (mode === 'subscribe' && subscribeType === 'uwl')){
                 workitem = {
-                    "attrs":{}
+                    'attrs':{}
                 };
                 Object.keys(iod).forEach(dicomAttr=>{
-                    if((iod[dicomAttr].required && iod[dicomAttr].required === 1) || dicomAttr === "00741202" || dicomAttr === "00404005"){
-                        workitem["attrs"][dicomAttr] = _.cloneDeep(iod[dicomAttr]);
+                    if((iod[dicomAttr].required && iod[dicomAttr].required === 1) || dicomAttr === '00741202' || dicomAttr === '00404005'){
+                        workitem['attrs'][dicomAttr] = _.cloneDeep(iod[dicomAttr]);
                     }
                 });
-                if (mode === "create") {
-                    delete workitem.attrs["00741000"];
-                    _.set(workitem.attrs, "00741000.Value[0]","SCHEDULED")
+                if (mode === 'create') {
+                    delete workitem.attrs['00741000'];
+                    _.set(workitem.attrs, "00741000.Value[0]",'SCHEDULED')
                 }
             }
             this.service.initEmptyValue(workitem.attrs);
@@ -6708,8 +6745,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     let createUPS = (template?:boolean)=>{
                         let object = _.cloneDeep(workitem);
                         if(template){
-                            if(_.hasIn(object,"attrs.00404005")){
-                                delete object.attrs["00404005"];
+                            if(_.hasIn(object,'attrs.00404005')){
+                                delete object.attrs['00404005'];
                             }
                             msg = $localize `:@@ups_template_created_successfully:UPS template created successfully at `;
                         }
@@ -6717,31 +6754,31 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             this.appService.showMsg(msg);
                         });
                     };
-                    if (mode === "edit") {
+                    if (mode === 'edit') {
                         this.service.modifyUPS(this.service.getUpsWorkitemUID(originalWorkitemObject.attrs), workitem.attrs, this.studyWebService, msg, mode).subscribe(res=>{
                             this.appService.showMsg(msg);
                         });
                     }
-                    if((mode === "create" || mode === "clone") && ok.templateParameter){
-                        if (ok.templateParameter === "template_too") {
+                    if((mode === 'create' || mode === 'clone') && ok.templateParameter){
+                        if (ok.templateParameter === 'template_too') {
                             createUPS(true);
                             createUPS();
                         } else
-                            createUPS(ok.templateParameter != "no_template");
+                            createUPS(ok.templateParameter != 'no_template');
                     }
-                    if (mode === "subscribe") {
+                    if (mode === 'subscribe') {
                         let params = '';
-                        if (ok.result.subscribeMode === "filtered" || subscribeType === "ups") {
+                        if (ok.result.subscribeMode === 'filtered' || subscribeType === 'ups') {
                             Object.keys(iod).forEach(dicomAttr => {
                                 if (_.hasIn(workitem.attrs, dicomAttr) && _.hasIn(workitem.attrs[dicomAttr], 'Value') && workitem.attrs[dicomAttr].Value[0] != '') {
-                                    console.log("ups iod dicom attr is ", dicomAttr, "   ", workitem.attrs[dicomAttr].Value[0]);
+                                    console.log('ups iod dicom attr is ', dicomAttr, '   ', workitem.attrs[dicomAttr].Value[0]);
                                     let vr = workitem.attrs[dicomAttr].vr;
                                     if (vr === 'PN') {
                                         let alphabetic = workitem.attrs[dicomAttr].Value[0].Alphabetic;
                                         params += dicomAttr + "=" + _.replace(alphabetic, "^", "%5E") + "&";
                                     } else if (vr != 'SQ') {
                                         let val = workitem.attrs[dicomAttr].Value[0];
-                                        params += dicomAttr + "=" + _.replace(val, " ", "%20") + "&";
+                                        params += dicomAttr + "=" + _.replace(val, ' ', "%20") + "&";
                                     } else {
                                         if (dicomAttr === '00404034') {
                                             let scheduledHumanPerformerItem = workitem.attrs[dicomAttr].Value[0];
@@ -6751,12 +6788,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                                 params += dicomAttr + ".00404009.00080102=" + humanPerformerCodeItem['00080102'].Value[0] + "&";
                                                 let codeMeaning = humanPerformerCodeItem['00080104'].Value[0];
                                                 if (codeMeaning && codeMeaning != '')
-                                                    params += dicomAttr + ".00404009.00080104=" + _.replace(codeMeaning, " ", "%20") + "&";
+                                                    params += dicomAttr + ".00404009.00080104=" + _.replace(codeMeaning, ' ', "%20") + "&";
                                             }
                                             if (_.hasIn(scheduledHumanPerformerItem['00404036'], 'Value')) {
                                                 let humanPerformerOrganization = scheduledHumanPerformerItem['00404036'].Value[0];
                                                 if (humanPerformerOrganization && humanPerformerOrganization != '')
-                                                    params += dicomAttr + ".00404036=" + _.replace(humanPerformerOrganization, " ", "%20") + "&";
+                                                    params += dicomAttr + ".00404036=" + _.replace(humanPerformerOrganization, ' ', "%20") + "&";
                                             }
                                             if (_.hasIn(scheduledHumanPerformerItem['00404037'], 'Value')) {
                                                 let humanPerformerNameAlphabetic = scheduledHumanPerformerItem['00404037'].Value[0].Alphabetic;
@@ -6772,7 +6809,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                                 params += dicomAttr + ".00080102=" + item['00080102'].Value[0] + "&";
                                                 let codeMeaning = item['00080104'].Value[0];
                                                 if (codeMeaning && codeMeaning != '')
-                                                    params += dicomAttr + ".00080104=" + _.replace(codeMeaning, " ", "%20") + "&";
+                                                    params += dicomAttr + ".00080104=" + _.replace(codeMeaning, ' ', "%20") + "&";
                                             }
                                         }
                                     }
@@ -6782,10 +6819,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         if (ok.result.deletionlock === true)
                             params += "deletionlock=true";
 
-                        console.log("ups params for subscription is ", params);
-                        let workitemUID = subscribeType === "ups"
+                        console.log('ups params for subscription is ', params);
+                        let workitemUID = subscribeType === 'ups'
                                         ? this.service.getUpsWorkitemUID(originalWorkitemObject.attrs)
-                                        : ok.result.subscribeMode === "global"
+                                        : ok.result.subscribeMode === 'global'
                                             ? '1.2.840.10008.5.1.4.34.5'
                                             : '1.2.840.10008.5.1.4.34.5.1';
                         this.service.subscribeUPS(workitemUID, params, this.studyWebService, ok.result.subscriberAET)
@@ -6800,7 +6837,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }
                 this.dialogRef = null;
             });
-        })
+
+            this.changeDetector.detectChanges();})
     }
 
     rescheduleUPS(workitem){
@@ -6811,25 +6849,25 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@uid_of_new_created_workitem:UID of new created Workitem`
                         },
                         {
-                            tag:"input",
-                            type:"text",
-                            filterKey:"newWorkitem",
+                            tag:'input',
+                            type:'text',
+                            filterKey:'newWorkitem',
                             description:$localize `:@@uid_of_new_created_workitem:UID of new created Workitem`,
                             placeholder:$localize `:@@uid_of_new_created_workitem:UID of new created Workitem`
                         }
                     ],[
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@scheduled_procedure_step_start_date_time:Scheduled Procedure Step Start DateTime`
                         },
                         {
                             tag:"single-date-time-picker",
-                            type:"text",
-                            filterKey:"upsScheduledTime",
+                            type:'text',
+                            filterKey:'upsScheduledTime',
                             description:$localize `:@@scheduled_procedure_step_start_date_time_00404005_as_in_created_ups:Scheduled Procedure Step Start DateTime (0040,4005) as in created UPS`,
                             placeholder:$localize `:@@scheduled_procedure_step_start_date_time:Scheduled Procedure Step Start DateTime`
                         }
@@ -6861,30 +6899,30 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@subscriber_aet:Subscriber AET`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.applicationEntities.aes,
-                            filterKey:"subscriber",
+                            filterKey:'subscriber',
                             description:$localize `:@@subscriber_aet:Subscriber AET`,
                             placeholder:$localize `:@@subscriber_aet:Subscriber AET`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@uwl_type:Unified Worklist Type`
                         },
                         {
-                            tag:"select",
+                            tag:'select',
                             options:[
-                                new SelectDropdown("1.2.840.10008.5.1.4.34.5", $localize `:@@global_worklist:Global Worklist`),
-                                new SelectDropdown("1.2.840.10008.5.1.4.34.5.1", $localize `:@@filtered_worklist:Filtered Worklist`)
+                                new SelectDropdown('1.2.840.10008.5.1.4.34.5', $localize `:@@global_worklist:Global Worklist`),
+                                new SelectDropdown('1.2.840.10008.5.1.4.34.5.1', $localize `:@@filtered_worklist:Filtered Worklist`)
                             ],
-                            filterKey:"uwlType",
+                            filterKey:'uwlType',
                             description:suspend === true
                                             ? $localize `:@@suspend_uwl_desc:Select Unified Worklist to suspend`
                                             : $localize `:@@unsubscribe_uwl_desc:Select Unified Worklist to unsubscribe from`,
@@ -6930,14 +6968,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
 
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@subscriber_aet:Subscriber AET`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.applicationEntities.aes,
-                            filterKey:"subscriber",
+                            filterKey:'subscriber',
                             description:$localize `:@@subscriber_aet:Subscriber AET`,
                             placeholder:$localize `:@@subscriber_aet:Subscriber AET`
                         }
@@ -6975,44 +7013,44 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
 
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@aet_of_a_requester:AET of a Requester`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.applicationEntities.aes,
-                            filterKey:"requester",
+                            filterKey:'requester',
                             description:$localize `:@@aet_of_a_requester:AET of a Requester`,
                             placeholder:$localize `:@@aet_of_a_requester:AET of a Requester`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@transaction_uid:Transaction UID`
                         },
                         {
-                            tag:"input",
-                            type:"text",
-                            filterKey:"transactionUID",
+                            tag:'input',
+                            type:'text',
+                            filterKey:'transactionUID',
                             description:$localize `:@@transaction_uid:Transaction UID`,
                             placeholder:$localize `:@@transaction_uid:Transaction UID`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@procedure_step_state:Procedure Step State`
                         },
                         {
-                            tag:"select",
+                            tag:'select',
                             options:[
-                                new SelectDropdown("IN PROGRESS", $localize `:@@IN_PROGRESS:IN PROGRESS`),
-                                new SelectDropdown("CANCELED", $localize `:@@CANCELED:CANCELED`),
-                                new SelectDropdown("COMPLETED", $localize `:@@COMPLETED:COMPLETED`),
+                                new SelectDropdown('IN PROGRESS', $localize `:@@IN_PROGRESS:IN PROGRESS`),
+                                new SelectDropdown('CANCELED', $localize `:@@CANCELED:CANCELED`),
+                                new SelectDropdown('COMPLETED', $localize `:@@COMPLETED:COMPLETED`),
                             ],
-                            filterKey:"upsState",
+                            filterKey:'upsState',
                             description:$localize `:@@ups_procedure_step_state:UPS Procedure Step State`,
                             placeholder:$localize `:@@procedure_step_state:Procedure Step State`
                         }
@@ -7029,7 +7067,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.appService.showWarning($localize `:@@requester_aet_warning_msg:Requester AET should be set`);
                 else if (ok.schema_model.upsState === undefined)
                     this.appService.showWarning($localize `:@@ups_state_warning_msg:Procedure Step State should be set`);
-                else if (ok.schema_model.upsState === "IN PROGRESS" && ok.schema_model.transactionUID === undefined)
+                else if (ok.schema_model.upsState === 'IN PROGRESS' && ok.schema_model.transactionUID === undefined)
                     this.appService.showWarning($localize `:@@transaction_uid_warning_msg:Transaction UID must be set to change UPS state to IN PROGRESS`);
                 else if (ok.schema_model.requester && ok.schema_model.upsState) {
                     let changeUPSStateAttrsAsStr = '{"00741000":{"vr":"CS","Value":["' + ok.schema_model.upsState;
@@ -7042,7 +7080,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         ok.schema_model.requester,
                         changeUPSStateAttrsAsStr)
                         .subscribe(res => {
-                            this.appService.showMsg($localize`:@@ups_workitem_state_changed_successfully:UPS Workitem state was changed successfully!`);
+                            this.appService.showMsg($localize `:@@ups_workitem_state_changed_successfully:UPS Workitem state was changed successfully!`);
                         });
                 }
             }
@@ -7058,98 +7096,98 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@aet_of_a_requester:AET of a Requester`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.applicationEntities.aes,
-                            filterKey:"requester",
+                            filterKey:'requester',
                             description:$localize `:@@aet_of_a_requester:AET of a Requester`,
                             placeholder:$localize `:@@aet_of_a_requester:AET of a Requester`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@reason_for_cancellation:Reason for Cancellation`
                         },
                         {
-                            tag:"input",
-                            type:"text",
-                            filterKey:"reasonForCancellation",
+                            tag:'input',
+                            type:'text',
+                            filterKey:'reasonForCancellation',
                             description:$localize `:@@reason_for_cancellation:Reason for Cancellation`,
                             placeholder:$localize `:@@reason_for_cancellation:Reason for Cancellation`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@procedure_step_discontinuation_reason_code_seq:Procedure Step Discontinuation Reason Code Sequence`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@code_value:Code Value`
                         },
                         {
-                            tag:"input",
-                            type:"text",
-                            filterKey:"codeValue",
+                            tag:'input',
+                            type:'text',
+                            filterKey:'codeValue',
                             description:$localize `:@@code_value:Code Value`,
                             placeholder:$localize `:@@code_value:Code Value`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@coding_scheme_designator:Coding Scheme Designator`
                         },
                         {
-                            tag:"input",
-                            type:"text",
-                            filterKey:"codingSchemeDesignator",
+                            tag:'input',
+                            type:'text',
+                            filterKey:'codingSchemeDesignator',
                             description:$localize `:@@coding_scheme_designator:Coding Scheme Designator`,
                             placeholder:$localize `:@@coding_scheme_designator:Coding Scheme Designator`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@code_meaning:Code Meaning`
                         },
                         {
-                            tag:"input",
-                            type:"text",
-                            filterKey:"codeMeaning",
+                            tag:'input',
+                            type:'text',
+                            filterKey:'codeMeaning',
                             description:$localize `:@@code_meaning:Code Meaning`,
                             placeholder:$localize `:@@code_meaning:Code Meaning`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@contact_uri:Contact URI`
                         },
                         {
-                            tag:"input",
-                            type:"text",
-                            filterKey:"contactURI",
+                            tag:'input',
+                            type:'text',
+                            filterKey:'contactURI',
                             description:$localize `:@@contact_uri:Contact URI`,
                             placeholder:$localize `:@@contact_uri:Contact URI`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@contact_name:Contact Display Name`
                         },
                         {
-                            tag:"input",
-                            type:"text",
-                            filterKey:"contactName",
+                            tag:'input',
+                            type:'text',
+                            filterKey:'contactName',
                             description:$localize `:@@contact_name:Contact Display Name`,
                             placeholder:$localize `:@@contact_name:Contact Display Name`
                         }
@@ -7158,16 +7196,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             ],
             result: {
                 schema_model: {
-                    codeValue: "110513",
-                    codingSchemeDesignator: "DCM",
-                    codeMeaning: "Discontinued for unspecified reason"
+                    codeValue: '110513',
+                    codingSchemeDesignator: 'DCM',
+                    codeMeaning: 'Discontinued for unspecified reason'
                 }
             },
             saveButton: $localize `:@@CANCEL_UPS:Cancel UPS`
         }).subscribe((ok)=> {
             if(ok){
                 let requestUPSCancelActionInfoAttrs = this.requestUPSCancelActionInfoAttrs(ok.schema_model);
-                console.log("created requestUPSCancelActionInfoAttrs are.........", requestUPSCancelActionInfoAttrs);
+                console.log('created requestUPSCancelActionInfoAttrs are.........', requestUPSCancelActionInfoAttrs);
                 this.service.requestCancellationForUPS(this.service.getUpsWorkitemUID(workitem.attrs),
                     this.studyWebService,
                     ok.schema_model.requester,
@@ -7233,9 +7271,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.modifyPatient(patient, 'edit', config);
     };
 
-    modifyPatient(patient:PatientDicom, mode:("edit"|"create") , config?:{saveLabel:string,titleLabel:string}){
+    modifyPatient(patient:PatientDicom, mode:('edit'|'create') , config?:{saveLabel:string,titleLabel:string}){
         let originalPatientObject:any;
-        if(mode === "edit"){
+        if(mode === 'edit'){
             originalPatientObject = _.cloneDeep(patient);
         }
         this.lastPressedCode = 0;
@@ -7243,7 +7281,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.service.getPatientIod().subscribe((iod) => {
             let patientFiltered = _.cloneDeep(patient);
             let onlyPrivateAttrs:any;
-            [patientFiltered.attrs, onlyPrivateAttrs] = new ComparewithiodPipe().transform(patient.attrs, [iod, "both"]);
+            [patientFiltered.attrs, onlyPrivateAttrs] = new ComparewithiodPipe().transform(patient.attrs, [iod, 'both']);
 
             this.service.initEmptyValue(patientFiltered.attrs);
             this.dialogRef = this.dialog.open(EditPatientComponent, {
@@ -7284,7 +7322,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 }
                 this.dialogRef = null;
             });
-        }, (err) => {
+
+            this.changeDetector.detectChanges();}, (err) => {
             this.httpErrorHandler.handleError(err);
             console.log('error', err);
         });
@@ -7298,68 +7337,68 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                    [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@source_of_previous_values:Source of Previous Values`
                         },
                         {
-                            tag:"input",
-                            type:"text",
-                            filterKey:"sourceOfPreviousValues",
+                            tag:'input',
+                            type:'text',
+                            filterKey:'sourceOfPreviousValues',
                             description:$localize `:@@source_of_previous_values_desc:Source of Previous Values (0400,0561) stored with original Attributes in Original Attributes Sequence (0400,0561)`,
                             placeholder:$localize `:@@source_of_previous_values:Source of Previous Values`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@reason_for_modification:Reason for Modification`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:[
-                                new SelectDropdown("COERCE", $localize `:@@COERCE:COERCE`),
-                                new SelectDropdown("CORRECT", $localize `:@@CORRECT:CORRECT`)
+                                new SelectDropdown('COERCE', $localize `:@@COERCE:COERCE`),
+                                new SelectDropdown('CORRECT', $localize `:@@CORRECT:CORRECT`)
                             ],
-                            filterKey:"reasonForModification",
+                            filterKey:'reasonForModification',
                             description:$localize `:@@reason_for_modification_desc:Store original values of modified Attributes in Original Attributes Sequence (0400,0561) with given Reason for the Attribute Modification (0400,0565)`,
                             placeholder:$localize `:@@reason_for_modification:Reason for Modification`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@updatePolicy:Update Policy`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:[
-                                new SelectDropdown("SUPPLEMENT", $localize `:@@SUPPLEMENT:SUPPLEMENT`),
-                                new SelectDropdown("MERGE", $localize `:@@MERGE:MERGE`),
-                                new SelectDropdown("OVERWRITE", $localize `:@@OVERWRITE:OVERWRITE`)
+                                new SelectDropdown('SUPPLEMENT', $localize `:@@SUPPLEMENT:SUPPLEMENT`),
+                                new SelectDropdown('MERGE', $localize `:@@MERGE:MERGE`),
+                                new SelectDropdown('OVERWRITE', $localize `:@@OVERWRITE:OVERWRITE`)
                             ],
-                            filterKey:"updatePolicy",
+                            filterKey:'updatePolicy',
                             description:$localize `:@@update_policy_desc:Update Policy for modification of original attributes`,
                             placeholder:$localize `:@@update_policy:Update Policy`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@read_pixel_data_storage:Read Pixel Data from Storage`
                         },
                         {
-                            tag:"checkbox",
-                            filterKey:"readPixelData"
+                            tag:'checkbox',
+                            filterKey:'readPixelData'
                         }
                     ],
                     [
                         {
                             tag:"dynamic-attributes",
                             iodFileNames:[
-                                "patient",
-                                "study"
+                                'patient',
+                                'study'
                             ]
 
                         }
@@ -7376,7 +7415,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.service.recreateDBRecord(ok.schema_model, this.studyWebService.selectedWebService,model).subscribe(res=>{
                     this.cfpLoadingBar.complete();
                     this.appService.showMsg($localize `:@@process_executed:Process executed successfully`);
-                    console.log("res",res)
+                    console.log('res',res)
                 },err=>{
                     this.cfpLoadingBar.complete();
                     this.httpErrorHandler.handleError(err);
@@ -7389,19 +7428,19 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let matching = dicomLevel === "matching_studies" || dicomLevel === "matching_series";
         let innerText;
         switch (dicomLevel) {
-            case "matching_studies":
+            case 'matching_studies':
                 innerText = $localize `:@@inner_text.of_matching_studies:of matching studies`;
                 break;
-            case "matching_series":
+            case 'matching_series':
                 innerText = $localize `:@@inner_text.of_matching_series:of matching series`
                 break;
-            case "study":
+            case 'study':
                 innerText = $localize `:@@inner_text.of_the_study: of the study`;
                 break;
-            case "series":
+            case 'series':
                 innerText = $localize `:@@inner_text.of_the_series: of the series`;
                 break;
-            case "update_access_control_id_to_selections":
+            case 'update_access_control_id_to_selections':
                 innerText = $localize `:@@inner_text.of_the_selected_entities: of the selected entities`;
                 break;
         }
@@ -7412,7 +7451,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@access_control_id:Access Control ID`
                         },
                         {
@@ -7460,7 +7499,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         msg = j4care.prepareCountMessage(msg, res);
                     }
                     this.appService.showMsg(msg);
-                    if(mode === "update_access_control_id_to_selections"){
+                    if(mode === 'update_access_control_id_to_selections'){
                         this.clearClipboard();
                     }
                 },err=>{
@@ -7474,17 +7513,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     sendStorageCommitmentRequestSingle(dicomLevel?:DicomLevel, model?:any) {
         let dialogText;
         switch (dicomLevel){
-            case "series":
+            case 'series':
                 dialogText = $localize `:@@request_storage_commitment_of_series_from_external_storage_commitment_scp:Request Storage Commitment of Series from external Storage Commitment SCP`
                 break;
-            case "instance":
+            case 'instance':
                 dialogText = $localize `:@@request_storage_commitment_of_instance_from_external_storage_commitment_scp:Request Storage Commitment of Instance from external Storage Commitment SCP`
                 break;
             default:
                 dialogText = $localize `:@@request_storage_commitment_of_study_from_external_storage_commitment_scp:Request Storage Commitment of Study from external Storage Commitment SCP`
                 break;
         }
-        console.log("archiveDevice",this.appService.archiveDeviceName);
+        console.log('archiveDevice',this.appService.archiveDeviceName);
         this.confirm({
             content: dialogText,
             doNotSave:true,
@@ -7492,14 +7531,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName != this.appService.archiveDeviceName),
-                            filterKey:"stgCmtSCP",
+                            filterKey:'stgCmtSCP',
                             description:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`,
                             placeholder:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`
                         }
@@ -7511,15 +7550,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             },
             saveButton: $localize `:@@SEND:SEND`
         }).subscribe((ok)=>{
-            if(ok && _.hasIn(ok, "schema_model.stgCmtSCP")){
+            if(ok && _.hasIn(ok, 'schema_model.stgCmtSCP')){
                 let service;
                 let msg;
                 if(dicomLevel){
                     switch (dicomLevel){
-                        case "series":
+                        case 'series':
                             msg = $localize `:@@storage_commitment_of_series_from_external_storage_commitment_scp_requested:Storage Commitment of Series from external Storage Commitment SCP was requested successfully`;
                             break;
-                        case "instance":
+                        case 'instance':
                             msg = $localize `:@@storage_commitment_of_instance_from_external_storage_commitment_scp_requested:Storage Commitment of Instance from external Storage Commitment SCP was requested successfully`;
                             break;
                         default:
@@ -7549,7 +7588,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     
     sendStorageCommitmentRequestMatchingStudies(){
         let dialogText = $localize `:@@schedule_storage_commitment_of_matching_studies_from_external_storage_commitment_scp:Schedule Storage Commitment of matching Studies from external Storage Commitment SCP`
-        console.log("archiveDevice",this.appService.archiveDeviceName);
+        console.log('archiveDevice',this.appService.archiveDeviceName);
         this.confirm({
             content: dialogText,
             doNotSave:true,
@@ -7557,40 +7596,40 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName != this.appService.archiveDeviceName),
-                            filterKey:"stgCmtSCP",
+                            filterKey:'stgCmtSCP',
                             description:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`,
                             placeholder:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@batch_id:Batch ID`
                         },
                         {
-                            tag: "input",
-                            type: "text",
-                            filterKey: "batchID",
+                            tag: 'input',
+                            type: 'text',
+                            filterKey: 'batchID',
                             description: $localize`:@@batch_id:Batch ID`,
                             placeholder: $localize`:@@batch_id:Batch ID`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@schedule_at:Schedule at`
                         },
                         {
                             tag:"single-date-time-picker",
-                            type:"text",
-                            filterKey:"scheduledTime",
+                            type:'text',
+                            filterKey:'scheduledTime',
                             description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                         },
                     ]
@@ -7601,7 +7640,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             },
             saveButton: $localize `:@@SEND:SEND`
         }).subscribe((ok)=>{
-            if(ok && _.hasIn(ok, "schema_model.stgCmtSCP")){
+            if(ok && _.hasIn(ok, 'schema_model.stgCmtSCP')){
                 let stgCmtSCP = ok.schema_model.stgCmtSCP;
                 delete ok.schema_model['stgCmtSCP'];
                 let service = this.service.sendStorageCommitmentRequestForMatchingStudies(
@@ -7623,7 +7662,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
     sendStorageCommitmentRequestMatchingSeries(){
         let dialogText = $localize `:@@schedule_storage_commitment_of_matching_series_from_external_storage_commitment_scp:Schedule Storage Commitment of matching Series from external Storage Commitment SCP`
-        console.log("archiveDevice",this.appService.archiveDeviceName);
+        console.log('archiveDevice',this.appService.archiveDeviceName);
         this.confirm({
             content: dialogText,
             doNotSave:true,
@@ -7631,39 +7670,39 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName != this.appService.archiveDeviceName),
-                            filterKey:"stgCmtSCP",
+                            filterKey:'stgCmtSCP',
                             description:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`,
                             placeholder:$localize `:@@storage_commitment_scp_ae_title:Storage Commitment SCP AE Title`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@schedule_at:Schedule at`
                         },
                         {
                             tag:"single-date-time-picker",
-                            type:"text",
-                            filterKey:"scheduledTime",
+                            type:'text',
+                            filterKey:'scheduledTime',
                             description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                         },
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@batch_id:Batch ID`
                         },
                         {
-                            tag: "input",
-                            type: "text",
-                            filterKey: "batchID",
+                            tag: 'input',
+                            type: 'text',
+                            filterKey: 'batchID',
                             description: $localize`:@@batch_id:Batch ID`,
                             placeholder: $localize`:@@batch_id:Batch ID`
                         }
@@ -7675,7 +7714,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             },
             saveButton: $localize `:@@SEND:SEND`
         }).subscribe((ok)=>{
-            if(ok && _.hasIn(ok, "schema_model.stgCmtSCP")){
+            if(ok && _.hasIn(ok, 'schema_model.stgCmtSCP')){
                 let stgCmtSCP = ok.schema_model.stgCmtSCP;
                 delete ok.schema_model['stgCmtSCP'];
                 let service = this.service.sendStorageCommitmentRequestForMatchingSeries(
@@ -7699,17 +7738,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     sendInstanceAvailabilityNotificationSingle(dicomLevel?:DicomLevel, model?:any) {
         let dialogText;
         switch (dicomLevel){
-            case "series":
+            case 'series':
                 dialogText = $localize `:@@request_instance_availability_of_series_to_external_instance_availability_scp:Request Instance Availability of Series to external Instance Availability SCP`
                 break;
-            case "instance":
+            case 'instance':
                 dialogText = $localize `:@@request_instance_availability_of_instance_to_external_instance_availability_scp:Request Instance Availability of Instance to external Instance Availability SCP`
                 break;
             default:
                 dialogText = $localize `:@@request_instance_availability_of_study_to_external_instance_availability_scp:Request Instance Availability of Study to external Instance Availability SCP`
                 break;
         }
-        console.log("archiveDevice",this.appService.archiveDeviceName);
+        console.log('archiveDevice',this.appService.archiveDeviceName);
         this.confirm({
             content: dialogText,
             doNotSave:true,
@@ -7717,14 +7756,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@ian_scp_ae_title:IAN SCP AE Title`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName != this.appService.archiveDeviceName),
-                            filterKey:"ianscp",
+                            filterKey:'ianscp',
                             description:$localize `:@@ian_scp_ae_title:IAN SCP AE Title`,
                             placeholder:$localize `:@@instance_availability_notification_scp_ae_title:Instance Availability Notification SCP AE Title`
                         }
@@ -7736,15 +7775,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             },
             saveButton: $localize `:@@SEND:SEND`
         }).subscribe((ok)=>{
-            if(ok && _.hasIn(ok, "schema_model.ianscp")){
+            if(ok && _.hasIn(ok, 'schema_model.ianscp')){
                 let service;
                 let msg;
                 if(dicomLevel){
                     switch (dicomLevel){
-                        case "series":
+                        case 'series':
                             msg = $localize `:@@instance_availability_of_series_to_external_instance_availability_scp_requested:Instance Availability of Series to external Instance Availability SCP was requested successfully`;
                             break;
-                        case "instance":
+                        case 'instance':
                             msg = $localize `:@@instance_availability_of_instance_to_external_instance_availability_scp_requested:Instance Availability of Instance to external Instance Availability SCP was requested successfully`;
                             break;
                         default:
@@ -7774,7 +7813,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     sendInstanceAvailabilityNotificationMatchingStudies(){
         let dialogText = $localize `:@@schedule_instance_availability_of_matching_studies_to_external_instance_availability_scp:Schedule Instance Availability of matching Studies to external Instance Availability SCP`
-        console.log("archiveDevice",this.appService.archiveDeviceName);
+        console.log('archiveDevice',this.appService.archiveDeviceName);
         this.confirm({
             content: dialogText,
             doNotSave:true,
@@ -7782,40 +7821,40 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@ian_scp_ae_title:IAN SCP AE Title`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName != this.appService.archiveDeviceName),
-                            filterKey:"ianscp",
+                            filterKey:'ianscp',
                             description:$localize `:@@ian_scp_ae_title:IAN SCP AE Title`,
                             placeholder:$localize `:@@instance_availability_notification_scp_ae_title:Instance Availability Notification SCP AE Title`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@batch_id:Batch ID`
                         },
                         {
-                            tag: "input",
-                            type: "text",
-                            filterKey: "batchID",
+                            tag: 'input',
+                            type: 'text',
+                            filterKey: 'batchID',
                             description: $localize`:@@batch_id:Batch ID`,
                             placeholder: $localize`:@@batch_id:Batch ID`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@schedule_at:Schedule at`
                         },
                         {
                             tag:"single-date-time-picker",
-                            type:"text",
-                            filterKey:"scheduledTime",
+                            type:'text',
+                            filterKey:'scheduledTime',
                             description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                         },
                     ]
@@ -7826,7 +7865,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             },
             saveButton: $localize `:@@SEND:SEND`
         }).subscribe((ok)=>{
-            if(ok && _.hasIn(ok, "schema_model.ianscp")){
+            if(ok && _.hasIn(ok, 'schema_model.ianscp')){
                 let ianscp = ok.schema_model.ianscp;
                 delete ok.schema_model['ianscp'];
                 let service = this.service.sendInstanceAvailabilityNotificationForMatchingStudies(
@@ -7849,7 +7888,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
 
     sendInstanceAvailabilityNotificationMatchingSeries(){
         let dialogText = $localize `:@@schedule_instance_availability_of_matching_series_to_external_instance_availability_scp:Schedule Instance Availability of matching Series to external Instance Availability SCP`
-        console.log("archiveDevice",this.appService.archiveDeviceName);
+        console.log('archiveDevice',this.appService.archiveDeviceName);
         this.confirm({
             content: dialogText,
             doNotSave:true,
@@ -7857,40 +7896,40 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@ian_scp_ae_title:IAN SCP AE Title`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.applicationEntities.aes.filter(aes=>aes.wholeObject.dicomDeviceName != this.appService.archiveDeviceName),
-                            filterKey:"ianscp",
+                            filterKey:'ianscp',
                             description:$localize `:@@ian_scp_ae_title:IAN SCP AE Title`,
                             placeholder:$localize `:@@instance_availability_notification_scp_ae_title:Instance Availability Notification SCP AE Title`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@batch_id:Batch ID`
                         },
                         {
-                            tag: "input",
-                            type: "text",
-                            filterKey: "batchID",
+                            tag: 'input',
+                            type: 'text',
+                            filterKey: 'batchID',
                             description: $localize`:@@batch_id:Batch ID`,
                             placeholder: $localize`:@@batch_id:Batch ID`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@schedule_at:Schedule at`
                         },
                         {
                             tag:"single-date-time-picker",
-                            type:"text",
-                            filterKey:"scheduledTime",
+                            type:'text',
+                            filterKey:'scheduledTime',
                             description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                         },
                     ]
@@ -7901,7 +7940,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             },
             saveButton: $localize `:@@SEND:SEND`
         }).subscribe((ok)=>{
-            if(ok && _.hasIn(ok, "schema_model.ianscp")){
+            if(ok && _.hasIn(ok, 'schema_model.ianscp')){
                 let ianscp = ok.schema_model.ianscp;
                 delete ok.schema_model['ianscp'];
                 let service = this.service.sendInstanceAvailabilityNotificationForMatchingSeries(
@@ -8002,7 +8041,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     }
                     $this.dialogRef = null;
                 });
-            });
+
+                this.changeDetector.detectChanges();});
     }
 
     editStudy(study){
@@ -8020,14 +8060,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.service.getStudyIod().subscribe((res) => {
             let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
             let study = {
-                "attrs":{}
+                'attrs':{}
             };
             Object.keys(iod).forEach(dicomAttr=>{
                 if((iod[dicomAttr].required && iod[dicomAttr].required === 1)){
-                    study["attrs"][dicomAttr] = _.cloneDeep(iod[dicomAttr]);
+                    study['attrs'][dicomAttr] = _.cloneDeep(iod[dicomAttr]);
                 }
             });
-            delete study.attrs["0020000D"];
+            delete study.attrs['0020000D'];
             this.service.initEmptyValue(study.attrs);
             let studyFiltered = _.cloneDeep(study);
             this.dialogRef = this.dialog.open(EditStudyComponent, {
@@ -8065,7 +8105,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             ...{sourceOfPreviousValues:ok.sourceOfPrevVals},
                             ...{reasonForModification:ok.reasonForModificationResult}}))
                         .subscribe(res => {
-                        console.log("res", res);
+                        console.log('res', res);
                         this.cfpLoadingBar.complete();
                         msg = j4care.prepareCountMessageUpdateMatching(msg, res);
                         this.appService.showMsg(msg);
@@ -8075,7 +8115,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
                 }
             });
-        });
+
+            this.changeDetector.detectChanges();});
     }
 
     updateMatchingSeries() {
@@ -8083,16 +8124,16 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.service.getSeriesIod().subscribe((res) => {
             let iod = $this.service.replaceKeyInJson(res, 'items', 'Value');
             let series = {
-                "attrs":{}
+                'attrs':{}
             };
             Object.keys(iod).forEach(dicomAttr=>{
                 if((iod[dicomAttr].required && iod[dicomAttr].required === 1)){
-                    series["attrs"][dicomAttr] = _.cloneDeep(iod[dicomAttr]);
+                    series['attrs'][dicomAttr] = _.cloneDeep(iod[dicomAttr]);
                 }
             });
-            delete series.attrs["0020000E"];
-            delete series.attrs["00080060"];
-            delete series.attrs["00080005"];
+            delete series.attrs['0020000E'];
+            delete series.attrs['00080060'];
+            delete series.attrs['00080005'];
             this.service.initEmptyValue(series.attrs);
             let seriesFiltered = _.cloneDeep(series);
             this.dialogRef = this.dialog.open(EditSeriesComponent, {
@@ -8111,7 +8152,6 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     j4care.removeKeyFromObject(seriesFiltered.attrs, ['required','enum', 'multi','newBlock','required']);
                     if(_.hasIn(seriesFiltered,"attrs.0020000E"))
                         delete seriesFiltered.attrs["0020000E"];
-
                     let local = {};
                     $this.service.appendPatientIdTo(series.attrs, local);
                     _.forEach(seriesFiltered.attrs, function(m, i){
@@ -8130,7 +8170,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             ...{sourceOfPreviousValues:ok.sourceOfPrevVals},
                             ...{reasonForModification:ok.reasonForModificationResult}}))
                         .subscribe(res => {
-                        console.log("res", res);
+                        console.log('res', res);
                         this.cfpLoadingBar.complete();
                         msg = j4care.prepareCountMessageUpdateMatching(msg, res);
                         this.appService.showMsg(msg);
@@ -8140,7 +8180,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
                 }
             });
-        });
+
+            this.changeDetector.detectChanges();});
     }
 
     createUPSMatchingStudies() {
@@ -8150,26 +8191,26 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             form_schema:[
                 [
                     {
-                        tag: "label",
+                        tag: 'label',
                         text: $localize`:@@ups_label:UPS Label`
                     },
                     {
-                        tag: "input",
-                        type: "text",
-                        filterKey: "upsLabel",
+                        tag: 'input',
+                        type: 'text',
+                        filterKey: 'upsLabel',
                         placeholder: $localize`:@@ups_label:UPS Label`,
                         description: $localize`:@@ups_label_desc:Value of Procedure Step Label (0074,1204) in created UPS.`
                     }
                 ],
                 [
                     {
-                        tag: "label",
+                        tag: 'label',
                         text: $localize`:@@ups_scheduled_time:UPS Scheduled Time`
                     },
                     {
                         tag:"single-date-time-picker",
-                        type:"text",
-                        filterKey:"upsScheduledTime",
+                        type:'text',
+                        filterKey:'upsScheduledTime',
                         placeholder: $localize`:@@ups_scheduled_time:UPS Scheduled Time`,
                         description:$localize `:@@ups_scheduled_time_desc:Scheduled Procedure Step Start DateTime (0040,4005) as in created UPS.`
                     },
@@ -8185,10 +8226,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.service.createUPSMatchingStudies(this.studyWebService.selectedWebService,
                     _.merge(result.schema_model, this.createStudyFilterParams(true,true)))
                     .subscribe(res=>{
-                        console.log("res",res);
-                        let count = "";
+                        console.log('res',res);
+                        let count = '';
                         try{
-                            count = res["count"];
+                            count = res['count'];
                         }catch (e) {
                             j4care.log("Could not get count from res=",e);
                         }
@@ -8271,7 +8312,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     }
                     $this.dialogRef = null;
                 });
-            });
+
+                this.changeDetector.detectChanges();});
     };
 
     setExpiredDate(study){
@@ -8285,7 +8327,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     markAsRequestedOrUnscheduled(e, level:DicomLevel){
         let markModeHover;
         let markModeTitle;
-        if (level === "series") {
+        if (level === 'series') {
             markModeHover = $localize `:@@mark_mode_series_desc:Select mark mode to mark series as Requested or Unscheduled`;
             markModeTitle = $localize `:@@mark_mode_series_text:Mark series as Requested or Unscheduled`;
         } else {
@@ -8298,23 +8340,23 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
 
                     {
-                        tag:"label",
+                        tag:'label',
                         text:$localize `:@@mark_mode:Mark mode`
                     },
                     {
-                        tag:"select",
+                        tag:'select',
                         options:[
-                            new SelectDropdown("requested", $localize `:@@requested:Requested`),
-                            new SelectDropdown("unscheduled", $localize `:@@unscheduled:Unscheduled`)
+                            new SelectDropdown('requested', $localize `:@@requested:Requested`),
+                            new SelectDropdown('unscheduled', $localize `:@@unscheduled:Unscheduled`)
                         ],
-                        filterKey:"markMode",
+                        filterKey:'markMode',
                         description: markModeHover,
                         placeholder:$localize `:@@mark_mode:Mark mode`
                     }
                 ]
             ];
 
-            let schemaMode = "unscheduled";
+            let schemaMode = 'unscheduled';
             this.confirm({
                 content: markModeTitle,
                 doNotSave:true,
@@ -8322,20 +8364,20 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     mainSchema
                 ],
                 onFilterChangeHook:(e,model,schema)=>{
-                    console.log("e",e);
-                    console.log("model",model);
-                    console.log("schema",schema);
-                    if(model && model["markMode"]){
-                        if(model["markMode"] === "requested" && schemaMode != "requested"){
+                    console.log('e',e);
+                    console.log('model',model);
+                    console.log('schema',schema);
+                    if(model && model['markMode']){
+                        if(model['markMode'] === 'requested' && schemaMode != 'requested'){
                             schema[0] = [
                                 ...mainSchema,
                                 ...requestedSchema
                             ];
-                            schemaMode = "requested";
+                            schemaMode = 'requested';
                         }
-                        if(model["markMode"] === "unscheduled" && schemaMode != "unscheduled"){
+                        if(model['markMode'] === 'unscheduled' && schemaMode != 'unscheduled'){
                             schema[0] = mainSchema;
-                            schemaMode = "unscheduled";
+                            schemaMode = 'unscheduled';
                         }
                     }
                 },
@@ -8346,17 +8388,17 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             },
                 '700px'
             ).subscribe(ok=>{
-                if(ok && _.hasIn(ok,"schema_model.markMode")){
+                if(ok && _.hasIn(ok,'schema_model.markMode')){
                     const studyInstanceUID = j4care.getStudyInstanceUID(e.attrs);
                     let toSendObject = [];
-                    let requested = _.get(ok, "schema_model.markMode") === "requested";
+                    let requested = _.get(ok, 'schema_model.markMode') === 'requested';
                     if(requested){
-                        toSendObject = [this.service.convertFilterModelToDICOMObject(ok.schema_model,iod,["markMode"])];
+                        toSendObject = [this.service.convertFilterModelToDICOMObject(ok.schema_model,iod,['markMode'])];
                     }
                     this.cfpLoadingBar.start();
                     this.service.markAsRequestedOrUnscheduled(this.studyWebService.selectedWebService,studyInstanceUID,toSendObject, level, e).subscribe(res=>{
                         this.cfpLoadingBar.complete();
-                        let infoMsg = level === "series"
+                        let infoMsg = level === 'series'
                                             ? requested
                                                 ? $localize `:@@mark_series_requested_successfully:Series[uid=${this.service.getSeriesInstanceUID(e.attrs)}] marked as Requested successfully!`
                                                 : $localize `:@@mark_series_unscheduled_successfully:Series[uid=${this.service.getSeriesInstanceUID(e.attrs)}] marked as Unscheduled successfully!`
@@ -8385,7 +8427,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         result.schema_model.exporter)
                         .subscribe((res)=>{
                                 _.set(series,"attrs.77771033.Value[0]",result.schema_model.expiredDate);
-                                _.set(series,"attrs.77771033.vr","DA");
+                                _.set(series,'attrs.77771033.vr','DA');
                                 this.appService.showMsg( $localize `:@@expired_date_set:Expired date set successfully!`);
                                 this.cfpLoadingBar.complete();
                             },
@@ -8419,12 +8461,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 if(result.schema_model.expiredDate || result.schema_model.protectStudy){
                     this.service.setExpiredDate(this.studyWebService,
                                                 _.get(study,"attrs.0020000D.Value[0]"),
-                                                result.schema_model.protectStudy ? "never" : result.schema_model.expiredDate,
+                                                result.schema_model.protectStudy ? 'never' : result.schema_model.expiredDate,
                                                 result.schema_model.exporter,
                                                 result.schema_model.FreezeExpirationDate)
                         .subscribe((res)=>{
                             _.set(study,"attrs.77771023.Value[0]",result.schema_model.expiredDate);
-                            _.set(study,"attrs.77771023.vr","DA");
+                            _.set(study,'attrs.77771023.vr','DA');
                             this.appService.showMsg( $localize `:@@expired_date_set:Expired date set successfully!`);
                             this.cfpLoadingBar.complete();
                         },
@@ -8446,7 +8488,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         // this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(DeleteRejectedInstancesComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.rjnotes = this.trash.rjnotes;
         this.dialogRef.componentInstance.results = result;
@@ -8484,7 +8526,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             }
             this.cfpLoadingBar.complete();
             this.dialogRef = null;
-        });
+
+            this.changeDetector.detectChanges();});
 
     }
 
@@ -8519,12 +8562,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@retainObj:Retain objects on filesystem`
                         },
                         {
-                            tag:"checkbox",
-                            filterKey:"retainObj"
+                            tag:'checkbox',
+                            filterKey:'retainObj'
                         }
                     ]
                 ]
@@ -8568,40 +8611,40 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@rejection_reason:Rejection Reason`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:rjNoteCodes,
-                            filterKey:"rjNoteCode",
+                            filterKey:'rjNoteCode',
                             description:$localize `:@@rejection_reason:Rejection Reason`,
                             placeholder:$localize `:@@rejection_reason:Rejection Reason`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@batch_id:Batch ID`
                         },
                         {
-                            tag: "input",
-                            type: "text",
-                            filterKey: "batchID",
+                            tag: 'input',
+                            type: 'text',
+                            filterKey: 'batchID',
                             description: $localize`:@@batch_id:Batch ID`,
                             placeholder: $localize`:@@batch_id:Batch ID`
                         }
                     ],
                     [
                         {
-                            tag: "label",
+                            tag: 'label',
                             text: $localize`:@@schedule_at:Schedule at`
                         },
                         {
                             tag:"single-date-time-picker",
-                            type:"text",
-                            filterKey:"scheduledTime",
+                            type:'text',
+                            filterKey:'scheduledTime',
                             description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                         },
                     ]
@@ -8615,7 +8658,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             saveButton: $localize `:@@REJECT:REJECT`
         }).subscribe(result => {
             if (result) {
-                console.log("result",result.rjNoteCode);
+                console.log('result',result.rjNoteCode);
                 this.cfpLoadingBar.start();
                 let rjNoteCode = result.schema_model.rjNoteCode;
                 delete result.schema_model['rjNoteCode'];
@@ -8623,10 +8666,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                                     rjNoteCode,
                                                     _.merge(result.schema_model, this.createStudyFilterParams(true,true)))
                     .subscribe(res=>{
-                        console.log("res",res);
-                        let count = "";
+                        console.log('res',res);
+                        let count = '';
                         try{
-                            count = res["count"];
+                            count = res['count'];
                         }catch (e) {
                             j4care.log("Could not get count from res=",e);
                         }
@@ -8660,7 +8703,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             saveButton: $localize `:@@REJECT:REJECT`
         }).subscribe(result => {
             if (result) {
-                console.log("result",result.rjNoteCode);
+                console.log('result',result.rjNoteCode);
                 this.cfpLoadingBar.start();
                 let rjNoteCode = result.schema_model.rjNoteCode;
                 delete result.schema_model['rjNoteCode'];
@@ -8669,8 +8712,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         rjNoteCode,
                         _.merge(result.schema_model, this.createStudyFilterParams(true,true))
                     ).subscribe(res=>{
-                        console.log("res",res);
-                        let count = "";
+                        console.log('res',res);
+                        let count = '';
                         try{
                             count = res.count;
                         }catch (e) {
@@ -8704,10 +8747,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.studyWebService,
                         _.merge(result.schema_model, this.createStudyFilterParams(true,true))
                     ).subscribe(res=>{
-                        console.log("res",res);
+                        console.log('res',res);
                         this.cfpLoadingBar.complete();
                         try{
-                            let count = res["count"] || "";
+                            let count = res['count'] || '';
                             this.appService.showMsg(`Objects export successfully:<br>Count: ${count}`);
                         }catch (e) {
                             j4care.log("Could not get count from res=",e);
@@ -8720,7 +8763,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         });
     }
     rejectRestoreMultipleObjects(){
-        let msg = "";
+        let msg = '';
         let select: any = [];
         let rejectionRestoreService = (rejectionCode)=>{
             if(this.selectedElements.size > 0){
@@ -8792,52 +8835,52 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@rejection_reason:Rejection Reason`
                             },
                             {
-                                tag:"select",
-                                type:"text",
+                                tag:'select',
+                                type:'text',
                                 options:rjNoteCodes,
-                                filterKey:"rjNoteCode",
+                                filterKey:'rjNoteCode',
                                 description:$localize `:@@rejection_reason:Rejection Reason`,
                                 placeholder:$localize `:@@rejection_reason:Rejection Reason`
                             }
                         ],
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@queue_rejection:Queue Rejection`
                             },
                             {
-                                tag:"checkbox",
-                                filterKey:"queue",
+                                tag:'checkbox',
+                                filterKey:'queue',
                                 description:$localize `:@@queue_rejection:Queue Rejection`,
                                 placeholder:$localize `:@@queue_rejection:Queue Rejection`
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@batch_id:Batch ID`
                             },
                             {
-                                tag: "input",
-                                type: "text",
-                                filterKey: "batchID",
+                                tag: 'input',
+                                type: 'text',
+                                filterKey: 'batchID',
                                 description: $localize`:@@batch_id:Batch ID`,
                                 placeholder: $localize`:@@batch_id:Batch ID`
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@schedule_at:Schedule at`
                             },
                             {
                                 tag:"single-date-time-picker",
-                                type:"text",
-                                filterKey:"scheduledTime",
+                                type:'text',
+                                filterKey:'scheduledTime',
                                 description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                             },
                         ]
@@ -8857,7 +8900,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.rejectStudy(study.attrs, this.studyWebService, rjNoteCode, result.schema_model)
                         .subscribe(
                             (response) => {
-                                let msg = result.schema_model.queue === "true"
+                                let msg = result.schema_model.queue === 'true'
                                     ? $localize `:@@study_queue_reject:Study queued for rejection successfully`
                                     : $localize `:@@study_rejected:Study rejected successfully`;
                                 $this.appService.showMsg(j4care.prepareCountMessage(msg, response));
@@ -8909,52 +8952,52 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@rejection_reason:Rejection Reason`
                             },
                             {
-                                tag:"select",
-                                type:"text",
+                                tag:'select',
+                                type:'text',
                                 options:rjNoteCodes,
-                                filterKey:"rjNoteCode",
+                                filterKey:'rjNoteCode',
                                 description:$localize `:@@rejection_reason:Rejection Reason`,
                                 placeholder:$localize `:@@rejection_reason:Rejection Reason`
                             }
                         ],
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@queue_rejection:Queue Rejection`
                             },
                             {
-                                tag:"checkbox",
-                                filterKey:"queue",
+                                tag:'checkbox',
+                                filterKey:'queue',
                                 description:$localize `:@@queue_rejection:Queue Rejection`,
                                 placeholder:$localize `:@@queue_rejection:Queue Rejection`
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@batch_id:Batch ID`
                             },
                             {
-                                tag: "input",
-                                type: "text",
-                                filterKey: "batchID",
+                                tag: 'input',
+                                type: 'text',
+                                filterKey: 'batchID',
                                 description: $localize`:@@batch_id:Batch ID`,
                                 placeholder: $localize`:@@batch_id:Batch ID`
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@schedule_at:Schedule at`
                             },
                             {
                                 tag:"single-date-time-picker",
-                                type:"text",
-                                filterKey:"scheduledTime",
+                                type:'text',
+                                filterKey:'scheduledTime',
                                 description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                             },
                         ]
@@ -8974,7 +9017,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.rejectSeries(series.attrs, this.studyWebService, rjNoteCode, result.schema_model)
                         .subscribe(
                             (response) => {
-                                let msg = result.schema_model.queue === "true"
+                                let msg = result.schema_model.queue === 'true'
                                             ? $localize `:@@series_queue_reject:Series queued for rejection successfully`
                                             : $localize `:@@series_rejected:Series rejected successfully`;
                                 $this.appService.showMsg(j4care.prepareCountMessage(msg, response));
@@ -9026,52 +9069,52 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@rejection_reason:Rejection Reason`
                             },
                             {
-                                tag:"select",
-                                type:"text",
+                                tag:'select',
+                                type:'text',
                                 options:rjNoteCodes,
-                                filterKey:"rjNoteCode",
+                                filterKey:'rjNoteCode',
                                 description:$localize `:@@rejection_reason:Rejection Reason`,
                                 placeholder:$localize `:@@rejection_reason:Rejection Reason`
                             }
                         ],
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@queue_rejection:Queue Rejection`
                             },
                             {
-                                tag:"checkbox",
-                                filterKey:"queue",
+                                tag:'checkbox',
+                                filterKey:'queue',
                                 description:$localize `:@@queue_rejection:Queue Rejection`,
                                 placeholder:$localize `:@@queue_rejection:Queue Rejection`
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@batch_id:Batch ID`
                             },
                             {
-                                tag: "input",
-                                type: "text",
-                                filterKey: "batchID",
+                                tag: 'input',
+                                type: 'text',
+                                filterKey: 'batchID',
                                 description: $localize`:@@batch_id:Batch ID`,
                                 placeholder: $localize`:@@batch_id:Batch ID`
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@schedule_at:Schedule at`
                             },
                             {
                                 tag:"single-date-time-picker",
-                                type:"text",
-                                filterKey:"scheduledTime",
+                                type:'text',
+                                filterKey:'scheduledTime',
                                 description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                             }
                         ]
@@ -9091,7 +9134,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.service.rejectInstance(instance.attrs, this.studyWebService, rjNoteCode, result.schema_model)
                         .subscribe(
                             (response) => {
-                                let msg = result.schema_model.queue === "true"
+                                let msg = result.schema_model.queue === 'true'
                                     ? $localize `:@@instance_queue_reject:Instance queued for rejection successfully`
                                     : $localize `:@@instance_rejected:Instance rejected successfully`;
                                 $this.appService.showMsg(j4care.prepareCountMessage(msg, response));
@@ -9113,23 +9156,27 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }
     };
 
-    setTrash(){
-        if (_.hasIn(this.studyWebService,"selectedWebService.dicomAETitleObject") && this.studyWebService.selectedWebService.dicomAETitleObject.dcmHideNotRejectedInstances){
-            if (!this.trash.rjcode){
-                this.service.getRejectNotes({dcmRevokeRejection:true})
-                    .subscribe((res)=>{
-                        this.trash.rjcode = undefined;
-                        setTimeout(()=>{
-                            this.trash.rjcode = res[0];
-                            this.setSchema();
-                        },1);
-                    });
+    setTrash() {
+        try{
+            if (_.hasIn(this.studyWebService,'selectedWebService.dicomAETitleObject') && this.studyWebService.selectedWebService.dicomAETitleObject.dcmHideNotRejectedInstances){
+                if (!this.trash.rjcode){
+                    this.service.getRejectNotes({dcmRevokeRejection:true})
+                        .subscribe((res)=>{
+                            this.trash.rjcode = undefined;
+                            setTimeout(()=>{
+                                this.trash.rjcode = res[0];
+                                this.setSchema();
+                            },1);
+                        });
+                }
+                this.trash.active = true;
+            } else {
+                this.trash.active = false;
             }
-            this.trash.active = true;
-        }else{
-            this.trash.active = false;
+            this.setTableSchema();
+        }catch (e) {
+            console.log('Error in setTrash: ', e);
         }
-        this.setTableSchema();
     };
 
     setTableSchema(){
@@ -9137,11 +9184,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     getSchema(){
-        let dateTimeFormat = _.hasIn(this.appService.global,"dateTimeFormat") ? this.appService.global["dateTimeFormat"] : undefined;
-        let personNameFormat = _.hasIn(this.appService.global,"personNameFormat") ? this.appService.global["personNameFormat"] : undefined;
+        let dateTimeFormat = _.hasIn(this.appService.global,'dateTimeFormat') ? this.appService.global['dateTimeFormat'] : undefined;
+        let personNameFormat = _.hasIn(this.appService.global,'personNameFormat') ? this.appService.global['personNameFormat'] : undefined;
         return this.service.checkSchemaPermission(this.service.PATIENT_STUDIES_TABLE_SCHEMA(this, this.actions, {
             trash:this.trash,
-            selectedWebService: _.get(this.studyWebService,"selectedWebService"),
+            selectedWebService: _.get(this.studyWebService,'selectedWebService'),
             studyWebService:this.studyWebService,
             tableParam:this.tableParam,
             studyConfig:this.studyConfig,
@@ -9160,21 +9207,21 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             $localize `:@@study.retrieve_matching_studies_depending:Retrieve matching studies depending on selected filters, from external C-MOVE SCP`,
             'multiple-retrieve',
             {},
-            ""
+            ''
         );
     }
 
     retrieveObject(level:DicomLevel, object?, multipleObjects?:SelectionActionElement){
-        console.log("object",object);
+        console.log('object',object);
         let modalText;
         switch(level){
-            case "study":
+            case 'study':
                 modalText = $localize `:@@study.retrieve_study:Retrieve Study`;
                 break;
-            case "instance":
+            case 'instance':
                 modalText = $localize `:@@study.retrieve_instance:Retrieve Instance`;
                 break;
-            case "series":
+            case 'series':
                 modalText = $localize `:@@study.retrieve_series:Retrieve Series`;
                 break;
             default:
@@ -9189,18 +9236,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         [
                             {
-                                tag:"label_large",
+                                tag:'label_large',
                                 text:modalText
                             }
                         ],
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@destination_aet:Destination AET`
                             },{
                                 tag:"editable-select",
                                 options:this.applicationEntities.aes,
-                                filterKey:"destination",
+                                filterKey:'destination',
                                 showSearchField:true,
                                 description: $localize `:@@destination_aet:Destination AET`,
                                 placeholder: $localize `:@@destination_aet:Destination AET`
@@ -9208,68 +9255,68 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         ],
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@priority:Priority`
                             },
                             {
-                                tag:"select",
+                                tag:'select',
                                 options:[
                                     new SelectDropdown(0, $localize `:@@normal:NORMAL`),
                                     new SelectDropdown(1, $localize `:@@HIGH:HIGH`),
                                     new SelectDropdown(2, $localize `:@@LOW:LOW`)
                                 ],
-                                filterKey:"priority",
-                                type:"number",
+                                filterKey:'priority',
+                                type:'number',
                                 description:$localize `:@@priority:Priority`,
                                 placeholder:$localize `:@@priority:Priority`
                             }
                         ],
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@queue_name:Queue Name`
                             },
                             {
-                                tag:"select",
+                                tag:'select',
                                 options:this.retrieveQueues,
-                                filterKey:"dcmQueueName",
+                                filterKey:'dcmQueueName',
                                 description:$localize `:@@queue_name:Queue Name`,
                                 placeholder:$localize `:@@queue_name:Queue Name`
                             }
                         ],[
                             {
-                                tag:"label",
+                                tag:'label',
                                 text: $localize `:@@batch_id:Batch ID`
                             },{
-                                tag: "input",
-                                type: "text",
-                                filterKey: "batchID",
+                                tag: 'input',
+                                type: 'text',
+                                filterKey: 'batchID',
                                 description: $localize `:@@batch_id:Batch ID`,
                                 placeholder: $localize `:@@batch_id:Batch ID`
                             }
                         ],
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@device_name:Device Name`
                             },
                             {
-                                tag:"select",
+                                tag:'select',
                                 options:devices.map((device:Device)=>{
                                     return new SelectDropdown(device.dicomDeviceName,device.dicomDeviceName,device.dicomDeviceDescription)
                                 }),
-                                filterKey:"dicomDeviceName",
+                                filterKey:'dicomDeviceName',
                                 description:$localize `:@@device_name:Device Name`,
                                 placeholder:$localize `:@@device_name:Device Name`
                             }
                         ],[
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@scheduled_time:Scheduled Time`
                             },{
                                 tag:"single-date-time-picker",
-                                type:"text",
-                                filterKey:"scheduledTime",
+                                type:'text',
+                                filterKey:'scheduledTime',
                                 description:$localize `:@@scheduled_time:Scheduled Time`
                             }
                         ]
@@ -9281,11 +9328,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 saveButton: $localize`:@@RETRIEVE:RETRIEVE`
             }).subscribe((ok) => {
                 if(ok){
-                    console.log("ok",ok);
+                    console.log('ok',ok);
                     this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
                         this.studyWebService,
-                        "MOVE",
-                        "MOVE_MATCHING"
+                        'MOVE',
+                        'MOVE_MATCHING'
                     ).subscribe(webApp=>{
                         if(webApp){
                             this.cfpLoadingBar.start();
@@ -9304,7 +9351,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     });
                 }
             });
-        });
+
+            this.changeDetector.detectChanges();});
     }
     exportStudy(study) {
         this.exporter(
@@ -9312,7 +9360,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             $localize `:@@study.export_study:Export study`,
             'single',
             study.attrs,
-            "study"
+            'study'
         );
     };
     exportSeries(series) {
@@ -9321,7 +9369,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             $localize `:@@export_series:Export series`,
             'single',
             series.attrs,
-            "series"
+            'series'
         );
     };
     exportInstance(instance) {
@@ -9330,7 +9378,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             $localize `:@@export_instance:Export instance`,
             'single',
             instance.attrs,
-            "instance"
+            'instance'
         );
     };
     exporter(url, title, mode, objectAttr, dicomMode, multipleObjects?:SelectionActionElement){
@@ -9339,7 +9387,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let urlRest;
         let noDicomExporters = [];
         let dicomPrefixes = [];
-        let singleUrlSuffix = "";
+        let singleUrlSuffix = '';
         _.forEach(this.exporters, (m, i) => {
             if (m.id.indexOf(':') > -1){
                 dicomPrefixes.push(m);
@@ -9361,9 +9409,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.dialogRef = this.dialog.open(ExportDialogComponent, config);
         this.dialogRef.componentInstance.noDicomExporters = noDicomExporters;
         this.dialogRef.componentInstance.dicomPrefixes = dicomPrefixes;
-        this.dialogRef.componentInstance.externalInternalAetMode = !this.internal || mode === "multiple-retrieve" ? "external" : "internal";
+        this.dialogRef.componentInstance.externalInternalAetMode = !this.internal || mode === "multiple-retrieve" ? 'external' : 'internal';
         this.dialogRef.componentInstance.title = title;
-        this.dialogRef.componentInstance.mode = mode == "multipleExportSelections" ? 'single': mode;
+        this.dialogRef.componentInstance.mode = mode == 'multipleExportSelections' ? 'single': mode;
         this.dialogRef.componentInstance.queues = this.queues;
         this.dialogRef.componentInstance.newStudyPage = true;
         // this.dialogRef.componentInstance.count = this.count;
@@ -9372,7 +9420,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }*/
         this.dialogRef.afterClosed().subscribe(result => {
             if (result){
-                let batchID = "";
+                let batchID = '';
                 let params = {};
                 if(result.batchID)
                     batchID = `batchID=${result.batchID}&`;
@@ -9382,13 +9430,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 : `batchID=${result.batchID}&`
                             : result.scheduledTime
                                 ? `scheduledTime=${result.scheduledTime}&`
-                                : "";
+                                : '';
                 $this.cfpLoadingBar.start();
                 if(mode === "multiple-retrieve"){
                     this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
                         this.studyWebService,
-                        "MOVE",
-                        "MOVE_MATCHING"
+                        'MOVE',
+                        'MOVE_MATCHING'
                     ).subscribe(webApp=>{
                         if(webApp){
                              urlRest = `${
@@ -9409,12 +9457,12 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     if(mode === 'multipleExportSelections'){
                         this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
                             this.studyWebService,
-                            "DCM4CHEE_ARC_AET",
-                            "MOVE_MATCHING"
+                            'DCM4CHEE_ARC_AET',
+                            'MOVE_MATCHING'
                         ).subscribe(webApp=>{
                             if(webApp){
                                 urlRest = `${
-                                    this.service.getDicomURL("export",webApp)
+                                    this.service.getDicomURL('export',webApp)
                                 }/${
                                     result.selectedExporter
                                 }?${
@@ -9443,8 +9491,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         if(!this.internal){
                             this.service.getWebAppFromWebServiceClassAndSelectedWebApp(
                                 this.studyWebService,
-                                "DCM4CHEE_ARC_AET",
-                                "MOVE"
+                                'DCM4CHEE_ARC_AET',
+                                'MOVE'
                             ).subscribe(webApp=>{
                                 if(webApp){
                                     if(result.dcmQueueName){
@@ -9454,7 +9502,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     delete params['offset'];
                                     delete params['includefield'];
                                     delete params['orderby'];
-                                    urlRest = `${this.service.getDicomURL("export",webApp)}/dicom:${result.selectedAet}${j4care.param(params)}`;
+                                    urlRest = `${this.service.getDicomURL('export',webApp)}/dicom:${result.selectedAet}${j4care.param(params)}`;
                                     // urlRest = `${url}/export/dicom:${result.selectedAet}${j4care.param(params)}`;
                                     //TODO url schould be her overwritten with the 'MOVE' webapp url for external
                                 }else{
@@ -9484,11 +9532,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let  fireService = (result, multipleObjects,singleUrlSuffix, urlRest, url)=>{
             if(multipleObjects && multipleObjects.size > 0){
                 this.service.export(undefined,multipleObjects,singleUrlSuffix, this.studyWebService.selectedWebService).subscribe(res=>{
-                    console.log("res",res);
+                    console.log('res',res);
                     $this.appService.showMsg($this.service.getMsgFromResponse(result,'Command executed successfully!'));
                     $this.cfpLoadingBar.complete();
                 }, err=>{
-                    console.log("err",err);
+                    console.log('err',err);
                     $this.cfpLoadingBar.complete();
                 });
             }else{
@@ -9502,7 +9550,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                             $this.cfpLoadingBar.complete();
                         },
                         (err) => {
-                            console.log("err",err);
+                            console.log('err',err);
                             $this.appService.setMessage({
                                 'title': $localize `:@@error_status:Error ${err.status}:status:
 `,
@@ -9524,94 +9572,94 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@verification_policy:Verification Policy`
                             },
                             {
-                                tag: "select",
+                                tag: 'select',
                                 options: [
                                     {
-                                        value: "DB_RECORD_EXISTS",
+                                        value: 'DB_RECORD_EXISTS',
                                         text: $localize`:@@DB_RECORD_EXISTS:DB_RECORD_EXISTS`,
                                         title: $localize`:@@check_for_existence_of_db_records:Check for existence of DB records`
                                     },
                                     {
-                                        value: "OBJECT_EXISTS",
+                                        value: 'OBJECT_EXISTS',
                                         text: $localize`:@@OBJECT_EXISTS:OBJECT_EXISTS`,
                                         title: $localize`:@@study.check_storage_system:Check if object exists on Storage System`
                                     },
                                     {
-                                        value: "OBJECT_SIZE",
-                                        text: "OBJECT_SIZE",
+                                        value: 'OBJECT_SIZE',
+                                        text: 'OBJECT_SIZE',
                                         title: $localize`:@@study.check_size_in_storage_system:Check size of object on Storage System`
                                     },
                                     {
-                                        value: "OBJECT_FETCH",
+                                        value: 'OBJECT_FETCH',
                                         text: $localize`:@@OBJECT_FETCH:OBJECT_FETCH`,
                                         title: $localize`:@@fetch_from_storage_system:Fetch object from Storage System`
                                     },
                                     {
-                                        value: "OBJECT_CHECKSUM",
+                                        value: 'OBJECT_CHECKSUM',
                                         text: $localize`:@@OBJECT_CHECKSUM:OBJECT_CHECKSUM`,
                                         title: $localize`:@@recalculate_checksum_on_storage_system:recalculate checksum of object on Storage System`
                                     },
                                     {
-                                        value: "S3_MD5SUM",
+                                        value: 'S3_MD5SUM',
                                         text: $localize`:@@S3_MD5SUM:S3_MD5SUM`,
                                         title: $localize`:@@check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
                                     }
                                 ],
                                 showStar: true,
-                                filterKey: "storageVerificationPolicy",
+                                filterKey: 'storageVerificationPolicy',
                                 description: $localize`:@@verification_policy:Verification Policy`,
                                 placeholder: $localize`:@@verification_policy:Verification Policy`
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@update_location_db:Update Location DB`
                             },
                             {
-                                tag: "checkbox",
-                                filterKey: "storageVerificationUpdateLocationStatus"
+                                tag: 'checkbox',
+                                filterKey: 'storageVerificationUpdateLocationStatus'
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@storage_id:Storage ID`
                             }, {
-                            tag: "select",
+                            tag: 'select',
                             options: storages.map(storage => new SelectDropdown(storage.dcmStorageID, storage.dcmStorageID)),
                             showStar: true,
-                            filterKey: "storageVerificationStorageID",
+                            filterKey: 'storageVerificationStorageID',
                             description: $localize`:@@storage_IDs:Storage IDs`,
                             placeholder: $localize`:@@storage_IDs:Storage IDs`
                         }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@batch_id:Batch ID`
                             },
                             {
-                                tag: "input",
-                                type: "text",
-                                filterKey: "batchID",
+                                tag: 'input',
+                                type: 'text',
+                                filterKey: 'batchID',
                                 description: $localize`:@@batch_id:Batch ID`,
                                 placeholder: $localize`:@@batch_id:Batch ID`
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@schedule_at:Schedule at`
                             },
                             {
                                 tag: "single-date-time-picker",
-                                type: "text",
-                                filterKey: "scheduledTime",
+                                type: 'text',
+                                filterKey: 'scheduledTime',
                                 description: $localize`:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                             },
                         ]
@@ -9627,7 +9675,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.cfpLoadingBar.start();
                     msg = $localize`:@@storage_verification_scheduled:Storage Verification scheduled successfully!`;
                     this.service.schedulestorageVerificationSeries(_.merge(ok.schema_model, this.createStudyFilterParams(true, true)), this.studyWebService).subscribe(res => {
-                        console.log("res", res);
+                        console.log('res', res);
                         this.cfpLoadingBar.complete();
                         msg = j4care.prepareCountMessage(msg, res);
                         this.appService.showMsg(msg);
@@ -9646,99 +9694,99 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.confirm({
                 content: $localize`:@@scheduled_storage_verification_of_matching_studies:Schedule Storage Verification of matching Studies`,
                 doNotSave: true,
-                cssClass:"has_date_picker",
+                cssClass:'has_date_picker',
                 form_schema: [
                     [
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@verification_policy:Verification Policy`
                             },
                             {
-                                tag: "select",
+                                tag: 'select',
                                 options: [
                                     {
-                                        value: "DB_RECORD_EXISTS",
+                                        value: 'DB_RECORD_EXISTS',
                                         text: $localize`:@@DB_RECORD_EXISTS:DB_RECORD_EXISTS`,
                                         title: $localize`:@@check_for_existence_of_db_records:Check for existence of DB records`
                                     },
                                     {
-                                        value: "OBJECT_EXISTS",
+                                        value: 'OBJECT_EXISTS',
                                         text: $localize`:@@OBJECT_EXISTS:OBJECT_EXISTS`,
                                         title: $localize`:@@study.check_storage_system:Check if object exists on Storage System`
                                     },
                                     {
-                                        value: "OBJECT_SIZE",
-                                        text: "OBJECT_SIZE",
+                                        value: 'OBJECT_SIZE',
+                                        text: 'OBJECT_SIZE',
                                         title: $localize`:@@study.check_size_in_storage_system:Check size of object on Storage System`
                                     },
                                     {
-                                        value: "OBJECT_FETCH",
+                                        value: 'OBJECT_FETCH',
                                         text: $localize`:@@OBJECT_FETCH:OBJECT_FETCH`,
                                         title: $localize`:@@fetch_from_storage_system:Fetch object from Storage System`
                                     },
                                     {
-                                        value: "OBJECT_CHECKSUM",
+                                        value: 'OBJECT_CHECKSUM',
                                         text: $localize`:@@OBJECT_CHECKSUM:OBJECT_CHECKSUM`,
                                         title: $localize`:@@recalculate_checksum_on_storage_system:recalculate checksum of object on Storage System`
                                     },
                                     {
-                                        value: "S3_MD5SUM",
+                                        value: 'S3_MD5SUM',
                                         text: $localize`:@@S3_MD5SUM:S3_MD5SUM`,
                                         title: $localize`:@@check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
                                     }
                                 ],
                                 showStar: true,
-                                filterKey: "storageVerificationPolicy",
+                                filterKey: 'storageVerificationPolicy',
                                 description: $localize`:@@verification_policy:Verification Policy`,
                                 placeholder: $localize`:@@verification_policy:Verification Policy`
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@update_location_db:Update Location DB`
                             },
                             {
-                                tag: "checkbox",
-                                filterKey: "storageVerificationUpdateLocationStatus"
+                                tag: 'checkbox',
+                                filterKey: 'storageVerificationUpdateLocationStatus'
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@storage_id:Storage ID`
                             }, {
-                                tag: "select",
+                                tag: 'select',
                                 options: storages.map(storage => new SelectDropdown(storage.dcmStorageID, storage.dcmStorageID)),
                                 showStar: true,
-                                filterKey: "storageVerificationStorageID",
+                                filterKey: 'storageVerificationStorageID',
                                 description: $localize`:@@storage_IDs:Storage IDs`,
                                 placeholder: $localize`:@@storage_IDs:Storage IDs`
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@batch_id:Batch ID`
                             },
                             {
-                                tag: "input",
-                                type: "text",
-                                filterKey: "batchID",
+                                tag: 'input',
+                                type: 'text',
+                                filterKey: 'batchID',
                                 description: $localize`:@@batch_id:Batch ID`,
                                 placeholder: $localize`:@@batch_id:Batch ID`
                             }
                         ],
                         [
                             {
-                                tag: "label",
+                                tag: 'label',
                                 text: $localize`:@@schedule_at:Schedule at`
                             },
                             {
                                 tag:"single-date-time-picker",
-                                type:"text",
-                                filterKey:"scheduledTime",
+                                type:'text',
+                                filterKey:'scheduledTime',
                                 description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                             },
                         ]
@@ -9755,7 +9803,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     msg = $localize `:@@storage_verification_scheduled:Storage Verification scheduled successfully!`;
                     this.service.schedulestorageVerificationStudies(_.merge(ok.schema_model, this.createStudyFilterParams(true, true)),
                         this.studyWebService).subscribe(res => {
-                        console.log("res", res);
+                        console.log('res', res);
                         this.cfpLoadingBar.complete();
                         msg = j4care.prepareCountMessage(msg, res);
                         this.appService.showMsg(msg);
@@ -9775,13 +9823,13 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         let dialogText = $localize `:@@verify_storage_of_selected:Verify Storage of selected entities`;
         if (mode) {
             switch (mode) {
-                case "study":
+                case 'study':
                     dialogText = $localize `:@@verify_storage_of_study:Verify Storage of Study`
                     break;
-                case "series":
+                case 'series':
                     dialogText = $localize `:@@verify_storage_of_series:Verify Storage of Series`
                     break;
-                case "instance":
+                case 'instance':
                     dialogText = $localize `:@@verify_storage_of_instance:Verify Storage of Instance`
                     break;
             }
@@ -9794,69 +9842,69 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@verification_policy:Verification Policy`
                             },
                             {
-                                tag:"select",
+                                tag:'select',
                                 options:[
                                     {
-                                        value:"DB_RECORD_EXISTS",
+                                        value:'DB_RECORD_EXISTS',
                                         text:$localize `:@@DB_RECORD_EXISTS:DB_RECORD_EXISTS`,
                                         title:$localize `:@@check_for_existence_of_db_records:Check for existence of DB records`
                                     },
                                     {
-                                        value:"OBJECT_EXISTS",
+                                        value:'OBJECT_EXISTS',
                                         text:$localize `:@@OBJECT_EXISTS:OBJECT_EXISTS`,
                                         title:$localize `:@@study.check_storage_system:Check if object exists on Storage System`
                                     },
                                     {
-                                        value:"OBJECT_SIZE",
+                                        value:'OBJECT_SIZE',
                                         text:$localize `:@@OBJECT_SIZE:OBJECT_SIZE`,
                                         title:$localize `:@@study.check_size_in_storage_system:Check size of object on Storage System`
                                     },
                                     {
-                                        value:"OBJECT_FETCH",
+                                        value:'OBJECT_FETCH',
                                         text:$localize `:@@OBJECT_FETCH:OBJECT_FETCH`,
                                         title:$localize `:@@fetch_from_storage_system:Fetch object from Storage System`
                                     },
                                     {
-                                        value:"OBJECT_CHECKSUM",
+                                        value:'OBJECT_CHECKSUM',
                                         text:$localize `:@@OBJECT_CHECKSUM:OBJECT_CHECKSUM`,
                                         title:$localize `:@@recalculate_checksum_on_storage_system:recalculate checksum of object on Storage System`
                                     },
                                     {
-                                        value:"S3_MD5SUM",
+                                        value:'S3_MD5SUM',
                                         text:$localize `:@@S3_MD5SUM:S3_MD5SUM`,
                                         title:$localize `:@@check_MD5_checksum_on_S3:Check MD5 checksum of object on S3 Storage System`
                                     }
                                 ],
                                 showStar:true,
-                                filterKey:"storageVerificationPolicy",
+                                filterKey:'storageVerificationPolicy',
                                 description:$localize `:@@verification_policy:Verification Policy`,
                                 placeholder:$localize `:@@verification_policy:Verification Policy`,
                             }
                         ],
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@update_location_db:Update Location DB`
                             },
                             {
-                                tag:"checkbox",
-                                filterKey:"storageVerificationUpdateLocationStatus"
+                                tag:'checkbox',
+                                filterKey:'storageVerificationUpdateLocationStatus'
                             }
                         ],
                         [
                             {
-                                tag:"label",
+                                tag:'label',
                                 text:$localize `:@@storage_id:Storage ID`
                             },
                             {
-                                tag:"select",
+                                tag:'select',
                                 options:storages.map(storage=> new SelectDropdown(storage.dcmStorageID, storage.dcmStorageID)),
                                 showStar:true,
-                                filterKey:"storageVerificationStorageID",
+                                filterKey:'storageVerificationStorageID',
                                 description:$localize `:@@storage_IDs:Storage IDs`,
                                 placeholder:$localize `:@@storage_IDs:Storage IDs`
                             }
@@ -9874,7 +9922,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.service.verifyStorage(object.attrs, this.studyWebService, mode, ok.schema_model)
                             .subscribe(
                                 (response) => {
-                                    // console.log("response",response);
+                                    // console.log('response',response);
                                     let failed = (response[0]['00081198'] && response[0]['00081198'].Value) ? response[0]['00081198'].Value.length : 0;
                                     let success = (response[0]['00081199'] && response[0]['00081199'].Value) ? response[0]['00081199'].Value.length : 0;
                                     let msgStatus = $localize `:@@info:Info`;
@@ -9916,7 +9964,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                         this.cfpLoadingBar.start();
                         this.service.storageVerificationForSelected(this.selectedElements, this.studyWebService, ok.schema_model)
                             .subscribe(res => {
-                                console.log("res", res);
+                                console.log('res', res);
                                 this.cfpLoadingBar.complete();
                                 this.appService.showMsg($localize `:@@storage_verification_selected:Storage Verification of selected objects executed successfully!`);
                             }, err => {
@@ -10011,7 +10059,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             switchMap((aes)=>{
                 aesTemp = aes;
                 let filter = {
-                    dcmWebServiceClass: "MOVE"
+                    dcmWebServiceClass: 'MOVE'
                 };
                 return this.service.getWebApps(filter)
             }),
@@ -10041,11 +10089,11 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                     webApp.dicomAETitleObject = aet;
                                 }
                             });
-                            this.service.convertStringLDAPParamToObject(webApp,"dcmProperty",['IID_STUDY_URL', 'IID_PATIENT_URL', 'IID_URL_TARGET','IID_ENCODE']);
+                            this.service.convertStringLDAPParamToObject(webApp,'dcmProperty',['IID_STUDY_URL', 'IID_PATIENT_URL', 'IID_URL_TARGET','IID_ENCODE']);
                             return webApp;
                         }),
-                        selectedWebService:_.get(this.studyWebService,"selectedWebService"),
-                        allWebServices:_.uniq([...webApps,...webAppsTemp],"dcmWebAppName"),
+                        selectedWebService:_.get(this.studyWebService,'selectedWebService'),
+                        allWebServices:_.uniq([...webApps,...webAppsTemp],'dcmWebAppName'),
                     });
                     this.onStudyWebServiceChange.emit(this.studyWebService);
                     this.applicationEntities.aets = aetsTemp.map((ae:Aet)=>{
@@ -10067,9 +10115,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.getQueueNames();
                     this.getRetrieveQueueNames();
                     this.triggerSubmitOnQueryParams();
-                },
+
+                    this.changeDetector.detectChanges();},
                 (err)=> {
-                    console.error("Error on getting webApps",err);
+                    console.error('Error on getting webApps',err);
                     this.httpErrorHandler.handleError(err);
                 });
     }
@@ -10083,7 +10132,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                         }*/
                     // $this.appService.setGlobal({exporterID:$this.exporterID});
                     this.setSchema();
-                },
+
+                    this.changeDetector.detectChanges();},
                 (res)=> {
                     if (retries)
                         this.initExporters(retries - 1);
@@ -10091,7 +10141,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     updatePatientDemographics(patient){
-        console.log("global",this.appService.global);
+        console.log('global',this.appService.global);
         this.confirm({
             content: $localize `:@@study.update_patient_demographics:Update Patient Demographics`,
             doNotSave:true,
@@ -10100,27 +10150,27 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     [
 
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@select_PDQ:Select PDQ Service`
                         },
                         {
-                            tag:"select",
+                            tag:'select',
                             options:this.appService.global['PDQs'].map(pdq=>{
                                 return new SelectDropdown(pdq.id, (pdq.description || pdq.id))
                             }),
-                            filterKey:"PDQServiceID",
+                            filterKey:'PDQServiceID',
                             description:$localize `:@@PDQ_ServiceID:PDQ ServiceID`,
                             placeholder:$localize `:@@PDQ_ServiceID:PDQ ServiceID`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@adjust_issuer_of_patient_identifier:Adjust Issuer of Patient Identifier`
                         },
                         {
-                            tag:"checkbox",
-                            filterKey:"adjustIssuerOfPatientID",
+                            tag:'checkbox',
+                            filterKey:'adjustIssuerOfPatientID',
                             description:$localize `:@@adjust_issuer_of_patient_identifier_desc:Patient identifier issuer changed in archive if it differs with value in patient demographics supplier`
                         }
                     ]
@@ -10154,7 +10204,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         }else{
             if(_.hasIn(this.appService,"global['PDQs']") && this.appService.global['PDQs'].length > 0){
                 //PDQ is configured
-                console.log("global",this.appService.global);
+                console.log('global',this.appService.global);
                 if(this.appService.global['PDQs'].length > 1){
                     this.confirm({
                         content: $localize `:@@query_pdw:Query External Patient Demographics Service`,
@@ -10164,15 +10214,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                                 [
 
                                     {
-                                        tag:"label",
+                                        tag:'label',
                                         text:$localize `:@@select_PDQ:Select PDQ Service`
                                     },
                                     {
-                                        tag:"select",
+                                        tag:'select',
                                         options:this.appService.global['PDQs'].map(pdq=>{
                                             return new SelectDropdown(pdq.id, (pdq.description || pdq.id))
                                         }),
-                                        filterKey:"PDQServiceID",
+                                        filterKey:'PDQServiceID',
                                         description:$localize `:@@PDQ_ServiceID:PDQ ServiceID`,
                                         placeholder:$localize `:@@PDQ_ServiceID:PDQ ServiceID`
                                     }
@@ -10192,14 +10242,14 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this.queryPDQ(patientId, this.appService.global.PDQs[0].id);
                 }
             }else{
-                console.log("global",this.appService.global);
+                console.log('global',this.appService.global);
                 this.cfpLoadingBar.start();
                 //patientId.xroad = _.cloneDeep(patientId.attrs) //TODO remove!
                 this.service.queryNationalPatientRegister(this.service.getPatientId(patientId.attrs)).subscribe((xroadAttr)=>{
                     patientId.xroad = xroadAttr;
                     this.cfpLoadingBar.complete();
                 },(err)=>{
-                    console.error("Error Quering National Pation Register",err);
+                    console.error('Error Quering National Pation Register',err);
                     this.httpErrorHandler.handleError(err);
                     this.cfpLoadingBar.complete();
                 });
@@ -10211,8 +10261,9 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.service.queryPatientDemographics(this.service.getPatientId(patientId.attrs),PDQServiceID).subscribe((xroadAttr)=>{
             patientId.xroad = xroadAttr;
             this.cfpLoadingBar.complete();
+            this.appService.showMsg($localize `:@@patient_demographics_queried_successfully_appended_attribute:Patient demographics queried successfully! The Result was appended to the attributes view!`);
         },(err)=>{
-            console.error("Error Quering National Patient Register",err);
+            console.error('Error Quering National Patient Register',err);
             this.httpErrorHandler.handleError(err);
             this.cfpLoadingBar.complete();
         });
@@ -10224,7 +10275,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 this.queues = names.map(name=> new SelectDropdown(name.name, name.description));
                 this.setSchema();
             },1)
-        },err=>{
+
+            this.changeDetector.detectChanges();},err=>{
             this.httpErrorHandler.handleError(err);
         })
     }
@@ -10232,10 +10284,10 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.service.getQueueNames().subscribe(names=>{
             try{
                 this.retrieveQueues = names
-                    .filter(name=> name.name.toLowerCase().indexOf("retrieve") > -1)
+                    .filter(name=> name.name.toLowerCase().indexOf('retrieve') > -1)
                     .sort((a,b)=>{
                         try{
-                            return parseInt(a.name.replace(/Retrieve/g,"")) - parseInt(b.name.replace(/Retrieve/g,""))
+                            return parseInt(a.name.replace(/Retrieve/g,'')) - parseInt(b.name.replace(/Retrieve/g,''))
                         }catch (e) {
                             return 1;
                         }
@@ -10243,7 +10295,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     .map(name=> new SelectDropdown(name.name, name.description));
             }catch (e){}
                 this.setSchema();
-        },err=>{
+
+            this.changeDetector.detectChanges();},err=>{
             this.httpErrorHandler.handleError(err);
         })
     }
@@ -10254,7 +10307,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 return new SelectDropdown(storageSystem.dcmStorageID, storageSystem.dcmStorageID);
             });
             callback.call($this);
-        }, err => {
+
+            this.changeDetector.detectChanges();}, err => {
             this.httpErrorHandler.handleError(err);
         });
     }
@@ -10262,17 +10316,18 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     getInstitutions($this, entity?: any, callback?:Function) {
         this.service.getInstitutions(entity).subscribe((institutions:any) => {
             if(
-                _.hasIn(institutions,"Institutions") &&
-                typeof institutions.Institutions === "object" &&
+                _.hasIn(institutions,'Institutions') &&
+                typeof institutions.Institutions === 'object' &&
                 institutions.Institutions.length > 0 &&
-                institutions.Institutions.join("") != ""
+                institutions.Institutions.join('') != ''
             ){
                 this.institutions = institutions.Institutions.map((institution:string) => {
                     return new SelectDropdown(institution, institution);
                 });
             }
             callback.call($this);
-        }, err => {
+
+            this.changeDetector.detectChanges();}, err => {
             this.httpErrorHandler.handleError(err);
             this.institutions;
             callback.call($this);
@@ -10285,7 +10340,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                 return new SelectDropdown(attributeSet.id, attributeSet.title, attributeSet.description, undefined, undefined, attributeSet);
             });
             callback.call($this);
-        },err=>{
+
+            this.changeDetector.detectChanges();},err=>{
             this.httpErrorHandler.handleError(err);
         });
     }

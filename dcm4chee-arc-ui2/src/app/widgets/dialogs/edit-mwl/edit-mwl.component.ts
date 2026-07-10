@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef} from '@angular/core';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {AppService} from '../../../app.service';
 import {Globalvar} from '../../../constants/globalvar';
@@ -142,7 +142,7 @@ export class EditMwlComponent {
             this.opendropdown = true;
         }
         if (code === 13){
-            // var filter = $filter("filter");
+            // var filter = $filter('filter');
             // var filtered = filter(this.dropdown, this.addmwlAttribut);
             let filtered = new SearchPipe().transform(this.dropdown, this.addmwlAttribut);
             if (filtered){
@@ -152,7 +152,7 @@ export class EditMwlComponent {
             let attrcode: any;
             // if ($('.dropdown_element.selected').length){
             if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected').length > 0){
-                attrcode = window.document.getElementsByClassName("dropdown_element selected")[0].getAttribute("name");
+                attrcode = window.document.getElementsByClassName('dropdown_element selected')[0].getAttribute('name');
                 // attrcode = $('.dropdown_element.selected').attr('name');
             }else{
                 attrcode = filtered[0].code;
@@ -200,8 +200,8 @@ export class EditMwlComponent {
                     element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
                     dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
                     WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 },10)
 
@@ -236,8 +236,8 @@ export class EditMwlComponent {
                     element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
                     dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
                     WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 },10)
 
@@ -256,10 +256,10 @@ export class EditMwlComponent {
                 if (this._mwl.attrs[codes[0]].Value[0][codes[1]] != undefined){
                     if (this.iod[codes[0]].Value[0][codes[1]].multi){
                         // this._mwl.attrs[attrcode]  = this.iod[attrcode];
-                        // console.log("this.iod",this.iod);
-                        // console.log("this._mwl",this._mwl);
+                        // console.log('this.iod',this.iod);
+                        // console.log('this._mwl',this._mwl);
                         if (this.iod[codes[0]].Value[0][codes[1]].vr === 'SQ'){
-                            // this._mwl.attrs[codes[0]].Value[0][codes[1]]["Value"] = this._mwl.attrs[codes[0]].Value[0][codes[1]]["Value"] || this.iod[codes[0]].Value[0][codes[1]].Value;
+                            // this._mwl.attrs[codes[0]].Value[0][codes[1]]['Value'] = this._mwl.attrs[codes[0]].Value[0][codes[1]]['Value'] || this.iod[codes[0]].Value[0][codes[1]].Value;
                             // console.log("this.iod[codes[0]].Value[0][codes[1]].Value",this.iod[codes[0]].Value[0][codes[1]].Value);
                             this._mwl.attrs[codes[0]].Value[0][codes[1]]['Value'].push(this.iod[codes[0]].Value[0][codes[1]].Value[0]);
                         }else{
@@ -291,7 +291,7 @@ export class EditMwlComponent {
                         this._mwl.attrs[attrcode]  = this.iod[attrcode];
             }
         }
-        // this.items = $filter("mwl")(this._mwl.attrs,$scope.iod);
+        // this.items = $filter('mwl')(this._mwl.attrs,$scope.iod);
     };
     removeAttr(attrcode){
         switch (arguments.length) {

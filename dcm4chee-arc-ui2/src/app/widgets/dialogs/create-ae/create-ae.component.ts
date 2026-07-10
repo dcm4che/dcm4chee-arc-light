@@ -1,18 +1,18 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import * as _ from 'lodash-es';
 import {AppService} from '../../../app.service';
-import {HttpErrorHandler} from "../../../helpers/http-error-handler";
-import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {HttpErrorHandler} from '../../../helpers/http-error-handler';
+import {J4careHttpService} from '../../../helpers/j4care-http.service';
 import {LoadingBarService} from '@ngx-loading-bar/core';
-import {AeListService} from "../../../configuration/ae-list/ae-list.service";
-import {j4care} from "../../../helpers/j4care.service";
-import {SelectDropdown} from "../../../interfaces";
-import {CreateAeService} from "./create-ae.service";
-import {DeviceConfiguratorService} from "../../../configuration/device-configurator/device-configurator.service";
-import {MatDialogRef} from "@angular/material/dialog";
-import {FormsModule} from '@angular/forms';
+import {AeListService} from '../../../configuration/ae-list/ae-list.service';
+import {j4care} from '../../../helpers/j4care.service';
+import {SelectDropdown} from '../../../interfaces';
+import {CreateAeService} from './create-ae.service';
+import {DeviceConfiguratorService} from '../../../configuration/device-configurator/device-configurator.service';
+import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
 import {CommonModule, NgClass} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {SearchPipe} from '../../../pipes/search.pipe';
@@ -22,8 +22,9 @@ import {SearchPipe} from '../../../pipes/search.pipe';
     templateUrl: './create-ae.component.html',
     styleUrls: ['./create-ae.component.scss'],
     imports: [
-        FormsModule,
         NgClass,
+        MatDialogContent,
+        FormsModule,
         DcmDropDownComponent,
         MatSelect,
         MatOption,
@@ -60,27 +61,26 @@ export class CreateAeComponent implements OnInit{
     showWebApp = false;
     formObj;
     primaryDeviceType:string[] = [];
-    searchDeviceType = "";
-    constructor(
-        public $http:J4careHttpService,
+    searchDeviceType = '';
+    constructor(public $http:J4careHttpService,
         public dialogRef: MatDialogRef<CreateAeComponent>,
         public mainservice: AppService,
         public cfpLoadingBar: LoadingBarService,
         public httpErrorHandler:HttpErrorHandler,
         private aeListService:AeListService,
         private service:CreateAeService,
-        private deviceConfigService:DeviceConfiguratorService
-    ) {
+        private deviceConfigService:DeviceConfiguratorService,
+        private changeDetector: ChangeDetectorRef) {
     }
     ngOnInit(){
         this.cfpLoadingBar.complete();
-        if(_.hasIn(this.mainservice.global,"uiConfig.dcmuiWidgetAets")){
-            this.configuredAetList = (<string[]>_.get(this.mainservice.global,"uiConfig.dcmuiWidgetAets")).map(ae=>{
+        if(_.hasIn(this.mainservice.global,'uiConfig.dcmuiWidgetAets')){
+            this.configuredAetList = (<string[]>_.get(this.mainservice.global,'uiConfig.dcmuiWidgetAets')).map(ae=>{
                 // this.selectedForAcceptedCallingAET.push(ae);
                 return new SelectDropdown(ae,ae);
             });
-            if(_.hasIn(this.mainservice.global,"uiConfig.dcmuiDefaultWidgetAets")){
-                this.selectedForAcceptedCallingAET = _.get(this.mainservice.global,"uiConfig.dcmuiDefaultWidgetAets");
+            if(_.hasIn(this.mainservice.global,'uiConfig.dcmuiDefaultWidgetAets')){
+                this.selectedForAcceptedCallingAET = _.get(this.mainservice.global,'uiConfig.dcmuiDefaultWidgetAets');
             }
             //selectedForAcceptedCallingAET
         }else{
@@ -88,23 +88,25 @@ export class CreateAeComponent implements OnInit{
                 this.configuredAetList = aes.map(ae=>{
                     return new SelectDropdown(ae.dicomAETitle,ae.dicomAETitle);
                 })
-            },err=>{
+
+                this.changeDetector.detectChanges();},err=>{
                 this.httpErrorHandler.handleError(err);
             })
         }
         this.webAppSchema = this.service.getWebAppsSchema();
         this.formObj = this.deviceConfigService.convertSchemaToForm({
             dicomNetworkConnection:{
-                cn: "dicom",
-                dcmNetworkConnection: {dcmBindAddress: "0.0.0.0", dcmClientBindAddress: "0.0.0.0", dcmMaxOpsPerformed: 0, dcmMaxOpsInvoked: 0},
-                dicomHostname: "127.0.0.1",
+                cn: 'dicom',
+                dcmNetworkConnection: {dcmBindAddress: '0.0.0.0', dcmClientBindAddress: '0.0.0.0', dcmMaxOpsPerformed: 0, dcmMaxOpsInvoked: 0},
+                dicomHostname: '127.0.0.1',
                 dicomPort: 11112
             },
         },  this.service.getSchema(), {},'attr');
         this.service.getPrimaryDeviceType().subscribe(res=>{
             console.log("create ae-res",res);
             this.primaryDeviceType = res;
-        });
+
+            this.changeDetector.detectChanges();});
     }
 
     get dicomconn() {
@@ -162,6 +164,7 @@ export class CreateAeComponent implements OnInit{
                 $this.setReferencesFromDevice();
             }else{
                 $this.cfpLoadingBar.start();
+                console.warn('get devices')
                 $this.$http.get(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${this.selectedDevice}`)
 
                     .subscribe((response) => {
@@ -171,7 +174,8 @@ export class CreateAeComponent implements OnInit{
                         console.log('this.selctedDeviceObject', $this.selctedDeviceObject);
                         $this.setReferencesFromDevice();
                         $this.cfpLoadingBar.complete();
-                    }, (err) => {
+
+                        this.changeDetector.detectChanges();}, (err) => {
                         $this.httpErrorHandler.handleError(err);
                         $this.cfpLoadingBar.complete();
                     });
@@ -250,9 +254,9 @@ export class CreateAeComponent implements OnInit{
     }
     addArrayElement(model,key){
        if(_.hasIn(model,key) && _.isArray(model[key])){
-            model[key].push("");
+            model[key].push('');
        }else{
-           model[key] = [""];
+           model[key] = [''];
        }
     }
     removeElemnt(model,i){
@@ -261,17 +265,17 @@ export class CreateAeComponent implements OnInit{
 
 /*
     getConn(){
-        if(this.newAetModel && this.activetab === "createdevice" && this.newAetModel.dicomNetworkConnection && this.newAetModel.dicomNetworkConnection[0] && this.newAetModel.dicomNetworkConnection[0].cn && this.newAetModel.dicomNetworkConnection[0].cn != ""){
+        if(this.newAetModel && this.activetab === 'createdevice' && this.newAetModel.dicomNetworkConnection && this.newAetModel.dicomNetworkConnection[0] && this.newAetModel.dicomNetworkConnection[0].cn && this.newAetModel.dicomNetworkConnection[0].cn != ''){
             this.dicomconn = [];
             this.dicomconn.push({
-                "value":"/dicomNetworkConnection/" + 0,
-                "name":this.newAetModel.dicomNetworkConnection[0].cn
+                'value':'/dicomNetworkConnection/' + 0,
+                'name':this.newAetModel.dicomNetworkConnection[0].cn
             });
         }
     }*/
     updateAetFromDevicename(e){
         let code = (e.keyCode ? e.keyCode : e.which);
-        if (code === 8 && _.hasIn(this.newAetModel,"dicomDeviceName")){
+        if (code === 8 && _.hasIn(this.newAetModel,'dicomDeviceName')){
             let aetUppercase = this.newAetModel.dicomDeviceName.toUpperCase();
             if (this.newAetModel.dicomNetworkAE[0].dicomAETitle.slice(0, -1) === aetUppercase){
                 this.newAetModel.dicomNetworkAE[0].dicomAETitle = aetUppercase;
@@ -325,13 +329,13 @@ export class CreateAeComponent implements OnInit{
     }
     getDicomConnections(){
         try{
-            if(_.hasIn(this.newAetModel,"dicomNetworkAE.0.dicomNetworkConnectionReference") && _.hasIn(this.newAetModel,"dicomNetworkAE.0.dicomNetworkConnectionReference")){
+            if(_.hasIn(this.newAetModel,'dicomNetworkAE.0.dicomNetworkConnectionReference') && _.hasIn(this.newAetModel,'dicomNetworkAE.0.dicomNetworkConnectionReference')){
                 return this.selctedDeviceObject.dicomNetworkConnection.filter((connection,i)=>{
-                    return this.newAetModel.dicomNetworkAE["0"].dicomNetworkConnectionReference.indexOf(`/dicomNetworkConnection/${i}`) > -1 &&
+                    return this.newAetModel.dicomNetworkAE['0'].dicomNetworkConnectionReference.indexOf(`/dicomNetworkConnection/${i}`) > -1 &&
                             (
-                                !_.hasIn(connection, "dcmNetworkConnection.dcmProtocol") ||
+                                !_.hasIn(connection, 'dcmNetworkConnection.dcmProtocol') ||
                                 !connection.dcmNetworkConnection.dcmProtocol ||
-                                connection.dcmNetworkConnection.dcmProtocol === ""
+                                connection.dcmNetworkConnection.dcmProtocol === ''
                             )
                 });
             }
@@ -345,9 +349,9 @@ export class CreateAeComponent implements OnInit{
         if(this.selectedCallingAet && this.newAetModel.dicomNetworkAE[0].dicomAETitle && this.newAetModel.dicomNetworkConnection[0].dicomHostname && this.newAetModel.dicomNetworkConnection[0].dicomPort){
             this.cfpLoadingBar.start();
             let data;
-            if(this.activetab === "selectdevice"){
+            if(this.activetab === 'selectdevice'){
                 if(this.dicomConnectionns.length > 1){
-                    console.log("this.selectedDicomConnection",this.selectedDicomConnection);
+                    console.log('this.selectedDicomConnection',this.selectedDicomConnection);
                     if(this.selectedDicomConnection){
                         data = {
                             host:this.selectedDicomConnection.dicomHostname,
@@ -386,7 +390,8 @@ export class CreateAeComponent implements OnInit{
                         'status': msg.status
                     });
                     this.dicomConnectionns = [];
-                }, err => {
+
+                    this.changeDetector.detectChanges();}, err => {
                     this.cfpLoadingBar.complete();
                     this.httpErrorHandler.handleError(err);
                 });
@@ -416,7 +421,7 @@ export class CreateAeComponent implements OnInit{
         return true;
     }
     submitFunction(e){
-        console.log("e",e);
+        console.log('e',e);
     }
 
     togglePrimaryDeviceType(type){

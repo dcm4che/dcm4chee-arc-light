@@ -1,6 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
-
-
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import * as FileSaver from 'file-saver';
 import {MessagingComponent} from '../../widgets/messaging/messaging.component';
 import {AppService} from '../../app.service';
@@ -42,7 +40,8 @@ export class AssociationsComponent implements OnDestroy{
         public $http: J4careHttpService,
         public appservices: AppService, private cfpLoadingBar: LoadingBarService,
         public messaging: MessagingComponent,
-        public httpErrorHandler: HttpErrorHandler
+        public httpErrorHandler: HttpErrorHandler,
+        private changeDetector: ChangeDetectorRef
     ) {
     }
 
@@ -62,7 +61,7 @@ export class AssociationsComponent implements OnDestroy{
             for (let i in j){
                 let m = j[i];
                 local[l] = local[l] || {};
-                if (definedFields.indexOf(i) > -1){
+                if(definedFields.indexOf(i) > -1){
                     local[l][i] = m;
                 }else{
 

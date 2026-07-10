@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
+import { Component, OnInit, ViewContainerRef, ChangeDetectorRef } from '@angular/core';
 import * as _ from 'lodash-es';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';
@@ -66,8 +66,8 @@ export class DevicesComponent implements OnInit{
     moreFunctionConfig = {
         placeholder: $localize `:@@more_functions:More functions`,
         options:[
-            new SelectDropdown("create_exporter",$localize `:@@devices.create_exporter:Create exporter`),
-            new SelectDropdown("create_device",$localize `:@@devices.create_device:Create device`)
+            new SelectDropdown('create_exporter',$localize `:@@devices.create_exporter:Create exporter`),
+            new SelectDropdown('create_device',$localize `:@@devices.create_device:Create device`)
         ],
         model:undefined
     };
@@ -83,7 +83,8 @@ export class DevicesComponent implements OnInit{
         private hl7service:Hl7ApplicationsService,
         public httpErrorHandler:HttpErrorHandler,
         private deviceConfigurator:DeviceConfiguratorService,
-        private webAppListService:WebAppsListService
+        private webAppListService:WebAppsListService,
+        private changeDetector: ChangeDetectorRef
     ) {}
     ngOnInit(){
         this.initCheck(10);
@@ -91,7 +92,7 @@ export class DevicesComponent implements OnInit{
     }
     initCheck(retries){
         let $this = this;
-        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,'global.notSecure') && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -108,7 +109,7 @@ export class DevicesComponent implements OnInit{
         this.getAes();
         this.getHl7ApplicationsList(2);
         this.getWebApps(2);
-        console.log("deviceconfiguratorservice paginantion",this.deviceConfigurator.breadcrumbs)
+        console.log('deviceconfiguratorservice paginantion',this.deviceConfigurator.breadcrumbs)
         if(this.deviceConfigurator.breadcrumbs){
             this.deviceConfigurator.breadcrumbs = [
                 {
@@ -123,8 +124,8 @@ export class DevicesComponent implements OnInit{
     @HostListener('window:scroll', ['$event'])
     loadMoreDeviceOnScroll(event) {
         // let hT = ($('.load_more').offset()) ? $('.load_more').offset().top : 0,
-        let hT = WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0] ? j4care.offset(WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0]).top : 0,
-            hH =  WindowRefService.nativeWindow.document.getElementsByClassName("load_more")[0].offsetHeight,
+        let hT = WindowRefService.nativeWindow.document.getElementsByClassName('load_more')[0] ? j4care.offset(WindowRefService.nativeWindow.document.getElementsByClassName('load_more')[0]).top : 0,
+            hH =  WindowRefService.nativeWindow.document.getElementsByClassName('load_more')[0].offsetHeight,
             wH = WindowRefService.nativeWindow.innerHeight,
             wS = window.pageYOffset;
         if (wS > (hT + hH - wH)){
@@ -132,9 +133,9 @@ export class DevicesComponent implements OnInit{
         }
     }
     moreFunctionChanged(e){
-        if(e === "create_exporter")
+        if(e === 'create_exporter')
             this.createExporter();
-        if(e === "create_device")
+        if(e === 'create_device')
             this.createDevice();
         setTimeout(()=>{
             this.moreFunctionConfig.model = undefined;
@@ -149,7 +150,7 @@ export class DevicesComponent implements OnInit{
         this.moreDevices.loaderActive = true;
         this.moreDevices.limit += 20;
         // if(this.moreDevices.limit > 50){
-            // this.moreAes.start +=20;
+        // this.moreAes.start +=20;
         // }
         this.moreDevices.loaderActive = false;
     }
@@ -159,14 +160,15 @@ export class DevicesComponent implements OnInit{
         this.$http.get(
             `${j4care.addLastSlash(this.mainservice.baseUrl)}devices${j4care.param(this.filter)}`
         )
-            // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
-        .subscribe((response) => {
-            $this.devices = response;
-            $this.cfpLoadingBar.complete();
-        }, function errorCallback(response) {
-/*            $log.error("Error loading device names", response);
-            vex.dialog.alert("Error loading device names, please reload the page and try again!");*/
-        });
+        // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = '/dcm4chee-arc/ui2/';} resjson = res; }catch (e){ resjson = [];} return resjson;})
+            .subscribe((response) => {
+                $this.devices = response;
+                $this.cfpLoadingBar.complete();
+                this.changeDetector.detectChanges();
+            }, function errorCallback(response) {
+                /*            $log.error('Error loading device names', response);
+                            vex.dialog.alert("Error loading device names, please reload the page and try again!");*/
+            });
     };
 
     clearForm(){
@@ -181,7 +183,7 @@ export class DevicesComponent implements OnInit{
         //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
@@ -223,15 +225,15 @@ export class DevicesComponent implements OnInit{
             });
             this.dialogRef.componentInstance.device = device;
             this.dialogRef.afterClosed().subscribe(cloneDevice=>{
-                console.log("cloneDevice",cloneDevice);
+                console.log('cloneDevice',cloneDevice);
                 if(cloneDevice){
                     this.cfpLoadingBar.start();
-                    this.service.createDevice(_.get(cloneDevice, "dicomDeviceName"), cloneDevice).subscribe(res => {
+                    this.service.createDevice(_.get(cloneDevice, 'dicomDeviceName'), cloneDevice).subscribe(res => {
                             console.log('res succes', res);
                             $this.cfpLoadingBar.complete();
                             $this.mainservice.showMsg($localize `:@@devices.device_cloned:Device cloned successfully!`);
 
-                            $this.cloneVendorData(devicename.dicomDeviceName, _.get(cloneDevice, "dicomDeviceName"));
+                            $this.cloneVendorData(devicename.dicomDeviceName, _.get(cloneDevice, 'dicomDeviceName'));
                             $this.service.getAes().subscribe((response) => {
                                 $this.aes = response;
                                 if ($this.mainservice.global && !$this.mainservice.global.aes){
@@ -256,6 +258,7 @@ export class DevicesComponent implements OnInit{
                         });
                 }
             });
+            this.changeDetector.detectChanges();
         }, (err) => {
             this.httpErrorHandler.handleError(err);
             this.cfpLoadingBar.complete();
@@ -270,7 +273,7 @@ export class DevicesComponent implements OnInit{
         },err=>{
             this.cfpLoadingBar.complete();
             this.mainservice.showError($localize `:@@error_on_cloning_vendor_data:Error on cloning vendor data!`);
-            j4care.log("Error on cloning vendordata",err);
+            j4care.log('Error on cloning vendordata',err);
             this.getDevices();
         });
     }
@@ -282,7 +285,7 @@ export class DevicesComponent implements OnInit{
         });
         let $this = this;
         this.dialogRef.componentInstance.devices = this.devices.filter((dev)=>{
-            return (_.hasIn(dev,"hasArcDevExt") && dev.hasArcDevExt === true);
+            return (_.hasIn(dev,'hasArcDevExt') && dev.hasArcDevExt === true);
         });
         this.dialogRef.componentInstance.aes = this.aes;
         this.dialogRef.afterClosed().subscribe(re => {
@@ -324,6 +327,7 @@ export class DevicesComponent implements OnInit{
                             $this.mainservice.setGlobal({aes: response});
                         }
                     }
+                    this.changeDetector.detectChanges();
                 }, (response) => {
                     // vex.dialog.alert("Error loading aes, please reload the page and try again!");
                 });
@@ -338,23 +342,24 @@ export class DevicesComponent implements OnInit{
         //     this.devices = this.mainservice.global.devices;
         // }else{
         this.service.getDevices().subscribe((response) => {
-                    console.log('getdevices response', response);
-                    console.log('global', $this.mainservice.global);
-                    $this.devices = response;
-                    if ($this.mainservice.global && !$this.mainservice.global.devices){
-                        let global = _.cloneDeep($this.mainservice.global); //,...[{devices:response}]];
-                        global.devices = response;
-                        $this.mainservice.setGlobal(global);
-                    }else{
-                        if ($this.mainservice.global && $this.mainservice.global.devices){
-                            $this.mainservice.global.devices = response;
-                        }else{
-                            $this.mainservice.setGlobal({devices: response});
-                        }
-                    }
-                }, (err) => {
-                    // vex.dialog.alert("Error loading device names, please reload the page and try again!");
-                });
+            console.log('getdevices response', response);
+            console.log('global', $this.mainservice.global);
+            $this.devices = response;
+            if ($this.mainservice.global && !$this.mainservice.global.devices){
+                let global = _.cloneDeep($this.mainservice.global); //,...[{devices:response}]];
+                global.devices = response;
+                $this.mainservice.setGlobal(global);
+            }else{
+                if ($this.mainservice.global && $this.mainservice.global.devices){
+                    $this.mainservice.global.devices = response;
+                }else{
+                    $this.mainservice.setGlobal({devices: response});
+                }
+            }
+            this.changeDetector.detectChanges();
+        }, (err) => {
+            // vex.dialog.alert("Error loading device names, please reload the page and try again!");
+        });
         // }
     };
     getHl7ApplicationsList(retries){

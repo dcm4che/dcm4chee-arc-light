@@ -1,13 +1,13 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {AppService} from '../../../app.service';
 import * as _ from 'lodash-es';
 import {CreateExporterService} from './create-exporter.service';
-import {HttpErrorHandler} from "../../../helpers/http-error-handler";
-import {J4careHttpService} from "../../../helpers/j4care-http.service";
+import {HttpErrorHandler} from '../../../helpers/http-error-handler';
+import {J4careHttpService} from '../../../helpers/j4care-http.service';
 import {LoadingBarService} from "@ngx-loading-bar/core";
-import {DeviceConfiguratorService} from "../../../configuration/device-configurator/device-configurator.service";
-import {MatDialogRef} from "@angular/material/dialog";
+import {DeviceConfiguratorService} from '../../../configuration/device-configurator/device-configurator.service';
+import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
 import {DynamicFormComponent} from '../../dynamicform/dynamic-form.component';
 import {CommonModule} from '@angular/common';
 
@@ -16,6 +16,7 @@ import {CommonModule} from '@angular/common';
     templateUrl: './create-exporter.component.html',
     imports: [
         DynamicFormComponent,
+        MatDialogContent,
         CommonModule
     ],
     styles:`
@@ -39,7 +40,7 @@ export class CreateExporterComponent implements OnInit{
         dicomAETitle : undefined,
         dicomDescription : '',
         dcmStgCmtSCP : undefined,
-        dcmInstanceAvailability : "ONLINE",
+        dcmInstanceAvailability : 'ONLINE',
         dcmExportPriority : 4
     };
     externalAeConnections;
@@ -47,64 +48,64 @@ export class CreateExporterComponent implements OnInit{
     externalAeObject;
     queue;
     schema = {
-        "title": $localize `:@@create-exporter.exporter_descriptor:Exporter Descriptor`,
-        "description": $localize `:@@create-exporter.exporter_descriptor:Exporter Descriptor`,
-        "type": "object",
-        "required": [
-            "dcmExporterID",
-            "dcmURI",
-            "dcmQueueName",
-            "dcmExportPriority",
-            "dcmInstanceAvailability",
-            "dicomAETitle"
+        'title': $localize `:@@create-exporter.exporter_descriptor:Exporter Descriptor`,
+        'description': $localize `:@@create-exporter.exporter_descriptor:Exporter Descriptor`,
+        'type': 'object',
+        'required': [
+            'dcmExporterID',
+            'dcmURI',
+            'dcmQueueName',
+            'dcmExportPriority',
+            'dcmInstanceAvailability',
+            'dicomAETitle'
         ],
-        "properties": {
-            "dcmExporterID": {
-                "title": $localize `:@@exporter_id:Exporter ID`,
-                "description": $localize `:@@exporter_id:Exporter ID`,
-                "type": "string"
+        'properties': {
+            'dcmExporterID': {
+                'title': $localize `:@@exporter_id:Exporter ID`,
+                'description': $localize `:@@exporter_id:Exporter ID`,
+                'type': 'string'
             },
-            "dcmURI": {
-                "title": $localize `:@@URI:URI`,
-                "description": $localize `:@@rfc2079_uniform_resource_identifier:RFC2079: Uniform Resource Identifier`,
-                "type": "string"
+            'dcmURI': {
+                'title': $localize `:@@URI:URI`,
+                'description': $localize `:@@rfc2079_uniform_resource_identifier:RFC2079: Uniform Resource Identifier`,
+                'type': 'string'
             },
-            "dcmQueueName": {
-                "title": $localize `:@@queue_name:Queue Name`,
-                "description": $localize `:@@create-exporter.jms_queue_name:Task Queue Name`,
-                "type": "string",
-                "enum" : [
-                    "Export1",
-                    "Export2",
-                    "Export3",
-                    "Export4",
-                    "Export5"
+            'dcmQueueName': {
+                'title': $localize `:@@queue_name:Queue Name`,
+                'description': $localize `:@@create-exporter.jms_queue_name:Task Queue Name`,
+                'type': 'string',
+                'enum' : [
+                    'Export1',
+                    'Export2',
+                    'Export3',
+                    'Export4',
+                    'Export5'
                 ]
             },
-            "dcmExportPriority": {
-                "title": $localize `:@@create-exporter.export_priority:Export Priority`,
-                "description": $localize `:@@jms_priority_level_for_processing_the_export_task_from_0_lowest_to_9_highest:Task Priority Level for processing the Export Task from 0 (lowest) to 9 (highest).`,
-                "type": "integer",
-                "default": 4,
-                "minimum": 0,
-                "maximum": 9
+            'dcmExportPriority': {
+                'title': $localize `:@@create-exporter.export_priority:Export Priority`,
+                'description': $localize `:@@jms_priority_level_for_processing_the_export_task_from_0_lowest_to_9_highest:Task Priority Level for processing the Export Task from 0 (lowest) to 9 (highest).`,
+                'type': 'integer',
+                'default' : 4,
+                'minimum': 0,
+                'maximum': 9
             },
-            "dcmInstanceAvailability": {
-                "title": $localize `:@@create-exporter.instance_availability:Instance Availability`,
-                "description": $localize `:@@create-exporter.instance_availability:Instance Availability`,
-                "type": "string",
-                "default": "ONLINE",
-                "enum": [
-                    "ONLINE",
-                    "NEARLINE",
-                    "OFFLINE"
+            'dcmInstanceAvailability': {
+                'title': $localize `:@@create-exporter.instance_availability:Instance Availability`,
+                'description': $localize `:@@create-exporter.instance_availability:Instance Availability`,
+                'type': 'string',
+                'default': 'ONLINE',
+                'enum': [
+                    'ONLINE',
+                    'NEARLINE',
+                    'OFFLINE'
                 ]
             },
-            "dicomAETitle": {
-                "title": $localize `:@@application_entity_ae_title:Application Entity (AE) title`,
-                "description": $localize `:@@application_entity_ae_title:Application Entity (AE) title`,
-                "type": "string",
-                "format": "dcmArchiveAETitle"
+            'dicomAETitle': {
+                'title': $localize `:@@application_entity_ae_title:Application Entity (AE) title`,
+                'description': $localize `:@@application_entity_ae_title:Application Entity (AE) title`,
+                'type': 'string',
+                'format': 'dcmArchiveAETitle'
             }
         }
     };
@@ -113,23 +114,23 @@ export class CreateExporterComponent implements OnInit{
     private _aes;
     private _devices;
     _ = _;
-    constructor(
-        public $http:J4careHttpService,
+    constructor(public $http:J4careHttpService,
         public dialogRef: MatDialogRef<CreateExporterComponent>,
         public mainservice: AppService,
         public cfpLoadingBar: LoadingBarService,
         private service: CreateExporterService,
         private httpErrorHandler:HttpErrorHandler,
         public deviceConfigService:DeviceConfiguratorService,
-        // private deviceConfiguratiorComponent:DeviceConfiguratorComponent
-    ) {
+        // private deviceConfiguratiorComponent:DeviceConfiguratorComponent,
+        private changeDetector: ChangeDetectorRef) {
     }
     ngOnInit(){
         this.cfpLoadingBar.complete();
         let $this = this;
         this.service.getQueue().subscribe(queue => {
             $this.queue = queue;
-        });
+
+            this.changeDetector.detectChanges();});
         this.getArchiveDevice(2);
     }
     get aes() {
@@ -165,7 +166,8 @@ export class CreateExporterComponent implements OnInit{
         this.service.getExporterDescriptorSchema().subscribe(schema=>{
             this.schema = schema;
             this.formObj = this.deviceConfigService.convertSchemaToForm(this.archive, this.schema, {}, 'attr');
-        },err=>{
+
+            this.changeDetector.detectChanges();},err=>{
             this.formObj = this.deviceConfigService.convertSchemaToForm(this.archive, this.schema, {}, 'attr');
         })
     }
@@ -180,7 +182,8 @@ export class CreateExporterComponent implements OnInit{
             if ($this.externalAe && $this.selectedDeviceObject)
                 $this.showexporter = true;
             $this.cfpLoadingBar.complete();
-        }, (err) => {
+
+            this.changeDetector.detectChanges();}, (err) => {
             $this.httpErrorHandler.handleError(err);
             $this.cfpLoadingBar.complete();
         });
@@ -189,7 +192,7 @@ export class CreateExporterComponent implements OnInit{
     getArchiveDevice(retries){
         if(!this.mainservice.archiveDeviceName){
             if(retries){
-                console.log("retry",retries);
+                console.log('retry',retries);
                 setTimeout(()=>{
                     this.getArchiveDevice(retries-1);
                 },400);
@@ -198,7 +201,8 @@ export class CreateExporterComponent implements OnInit{
             this.service.getDevice(this.mainservice.archiveDeviceName).subscribe((res)=>{
                 this.archive = res;
                 this.getSchema();
-            },(err)=>{
+
+                this.changeDetector.detectChanges();},(err)=>{
                 if(retries)
                     this.getArchiveDevice(retries-1);
                 else{
@@ -208,7 +212,7 @@ export class CreateExporterComponent implements OnInit{
         }
     }
     submitFunction(e){
-        console.log("e",e);
+        console.log('e',e);
         // this.deviceConfigService.addChangesToDevice(e, '', this.archive);
         // this.deviceConfiguratiorComponent.submitFunction(e);
         this.dialogRef.close({

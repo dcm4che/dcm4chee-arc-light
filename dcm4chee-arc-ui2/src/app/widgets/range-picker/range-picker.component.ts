@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {j4care} from "../../helpers/j4care.service";
 import {RangePickerService} from "./range-picker.service";
 import {Moment} from "moment";
@@ -37,7 +37,7 @@ export class RangePickerComponent implements OnInit {
     @Input() datePickerMode:boolean;
     @Input() dateRange;
     @Input() defaultTime:string;
-    @Input() mode:"leftOpen"|"rightOpen"|"range"|"single"|string;
+    @Input() mode:'leftOpen'|'rightOpen'|'range'|'single'|string;
     @Input() onlySingleMode:boolean;
     @Output() modelChange = new EventEmitter();
     @Output() splitDateRangeChanged = new EventEmitter();
@@ -72,14 +72,15 @@ export class RangePickerComponent implements OnInit {
         end: new FormControl<Date | null>(null),
     });
     constructor(
-        private service:RangePickerService
+        private service:RangePickerService,
+        private changeDetector: ChangeDetectorRef
     ) {}
     ngOnInit(){
-        this.mode = this.mode || "range";
+        this.mode = this.mode || 'range';
         this.header = this.header || $localize `:@@range-picker.range_picker:Range picker`;
         if(this.datePickerMode || this.onlySingleMode){
             this.header = $localize `:@@date_time_picker:Date Time picker`;
-            this.mode = "single";
+            this.mode = 'single';
         }
         for(let i=0;i<60;i++){
             if(i<25){
@@ -100,7 +101,7 @@ export class RangePickerComponent implements OnInit {
                 if (e.value) {
                     this[mode] = (<Moment>e.value).format("yyyyMMdd");
                 } else {
-                    this[mode] = j4care.formatDate(new Date(e),"yyyyMMdd");
+                    this[mode] = j4care.formatDate(new Date(e),'yyyyMMdd');
                 }
             }
         }catch (e) {
@@ -123,6 +124,7 @@ export class RangePickerComponent implements OnInit {
         }catch (e) {
             console.error(e);
         }
+        //this[mode] = (<Moment>e.value).format(format);
         this.showPicker = false;
         this.setRange();
     }
@@ -136,7 +138,7 @@ export class RangePickerComponent implements OnInit {
     toggleTime(){
     }
     setDuration(e){
-        console.log("setDuratione",e);
+        console.log('setDuratione',e);
         this.SplitStudyDateRange = e;
         this.showDurationPaicker = !this.showDurationPaicker;
     }
@@ -161,13 +163,15 @@ export class RangePickerComponent implements OnInit {
         this.modelChange.emit(this.model);
         this.filterChanged();
         this.showPicker = false;
+
+        this.changeDetector.detectChanges();
     }
     closeSelectOptions(){
-        console.log("in closeselectoptions");
+        console.log('in closeselectoptions');
         this.showSelectOptions = false;
     }
     togglePicker(){
-        console.log("showPicker", this.showPicker)
+        console.log('showPicker', this.showPicker)
         this.showPicker = !this.showPicker;
     }
     close(){
@@ -214,8 +218,8 @@ export class RangePickerComponent implements OnInit {
             this.fromTimeModel = j4care.formatDate(j4care.createDateFromDuration(extractedDurationObject),"HH:mm:ss");
             this.toTimeModel = j4care.getTimeFromDate(new Date());
         }else{
-            this.fromTimeModel = "";
-            this.toTimeModel = "";
+            this.fromTimeModel = '';
+            this.toTimeModel = '';
             this.includeTime = true;
         }
         this.fromModel = j4care.convertDateToString(this.createDateFromDuration(extractedDurationObject));
@@ -251,7 +255,7 @@ export class RangePickerComponent implements OnInit {
                 }
                 return result;
             }catch (e){
-                console.error("Could not extract time values from time string",value,e);
+                console.error('Could not extract time values from time string',value,e);
             }
         }
         return '';
@@ -262,15 +266,15 @@ export class RangePickerComponent implements OnInit {
         this.maiInputValid = true;
         if(modifyed){
             this.mode = modifyed.mode;
-            if((this.mode === "range" || this.mode === "rightOpen" || this.mode === "single") && (j4care.isSetDateObject(modifyed.firstDateTime) || j4care.isSetTimeObject(modifyed.firstDateTime))){
+            if((this.mode === 'range' || this.mode === 'rightOpen' || this.mode === 'single') && (j4care.isSetDateObject(modifyed.firstDateTime) || j4care.isSetTimeObject(modifyed.firstDateTime))){
                 if(j4care.validDateObject(modifyed.firstDateTime) || j4care.validTimeObject(modifyed.firstDateTime)){
-                    if(this.mode === "single")
+                    if(this.mode === 'single')
                         this.singleDateModel = j4care.getDateFromObject(modifyed.firstDateTime) || '';
                     else
                         this.fromModel = j4care.getDateFromObject(modifyed.firstDateTime) || '';
                     if(j4care.isSetTimeObject(modifyed.firstDateTime)){
                         if(j4care.validTimeObject(modifyed.firstDateTime)){
-                            if(this.mode === "single")
+                            if(this.mode === 'single')
                                 this.singleTimeModel = j4care.getTimeFromObject(modifyed.firstDateTime);
                             else
                                 this.fromTimeModel = j4care.getTimeFromObject(modifyed.firstDateTime);
@@ -281,7 +285,7 @@ export class RangePickerComponent implements OnInit {
                 }else
                     this.maiInputValid = false;
             }
-            if((this.mode === "range" || this.mode === "leftOpen") && (j4care.isSetDateObject(modifyed.secondDateTime) || j4care.isSetTimeObject(modifyed.secondDateTime))){
+            if((this.mode === 'range' || this.mode === 'leftOpen') && (j4care.isSetDateObject(modifyed.secondDateTime) || j4care.isSetTimeObject(modifyed.secondDateTime))){
                 if(j4care.validDateObject(modifyed.secondDateTime) || j4care.validTimeObject(modifyed.secondDateTime)){
                     this.toModel =  j4care.getDateFromObject(modifyed.secondDateTime) || '';
                     if(j4care.isSetTimeObject(modifyed.secondDateTime)){
@@ -359,13 +363,13 @@ export class RangePickerComponent implements OnInit {
         this.filterChanged();
     }
     onTimeSet(timeModel, event){
-        console.log("event",event);
-        console.log("fromTimeModel",this.fromTimeModel);
+        console.log('event',event);
+        console.log('fromTimeModel',this.fromTimeModel);
         console.log("this[timeModel]=",this[timeModel]);
         this[timeModel] = event;
     }
     hardClear(){
-        this.model = "";
+        this.model = '';
         this.clear();
         this.modelChange.emit(this.model);
         this.splitDateRangeChanged.emit(this.SplitStudyDateRange);

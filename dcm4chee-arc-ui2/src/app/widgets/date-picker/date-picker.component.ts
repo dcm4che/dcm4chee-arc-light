@@ -1,6 +1,7 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
-import {j4care} from "../../helpers/j4care.service";
-import {RangeObject} from "../../interfaces";
+import {j4care} from '../../helpers/j4care.service';
+import {Moment} from 'moment/moment';
+import {RangeObject} from '../../interfaces';
 import {CommonModule, NgClass} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
@@ -43,11 +44,11 @@ export class DatePickerComponent implements OnInit{
   }
   @Input()
   set showPicker(value: boolean) {
-    console.log("in showpickerset",value);
+    console.log('in showpickerset',value);
     this._showPicker = value;
   }
   ngOnInit(): void {
-    console.log("init date picker",this._model);
+    console.log('init date picker',this._model);
     if(this.datePickerMode){
       this.dialogOpen = true;
       this.togglePicker(true);
@@ -56,7 +57,7 @@ export class DatePickerComponent implements OnInit{
   setValues(value){
     try{
       const extractedDate:RangeObject = j4care.extractDateTimeFromString(value);
-      this.originalInput = j4care.formatDate(extractedDate.firstDateTime.dateObject, "yyyy-MM-dd");
+      this.originalInput = j4care.formatDate(extractedDate.firstDateTime.dateObject, 'yyyy-MM-dd');
       this.inputMask = j4care.formatDate(extractedDate.firstDateTime.dateObject, this.format);
     }catch (e) {}
   }
@@ -73,7 +74,7 @@ export class DatePickerComponent implements OnInit{
   }
 
   togglePicker(wait?:boolean) {
-    //console.log("this.pciker",this.datePicker);
+    //console.log('this.pciker',this.datePicker);
     this.dialogOpen = !this.dialogOpen;
     if(wait){
       setTimeout(()=>{

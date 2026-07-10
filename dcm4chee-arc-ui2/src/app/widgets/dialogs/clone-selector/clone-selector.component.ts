@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialogRef} from '@angular/material/dialog';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';

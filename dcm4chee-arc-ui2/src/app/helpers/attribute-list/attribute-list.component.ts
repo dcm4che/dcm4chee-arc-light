@@ -52,13 +52,13 @@ export class AttributeListComponent implements OnInit {
         this.init();
     }
     init(){
-        this.customDateTimeFormat = _.hasIn(this.mainservice.global,"dateTimeFormat") ? this.mainservice.global["dateTimeFormat"] : undefined;
-        this.personNameFormat = _.hasIn(this.mainservice.global,"personNameFormat") ? this.mainservice.global["personNameFormat"] : undefined;
+        this.customDateTimeFormat = _.hasIn(this.mainservice.global,'dateTimeFormat') ? this.mainservice.global['dateTimeFormat'] : undefined;
+        this.personNameFormat = _.hasIn(this.mainservice.global,'personNameFormat') ? this.mainservice.global['personNameFormat'] : undefined;
         if(this.attrs){
             this.attrs2rows('', this.attrs, this.rows);
         }else{
             this.cfpLoadingBar.start();
-            let url = "";
+            let url = '';
             if(this.aet){
                 url = `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/` +
                     this.aet +
@@ -70,17 +70,17 @@ export class AttributeListComponent implements OnInit {
                     this.objectuid +
                     '/metadata';
             }else{
-                console.log("urlbase",this.studyService.getDicomURL("study", this.studyWebService.selectedWebService));
-                url = `${this.studyService.getDicomURL("study", this.studyWebService.selectedWebService)}/${this.studyuid}/series/${this.seriesuid}/instances/${this.objectuid}/metadata`
+                console.log('urlbase',this.studyService.getDicomURL('study', this.studyWebService.selectedWebService));
+                url = `${this.studyService.getDicomURL('study', this.studyWebService.selectedWebService)}/${this.studyuid}/series/${this.seriesuid}/instances/${this.objectuid}/metadata`
             }
             this.$http.get(url)
-                // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
+                // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = '/dcm4chee-arc/ui2/';} resjson = res.json(); }catch (e){ resjson = [];} return resjson;})
                 .subscribe((response) => {
                     let attrs = response[0];
                     console.log('attrs', attrs);
                     console.log('this1', this);
                     console.log('this2', this);
-                    // this.test("", attrs, this.rows2);
+                    // this.test('', attrs, this.rows2);
                     this.attrs2rows('', attrs, this.rows);
                     console.log('after attrs2call', this.rows);
                     this.cfpLoadingBar.complete();

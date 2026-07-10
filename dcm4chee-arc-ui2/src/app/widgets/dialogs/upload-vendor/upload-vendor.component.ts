@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 // import {FileUploader} from 'ng2-file-upload';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
-import {J4careHttpService} from "../../../helpers/j4care-http.service";
-import {AppService} from "../../../app.service";
-import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
-import {j4care} from "../../../helpers/j4care.service";
-import {MatDialogRef} from "@angular/material/dialog";
+import {J4careHttpService} from '../../../helpers/j4care-http.service';
+import {AppService} from '../../../app.service';
+import {KeycloakService} from '../../../helpers/keycloak-service/keycloak.service';
+import {j4care} from '../../../helpers/j4care.service';
+import {MatDialogRef} from '@angular/material/dialog';
 
 @Component({
     selector: 'app-upload-files',
@@ -37,7 +37,7 @@ export class UploadVendorComponent implements OnInit {
             }
             let xmlHttpRequest = new XMLHttpRequest();
             xmlHttpRequest.open('PUT', `${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${this._deviceName}/vendordata`, true);
-            xmlHttpRequest.setRequestHeader("Content-Type","application/zip");
+            xmlHttpRequest.setRequestHeader('Content-Type','application/zip');
             if(!this.mainservice.global.notSecure) {
                 xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
             }

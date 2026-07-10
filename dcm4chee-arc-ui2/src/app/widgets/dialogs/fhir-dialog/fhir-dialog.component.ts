@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import {MatOption} from "@angular/material/core";
 import {MatSelect} from "@angular/material/select";
 import {MatDialogRef} from "@angular/material/dialog";
@@ -44,8 +44,8 @@ export class FhirDialogComponent {
       public dialogRef: MatDialogRef<FhirDialogComponent>,
       private service:FhirDialogService,
       private studyService:StudyService,
-      private appService:AppService
-  ) {
+      private appService:AppService,
+        private changeDetector: ChangeDetectorRef) {
   }
   save(){
     if(!this.response){
@@ -84,7 +84,8 @@ export class FhirDialogComponent {
         }catch (e) {
           this.response = res;
         }
-      },err=>{
+
+          this.changeDetector.detectChanges();},err=>{
         console.error(err);
         this.appService.showError($localize `:@@fhir_imaging_fail:Create FHIR Imaging Study failed`);
       });

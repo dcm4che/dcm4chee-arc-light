@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import {j4care} from "../../../helpers/j4care.service";
-import {AppService} from "../../../app.service";
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import {j4care} from '../../../helpers/j4care.service';
+import {AppService} from '../../../app.service';
 //import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
-import {J4careHttpService} from "../../../helpers/j4care-http.service";
-import {HttpErrorHandler} from "../../../helpers/http-error-handler";
-import {KeycloakService} from "../../../helpers/keycloak-service/keycloak.service";
-import {StudyService} from "../../../study/study/study.service";
-import {StudyWebService} from "../../../study/study/study-web-service.model";
-import {MatDialogRef} from "@angular/material/dialog";
+import {J4careHttpService} from '../../../helpers/j4care-http.service';
+import {HttpErrorHandler} from '../../../helpers/http-error-handler';
+import {KeycloakService} from '../../../helpers/keycloak-service/keycloak.service';
+import {StudyService} from '../../../study/study/study.service';
+import {StudyWebService} from '../../../study/study/study-web-service.model';
+import {MatDialogRef} from '@angular/material/dialog';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {CommonModule} from '@angular/common';
 
@@ -31,19 +31,18 @@ export class ViewerComponent implements OnInit {
     xhr = new XMLHttpRequest();
     showLoader;
     studyWebService:StudyWebService;
-    constructor(
-        public dialogRef: MatDialogRef<ViewerComponent>,
+    constructor(public dialogRef: MatDialogRef<ViewerComponent>,
         private j4care:j4care,
         private mainservice:AppService,
         private $http:J4careHttpService,
         public httpErrorHandler:HttpErrorHandler,
         private _keycloakService: KeycloakService,
-        private studyService:StudyService
-    ) { }
+        private studyService:StudyService,
+        private changeDetector: ChangeDetectorRef) { }
 
     ngOnInit() {
-        console.log("url",this._url);
-        console.log("_views",this._views);
+        console.log('url',this._url);
+        console.log('_views',this._views);
         //, frameNumber: inst.view
         // this.j4care.download(this._url);
         this.loadImage();
@@ -63,14 +62,14 @@ export class ViewerComponent implements OnInit {
             if(!this._contentType){
                 this._contentType = 'image/jpeg';
             }
-            $this.xhr.open("GET", url, true);   // Make sure file is in same server
+            $this.xhr.open('GET', url, true);   // Make sure file is in same server
             $this.xhr.overrideMimeType('text/plain; charset=x-user-defined');
             if(!this.mainservice.global.notSecure) {
                 $this.xhr.setRequestHeader('Authorization', `Bearer ${token}`);
             }
             $this.xhr.send(null);
             $this.xhr.onloadstart = (res)=>{
-                console.log("onloade res",res);
+                console.log('onloade res',res);
             };
 
             $this.xhr.onreadystatechange = function() {
@@ -78,6 +77,7 @@ export class ViewerComponent implements OnInit {
                     if (($this.xhr.status == 200) || ($this.xhr.status == 0)){
                         $this.renderedUrl = `data:${$this.contentType};base64,` + encode64($this.xhr.responseText);
                         $this.showLoader = false;
+                        $this.changeDetector.detectChanges();
                     }else{
                         $this.httpErrorHandler.handleError($this.xhr);
                         $this.showLoader = false;
@@ -87,7 +87,7 @@ export class ViewerComponent implements OnInit {
             };
             function encode64(inputStr){
                 var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-                var outputStr = "";
+                var outputStr = '';
                 var i = 0;
 
                 while (i<inputStr.length){
@@ -113,13 +113,14 @@ export class ViewerComponent implements OnInit {
                 }
                 return outputStr;
             }
-        });
+
+            this.changeDetector.detectChanges();});
     }
     changeImage(mode){
-        if(mode === "prev" && this._view > 1){
+        if(mode === 'prev' && this._view > 1){
             this.view--;
         }
-        if(mode === "next" && this._view < this._views.length){
+        if(mode === 'next' && this._view < this._views.length){
             this.view++;
         }
         this.loadImage();

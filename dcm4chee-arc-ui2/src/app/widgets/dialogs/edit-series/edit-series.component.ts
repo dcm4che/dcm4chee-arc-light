@@ -64,13 +64,13 @@ export class EditSeriesComponent{
     private _mode;
 
     reasonForModification:SelectDropdown<any>[] = [
-        new SelectDropdown("COERCE", "COERCE"),
-        new SelectDropdown("CORRECT", "CORRECT"),
+        new SelectDropdown('COERCE', 'COERCE'),
+        new SelectDropdown('CORRECT', 'CORRECT'),
     ]
     updatePolicy:SelectDropdown<any>[] = [
-        new SelectDropdown("SUPPLEMENT", "SUPPLEMENT"),
-        new SelectDropdown("MERGE", "MERGE"),
-        new SelectDropdown("OVERWRITE", "OVERWRITE"),
+        new SelectDropdown('SUPPLEMENT', 'SUPPLEMENT'),
+        new SelectDropdown('MERGE', 'MERGE'),
+        new SelectDropdown('OVERWRITE', 'OVERWRITE'),
     ]
 
     _seriesResult = {
@@ -87,7 +87,7 @@ export class EditSeriesComponent{
 
     DCM4CHE = DCM4CHE;
     constructor(public dialogRef: MatDialogRef<EditSeriesComponent>, public mainservice: AppService) {
-        console.log("this.series",this._seriesResult.series);
+        console.log('this.series',this._seriesResult.series);
     }
 
     change(){
@@ -254,8 +254,8 @@ export class EditSeriesComponent{
                     element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
                     dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
                     WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 },10)
 
@@ -290,8 +290,8 @@ export class EditSeriesComponent{
                     element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
                     dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
                     WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 },10)
 

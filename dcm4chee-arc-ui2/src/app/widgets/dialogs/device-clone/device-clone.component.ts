@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 //import {MatLegacyDialogRef as MatDialogRef} from "@angular/material/legacy-dialog";
 import * as _ from 'lodash-es';
-import {j4care} from "../../../helpers/j4care.service";
-import {AppService} from "../../../app.service";
-import {MatDialogRef} from "@angular/material/dialog";
+import {j4care} from '../../../helpers/j4care.service';
+import {AppService} from '../../../app.service';
+import {MatDialogRef} from '@angular/material/dialog';
 import {FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 
@@ -18,8 +18,8 @@ import {CommonModule} from '@angular/common';
     standalone: true
 })
 export class DeviceCloneComponent implements OnInit {
-    validationDetailMessage:String = "";
-    toggle:ToggleBlock = "name";
+    validationDetailMessage:String = '';
+    toggle:ToggleBlock = 'name';
     device;
     clonedDevice;
     _ = _;
@@ -127,12 +127,12 @@ export class DeviceCloneComponent implements OnInit {
 
             }
         }catch (e){
-            j4care.log("trying to toggle netwock reference",e);
+            j4care.log('trying to toggle netwock reference',e);
         }
     }
 
     onSufficePrefixChange(){
-        console.log("this.suffixPrefix", this.suffixPrefix);
+        console.log('this.suffixPrefix', this.suffixPrefix);
         this.keys.forEach(key=>{
             _.get(this.device, key.path).forEach((part,i)=>{
                 if(this.suffixPrefix && this.suffixPrefix.indexOf("*") > -1){
@@ -140,7 +140,7 @@ export class DeviceCloneComponent implements OnInit {
                 }else{
                     _.set(this.clonedDevice, `${key.path}[${i}][${key.name}]`, _.get(this.device,`${key.path}[${i}][${key.name}]`) + this.suffixPrefix.toUpperCase());
                 }
-                if(key.path === "dicomNetworkAE"){
+                if(key.path === 'dicomNetworkAE'){
                     this.onAetChange( i, _.get(this.clonedDevice, `${key.path}[${i}]`));
                 }
             });
@@ -163,7 +163,7 @@ export class DeviceCloneComponent implements OnInit {
             let prevAet;
             if(this.previousAetState[i]){
                 prevAet = this.previousAetState[i];
-                prevRegex = new RegExp(`/${prevAet}/`, "gm");
+                prevRegex = new RegExp(`/${prevAet}/`, 'gm');
             }
             this.clonedDevice.dcmDevice.dcmWebApp.forEach(webApp=>{
                 if(webApp.dcmWebServicePath.indexOf(`/${oldAet}/`) > -1  || webApp.dcmWebServicePath.indexOf(`/${clonedOldAet}/`) > -1 || (prevAet && webApp.dcmWebServicePath.indexOf(`/${prevAet}/`) > -1)){
@@ -197,4 +197,4 @@ export class DeviceCloneComponent implements OnInit {
     }
 }
 
-export type ToggleBlock = "name" | "connections" | "aets" | "webapps" | "hl7";
+export type ToggleBlock = 'name' | 'connections' | 'aets' | 'webapps' | 'hl7';

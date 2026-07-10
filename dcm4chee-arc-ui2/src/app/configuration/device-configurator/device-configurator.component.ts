@@ -1,4 +1,4 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormElement} from '../../helpers/form/form-element';
 import {DeviceConfiguratorService} from './device-configurator.service';
@@ -6,14 +6,14 @@ import * as _ from 'lodash-es';
 import { combineLatest} from 'rxjs';
 import {AppService} from '../../app.service';
 import {ControlService} from '../control/control.service';
-import {HttpErrorHandler} from "../../helpers/http-error-handler";
-import {AeListService} from "../ae-list/ae-list.service";
-import {Hl7ApplicationsService} from "../hl7-applications/hl7-applications.service";
-import {DevicesService} from "../devices/devices.service";
-import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {HttpErrorHandler} from '../../helpers/http-error-handler';
+import {AeListService} from '../ae-list/ae-list.service';
+import {Hl7ApplicationsService} from '../hl7-applications/hl7-applications.service';
+import {DevicesService} from '../devices/devices.service';
+import {J4careHttpService} from '../../helpers/j4care-http.service';
 import {LoadingBarService} from "@ngx-loading-bar/core";
-import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
-import {j4care} from "../../helpers/j4care.service";
+import {KeycloakService} from '../../helpers/keycloak-service/keycloak.service';
+import {j4care} from '../../helpers/j4care.service';
 import { loadTranslations } from '@angular/localize';
 import {LocalLanguageObject} from "../../interfaces";
 import {CommonModule} from '@angular/common';
@@ -58,7 +58,8 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         private httpErrorHandler:HttpErrorHandler,
         private aeService:AeListService,
         private hl7Service:Hl7ApplicationsService,
-        private devicesService:DevicesService
+        private devicesService:DevicesService,
+        private changeDetector: ChangeDetectorRef
     ) { }
     addModel(){
         let explod = this.params['device'].split('|');
@@ -74,6 +75,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
 
         if(this.isNew && this.service.checkIfDuplicatedChild(value,this.recentParams)){
             $this.mainservice.showError($localize `:@@device-configurator.child_exist:Child already exist, change some value and try saving again!`);
+
             $this.cfpLoadingBar.complete();
         }else{
             if(this.inClone){
@@ -88,33 +90,33 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 this.service.breadcrumbs[this.service.breadcrumbs.length - 1].title = title;
                 let key;
                 let diff = j4care.diffObjects(_.get(deviceClone, this.recentParams.devicereff), value, true, true);
-                if(_.hasIn(newSchema, "properties") || _.hasIn(newSchema, "items.properties")){
-                    if(_.hasIn(newSchema, "properties")){
-                        key = "properties";
+                if(_.hasIn(newSchema, 'properties') || _.hasIn(newSchema, 'items.properties')){
+                    if(_.hasIn(newSchema, 'properties')){
+                        key = 'properties';
                     }
-                    if(_.hasIn(newSchema, "items.properties")){
-                        key = "items.properties";
+                    if(_.hasIn(newSchema, 'items.properties')){
+                        key = 'items.properties';
                     }
                 }
 
                 let schemaBase = _.get(newSchema, key);
 
                 Object.keys(schemaBase).forEach(k=>{
-                    if(_.hasIn(schemaBase[k],"use") && _.hasIn(diff,`diff.${k}`)){
-                        this.service.setValueToReferences(_.get(diff,`first.${k}`), value[k], schemaBase[k]["use"]);
+                    if(_.hasIn(schemaBase[k],'use') && _.hasIn(diff,`diff.${k}`)){
+                        this.service.setValueToReferences(_.get(diff,`first.${k}`), value[k], schemaBase[k]['use']);
                     }
                 });
 
                 //Adding archive extension to the network ae if the device has archive extension
                 if(
-                    _.hasIn(this.service.device,"dcmArchiveDevice") &&
-                    this.recentParams.schema === "properties.dicomNetworkAE" &&
-                    _.hasIn(this.service.device,"dicomNetworkAE") &&
+                    _.hasIn(this.service.device,'dcmArchiveDevice') &&
+                    this.recentParams.schema === 'properties.dicomNetworkAE' &&
+                    _.hasIn(this.service.device,'dicomNetworkAE') &&
                     this.service.device.dicomNetworkAE.length > 0
                 ){
                     _.forEach(this.service.device.dicomNetworkAE, (m,i)=>{
-                        if(!_.hasIn(m,"dcmArchiveNetworkAE")){
-                            this.service.device.dicomNetworkAE[i]["dcmArchiveNetworkAE"] = {};
+                        if(!_.hasIn(m,'dcmArchiveNetworkAE')){
+                            this.service.device.dicomNetworkAE[i]['dcmArchiveNetworkAE'] = {};
                             extensionAdded = true;
                         }
                     });
@@ -157,6 +159,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 setTimeout(() => {
                                     $this.router.navigateByUrl(`/device/edit/${value.dicomDeviceName}`);
                                 }, 200);
+                                this.changeDetector.detectChanges();
                             },
                             (err) => {
                                 _.assign($this.service.device, deviceClone);
@@ -200,10 +203,10 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                     if(this.mainservice.deviceName === this.service.device.dicomDeviceName){
                                         try{
                                             let global = _.cloneDeep(this.mainservice.global);
-                                            global["uiConfig"] =  _.get($this.service.device, "dcmDevice.dcmuiConfig[0]");
+                                            global['uiConfig'] =  _.get($this.service.device, "dcmDevice.dcmuiConfig[0]");
                                             this.mainservice.setGlobal(global);
                                         }catch (e){
-                                            console.error("Ui Config could not be updated", e);
+                                            console.error('Ui Config could not be updated', e);
                                         }
                                     }
                                     $this.cfpLoadingBar.complete();
@@ -213,6 +216,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                     }
                                 );
                                 $this.refreshExternalReferences();
+                                this.changeDetector.detectChanges();
                             },
                             (err) => {
                                 _.assign($this.service.device, deviceClone);
@@ -301,7 +305,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
     }
     initCheck(retries){
         let $this = this;
-        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,'global.notSecure') && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -325,11 +329,11 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         this.route.params
             .subscribe((params) => {
                 if(this.service.device && !_.hasIn(this.service.device,params.devicereff)){
-                    console.log("this.service.device",this.service.device);
-                    // _.set(this.service.device,"dcmDevice.dcmArchiveDevice",{});
+                    console.log('this.service.device',this.service.device);
+                    // _.set(this.service.device,'dcmDevice.dcmArchiveDevice',{});
                     this.emptyExtension = true;
                 }
-                console.log("allOptions",this.service.allOptions);
+                console.log('allOptions',this.service.allOptions);
                 if (
                     ($this.service.breadcrumbs.length < 3) // If the deepest breadcrumb level is the device than go one
                         ||
@@ -370,7 +374,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         let deviceSchemaURL = `./assets/schema/device.schema.json`;
                         if (params['device'] == '[new_device]') {
                             $this.$http.get(deviceSchemaURL)
-                                // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = "/dcm4chee-arc/ui2/";} resjson = res; }catch (e){ resjson = [];} return resjson;})
+                                // .map(res => {let resjson; try{ let pattern = new RegExp("[^:]*:\/\/[^\/]*\/auth\/"); if(pattern.exec(res.url)){ WindowRefService.nativeWindow.location = '/dcm4chee-arc/ui2/';} resjson = res; }catch (e){ resjson = [];} return resjson;})
                                 .subscribe((schema) => {
                                 $this.showForm = false;
                                 $this.device = {};
@@ -383,6 +387,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                 setTimeout(() => {
                                     $this.showForm = true;
                                     $this.cfpLoadingBar.complete();
+                                    this.changeDetector.detectChanges();
                                 }, 1);
                             });
                         } else {
@@ -407,10 +412,11 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                                     setTimeout(() => {
                                         $this.cfpLoadingBar.complete();
                                         $this.showForm = true;
+                                        this.changeDetector.detectChanges();
                                     }, 1);
                                 }
                             },(err)=>{
-                                console.log("error",err);
+                                console.log('error',err);
                                 $this.cfpLoadingBar.complete();
                                 $this.httpErrorHandler.handleError(err);
                             });
@@ -425,6 +431,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 $this.router.navigateByUrl($this.service.breadcrumbs[$this.service.breadcrumbs.length - 1].url);
                 $this.cfpLoadingBar.complete();
             }
+            this.changeDetector.detectChanges();
             });
 
     }
@@ -436,7 +443,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         if (_.hasIn(params, 'clone')){
             newModel = _.get(this.service.device, params['clone']);
             //TODO
-            if(params["schema"] === "properties.dicomNetworkAE"){
+            if(params['schema'] === 'properties.dicomNetworkAE'){
 
             }
             this.inClone = true;
@@ -444,9 +451,9 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
             newModel = _.get(this.service.device, params['devicereff']);
         }
         if (newSchema === null){
-            this.service.getSchemaDeep($this.service.schema, params["schema"]).subscribe(schema=>{
+            this.service.getSchemaDeep($this.service.schema, params['schema']).subscribe(schema=>{
                 $this.service.schema = schema;
-                newSchema = _.get(schema, params["schema"]);
+                newSchema = _.get(schema, params['schema']);
                 let title = $this.service.getBreadcrumbTitleFromModel(newModel, newSchema);
                 if(title == '[NEW]'){
                     this.isNew = true;
@@ -473,7 +480,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     clone:this.inClone
                 };
                 // this.service.generateMissingBreadcrumbs($this.service.breadcrumbs, params);
-                // console.log("missingbreadcrumb",this.service.getMissingBreadcrumbObjects(newBreadcrumbObject, []));
+                // console.log('missingbreadcrumb',this.service.getMissingBreadcrumbObjects(newBreadcrumbObject, []));
                 this.service.breadcrumbs = [...this.service.breadcrumbs, ...this.service.getMissingBreadcrumbObjects(newBreadcrumbObject, [])];
                 let newBreadcrumbIndex = _.findIndex($this.service.breadcrumbs, (p) => {
                     return this.service.isSameSiblingUrl(p.url,newBreadcrumbObject.url);
@@ -558,6 +565,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     // this._changeDetectionRef.detectChanges();
 
                 }
+                this.changeDetector.detectChanges();
             });
 /*            if (_.hasIn(params, 'device')){
                 this.router.navigateByUrl(`/device/edit/${params['device']}`);
@@ -658,6 +666,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                         $this.showForm = true;
                         $this.cfpLoadingBar.complete();
                     }, 1);
+                    this.changeDetector.detectChanges();
                 }, (err) => {
                     $this.cfpLoadingBar.complete();
                 }
@@ -704,15 +713,15 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
         this.router.navigateByUrl(breadcrumb.url);
     }
     hoveredElement(element){
-            console.log("element",element);
-            console.log("device",this.service.device);
-            console.log("obj",this.service.getObjectsFromPath(element.url));
+            console.log('element',element);
+            console.log('device',this.service.device);
+            console.log('obj',this.service.getObjectsFromPath(element.url));
     }
     toCompareObject;
     toCompareFormelement;
     showCompare = false;
     compare(element){
-        console.log("param",this.params);
+        console.log('param',this.params);
         this.showCompare = false;
         this.toCompareObject = undefined;
         this.toCompareObject = undefined;
@@ -735,7 +744,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     devicereff: undefined
                 }
             ];*/
-            console.log("param",this.recentParams);
-            console.log("ondestroy",this.service.breadcrumbs);
+            console.log('param',this.recentParams);
+            console.log('ondestroy',this.service.breadcrumbs);
         }
 }

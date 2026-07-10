@@ -1,5 +1,5 @@
-import {Component, OnDestroy, OnInit, ViewContainerRef} from '@angular/core';
-import {LoadingBarService} from '@ngx-loading-bar/core';
+import { Component, OnDestroy, OnInit, ViewContainerRef, ChangeDetectorRef } from '@angular/core';
+import {LoadingBarService} from "@ngx-loading-bar/core";
 import {AppService} from '../../app.service';
 import * as _ from 'lodash-es';
 import {StorageVerificationService} from './storage-verification.service';
@@ -102,10 +102,11 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
       private permissionService: PermissionService,
       private deviceService: DevicesService,
       private _keycloakService: KeycloakService,
-      private studyService: StudyService
+      private studyService: StudyService,
+      private changeDetector: ChangeDetectorRef
     ) { }
 
-    ngOnInit() {
+    ngOnInit(){
         this.initCheck(10);
     }
 
@@ -127,16 +128,18 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             }
         }
     }
-    init() {
-        this.service.statusValues().forEach(val => {
+    init(){
+        this.service.statusValues().forEach(val =>{
             this.statusValues[val.value] = {
                 count: 0,
                 loader: false
             };
         });
+        //this.getTasks(0);
         this.filterObject = {
-            limit: 20,
-            offset: 0
+            limit:20,
+            offset:0,
+            includefield:'all'
         };
         forkJoin(
             this.aeListService.getAets().pipe(map(aet => this.permissionService.filterAetDependingOnUiConfig(aet, 'internal'))),
@@ -144,19 +147,20 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
         ).subscribe((response) => {
             this.localAET = (<any[]>j4care.extendAetObjectWithAlias(response[0])).map(ae => {
                 return {
-                    value: ae.dicomAETitle,
-                    text: ae.dicomAETitle
+                    value:ae.dicomAETitle,
+                    text:ae.dicomAETitle
                 }
             });
             this.devices = (<any[]>response[1])
                 .filter(dev => dev.hasArcDevExt)
                 .map(device => {
                     return {
-                        value: device.dicomDeviceName,
-                        text: device.dicomDeviceName
+                        value:device.dicomDeviceName,
+                        text:device.dicomDeviceName
                     }
                 });
             this.initSchema();
+            this.changeDetector.detectChanges();
         });
         this.onFormChange(this.filterObject);
     }
@@ -290,6 +294,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                     this.openedBlock = 'monitor';
                     this.getCounts(true);
                 }, 500);
+                this.changeDetector.detectChanges();
             }, (err) => {
                 this.cfpLoadingBar.complete();
                 this.httpErrorHandler.handleError(err);
@@ -297,38 +302,39 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
         } else {
             this.mainservice.showError($localize `:@@aet_required:Aet is required!`);
             this.cfpLoadingBar.complete();
+            this.cfpLoadingBar.complete();
         }
     }
-    onSubmit(object) {
-        if (_.hasIn(object, 'id') && _.hasIn(object, 'model')) {
-            if (object.id === 'submit') {
-                let filter = Object.assign({}, this.filterObject);
+    onSubmit(object){
+        if(_.hasIn(object,'id') && _.hasIn(object,'model')){
+            if(object.id === 'submit'){
+                let filter = Object.assign({},this.filterObject);
                 // let filterCount = Object.assign({},this.filterObject);
-                if (filter['limit']) {
+                if(filter['limit'])
                     filter['limit']++;
-                }
                 this.getTasks(filter);
                 this.getCounts(false);
-            } else {
+            }else{
                 // this.getTasks(0);
-                let filter = Object.assign({}, this.filterObject);
+                let filter = Object.assign({},this.filterObject);
                 delete filter['limit'];
                 delete filter['offset'];
                 this.getVerificationCounts(filter);
             }
         }
     }
-    getVerificationCounts(filter) {
+    getVerificationCounts(filter){
         this.cfpLoadingBar.start();
-        this.service.getSorageVerificationsCount(filter).subscribe((count) => {
-            try {
+        this.service.getSorageVerificationsCount(filter).subscribe((count)=>{
+            try{
                 this.count = count.count;
-            } catch (e) {
+            }catch (e){
                 this.count = '';
             }
             this.initSchema();
             this.cfpLoadingBar.complete();
-        }, (err) => {
+            this.changeDetector.detectChanges();
+        },(err)=>{
             this.cfpLoadingBar.complete();
             this.initSchema();
             this.httpErrorHandler.handleError(err);
@@ -371,25 +377,26 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                     console.log('ok',ok);
                 }
             });
+            this.changeDetector.detectChanges();
         });
     }
-    allActionChanged(e) {
+    allActionChanged(e){
         let text = $localize `:@@matching_task_question:Are you sure, you want to ${Globalvar.getActionText(this.allAction)} all matching tasks?`;
         let filter = Object.assign({}, this.filterObject);
         delete filter.limit;
         delete filter.offset;
         this.confirm({
             content: text
-        }).subscribe((ok) => {
-            if (ok) {
-                switch (this.allAction) {
+        }).subscribe((ok)=>{
+            if(ok){
+                switch (this.allAction){
                     case 'cancel':
                         this.cfpLoadingBar.start();
-                        this.service.cancelAll(this.filterObject).subscribe((res) => {
+                        this.service.cancelAll(this.filterObject).subscribe((res)=>{
                             this.cfpLoadingBar.complete();
-                            if (_.hasIn(res, 'count')) {
+                            if(_.hasIn(res,'count')){
                                 this.mainservice.showMsg($localize `:@@tasks_canceled_param:${res.count}:count: tasks canceled successfully!`);
-                            } else {
+                            }else{
                                 this.mainservice.showMsg($localize `:@@tasks_canceled:Tasks canceled successfully!`);
                             }
                         }, (err) => {
@@ -399,20 +406,20 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
 
                         break;
                     case 'reschedule':
-                        this.deviceService.selectParametersForMatching((res) => {
-                            if (res) {
+                        this.deviceService.selectParametersForMatching((res)=> {
+                            if (res){
                                 this.cfpLoadingBar.start();
                                 if (_.hasIn(res, 'schema_model.newDeviceName') && res.schema_model.newDeviceName != '') {
                                     filter['newDeviceName'] = res.schema_model.newDeviceName;
                                 }
-                                if (_.hasIn(res, 'schema_model.scheduledTime') && res.schema_model.scheduledTime != '') {
+                                if(_.hasIn(res, 'schema_model.scheduledTime') && res.schema_model.scheduledTime != ''){
                                     filter['scheduledTime'] = res.schema_model.scheduledTime;
                                 }
-                                this.service.rescheduleAll(filter).subscribe((res: any) => {
+                                this.service.rescheduleAll(filter).subscribe((res) => {
                                     this.cfpLoadingBar.complete();
-                                    if (_.hasIn(res, 'count')) {
+                                    if(_.hasIn(res,'count')){
                                         this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:count: tasks rescheduled successfully!`);
-                                    } else {
+                                    }else{
                                         this.mainservice.showMsg($localize `:@@tasks_rescheduled:Tasks rescheduled successfully!`);
                                     }
                                 }, (err) => {
@@ -425,11 +432,11 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                         break;
                     case 'delete':
                         this.cfpLoadingBar.start();
-                        this.service.deleteAll(this.filterObject).subscribe((res) => {
+                        this.service.deleteAll(this.filterObject).subscribe((res)=>{
                             this.cfpLoadingBar.complete();
-                            if (_.hasIn(res, 'deleted')) {
+                            if(_.hasIn(res,'deleted')){
                                 this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`);
-                            } else {
+                            }else{
                                 this.mainservice.showMsg($localize `:@@tasks_deleted:Tasks deleted successfully!`);
                             }
                         }, (err) => {
@@ -442,58 +449,58 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             }
             this.allAction = '';
             this.allAction = undefined;
+            this.changeDetector.detectChanges();
         });
     }
-    getCounts(getTasks?) {
-        let filters = Object.assign({}, this.filterObject);
-        if (!this.tableHovered && getTasks) {
-            let filter = Object.assign({}, this.filterObject);
-            if (filter['limit']) {
+    getCounts(getTasks?){
+        let filters = Object.assign({},this.filterObject);
+        if(!this.tableHovered && getTasks){
+            let filter = Object.assign({},this.filterObject);
+            if(filter['limit']){
                 this.filterObject['offset'] = 0;
                 filter['limit']++;
             }
             this.getTasks(filter);
         }
-        Object.keys(this.statusValues).forEach(status => {
+        Object.keys(this.statusValues).forEach(status=>{
             filters.status = status;
             this.statusValues[status].loader = true;
-            this.service.getSorageVerificationsCount(filters).subscribe((count) => {
+            this.service.getSorageVerificationsCount(filters).subscribe((count)=>{
                 this.statusValues[status].loader = false;
-                try {
+                try{
                     this.statusValues[status].count = count.count;
-                } catch (e) {
+                }catch (e){
                     this.statusValues[status].count = '';
                 }
-            }, (err) => {
+            },(err)=>{
                 this.statusValues[status].loader = false;
-                this.statusValues[status].count = '!';
+                this.statusValues[status].count = "!";
             });
         });
     }
 
-    confirm(confirmparameters) {
-        // this.config.viewContainerRef = this.viewContainerRef;
+    confirm(confirmparameters){
+        //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
     };
-    downloadCsv() {
+    downloadCsv(){
         this.confirm({
-            content: $localize `:@@use_semicolon_delimiter:Do you want to use semicolon as delimiter?`,
-            cancelButton: $localize `:@@no:No`,
-            saveButton: $localize `:@@Yes:Yes`,
-            result: $localize `:@@yes:yes`
-        }).subscribe((ok) => {
+            content:$localize `:@@use_semicolon_delimiter:Do you want to use semicolon as delimiter?`,
+            cancelButton:$localize `:@@no:No`,
+            saveButton:$localize `:@@Yes:Yes`,
+            result:$localize `:@@yes:yes`
+        }).subscribe((ok)=>{
             let semicolon = false;
-            if (ok) {
+            if(ok)
                 semicolon = true;
-            }
             let token;
-            this._keycloakService.getToken().subscribe((response) => {
-                if (!this.mainservice.global.notSecure) {
+            this._keycloakService.getToken().subscribe((response)=>{
+                if(!this.mainservice.global.notSecure){
                     token = response.token;
                 }
                 let filterClone = _.cloneDeep(this.filterObject);
@@ -507,27 +514,27 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             });
         })
     }
-    next() {
-        if (this.moreTasks) {
-            let filter = Object.assign({}, this.filterObject);
-            if (filter['limit']) {
-                this.filterObject['offset'] = filter['offset'] = filter['offset'] * 1 + this.filterObject['limit'] * 1;
+    next(){
+        if(this.moreTasks){
+            let filter = Object.assign({},this.filterObject);
+            if(filter['limit']){
+                this.filterObject['offset'] = filter['offset'] = filter['offset']*1 + this.filterObject['limit']*1;
                 filter['limit']++;
             }
             this.getTasks(filter);
         }
     }
-    prev() {
-        if (this.filterObject['offset'] > 0) {
-            let filter = Object.assign({}, this.filterObject);
-            if (filter['limit']) {
-                this.filterObject['offset'] = filter['offset'] = filter['offset'] * 1 - this.filterObject['limit'] * 1;
+    prev(){
+        if(this.filterObject['offset'] > 0){
+            let filter = Object.assign({},this.filterObject);
+            if(filter['limit']){
+                this.filterObject['offset'] = filter['offset'] = filter['offset']*1 - this.filterObject['limit']*1;
                 filter['limit']++;
             }
             this.getTasks(filter);
         }
     }
-    getTasks(filter) {
+    getTasks(filter){
         let $this = this;
         $this.cfpLoadingBar.start();
         this.service.getSorageVerifications(filter, this.batchGrouped).subscribe(
@@ -566,6 +573,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                 if (this.moreTasks) {
                     this.storageVerifications.splice(this.storageVerifications.length - 1, 1);
                 }
+                this.changeDetector.detectChanges();
             },
             err => {
                 $this.storageVerifications = [];
@@ -576,16 +584,15 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
     showDetails(e) {
         this.batchGrouped = false;
         this.filterObject['batchID'] = e.batchID;
-        let filter = Object.assign({}, this.filterObject);
-        if (filter['limit']) {
+        let filter = Object.assign({},this.filterObject);
+        if(filter['limit'])
             filter['limit']++;
-        }
         this.getTasks(filter);
     }
     onFormChange(filters) {
         this.setTableSchemas();
 /*        this.allActionsActive = this.allActionsOptions.filter((o)=>{
-            if(filters.status == "SCHEDULED" || filters.status == $localize `:@@storage-verification.in_process:IN PROCESS`){
+            if(filters.status == 'SCHEDULED' || filters.status == $localize `:@@storage-verification.in_process:IN PROCESS`){
                 return o.value != 'reschedule';
             }else{
                 if(filters.status === '*' || !filters.status || filters.status === '')
@@ -595,11 +602,11 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             }
         });*/
     }
-    deleteAllTasks(filter) {
-        this.service.deleteAll(filter).subscribe((res) => {
+    deleteAllTasks(filter){
+        this.service.deleteAll(filter).subscribe((res)=>{
             this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.deleted}:tasks: tasks deleted successfully!`)
             this.cfpLoadingBar.complete();
-            let filters = Object.assign({}, this.filterObject);
+            let filters = Object.assign({},this.filterObject);
             this.getTasks(filters);
         }, (err) => {
             this.cfpLoadingBar.complete();
@@ -607,8 +614,8 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
         });
     }
 
-    action(mode, match) {
-        switch (mode) {
+    action(mode, match){
+        switch(mode){
             case 'cancel-selected':
                 this.executeAll('cancel');
                 break;
@@ -636,31 +643,31 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
         }
     }
 
-    showTaskDetail(batch) {
-        let filter = Object.assign({}, this.filterObject);
+    showTaskDetail(batch){
+        let filter = Object.assign({},this.filterObject);
         filter['batchID'] = batch.batchID;
-        // delete filter["limit"];
-        // delete filter["offset"];
+        // delete filter['limit'];
+        // delete filter['offset'];
         this.filterObject.batchID = batch.batchID;
         this.batchGrouped = false;
         this.getTasks(filter);
     }
 
-    deleteBatchedTask(batchedTask) {
+    deleteBatchedTask(batchedTask){
         this.confirm({
             content: $localize `:@@batch_delete_question:Are you sure you want to delete all tasks of this batch?`
-        }).subscribe(ok => {
-            if (ok) {
-                if (batchedTask.batchID) {
-                    let filter = Object.assign({}, this.filterObject);
+        }).subscribe(ok=>{
+            if(ok){
+                if(batchedTask.batchID){
+                    let filter = Object.assign({},this.filterObject);
                     filter['batchID'] = batchedTask.batchID;
                     delete filter['limit'];
                     delete filter['offset'];
-                    this.service.deleteAll(filter).subscribe((res) => {
+                    this.service.deleteAll(filter).subscribe((res)=>{
                         this.cfpLoadingBar.complete();
-                        if (_.hasIn(res, 'count')) {
+                        if(_.hasIn(res,'count')){
                             this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
-                        } else {
+                        }else{
                             this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`);
                         }
                         this.getTasks(filter);
@@ -668,27 +675,27 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
                         this.cfpLoadingBar.complete();
                         this.httpErrorHandler.handleError(err);
                     });
-                } else {
+                }else{
                     this.mainservice.showError($localize `:@@batch_id_not_found:Batch ID not found!`);
                 }
             }
         });
     }
 
-    delete(match) {
+    delete(match){
         let $this = this;
         let parameters: any = {
             content: $localize `:@@delete_task_question:Are you sure you want to delete this task?`
         };
         this.confirm(parameters).subscribe(result => {
-            if (result) {
+            if (result){
                 $this.cfpLoadingBar.start();
                 this.service.delete(match.taskID)
                     .subscribe(
                         (res) => {
                             // match.status = 'CANCELED';
                             $this.cfpLoadingBar.complete();
-                            $this.getTasks(match.offset || 0);
+                            $this.getTasks(match.offset||0);
                             this.mainservice.showMsg($localize `:@@task_deleted:Task deleted successfully!`)
                         },
                         (err) => {
@@ -704,7 +711,7 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
             content: $localize `:@@want_to_cancel_this_task:Are you sure you want to cancel this task?`
         };
         this.confirm(parameters).subscribe(result => {
-            if (result) {
+            if (result){
                 $this.cfpLoadingBar.start();
                 this.service.cancel(match.taskID)
                     .subscribe(
@@ -724,20 +731,20 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
 
     reschedule(match) {
         let $this = this;
-        this.deviceService.selectParameters((res) => {
-                if (res) {
+        this.deviceService.selectParameters((res)=>{
+                if(res){
                     let filter = {};
-                    if (_.hasIn(res, 'schema_model.newDeviceName') && res.schema_model.newDeviceName != '') {
+                    if(_.hasIn(res, 'schema_model.newDeviceName') && res.schema_model.newDeviceName != ''){
                         filter['newDeviceName'] = res.schema_model.newDeviceName;
                     }
-                    if (_.hasIn(res, 'schema_model.scheduledTime') && res.schema_model.scheduledTime != '') {
+                    if(_.hasIn(res, 'schema_model.scheduledTime') && res.schema_model.scheduledTime != ''){
                         filter['scheduledTime'] = res.schema_model.scheduledTime;
                     }
                     $this.cfpLoadingBar.start();
                     this.service.reschedule(match.taskID, filter)
                         .subscribe(
                             (res) => {
-                                $this.getTasks(match.offset || 0);
+                                $this.getTasks(match.offset||0);
                                 $this.cfpLoadingBar.complete();
                                 this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`)
                             },
@@ -752,26 +759,26 @@ export class StorageVerificationComponent implements OnInit, OnDestroy {
         );
     };
 
-    executeAll(mode) {
+    executeAll(mode){
         this.confirm({
             content: $localize `:@@action_selected_entries_question:Are you sure you want to ${Globalvar.getActionText(mode)} selected entries?`
         }).subscribe(result => {
-            if (result) {
+            if (result){
                 this.cfpLoadingBar.start();
-                this.storageVerifications.forEach((match) => {
-                    if (match.selected) {
+                this.storageVerifications.forEach((match)=>{
+                    if(match.selected){
                         this.service[mode](match.taskID)
                             .subscribe((res) => {
-                                console.log('execute result=', res);
-                            }, (err) => {
+                                console.log("execute result=",res);
+                            },(err)=>{
                                 this.httpErrorHandler.handleError(err);
                             });
                     }
                 });
-                setTimeout(() => {
+                setTimeout(()=>{
                     this.getTasks(this.storageVerifications[0].offset || 0);
                     this.cfpLoadingBar.complete();
-                }, 300);
+                },300);
             }
         });
     }

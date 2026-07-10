@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {Globalvar} from '../../../constants/globalvar';
 declare var DCM4CHE: any;
@@ -56,7 +56,8 @@ export class ModifyUpsComponent {
         deletionlock:false
     };
 
-    constructor(public dialogRef: MatDialogRef<ModifyUpsComponent>, private $http:J4careHttpService, public mainservice: AppService) {
+    constructor(public dialogRef: MatDialogRef<ModifyUpsComponent>, private $http:J4careHttpService, public mainservice: AppService,
+        private changeDetector: ChangeDetectorRef) {
     }
     onChange(newValue, model) {
         _.set(this, model, newValue);
@@ -367,7 +368,8 @@ export class ModifyUpsComponent {
                         $this.mainservice.setGlobal({aes: response});
                     }
                 }
-            }, (response) => {
+
+                this.changeDetector.detectChanges();}, (response) => {
                 // vex.dialog.alert("Error loading aes, please reload the page and try again!");
             });
     }

@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import {MetricsService} from "./metrics.service";
-import {HttpErrorHandler} from "../../helpers/http-error-handler";
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import {MetricsService} from './metrics.service';
+import {HttpErrorHandler} from '../../helpers/http-error-handler';
 import {LoadingBarService} from "@ngx-loading-bar/core";
-import * as _ from "lodash-es";
-import {AppService} from "../../app.service";
-import {FilterSchema, MetricsDescriptors, SelectDropdown} from "../../interfaces";
-import {j4care} from "../../helpers/j4care.service";
-import {environment} from "../../../environments/environment";
+import * as _ from 'lodash-es';
+import {AppService} from '../../app.service';
+import {FilterSchema, MetricsDescriptors, SelectDropdown} from '../../interfaces';
+import {j4care} from '../../helpers/j4care.service';
+import {environment} from '../../../environments/environment';
 import {MonitoringTabsComponent} from '../monitoring-tabs.component';
 import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
 import {TableGeneratorComponent} from '../../helpers/table-generator/table-generator.component';
@@ -38,7 +38,8 @@ export class MetricsComponent implements OnInit {
         private service:MetricsService,
         private httpErrorHandler:HttpErrorHandler,
         private cfpLoadingBar:LoadingBarService,
-        public appService:AppService
+        public appService:AppService,
+        private changeDetector: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
@@ -46,18 +47,18 @@ export class MetricsComponent implements OnInit {
     }
 
     onFormChange(e){
-        console.log("e",e);
-        console.log("filterSchema",this.filterSchema);
-        console.log("metricsDescriptors",this.metricsDescriptors);
+        console.log('e',e);
+        console.log('filterSchema',this.filterSchema);
+        console.log('metricsDescriptors',this.metricsDescriptors);
         this.selectWrightMetricsDescriptor();
         this.setFilterSchema();
         this.setTableConfig();
     }
     selectWrightMetricsDescriptor(){
-        if(_.hasIn(this.filterObject,"name") && this.filterObject["name"] != ""){
+        if(_.hasIn(this.filterObject,'name') && this.filterObject['name'] != ''){
             if(!(this.selectedMetricsDescriptors && this.selectedMetricsDescriptors.dcmMetricsName === this.filterObject['name'])){
                 this.metricsDescriptors.forEach((descriptor:MetricsDescriptors)=>{
-                    if(descriptor.dcmMetricsName === this.filterObject["name"]){
+                    if(descriptor.dcmMetricsName === this.filterObject['name']){
                         this.selectedMetricsDescriptors = descriptor;
                     }
                 })
@@ -67,18 +68,18 @@ export class MetricsComponent implements OnInit {
         }
     }
     getMetrics(e){
-        if(_.hasIn(this.filterObject,"name") && this.filterObject["name"] != ""){
+        if(_.hasIn(this.filterObject,'name') && this.filterObject['name'] != ''){
 
             let validation = this.validFilter();
             if(validation.valid){
                 this.cfpLoadingBar.start();
 
                 let params = _.clone(this.filterObject);
-                let name = params["name"];
-                delete params["name"];
+                let name = params['name'];
+                delete params['name'];
 
                 this.service.getMetrics(name, params).subscribe(metrics=>{
-                    let bin:number = _.parseInt(this.filterObject["bin"].toString()) || 1;
+                    let bin:number = _.parseInt(this.filterObject['bin'].toString()) || 1;
                     let currentServerTime = new Date(this.appService.serverTime);
                     this.metrics = metrics.map( (metric,i)=>{
                         if(i != 0){
@@ -87,10 +88,10 @@ export class MetricsComponent implements OnInit {
                         if(!_.isEmpty(metric)){
                             return {
                                 time:j4care.formatDate(currentServerTime,"HH:mm"),
-                                avg: j4care.round(metric["avg"],2),
-                                count: metric["count"],
-                                max: j4care.round(metric["max"],2),
-                                min: j4care.round(metric["min"],2)
+                                avg: j4care.round(metric['avg'],2),
+                                count: metric['count'],
+                                max: j4care.round(metric['max'],2),
+                                min: j4care.round(metric['min'],2)
                             }
                         }else{
                             return {}
@@ -106,6 +107,7 @@ export class MetricsComponent implements OnInit {
                     if((!this.metrics || this.metrics.length === 0) || (this.metrics.length === 1 && _.isEmpty(this.metrics[0]))){
                         this.appService.showMsg($localize `:@@no_data_found:No data found!`);
                     }
+                    this.changeDetector.detectChanges();
                 },err=>{
                     this.cfpLoadingBar.complete();
                     this.httpErrorHandler.handleError(err);
@@ -120,15 +122,15 @@ export class MetricsComponent implements OnInit {
     validFilter(){
         let validation = {
             valid:true,
-            msg:""
+            msg:''
         };
-        if(!_.hasIn(this.filterObject,"bin") || _.parseInt(this.filterObject["bin"].toString()) < 1 || _.parseInt(this.filterObject["bin"].toString()) > _.parseInt(this.selectedMetricsDescriptors.dcmMetricsRetentionPeriod)){
+        if(!_.hasIn(this.filterObject,'bin') || _.parseInt(this.filterObject['bin'].toString()) < 1 || _.parseInt(this.filterObject['bin'].toString()) > _.parseInt(this.selectedMetricsDescriptors.dcmMetricsRetentionPeriod)){
             validation = {
                 valid:false,
                 msg: $localize `:@@bin_value_not_valid:Bin value is not valid!`
             };
         }
-        if(_.hasIn(this.filterObject,"limit") && this.filterObject["limit"] && _.parseInt(this.filterObject["limit"].toString()) < 1){
+        if(_.hasIn(this.filterObject,'limit') && this.filterObject['limit'] && _.parseInt(this.filterObject['limit'].toString()) < 1){
             validation = {
                 valid:false,
                 msg:$localize `:@@limit_not_valid:Limit value is not valid!`
@@ -160,14 +162,15 @@ export class MetricsComponent implements OnInit {
 
     getMetricsDescriptors(){
         this.service.getMetricsDescriptors().subscribe((res:MetricsDescriptors[])=>{
-            this.metricsDescriptors = res;
+            this.metricsDescriptors = _.sortBy(res, 'dicomDescription');
             if(!res || res.length === 0){
                 this.appService.showError($localize`:@@metrics_descriptors_not_found:No Metrics Descriptors were found, please configure Metrics Descriptors first`);
             }else{
-                this.selectedMetricsDescriptors = res[0];
+                this.selectedMetricsDescriptors = res[0]
             }
             this.setTableConfig();
             this.setFilterSchema();
+            this.changeDetector.detectChanges();
         },err=>{
             this.httpErrorHandler.handleError(err);
         })

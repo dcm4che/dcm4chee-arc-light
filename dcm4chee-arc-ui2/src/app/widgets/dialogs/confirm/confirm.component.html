@@ -24,7 +24,7 @@
                 </ng-container>
             </div>
             <div class="dropdownpart" *ngIf="parameters.select">
-                <select id="reject" name="reject" class="col-md-12" (change)="parameters.result.select = $event.target.value">
+                <select id="reject" name="reject" class="col-md-12" (change)="parameters.result.select = $event.target['value']">
                     <option *ngFor="let s of parameters.select" title="{{s.title}}" value="{{ s.value }}">{{ s.label }}</option>
                 </select>
             </div>
@@ -64,7 +64,7 @@
                 <span class="text-danger" *ngIf="(_.hasIn(parameters,parameters.warningOn.conditions[0]) && _.get(parameters,parameters.warningOn.conditions[0]) === true) || _.hasIn(parameters,parameters.warningOn.conditions[1]) && _.get(parameters,parameters.warningOn.conditions[1]) === true">{{ parameters.warningOn.message }}</span>
             </div>
             <div *ngIf="parameters.form_schema">
-                <filter-generator [schema]="parameters.form_schema" [filterTreeHeight]="1" [model]="parameters.result.schema_model" [hideClearButtons]="true" [filterID]="parameters.form_id" [doNotSave]="parameters.doNotSave" [onFilterChangeHook]="parameters.onFilterChangeHook"></filter-generator>
+                <filter-generator [schema]="parameters.form_schema" [filterTreeHeight]="1" [model]="parameters.result.schema_model" [hideClearButtons]="true" [filterID]="parameters.form_id" [doNotSave]="parameters.doNotSave||true" [onFilterChangeHook]="parameters.onFilterChangeHook"></filter-generator>
             </div>
         </div>
         <div class="dialogbuttons">

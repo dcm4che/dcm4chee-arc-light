@@ -1,9 +1,9 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
+import { Component, OnInit, ViewContainerRef, ChangeDetectorRef } from '@angular/core';
 import { DicomNetworkConnection, FilterSchema, SelectDropdown} from '../../interfaces';
 import {j4care} from '../../helpers/j4care.service';
 import {Device} from '../../models/device';
 import {Aet} from '../../models/aet';
-import {LoadingBarService} from '@ngx-loading-bar/core';
+import {LoadingBarService} from "@ngx-loading-bar/core";
 import {HttpErrorHandler} from '../../helpers/http-error-handler';
 import {forkJoin} from 'rxjs';
 import {ExportDialogComponent} from '../../widgets/dialogs/export/export.component';
@@ -49,6 +49,7 @@ export class WebAppsListComponent implements OnInit {
         private httpErrorHandler: HttpErrorHandler,
         private viewContainerRef: ViewContainerRef,
         private dialog: MatDialog,
+        private changeDetector: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
@@ -60,15 +61,16 @@ export class WebAppsListComponent implements OnInit {
         this.service.getWebApps(this.filterObject).subscribe(webApps => {
             this.webApps = webApps.map(webApp => {
                 try {
-                    webApp['url'] = webApp.dicomNetworkConnection.map((networkConnection: DicomNetworkConnection) => {
-                        return `${j4care.getUrlFromDicomNetworkConnection(networkConnection)}${j4care.meyGetString(webApp, 'dcmWebServicePath')}`;
+                    webApp['url'] = webApp.dicomNetworkConnection.map((networkConnection:DicomNetworkConnection)=>{
+                        return `${j4care.getUrlFromDicomNetworkConnection(networkConnection)}${j4care.meyGetString(webApp,'dcmWebServicePath')}`;
                     });
-                } catch (e) {
-                    j4care.log('Error on getting url from network', e);
+                }catch (e) {
+                    j4care.log('Error on getting url from network',e);
                 }
                 return webApp;
             });
             this.cfpLoadingBar.complete();
+            this.changeDetector.detectChanges();
         }, err => {
             this.httpErrorHandler.handleError(err);
             this.cfpLoadingBar.complete();
@@ -87,6 +89,7 @@ export class WebAppsListComponent implements OnInit {
 
             this.setFilterSchema();
             this.setTableConfig();
+            this.changeDetector.detectChanges();
         }, err => {
             this.httpErrorHandler.handleError(err);
         });

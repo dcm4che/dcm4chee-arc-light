@@ -8,7 +8,7 @@ import {SearchPipe} from '../../../pipes/search.pipe';
 import {WindowRefService} from "../../../helpers/window-ref.service";
 import {j4care} from "../../../helpers/j4care.service";
 import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
-import {EditPatientService} from "./edit-patient.service";
+import {EditPatientService} from './edit-patient.service';
 import {CommonModule, NgClass} from '@angular/common';
 import {FormGeneratorComponent} from '../../../helpers/form-generator/form-generator.component';
 import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
@@ -36,7 +36,7 @@ import {SelectDropdown} from '../../../interfaces';
 export class EditPatientComponent {
 
 
-    formMode= localStorage.getItem('patient_edit_mode') || "complex";
+    formMode= localStorage.getItem('patient_edit_mode') || 'complex';
     opendropdown = false;
     addPatientAttribut = '';
     lastPressedCode;
@@ -81,7 +81,7 @@ export class EditPatientComponent {
     ) {
         setTimeout(()=>{
             this.simpleForm.schema = this.service.getSimpleFormSchema();
-            this.formMode = localStorage.getItem('patient_edit_mode') || "simple";
+            this.formMode = localStorage.getItem('patient_edit_mode') || 'simple';
         },10)
     }
     onChange(newValue, model) {
@@ -192,7 +192,7 @@ export class EditPatientComponent {
         }
         //Enter clicked
         if (code === 13){
-            // var filter = $filter("filter");
+            // var filter = $filter('filter');
             // var filtered = filter(this.dropdown, this.addPatientAttribut);
             let filtered = new SearchPipe().transform(this.dropdown, this.addPatientAttribut);
             if (filtered){
@@ -201,7 +201,7 @@ export class EditPatientComponent {
             console.log('filtered', filtered);
             let attrcode: any;
             if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected').length > 0){
-                attrcode = window.document.getElementsByClassName("dropdown_element selected")[0].getAttribute("name");
+                attrcode = window.document.getElementsByClassName('dropdown_element selected')[0].getAttribute('name');
             }else{
                 attrcode = filtered[0].code;
             }
@@ -249,8 +249,8 @@ export class EditPatientComponent {
                     element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
                     dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
                     WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 },10)
 
@@ -285,8 +285,8 @@ export class EditPatientComponent {
                     element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
                     dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
                     WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 },10)
 
@@ -342,8 +342,8 @@ export class EditPatientComponent {
     };
 
     onSimpleFormChange(event: any) {
-        console.log("event",event);
-        console.log("mo",this.simpleForm.model)
+        console.log('event',event);
+        console.log('mo',this.simpleForm.model)
         return undefined;
     }
     onSaveClick(patient){

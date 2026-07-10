@@ -66,13 +66,13 @@ export class EditStudyComponent{
     private _iod: any;
     private _mode;
     reasonForModification:SelectDropdown<any>[] = [
-        new SelectDropdown("COERCE", "COERCE"),
-        new SelectDropdown("CORRECT", "CORRECT"),
+        new SelectDropdown('COERCE', 'COERCE'),
+        new SelectDropdown('CORRECT', 'CORRECT'),
     ]
     updatePolicy:SelectDropdown<any>[] = [
-        new SelectDropdown("SUPPLEMENT", "SUPPLEMENT"),
-        new SelectDropdown("MERGE", "MERGE"),
-        new SelectDropdown("OVERWRITE", "OVERWRITE"),
+        new SelectDropdown('SUPPLEMENT', 'SUPPLEMENT'),
+        new SelectDropdown('MERGE', 'MERGE'),
+        new SelectDropdown('OVERWRITE', 'OVERWRITE'),
     ]
 
     private _tagStudy:any;
@@ -107,21 +107,21 @@ export class EditStudyComponent{
     hideAdditionalParams:boolean;
 
     constructor(public dialogRef: MatDialogRef<EditStudyComponent>, public mainservice: AppService) {
-        console.log("this.study",this._studyResult.study);
+        console.log('this.study',this._studyResult.study);
 /*
         setTimeout(function(){
-            if(this._mode === "create"){
-                $(".edit-patient .0020000D").attr("title","To generate it automatically leave it blank");
-                $(".edit-patient .0020000D").attr("placeholder","To generate it automatically leave it blank");
+            if(this._mode === 'create'){
+                $(".edit-patient .0020000D").attr('title','To generate it automatically leave it blank');
+                $(".edit-patient .0020000D").attr('placeholder','To generate it automatically leave it blank');
             }
-            if(this._mode === "_edit"){
-                $(".edit-patient .0020000D").attr("disabled","disabled");
+            if(this._mode === '_edit'){
+                $(".edit-patient .0020000D").attr('disabled','disabled');
                 $(".edit-patient span.0020000D").remove();
             }
             $(".editform .schema-form-fieldset > legend").append('<span class="glyphicon glyphicon-triangle-right"></span>');
-            $(".editform .schema-form-fieldset > legend").bind("click",function(){
-                $(this).siblings("sf-decorator").toggle();
-                var icon = $(this).find(".glyphicon");
+            $(".editform .schema-form-fieldset > legend").bind('click',function(){
+                $(this).siblings('sf-decorator').toggle();
+                var icon = $(this).find('.glyphicon');
                 if(icon.hasClass('glyphicon-triangle-right')){
                     icon.removeClass('glyphicon-triangle-right').addClass('glyphicon-triangle-bottom');
                 }else{
@@ -130,7 +130,7 @@ export class EditStudyComponent{
             });
             //Click event handling
             /!*
-             $(".addPatientAttribut").bind("keydown",function(e){
+             $('.addPatientAttribut').bind('keydown',function(e){
 
              });
              $(".editform .schema-form-fieldset > sf-decorator").hide();*!/
@@ -255,7 +255,7 @@ export class EditStudyComponent{
                 this.opendropdown = true;
             }
             if (WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected').length > 0){
-                attrcode = window.document.getElementsByClassName("dropdown_element selected")[0].getAttribute("name");;
+                attrcode = window.document.getElementsByClassName('dropdown_element selected')[0].getAttribute('name');;
             }else{
                 attrcode = filtered[0].code;
             }
@@ -302,8 +302,8 @@ export class EditStudyComponent{
                     element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
                     dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
                     WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 },10)
 
@@ -338,8 +338,8 @@ export class EditStudyComponent{
                     element = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0];
                     dropdownElement = WindowRefService.nativeWindow.document.getElementsByClassName('dropdown')[0];
                     WindowRefService.nativeWindow.document.getElementsByClassName('dropdown_element selected')[0].scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 },10)
 

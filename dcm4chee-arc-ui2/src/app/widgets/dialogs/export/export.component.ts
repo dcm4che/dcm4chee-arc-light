@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {AppService} from '../../../app.service';
 import * as _ from 'lodash-es';
@@ -59,7 +59,8 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
         }
     };
     private _preselectedAet;
-    constructor(public dialogRef: MatDialogRef<ExportDialogComponent>, private $http:J4careHttpService, private mainservice: AppService) {
+    constructor(public dialogRef: MatDialogRef<ExportDialogComponent>, private $http:J4careHttpService, private mainservice: AppService,
+        private changeDetector: ChangeDetectorRef) {
     }
     ngOnInit() {
         this.getAes();
@@ -194,7 +195,8 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
                     $this.mainservice.setGlobal({aes: response});
                 }
             }
-        }, (response) => {
+
+            this.changeDetector.detectChanges();}, (response) => {
             // vex.dialog.alert("Error loading aes, please reload the page and try again!");
         });
     }
@@ -226,19 +228,20 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
                         $this.mainservice.setGlobal({webapps: response});
                     }
                 }
-            }, (response) => {
+
+                this.changeDetector.detectChanges();}, (response) => {
                 // vex.dialog.alert("Error loading aes, please reload the page and try again!");
             });
     }
 
     validForm(){
-        if(this._mode === "reschedule"){
+        if(this._mode === 'reschedule'){
             return true;
         }
-        if(this._mode === "multipleExport"){
-            return _.hasIn(this._result,"scheduledTime") && _.hasIn(this._result,"selectedExporter");
+        if(this._mode === 'multipleExport'){
+            return _.hasIn(this._result,'scheduledTime') && _.hasIn(this._result,'selectedExporter');
         }
-        if (this._result && _.hasIn(this._result,"exportType") && this._result.exportType === 'dicom'){
+        if (this._result && _.hasIn(this._result,'exportType') && this._result.exportType === 'dicom'){
            // if (this._result.dicomPrefix && this._result.selectedAet){
             if (this._result.selectedAet){
                 return true;
@@ -246,7 +249,7 @@ export class ExportDialogComponent implements OnInit, OnDestroy{
                 return false;
             }
         }
-        if (this._result && _.hasIn(this._result,"exportType") && this._result.exportType === 'stow'){
+        if (this._result && _.hasIn(this._result,'exportType') && this._result.exportType === 'stow'){
             if (this._result.selectedStowWebapp){
                 return true;
             }else{

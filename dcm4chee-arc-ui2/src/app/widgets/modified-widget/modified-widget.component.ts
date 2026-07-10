@@ -1,10 +1,10 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {DicomLevel, SelectDropdown} from "../../interfaces";
-import {StudyService} from "../../study/study/study.service";
-import {j4care} from "../../helpers/j4care.service";
+import { Component, EventEmitter, Input, OnInit, Output, ChangeDetectorRef } from '@angular/core';
+import {DicomLevel, SelectDropdown} from '../../interfaces';
+import {StudyService} from '../../study/study/study.service';
+import {j4care} from '../../helpers/j4care.service';
 import * as _ from 'lodash-es';
-import {forkJoin} from "rxjs";
-import {TrimPipe} from "../../pipes/trim.pipe";
+import {forkJoin} from 'rxjs';
+import {TrimPipe} from '../../pipes/trim.pipe';
 import {CommonModule, NgClass} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {DcmDropDownComponent} from '../dcm-drop-down/dcm-drop-down.component';
@@ -23,7 +23,7 @@ declare var DCM4CHE: any;
   standalone: true
 })
 export class ModifiedWidgetComponent implements OnInit {
-  stateText="";
+  stateText='';
   private _model;
 
   @Input() placeholder:string;
@@ -41,31 +41,31 @@ export class ModifiedWidgetComponent implements OnInit {
   @Output() modelChange =  new EventEmitter();
   selectorOpen:boolean = false;
   filterModel = {};
-  constructor(
-      private studyService:StudyService
-  ) { }
+  constructor(private studyService:StudyService,
+        private changeDetector: ChangeDetectorRef) { }
   Object = Object;
   Array = Array;
   allModified=false;
   modifiedAttr = new Set();
   iod:SelectDropdown<any>[];
-  stateTextHover = "";
+  stateTextHover = '';
   ngOnInit(): void {
     if(!this.iodFileNames || this.iodFileNames.length === 0){
       this.iodFileNames = [
-          "patient",
-          "study"
+          'patient',
+          'study'
       ];
     }
     if(!this.placeholder){
-      this.placeholder = "Modified";
+      this.placeholder = 'Modified';
     }
     this.getIodObjects();
   }
   getIodObjects(){
     this.studyService.getIodObjectsFromNames(this.iodFileNames).subscribe(iod=>{
       this.iod = this.studyService.iodToSelectedDropdown(iod.reduce((n0,n1)=>Object.assign(n0,n1)));
-    });
+
+        this.changeDetector.detectChanges();});
   }
   getLabelFromIODTag(dicomTagPath){
     return this.studyService.getLabelFromIODTag(dicomTagPath);
@@ -81,8 +81,8 @@ export class ModifiedWidgetComponent implements OnInit {
   trim = new TrimPipe();
   addAttribute(e){
     try{
-      console.log("newAttribute",this.newAttribute)
-      console.log("toggleattr",e);
+      console.log('newAttribute',this.newAttribute)
+      console.log('toggleattr',e);
       if(!this.modifiedAttr.has(e) && this.newAttribute){
         this.modifiedAttr.add(e);
       }
@@ -100,18 +100,18 @@ export class ModifiedWidgetComponent implements OnInit {
   hardClear(){
     this.allModified = false;
     this.modifiedAttr.clear();
-    this.stateText = "";
-    this.stateTextHover = "";
+    this.stateText = '';
+    this.stateTextHover = '';
     this.modelChange.emit(undefined);
   }
   changeAllModified(e){
     this.allModified = e.target.checked;
     if(this.allModified && this.modifiedAttr.size > 0){
-      this.stateText = "All modified";
-      this.stateTextHover = "All modified";
+      this.stateText = $localize `@@all_modified:All modified`;
+      this.stateTextHover = $localize `@@all_modified:All modified`;
     }else{
-      this.stateText = "";
-      this.stateTextHover = "";
+      this.stateText = '';
+      this.stateTextHover = '';
     }
   }
   filterChanged(){}
@@ -123,7 +123,7 @@ export class ModifiedWidgetComponent implements OnInit {
       };
     }
     if(this.modifiedAttr && this.modifiedAttr.size > 0){
-      toReturnObject["modified"] = Array.from(this.modifiedAttr.values());
+      toReturnObject['modified'] = Array.from(this.modifiedAttr.values());
       this.modelChange.emit(toReturnObject);
       if(this.modifiedAttr && this.modifiedAttr.size > 0  && this.modifiedAttr.size){
         this.stateText = this.trim.transform(Array.from(this.modifiedAttr.values()).map(kode=>this.studyService.getLabelFromIODTag(kode)).join(", "),18);
@@ -143,7 +143,7 @@ export class ModifiedWidgetComponent implements OnInit {
     if(this.modifiedAttr && this.modifiedAttr.size > 0){
       this.stateText = `( ${this.modifiedAttr.size} ) selected`;
     }else{
-      this.stateText = "";
+      this.stateText = '';
     }
   }
 }

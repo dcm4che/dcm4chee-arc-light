@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewContainerRef, OnDestroy} from '@angular/core';
+import { Component, OnInit, ViewContainerRef, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import {QueuesService} from './queues.service';
 import {AppService} from '../../app.service';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
@@ -61,13 +61,13 @@ export class QueuesComponent implements OnInit, OnDestroy{
     allAction;
     allActionsOptions = [
         {
-            value:"cancel",
+            value:'cancel',
             label:$localize `:@@cancel_all_matching_tasks:Cancel all matching tasks`
         },{
-            value:"reschedule",
+            value:'reschedule',
             label:$localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`
         },{
-            value:"delete",
+            value:'delete',
             label:$localize `:@@delete_all_matching_tasks:Delete all matching tasks`
         }
     ];
@@ -80,34 +80,34 @@ export class QueuesComponent implements OnInit, OnDestroy{
     tableHovered = false;
     statuses = [
         {
-            value:"SCHEDULED",
+            value:'SCHEDULED',
             text:$localize `:@@SCHEDULED:SCHEDULED`,
-            key:"scheduled"
+            key:'scheduled'
         },{
-            value:"SCHEDULED FOR RETRY",
+            value:'SCHEDULED FOR RETRY',
             text:$localize `:@@S_FOR_RETRY:S. FOR RETRY`,
-            key:"scheduled-for-retry"
+            key:'scheduled-for-retry'
         },{
-            value:"IN PROCESS",
+            value:'IN PROCESS',
             text:$localize `:@@in_process:IN PROCESS`,
-            key:"in-process"
+            key:'in-process'
         },{
-            value:"COMPLETED",
+            value:'COMPLETED',
             text:$localize `:@@COMPLETED:COMPLETED`,
-            key:"completed"
+            key:'completed'
         },{
-            value:"WARNING",
+            value:'WARNING',
             text:$localize `:@@WARNING:WARNING`,
-            key:"warning"
+            key:'warning'
         },{
-            value:"FAILED",
+            value:'FAILED',
             text:$localize `:@@FAILED:FAILED`,
-            key:"failed"
+            key:'failed'
         },
         {
-            value:"CANCELED",
+            value:'CANCELED',
             text:$localize `:@@CANCELED:CANCELED`,
-            key:"canceled"
+            key:'canceled'
         }
     ];
     timer = {
@@ -131,7 +131,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
     };
     filterSchema = [];
     tableConfig:any = {
-        search:"",
+        search:'',
         showAttributes:false
     };
     constructor(
@@ -146,6 +146,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         private deviceService:DevicesService,
         public aeListService:AeListService,
         private permissionService:PermissionService,
+        private changeDetector: ChangeDetectorRef
     ) {};
     ngOnInit(){
         this.initCheck(10);
@@ -161,6 +162,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 if(this.urlParam["dicomDeviceName"])
                     this.filterObject.dicomDeviceName = this.urlParam["dicomDeviceName"];
                 this.init();
+                this.changeDetector.detectChanges();
             });
         }else{
             if (retries){
@@ -173,6 +175,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     if(this.urlParam["queueName"])
                         this.filterObject.queueName = this.urlParam["queueName"];
                     this.init();
+                    this.changeDetector.detectChanges();
                 });
                 this.init();
             }
@@ -203,7 +206,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
             remoteAET:(this.filterObject.remoteAET && this.filterObject.remoteAET != '*') ?  this.filterObject.remoteAET : undefined
         };
         switch (this.allAction){
-            case "cancel":
+            case 'cancel':
                 this.confirm({
                     content: text
                 }).subscribe((ok)=>{
@@ -217,11 +220,12 @@ export class QueuesComponent implements OnInit, OnDestroy{
                             this.httpErrorHandler.handleError(err);
                         });
                     }
-                    this.allAction = "";
+                    this.allAction = '';
                     this.allAction = undefined;
+                    this.changeDetector.detectChanges();
                 });
             break;
-            case "reschedule":
+            case 'reschedule':
                 this.confirm({
                     content: text
                 }).subscribe((ok)=>{
@@ -229,11 +233,11 @@ export class QueuesComponent implements OnInit, OnDestroy{
                         this.deviceService.selectParametersForMatching((res)=>{
                             if(res){
                                 this.cfpLoadingBar.start();
-                                if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
-                                    filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                if(_.hasIn(res, 'schema_model.newDeviceName') && res.schema_model.newDeviceName != ''){
+                                    filter['newDeviceName'] = res.schema_model.newDeviceName;
                                 }
-                                if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
-                                    filter["scheduledTime"] = res.schema_model.scheduledTime;
+                                if(_.hasIn(res, 'schema_model.scheduledTime') && res.schema_model.scheduledTime != ''){
+                                    filter['scheduledTime'] = res.schema_model.scheduledTime;
                                 }
                                 this.service.rescheduleAll(filter,this.filterObject.queueName).subscribe((res)=>{
                                     this.mainservice.showMsg($localize `:@@tasks_queue_rescheduled:${res.count} tasks in queue rescheduled successfully!`);
@@ -246,11 +250,12 @@ export class QueuesComponent implements OnInit, OnDestroy{
                         },
                         this.devices);
                     }
-                    this.allAction = "";
+                    this.allAction = '';
                     this.allAction = undefined;
+                    this.changeDetector.detectChanges();
                 });
             break;
-            case "delete":
+            case 'delete':
                 this.confirm({
                     content: text
                 }).subscribe((ok)=>{
@@ -264,8 +269,9 @@ export class QueuesComponent implements OnInit, OnDestroy{
                             this.httpErrorHandler.handleError(err);
                         });
                     }
-                    this.allAction = "";
+                    this.allAction = '';
                     this.allAction = undefined;
+                    this.changeDetector.detectChanges();
                 });
             break;
         }
@@ -300,7 +306,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         this.tableConfig = {
             table:j4care.calculateWidthOfTable(this.service.getTableColumns(this, this.action,{filterObject:this.filterObject})),
             filter:this.filterObject,
-            search:"",
+            search:'',
             showAttributes:false,
             calculate:false
         };
@@ -308,22 +314,22 @@ export class QueuesComponent implements OnInit, OnDestroy{
 
     action(mode, match){
         switch(mode){
-            case "cancel-selected":
+            case 'cancel-selected':
                 this.executeAll('cancel');
                 break;
-            case "reschedule-selected":
+            case 'reschedule-selected':
                 this.executeAll('reschedule');
                 break;
-            case "delete-selected":
+            case 'delete-selected':
                     this.executeAll('delete');
                 break;
-            case "delete":
+            case 'delete':
                 this.delete(match);
                 break;
-            case "cancel":
+            case 'cancel':
                 this.cancel(match);
                 break;
-            case "reschedule":
+            case 'reschedule':
                 this.reschedule(match);
                 break;
         }
@@ -368,7 +374,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     try{
                         this.statusValues[status].count = count.count;
                     }catch (e){
-                        this.statusValues[status].count = "";
+                        this.statusValues[status].count = '';
                     }
                 },(err)=>{
                     this.statusValues[status].loader = false;
@@ -386,9 +392,9 @@ export class QueuesComponent implements OnInit, OnDestroy{
         }
     };
     onSubmit(object){
-        if(_.hasIn(object,"id") && _.hasIn(object,"model")){
+        if(_.hasIn(object,'id') && _.hasIn(object,'model')){
             this.filterObject = object.model;
-            if(object.id === "count"){
+            if(object.id === 'count'){
                 this.getCount();
             }else{
                 this.getCounts();
@@ -436,6 +442,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                         $this.cfpLoadingBar.complete();
                         this.mainservice.showMsg($localize `:@@no_tasks_found:No tasks found!`)
                     }
+                    this.changeDetector.detectChanges();
                 }, (err) => {
                     console.log('err', err);
                     $this.matches = [];
@@ -465,6 +472,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 }
                 this.setFilters();
                 this.cfpLoadingBar.complete();
+                this.changeDetector.detectChanges();
             },(err)=>{
                 this.cfpLoadingBar.complete();
                 this.httpErrorHandler.handleError(err);
@@ -477,7 +485,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
@@ -500,11 +508,11 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 if(res){
                     $this.cfpLoadingBar.start();
                     let filter = {};
-                    if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
-                        filter["newDeviceName"] = res.schema_model.newDeviceName;
+                    if(_.hasIn(res, 'schema_model.newDeviceName') && res.schema_model.newDeviceName != ''){
+                        filter['newDeviceName'] = res.schema_model.newDeviceName;
                     }
-                    if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
-                        filter["scheduledTime"] = res.schema_model.scheduledTime;
+                    if(_.hasIn(res, 'schema_model.scheduledTime') && res.schema_model.scheduledTime != ''){
+                        filter['scheduledTime'] = res.schema_model.scheduledTime;
                     }
                     this.service.reschedule(this.filterObject.queueName, match.taskID, filter)
                         .subscribe((res) => {
@@ -519,7 +527,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
             this.devices);
     };
     checkAll(event){
-        console.log("in checkall",event.target.checked);
+        console.log('in checkall',event.target.checked);
         this.matches.forEach((match)=>{
             match.checked = event.target.checked;
         });
@@ -562,7 +570,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
                     }
                 });
                 setTimeout(()=>{
-                    if(mode === "delete"){
+                    if(mode === 'delete'){
                         this.search(this.matches[0].offset||0);
                     }else{
                         this.search(0);
@@ -604,7 +612,7 @@ export class QueuesComponent implements OnInit, OnDestroy{
         }
     }
     prev(){
-        if(this.filterObject["offset"] > 0){
+        if(this.filterObject['offset'] > 0){
             let filter = Object.assign({},this.filterObject);
             if(filter['limit'])
                 this.filterObject['offset'] = filter['offset'] = filter['offset']*1 - this.filterObject['limit']*1;
@@ -624,13 +632,14 @@ export class QueuesComponent implements OnInit, OnDestroy{
                 if(!this.urlParam && !this.filterObject.queueName)
                     this.filterObject.queueName = res[0].name;
                 $this.cfpLoadingBar.complete();
+                this.changeDetector.detectChanges();
             });
     }
     setFilters(){
         this.filterSchema = j4care.prepareFlatFilterObject(this.service.getFilterSchema(this.queues,this.devices,this.localAETs,this.remoteAETs,this.counText),3);
         if(this.urlParam) {
-            this.filterObject["queueName"] = this.filterObject["queueName"] || 'Export';
-            this.filterObject["orderby"] = this.filterObject["orderby"] || '-updatedTime';
+            this.filterObject['queueName'] = this.filterObject['queueName'] || 'Export';
+            this.filterObject['orderby'] = this.filterObject['orderby'] || '-updatedTime';
         }
     }
     getDevices(){
@@ -644,21 +653,24 @@ export class QueuesComponent implements OnInit, OnDestroy{
             this.setFilters();
             if(this.urlParam && Object.keys(this.urlParam).length > 0)
                 this.search(0);
+            this.changeDetector.detectChanges();
         },(err)=>{
             this.cfpLoadingBar.complete();
-            console.error("Could not get devices",err);
+            console.error('Could not get devices',err);
         });
     }
     getRemoteAEs(){
         this.aeListService.getAes()
             .subscribe((response)=>{
             this.remoteAETs = response;
+            this.changeDetector.detectChanges();
         });
     }
     getLocalAEs(){
         this.aeListService.getAets()
             .subscribe((response)=>{
                 this.localAETs = response;
+                this.changeDetector.detectChanges();
             });
     }
     ngOnDestroy(){

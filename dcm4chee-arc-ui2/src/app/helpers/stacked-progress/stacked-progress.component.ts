@@ -25,7 +25,7 @@ export class StackedProgressComponent implements OnInit {
         try{
             this.progress = this.model.map(part=>{
                 let key = Object.keys(part)[0];
-                console.log("diffModel",this.diffModel);
+                console.log('diffModel',this.diffModel);
                 return {
                    cssClass:key,
                    width:(parseInt(part[key].toString())*100)/this.totalCount,
@@ -49,9 +49,9 @@ export class StackedProgressComponent implements OnInit {
     }
     extractDiffInformation(){
         return [
-            "different",
-            "matches",
-            "missing"
+            'different',
+            'matches',
+            'missing'
         ]
         .map(key=> this.getIfExist(key, this.diffModel))
         .filter(m => m)

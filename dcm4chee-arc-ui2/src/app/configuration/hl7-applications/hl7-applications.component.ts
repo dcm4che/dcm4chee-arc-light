@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import {Hl7ApplicationsService} from './hl7-applications.service';
 import {AppService} from '../../app.service';
 import {HostListener} from '@angular/core';
@@ -49,7 +49,8 @@ export class Hl7ApplicationsComponent implements OnInit {
         private service: Hl7ApplicationsService,
         public mainservice: AppService,
         private router:  Router,
-        private httpErrorHandler: HttpErrorHandler
+        private httpErrorHandler: HttpErrorHandler,
+        private changeDetector: ChangeDetectorRef
     ) { }
     ngOnInit() {
         this.initCheck(10);
@@ -109,6 +110,7 @@ export class Hl7ApplicationsComponent implements OnInit {
         this.service.getHl7ApplicationsList(this.filter).subscribe(
             (res) => {
                 $this.hl7Applications = res;
+                this.changeDetector.detectChanges();
             },
             (err) => {
                 if (retries) {

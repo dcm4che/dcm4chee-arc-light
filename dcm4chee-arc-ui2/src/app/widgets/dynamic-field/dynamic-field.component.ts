@@ -112,7 +112,8 @@ export class DynamicFieldComponent implements OnInit {
                   this.detectChanges();
               }
             }
-        },(err)=>{
+
+            this.ref.detectChanges();},(err)=>{
           this.loader = false;
         });
     }

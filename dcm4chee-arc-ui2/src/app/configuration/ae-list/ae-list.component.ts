@@ -1,4 +1,4 @@
-import {Component, ViewContainerRef, HostListener, OnInit} from '@angular/core';
+import { Component, ViewContainerRef, HostListener, OnInit, ChangeDetectorRef } from '@angular/core';
 import * as _ from 'lodash-es';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 import {AppService} from '../../app.service';
@@ -72,8 +72,9 @@ export class AeListComponent implements OnInit {
       public dialog: MatDialog,
       public service: AeListService,
       public httpErrorHandler: HttpErrorHandler,
-      private devicesService: DevicesService
-  ) {}
+      private devicesService: DevicesService,
+      private changeDetector: ChangeDetectorRef
+    ) {}
     ngOnInit() {
         this.initCheck(10);
         this.filterSchema = this.service.getFiltersSchema(this.devices, this.mainservice.global.aes);
@@ -152,6 +153,7 @@ export class AeListComponent implements OnInit {
             .subscribe((response: Aet[]) => {
                 $this.aes = response;
                 $this.cfpLoadingBar.complete();
+                this.changeDetector.detectChanges();
             }, (err) => {
                 // vex.dialog.alert("Error loading aes, please reload the page and try again!");
                 $this.cfpLoadingBar.complete();
@@ -161,7 +163,7 @@ export class AeListComponent implements OnInit {
         // this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
@@ -263,7 +265,6 @@ export class AeListComponent implements OnInit {
                                         deviceObject.dicomNetworkAE.splice(i, 1);
                                     }
                                 });
-                                console.log('equal', _.isEqual(res, deviceObject));
                                 console.log('deviceObj', deviceObject);
                                 $this.$http.put(`${j4care.addLastSlash(this.mainservice.baseUrl)}devices/${device}`, deviceObject)
                                     .subscribe((resdev) => {
@@ -472,6 +473,7 @@ export class AeListComponent implements OnInit {
                         $this.mainservice.setGlobal({aes: response});
                     }
                 }
+                this.changeDetector.detectChanges();
             }, (response) => {
                 // vex.dialog.alert("Error loading aes, please reload the page and try again!");
             });
@@ -481,6 +483,7 @@ export class AeListComponent implements OnInit {
         this.service.getAets()
             .subscribe((response) => {
                 $this.aets = response;
+                this.changeDetector.detectChanges();
             }, (err) => {
                 console.log('error getting aets', err);
             });
@@ -494,6 +497,7 @@ export class AeListComponent implements OnInit {
             this.service.getDevices()
                 .subscribe((response) => {
                     $this.devices = response;
+                    this.changeDetector.detectChanges();
                 }, (err) => {
                     // vex.dialog.alert("Error loading device names, please reload the page and try again!");
                 });

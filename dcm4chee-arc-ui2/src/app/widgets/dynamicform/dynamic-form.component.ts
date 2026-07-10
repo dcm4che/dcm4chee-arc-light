@@ -1,7 +1,7 @@
 /**
  * Created by shefki on 9/20/16.
  */
-import {Component, OnInit, Input, EventEmitter} from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup} from '@angular/forms';
 import {FormService} from '../../helpers/form/form.service';
 import {FormElement} from '../../helpers/form/form-element';
@@ -9,10 +9,10 @@ import {Output} from '@angular/core';
 import {OrderByPipe} from '../../pipes/order-by.pipe';
 import * as _ from 'lodash-es';
 import {SearchPipe} from '../../pipes/search.pipe';
-import {AppService} from "../../app.service";
-import {DeviceConfiguratorComponent} from "../../configuration/device-configurator/device-configurator.component";
-import {ActivatedRoute} from "@angular/router";
-import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
+import {AppService} from '../../app.service';
+import {DeviceConfiguratorComponent} from '../../configuration/device-configurator/device-configurator.component';
+import {ActivatedRoute} from '@angular/router';
+import {KeycloakService} from '../../helpers/keycloak-service/keycloak.service';
 import {DynamicFormElementComponent} from './dynamic-form-element.component';
 import {CommonModule} from '@angular/common';
 
@@ -43,22 +43,21 @@ export class DynamicFormComponent implements OnInit{
     listStateBeforeSearch: FormElement<any>[];
     filteredFormElements: FormElement<any>[];
     exceptionValidation = false;
-    constructor(
-        private formservice: FormService,
+    constructor(private formservice: FormService,
         private mainservice:AppService,
         private route: ActivatedRoute,
-        private fb: UntypedFormBuilder
-    ){}
+        private fb: UntypedFormBuilder,
+        private changeDetector: ChangeDetectorRef) {}
     // submi(){
-    //     console.log("in submitfunctiondynamicform");
-    //     this.submitFunction.emmit("test");
+    //     console.log('in submitfunctiondynamicform');
+    //     this.submitFunction.emmit('test');
     // }
     ngOnInit(){
         this.initCheck(10);
     }
     initCheck(retries){
         let $this = this;
-        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,'global.notSecure') && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -115,20 +114,21 @@ export class DynamicFormComponent implements OnInit{
         this.formelements = orderedGroupClone;
         let formGroup: UntypedFormGroup = this.formservice.toFormGroup(orderedGroupClone);
         this.form = formGroup;
-        console.log("hr",window.location);
+        console.log('hr',window.location);
         console.log('after convert form', this.form);
         //Test setting some values
         console.log('this.model=', this.model);
         this.route.params
             .subscribe((params) => {
-                console.log("params",params);
-                console.log("this.model",this.model);
-                if(params.devicereff === "dcmDevice.dcmArchiveDevice" && (!this.model || (this.model && !_.hasIn(this.model,"dcmDevice.dcmArchiveDevice")))){
-                    // console.log("this.service.device",this.service.device);
-                    // _.set(this.service.device,"dcmDevice.dcmArchiveDevice",{});
+                console.log('params',params);
+                console.log('this.model',this.model);
+                if(params.devicereff === 'dcmDevice.dcmArchiveDevice' && (!this.model || (this.model && !_.hasIn(this.model,'dcmDevice.dcmArchiveDevice')))){
+                    // console.log('this.service.device',this.service.device);
+                    // _.set(this.service.device,'dcmDevice.dcmArchiveDevice',{});
                     this.exceptionValidation = true;
                 }
-            });
+
+                this.changeDetector.detectChanges();});
 /*        if(this.model){
             this.form.patchValue(this.model);
         }*/
@@ -179,15 +179,15 @@ export class DynamicFormComponent implements OnInit{
         this.form = form;
     }
     keyDown(e){
-        console.log("e2",e.keyCode);
+        console.log('e2',e.keyCode);
         this.pressedKey.push(e.keyCode);
         if(this.pressedKey.indexOf(17) > -1 && e.keyCode === 13){
-            console.log("combinatnion pressed");
+            console.log('combinatnion pressed');
             this.onSubmit(this.form.valid);
         }
     }
     keyUp(e){
-        console.log("e2",e.keyCode);
+        console.log('e2',e.keyCode);
         let index = this.pressedKey.indexOf(e.keyCode);
         if (index > -1) {
             this.pressedKey.splice(index, 1);

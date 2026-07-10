@@ -36,47 +36,47 @@ export class ControlService {
         return [
             {
                 title:"&nbsp;",
-                code:"actions",
+                code:'actions',
                 pxWidth:123,
                 calculatedWidth:"20%"
             },
             {
                 title:$localize `:@@device_name:Device Name`,
-                code:"dcmuiDeviceURLName",
+                code:'dcmuiDeviceURLName',
                 description:$localize `:@@control.archive_device_name:Archive device name`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },
             {
                 title:$localize `:@@device_description:Device Description`,
-                code:"dicomDescription",
+                code:'dicomDescription',
                 description:$localize `:@@control.archive_device_description:Archive device description`,
                 widthWeight:3,
                 calculatedWidth:"20%"
             },
             {
                 title:$localize `:@@manufacturer:Manufacturer`,
-                code:"dicomManufacturer",
+                code:'dicomManufacturer',
                 description:$localize `:@@manufacturer:Manufacturer`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },
             {
                 title:$localize `:@@model_name:Model Name`,
-                code:"dicomManufacturerModelName",
+                code:'dicomManufacturerModelName',
                 description:$localize `:@@manufacturer_model_name:Manufacturer model name`,
                 widthWeight:1,
                 calculatedWidth:"20%"
             },
             {
                 title:$localize `:@@primary_device_type:Primary Device Type`,
-                code:"dicomPrimaryDeviceType",
+                code:'dicomPrimaryDeviceType',
                 widthWeight:1,
                 calculatedWidth:"20%"
             },
             {
                 title:$localize `:@@software_version:Software version`,
-                code:"dicomSoftwareVersion",
+                code:'dicomSoftwareVersion',
                 widthWeight:1,
                 calculatedWidth:"20%"
             }
@@ -113,17 +113,17 @@ export class ControlService {
     }
     getArchiveDevices(devices){
         try{
-            if(j4care.is(this.appService,"dcm4cheeArcConfig.hasMoreThanOneBaseUrl",true)){
-                const dcm4cheeArcConfig = _.get(this.appService,"dcm4cheeArcConfig");
-                _.get(dcm4cheeArcConfig,"dcm4chee-arc-urls").forEach(deviceUrl=>{
+            if(j4care.is(this.appService,'dcm4cheeArcConfig.hasMoreThanOneBaseUrl',true)){
+                const dcm4cheeArcConfig = _.get(this.appService,'dcm4cheeArcConfig');
+                _.get(dcm4cheeArcConfig,'dcm4chee-arc-urls').forEach(deviceUrl=>{
                     const deviceName = dcm4cheeArcConfig.deviceNameUrlMap[deviceUrl];
                     devices[deviceName] = {
                         dcmuiDeviceURLName:deviceName,
                         dcmuiDeviceURL: deviceUrl
                     }
                 });
-            }else if(this.appService && (this.appService.archiveDeviceName || _.hasIn(this.appService,"archiveDevice.dicomDeviceName"))){
-                const deviceName = this.appService.archiveDeviceName || _.get(this.appService,"archiveDevice.dicomDeviceName");
+            }else if(this.appService && (this.appService.archiveDeviceName || _.hasIn(this.appService,'archiveDevice.dicomDeviceName'))){
+                const deviceName = this.appService.archiveDeviceName || _.get(this.appService,'archiveDevice.dicomDeviceName');
                 devices[deviceName] = {
                     dcmuiDeviceURLName:deviceName
                 }

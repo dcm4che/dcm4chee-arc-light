@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
+import {Component, OnInit, ViewContainerRef, ChangeDetectorRef} from '@angular/core';
 import {MessagingComponent} from './widgets/messaging/messaging.component';
 import {AppService} from './app.service';
 import {ViewChild} from '@angular/core';
@@ -87,7 +87,8 @@ export class AppComponent implements OnInit {
         private _keycloakService: KeycloakService,
         private keycloakHelperService: KeycloakHelperService,
         public httpErrorHandler: HttpErrorHandler,
-        private title: Title
+        private title: Title,
+        private changeDetector: ChangeDetectorRef
     ) {
         console.log('in app.component construct', window);
     }
@@ -197,6 +198,7 @@ export class AppComponent implements OnInit {
                 }
 
             }
+            this.changeDetector.detectChanges();
         });
     }
 
@@ -344,6 +346,7 @@ export class AppComponent implements OnInit {
                 if (recall) {
                     recall.apply(this);
                 }
+                this.changeDetector.detectChanges();
             });
     }
 
@@ -365,6 +368,7 @@ export class AppComponent implements OnInit {
                     this.hasViewRealm = _.hasIn(user, 'tokenParsed.resource_access[realm-management].roles') &&
                         user.tokenParsed.resource_access['realm-management'].roles.indexOf('view-realm') > -1;
                     recall.apply(this);
+                    this.changeDetector.detectChanges();
                 }, (err) => {
                     recall.apply(this);
                 });
@@ -570,6 +574,7 @@ export class AppComponent implements OnInit {
                                 }
                             }
                         );
+                    this.changeDetector.detectChanges();
                 }, (err) => {
                     console.log('---------err', err);
                     if (retries) {

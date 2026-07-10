@@ -9,11 +9,11 @@ import {
     QueryList,
     ChangeDetectionStrategy,
 } from '@angular/core';
-import {OptionService} from "./option.service";
-import {SelectDropdown} from "../../interfaces";
-import {OptionComponent} from "./option.component";
-import {animate, state, style, transition, trigger} from "@angular/animations";
-import {SearchPipe} from "../../pipes/search.pipe";
+import {OptionService} from './option.service';
+import {SelectDropdown} from '../../interfaces';
+import {OptionComponent} from './option.component';
+import {animate, state, style, transition, trigger} from '@angular/animations';
+import {SearchPipe} from '../../pipes/search.pipe';
 import {FormsModule} from '@angular/forms';
 import {ClickOutsideDirective} from '../../helpers/click-outside.directive';
 import {CommonModule} from '@angular/common';
@@ -25,7 +25,7 @@ import {CommonModule} from '@angular/common';
     animations: [
         trigger('showHide', [
             state('show', style({
-                padding: '*',
+                padding: "*",
                 height: '*',
                 opacity: 1
             })),
@@ -35,10 +35,10 @@ import {CommonModule} from '@angular/common';
                 height: '0px',
                 margin: '0'
             })),
-            transition('show => hide', [
+            transition("show => hide", [
                 animate('0.1s')
             ]),
-            transition('hide => show', [
+            transition("hide => show", [
                 animate('0.2s cubic-bezier(.52,-0.01,.15,1)')
             ])
         ])
@@ -77,9 +77,8 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
     multiSelectValue = [];
     search = '';
     isAllCheck:boolean = false;
-    constructor(
-        // // private changeDetectorRef: ChangeDetectorRef
-    ) {}
+    constructor(// // private changeDetectorRef: ChangeDetectorRef,
+        private changeDetector: ChangeDetectorRef) {}
 
     toggleDropdown(){
         this.showDropdown = !this.showDropdown;
@@ -93,7 +92,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
             },100);
             result.selectEvent.subscribe(e=>{
                if(this.multiSelectMode){
-                   if(e.value === ""){
+                   if(e.value === ''){
                        this.multiSelectValue = [];
                        this.isAllCheck = false;
                    }else{
@@ -111,8 +110,9 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
                    this.showDropdown = false;
                     // this.changeDetectorRef.detectChanges();
                }
-               console.log("multiSelectValue",this.multiSelectValue);
-            })
+               console.log('multiSelectValue',this.multiSelectValue);
+
+                this.changeDetector.detectChanges();})
         });
         if(this.selectedValue){
             this.selectedDropdown = this.getSelectDropdownFromValue(this.selectedValue);
@@ -130,9 +130,9 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
         // this.changeDetectorRef.detectChanges();
     }
     allChecked(e){
-        console.log("e",e);
-        console.log("checked",e.target.checked);
-        console.log("isAllCheck",this.isAllCheck);
+        console.log('e',e);
+        console.log('checked',e.target.checked);
+        console.log('isAllCheck',this.isAllCheck);
         // this.isAllCheck = e.target.checked;
         if(!this.isAllCheck){
             this.multiSelectValue = [];
@@ -161,7 +161,7 @@ export class DropdownComponent implements AfterContentInit, AfterViewChecked {
             if(this.children && this.multiSelectValue){
                 let count = 0;
                 this.children.forEach(element=>{
-                    // console.log("uniqueId3",element.uniqueId);
+                    // console.log('uniqueId3',element.uniqueId);
                     if(this.multiSelectValue.indexOf(element.value) > -1){
                         element.selected = true;
                         count++;

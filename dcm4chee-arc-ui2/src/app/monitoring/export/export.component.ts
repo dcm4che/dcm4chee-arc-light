@@ -1,3 +1,4 @@
+import { Component, OnDestroy, OnInit, ViewContainerRef, ChangeDetectorRef } from '@angular/core';
 import {User} from '../../models/user';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
 // import { MatLegacyDialogConfig as MatDialogConfig, MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
@@ -22,7 +23,6 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {map} from "rxjs/operators";
 import {SelectDropdown} from "../../interfaces";
 import {environment} from "../../../environments/environment";
-import {Component, OnDestroy, OnInit, ViewContainerRef} from "@angular/core";
 import {MonitoringTabsComponent} from '../monitoring-tabs.component';
 import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
 import {CommonModule, NgClass} from '@angular/common';
@@ -76,13 +76,13 @@ export class ExportComponent implements OnInit, OnDestroy {
     filterLoadFinished = false;
     allActionsOptions = [
         {
-            value:"cancel",
+            value:'cancel',
             label:$localize `:@@cancel_all_matching_tasks:Cancel all matching tasks`
         },{
-            value:"reschedule",
+            value:'reschedule',
             label:$localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`
         },{
-            value:"delete",
+            value:'delete',
             label:$localize `:@@edelete_all_matching_tasks:Delete all matching tasks`
         }
     ];
@@ -105,17 +105,19 @@ export class ExportComponent implements OnInit, OnDestroy {
         private route: ActivatedRoute,
         public aeListService:AeListService,
         private permissionService:PermissionService,
-        private _keycloakService: KeycloakService
+        private _keycloakService: KeycloakService,
+        private changeDetector: ChangeDetectorRef
     ) {}
     ngOnInit(){
         this.initCheck(10);
     }
     initCheck(retries){
         let $this = this;
-        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,'global.notSecure') && this.mainservice.global.notSecure)){
             this.route.queryParams.subscribe(params => {
                 this.urlParam = Object.assign({},params);
                 this.init();
+                this.changeDetector.detectChanges();
             });
         }else{
             if (retries){
@@ -128,10 +130,10 @@ export class ExportComponent implements OnInit, OnDestroy {
         }
     }
     tableConfigNormal:any = {
-        search:""
+        search:''
     };
     tableConfigGrouped:any = {
-        search:""
+        search:''
     };
     init(){
         this.route.queryParams.subscribe(params => {
@@ -156,28 +158,28 @@ export class ExportComponent implements OnInit, OnDestroy {
     }
     action(mode, match){
         switch(mode){
-            case "cancel-selected":
+            case 'cancel-selected':
                 this.executeAll('cancel');
                 break;
-            case "reschedule-selected":
+            case 'reschedule-selected':
                 this.executeAll('reschedule');
                 break;
-            case "delete-selected":
+            case 'delete-selected':
                 this.executeAll('delete');
                 break;
-            case "delete":
+            case 'delete':
                 this.delete(match);
                 break;
-            case "cancel":
+            case 'cancel':
                 this.cancel(match);
                 break;
-            case "reschedule":
+            case 'reschedule':
                 this.reschedule(match);
                 break;
-            case "task-detail":
+            case 'task-detail':
                 this.showTaskDetail(match);
                 break;
-            case "delete-batched":
+            case 'delete-batched':
                 this.deleteBatchedTask(match);
                 break;
         }
@@ -199,14 +201,14 @@ export class ExportComponent implements OnInit, OnDestroy {
             table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action, {grouped:false, getDifferenceTime:this.getDifferenceTime, filterObject:this.filterObject})),
             table_grouped:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action, {grouped:true, getDifferenceTime:this.getDifferenceTime, filterObject:this.filterObject})),
             filter:this.filterObject,
-            search:"",
+            search:'',
             showAttributes:false,
             calculate:false
         };
         this.tableConfigGrouped = {
             table:j4care.calculateWidthOfTable(this.service.getTableSchema(this, this.action, {grouped:true, getDifferenceTime:this.getDifferenceTime, filterObject:this.filterObject})),
             filter:this.filterObject,
-            search:"",
+            search:'',
             showAttributes:false,
             calculate:false
         };
@@ -215,7 +217,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.filterSchema = this.service.getFilterSchema(this.exporters, this.devices,$localize `:@@count_param:COUNT ${((this.count || this.count == 0)?this.count:'')}:count:`);
     }
     onFormChange(e){
-        console.log("e",e);
+        console.log('e',e);
         this.statusChange();
         this.setTableSchemas();
     }
@@ -257,8 +259,8 @@ export class ExportComponent implements OnInit, OnDestroy {
         this.tableHovered = false;
     }
     onSubmit(object){
-        if(_.hasIn(object,"id") && _.hasIn(object,"model")){
-            if(object.id === "count"){
+        if(_.hasIn(object,'id') && _.hasIn(object,'model')){
+            if(object.id === 'count'){
                 this.getCount();
             }else{
                 // this.getTasks(0);
@@ -301,50 +303,49 @@ export class ExportComponent implements OnInit, OnDestroy {
                 if(!this.mainservice.global.notSecure){
                     token = response.token;
                 }
-
                 let filterClone = _.cloneDeep(this.filterObject);
                 delete filterClone.offset;
                 delete filterClone.limit;
                 if(!this.mainservice.global.notSecure)
-                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`,"export.csv")
+                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`,'export.csv')
                 else
-                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`,"export.csv")
+                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/export?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`,'export.csv')
             });
         });
     }
     uploadCsv(){
         this.dialogRef = this.dialog.open(CsvUploadComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.params = {
             exporterID:this.exporterID || '',
             batchID:this.filterObject['batchID'] || '',
             formSchema:[
                 {
-                    tag:"input",
-                    type:"checkbox",
-                    filterKey:"semicolon",
+                    tag:'input',
+                    type:'checkbox',
+                    filterKey:'semicolon',
                     description:$localize `:@@use_semicolon_as_delimiter:Use semicolon as delimiter`
                 },
                 {
-                    tag:"range-picker-time",
-                    type:"text",
-                    filterKey:"scheduledTime",
+                    tag:'range-picker-time',
+                    type:'text',
+                    filterKey:'scheduledTime',
                     description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                 },
                 //scheduledTime
                 {
-                    tag:"select",
+                    tag:'select',
                     options:this.aets,
                     showStar:true,
-                    filterKey:"LocalAET",
+                    filterKey:'LocalAET',
                     description:$localize `:@@local_aet:Local AET`,
                     placeholder:$localize `:@@local_aet:Local AET`,
                     validation:Validators.required
                 },
                 {
-                    tag:"select",
+                    tag:'select',
                     options:this.exporters.map(exporter=>{
                         return {
                             value:exporter.id,
@@ -352,33 +353,33 @@ export class ExportComponent implements OnInit, OnDestroy {
                         }
                     }),
                     showStar:true,
-                    filterKey:"exporterID",
+                    filterKey:'exporterID',
                     description:$localize `:@@exporter_id:Exporter ID`,
                     placeholder:$localize `:@@exporter_id:Exporter ID`,
                     validation:Validators.required
                 },
                 {
-                    tag:"input",
-                    type:"number",
-                    filterKey:"studyUIDField",
+                    tag:'input',
+                    type:'number',
+                    filterKey:'studyUIDField',
                     description:$localize `:@@study_uid_field:Study UID Field`,
                     placeholder:$localize `:@@study_uid_field:Study UID Field`,
                     validation:[Validators.minLength(1),Validators.min(1)],
                     defaultValue:1
                 },
                 {
-                    tag:"input",
-                    type:"number",
-                    filterKey:"seriesUIDField",
+                    tag:'input',
+                    type:'number',
+                    filterKey:'seriesUIDField',
                     description:$localize `:@@series_uid_field:Series UID Field`,
                     placeholder:$localize `:@@series_uid_field:Series UID Field`,
                     validation:[Validators.minLength(1),Validators.min(1)],
                     defaultValue:null
                 },
                 {
-                    tag:"input",
-                    type:"text",
-                    filterKey:"batchID",
+                    tag:'input',
+                    type:'text',
+                    filterKey:'batchID',
                     description:$localize `:@@batch_id:Batch ID`,
                     placeholder:$localize `:@@batch_id:Batch ID`
                 }
@@ -416,701 +417,701 @@ export class ExportComponent implements OnInit, OnDestroy {
                     if(this.batchGrouped){
                         res = [
                             {
-                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
-                                "tasks": {
-                                    "failed": "32"
+                                'batchID': "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                'tasks': {
+                                    'failed': '32'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - QIDO Study Instances",
                                     "ATS Prefetch NG - QIDO Study Series",
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-03-15T01:20:51.548+0100",
                                     "2022-03-15T01:20:51.929+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-03-15T19:39:00.706+0100",
                                     "2022-03-15T19:41:30.097+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-03-15T19:38:00.692+0100",
                                     "2022-03-15T19:41:00.721+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-03-15T19:39:00.584+0100",
                                     "2022-03-15T19:41:05.308+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-03-15T19:39:00.703+0100",
                                     "2022-03-15T19:41:29.900+0100"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
-                                "tasks": {
-                                    "warning": "2"
+                                'batchID': "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                'tasks': {
+                                    'warning': '2'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-02-08T18:45:29.656+0100",
                                     "2022-02-08T18:45:29.664+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.111+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-02-08T18:45:29.489+0100",
                                     "2022-02-08T18:45:29.489+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-02-08T18:45:48.149+0100",
                                     "2022-02-08T18:45:48.585+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.110+0100"
                                 ]
                             },
                             {
-                                "batchID": "recreate-tasks-5.24.iuids",
-                                "tasks": {
-                                    "warning": "9"
+                                'batchID': 'recreate-tasks-5.24.iuids',
+                                'tasks': {
+                                    'warning': '9'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
-                                    "Export Objects to STORESCP"
+                                'ExporterID': [
+                                    'Export Objects to STORESCP'
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2021-09-24T16:17:16.929+0200",
                                     "2021-09-24T16:17:17.092+0200"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2021-09-24T16:27:46.633+0200",
                                     "2021-09-24T16:27:46.633+0200"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2021-09-24T16:27:46.765+0200",
                                     "2021-09-24T16:27:46.864+0200"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
-                                "tasks": {
-                                    "failed": "32"
+                                'batchID': "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                'tasks': {
+                                    'failed': '32'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - QIDO Study Instances",
                                     "ATS Prefetch NG - QIDO Study Series",
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-03-15T01:20:51.548+0100",
                                     "2022-03-15T01:20:51.929+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-03-15T19:39:00.706+0100",
                                     "2022-03-15T19:41:30.097+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-03-15T19:38:00.692+0100",
                                     "2022-03-15T19:41:00.721+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-03-15T19:39:00.584+0100",
                                     "2022-03-15T19:41:05.308+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-03-15T19:39:00.703+0100",
                                     "2022-03-15T19:41:29.900+0100"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
-                                "tasks": {
-                                    "warning": "2"
+                                'batchID': "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                'tasks': {
+                                    'warning': '2'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-02-08T18:45:29.656+0100",
                                     "2022-02-08T18:45:29.664+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.111+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-02-08T18:45:29.489+0100",
                                     "2022-02-08T18:45:29.489+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-02-08T18:45:48.149+0100",
                                     "2022-02-08T18:45:48.585+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.110+0100"
                                 ]
                             },
                             {
-                                "batchID": "recreate-tasks-5.24.iuids",
-                                "tasks": {
-                                    "warning": "9"
+                                'batchID': 'recreate-tasks-5.24.iuids',
+                                'tasks': {
+                                    'warning': '9'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
-                                    "Export Objects to STORESCP"
+                                'ExporterID': [
+                                    'Export Objects to STORESCP'
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2021-09-24T16:17:16.929+0200",
                                     "2021-09-24T16:17:17.092+0200"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2021-09-24T16:27:46.633+0200",
                                     "2021-09-24T16:27:46.633+0200"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2021-09-24T16:27:46.765+0200",
                                     "2021-09-24T16:27:46.864+0200"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
-                                "tasks": {
-                                    "failed": "32"
+                                'batchID': "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                'tasks': {
+                                    'failed': '32'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - QIDO Study Instances",
                                     "ATS Prefetch NG - QIDO Study Series",
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-03-15T01:20:51.548+0100",
                                     "2022-03-15T01:20:51.929+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-03-15T19:39:00.706+0100",
                                     "2022-03-15T19:41:30.097+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-03-15T19:38:00.692+0100",
                                     "2022-03-15T19:41:00.721+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-03-15T19:39:00.584+0100",
                                     "2022-03-15T19:41:05.308+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-03-15T19:39:00.703+0100",
                                     "2022-03-15T19:41:29.900+0100"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
-                                "tasks": {
-                                    "warning": "2"
+                                'batchID': "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                'tasks': {
+                                    'warning': '2'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-02-08T18:45:29.656+0100",
                                     "2022-02-08T18:45:29.664+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.111+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-02-08T18:45:29.489+0100",
                                     "2022-02-08T18:45:29.489+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-02-08T18:45:48.149+0100",
                                     "2022-02-08T18:45:48.585+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.110+0100"
                                 ]
                             },
                             {
-                                "batchID": "recreate-tasks-5.24.iuids",
-                                "tasks": {
-                                    "warning": "9"
+                                'batchID': 'recreate-tasks-5.24.iuids',
+                                'tasks': {
+                                    'warning': '9'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
-                                    "Export Objects to STORESCP"
+                                'ExporterID': [
+                                    'Export Objects to STORESCP'
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2021-09-24T16:17:16.929+0200",
                                     "2021-09-24T16:17:17.092+0200"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2021-09-24T16:27:46.633+0200",
                                     "2021-09-24T16:27:46.633+0200"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2021-09-24T16:27:46.765+0200",
                                     "2021-09-24T16:27:46.864+0200"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
-                                "tasks": {
-                                    "failed": "32"
+                                'batchID': "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                'tasks': {
+                                    'failed': '32'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - QIDO Study Instances",
                                     "ATS Prefetch NG - QIDO Study Series",
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-03-15T01:20:51.548+0100",
                                     "2022-03-15T01:20:51.929+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-03-15T19:39:00.706+0100",
                                     "2022-03-15T19:41:30.097+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-03-15T19:38:00.692+0100",
                                     "2022-03-15T19:41:00.721+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-03-15T19:39:00.584+0100",
                                     "2022-03-15T19:41:05.308+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-03-15T19:39:00.703+0100",
                                     "2022-03-15T19:41:29.900+0100"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
-                                "tasks": {
-                                    "warning": "2"
+                                'batchID': "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                'tasks': {
+                                    'warning': '2'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-02-08T18:45:29.656+0100",
                                     "2022-02-08T18:45:29.664+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.111+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-02-08T18:45:29.489+0100",
                                     "2022-02-08T18:45:29.489+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-02-08T18:45:48.149+0100",
                                     "2022-02-08T18:45:48.585+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.110+0100"
                                 ]
                             },
                             {
-                                "batchID": "recreate-tasks-5.24.iuids",
-                                "tasks": {
-                                    "warning": "9"
+                                'batchID': 'recreate-tasks-5.24.iuids',
+                                'tasks': {
+                                    'warning': '9'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
-                                    "Export Objects to STORESCP"
+                                'ExporterID': [
+                                    'Export Objects to STORESCP'
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2021-09-24T16:17:16.929+0200",
                                     "2021-09-24T16:17:17.092+0200"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2021-09-24T16:27:46.633+0200",
                                     "2021-09-24T16:27:46.633+0200"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2021-09-24T16:27:46.765+0200",
                                     "2021-09-24T16:27:46.864+0200"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
-                                "tasks": {
-                                    "failed": "32"
+                                'batchID': "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                'tasks': {
+                                    'failed': '32'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - QIDO Study Instances",
                                     "ATS Prefetch NG - QIDO Study Series",
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-03-15T01:20:51.548+0100",
                                     "2022-03-15T01:20:51.929+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-03-15T19:39:00.706+0100",
                                     "2022-03-15T19:41:30.097+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-03-15T19:38:00.692+0100",
                                     "2022-03-15T19:41:00.721+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-03-15T19:39:00.584+0100",
                                     "2022-03-15T19:41:05.308+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-03-15T19:39:00.703+0100",
                                     "2022-03-15T19:41:29.900+0100"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
-                                "tasks": {
-                                    "warning": "2"
+                                'batchID': "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                'tasks': {
+                                    'warning': '2'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-02-08T18:45:29.656+0100",
                                     "2022-02-08T18:45:29.664+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.111+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-02-08T18:45:29.489+0100",
                                     "2022-02-08T18:45:29.489+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-02-08T18:45:48.149+0100",
                                     "2022-02-08T18:45:48.585+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.110+0100"
                                 ]
                             },
                             {
-                                "batchID": "recreate-tasks-5.24.iuids",
-                                "tasks": {
-                                    "warning": "9"
+                                'batchID': 'recreate-tasks-5.24.iuids',
+                                'tasks': {
+                                    'warning': '9'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
-                                    "Export Objects to STORESCP"
+                                'ExporterID': [
+                                    'Export Objects to STORESCP'
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2021-09-24T16:17:16.929+0200",
                                     "2021-09-24T16:17:17.092+0200"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2021-09-24T16:27:46.633+0200",
                                     "2021-09-24T16:27:46.633+0200"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2021-09-24T16:27:46.765+0200",
                                     "2021-09-24T16:27:46.864+0200"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
-                                "tasks": {
-                                    "failed": "32"
+                                'batchID': "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                'tasks': {
+                                    'failed': '32'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - QIDO Study Instances",
                                     "ATS Prefetch NG - QIDO Study Series",
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-03-15T01:20:51.548+0100",
                                     "2022-03-15T01:20:51.929+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-03-15T19:39:00.706+0100",
                                     "2022-03-15T19:41:30.097+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-03-15T19:38:00.692+0100",
                                     "2022-03-15T19:41:00.721+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-03-15T19:39:00.584+0100",
                                     "2022-03-15T19:41:05.308+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-03-15T19:39:00.703+0100",
                                     "2022-03-15T19:41:29.900+0100"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
-                                "tasks": {
-                                    "warning": "2"
+                                'batchID': "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                'tasks': {
+                                    'warning': '2'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-02-08T18:45:29.656+0100",
                                     "2022-02-08T18:45:29.664+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.111+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-02-08T18:45:29.489+0100",
                                     "2022-02-08T18:45:29.489+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-02-08T18:45:48.149+0100",
                                     "2022-02-08T18:45:48.585+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.110+0100"
                                 ]
                             },
                             {
-                                "batchID": "recreate-tasks-5.24.iuids",
-                                "tasks": {
-                                    "warning": "9"
+                                'batchID': 'recreate-tasks-5.24.iuids',
+                                'tasks': {
+                                    'warning': '9'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
-                                    "Export Objects to STORESCP"
+                                'ExporterID': [
+                                    'Export Objects to STORESCP'
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2021-09-24T16:17:16.929+0200",
                                     "2021-09-24T16:17:17.092+0200"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2021-09-24T16:27:46.633+0200",
                                     "2021-09-24T16:27:46.633+0200"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2021-09-24T16:27:46.765+0200",
                                     "2021-09-24T16:27:46.864+0200"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
-                                "tasks": {
-                                    "failed": "32"
+                                'batchID': "ATS Prefetch Priors on Store[2.25.253254299183063559800543717906499910894]",
+                                'tasks': {
+                                    'failed': '32'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - QIDO Study Instances",
                                     "ATS Prefetch NG - QIDO Study Series",
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-03-15T01:20:51.548+0100",
                                     "2022-03-15T01:20:51.929+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-03-15T19:39:00.706+0100",
                                     "2022-03-15T19:41:30.097+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-03-15T19:38:00.692+0100",
                                     "2022-03-15T19:41:00.721+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-03-15T19:39:00.584+0100",
                                     "2022-03-15T19:41:05.308+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-03-15T19:39:00.703+0100",
                                     "2022-03-15T19:41:29.900+0100"
                                 ]
                             },
                             {
-                                "batchID": "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
-                                "tasks": {
-                                    "warning": "2"
+                                'batchID': "ATS Prefetch Priors on Store[1.2.276.0.37.1.406.201712.240110]",
+                                'tasks': {
+                                    'warning': '2'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
+                                'ExporterID': [
                                     "ATS Prefetch NG - Series Thumbnails",
                                     "ATS Prefetch NG - Series WADO Metadata"
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2022-02-08T18:45:29.656+0100",
                                     "2022-02-08T18:45:29.664+0100"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.111+0100"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2022-02-08T18:45:29.489+0100",
                                     "2022-02-08T18:45:29.489+0100"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2022-02-08T18:45:48.149+0100",
                                     "2022-02-08T18:45:48.585+0100"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2022-02-08T18:45:49.821+0100",
                                     "2022-02-08T18:45:50.110+0100"
                                 ]
                             },
                             {
-                                "batchID": "recreate-tasks-5.24.iuids",
-                                "tasks": {
-                                    "warning": "9"
+                                'batchID': 'recreate-tasks-5.24.iuids',
+                                'tasks': {
+                                    'warning': '9'
                                 },
-                                "dicomDeviceName": [
-                                    "demoj4c"
+                                'dicomDeviceName': [
+                                    'demoj4c'
                                 ],
-                                "ExporterID": [
-                                    "Export Objects to STORESCP"
+                                'ExporterID': [
+                                    'Export Objects to STORESCP'
                                 ],
-                                "createdTimeRange": [
+                                'createdTimeRange': [
                                     "2021-09-24T16:17:16.929+0200",
                                     "2021-09-24T16:17:17.092+0200"
                                 ],
-                                "updatedTimeRange": [
+                                'updatedTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ],
-                                "scheduledTimeRange": [
+                                'scheduledTimeRange': [
                                     "2021-09-24T16:27:46.633+0200",
                                     "2021-09-24T16:27:46.633+0200"
                                 ],
-                                "processingStartTimeRange": [
+                                'processingStartTimeRange': [
                                     "2021-09-24T16:27:46.765+0200",
                                     "2021-09-24T16:27:46.864+0200"
                                 ],
-                                "processingEndTimeRange": [
+                                'processingEndTimeRange': [
                                     "2021-09-24T16:27:46.787+0200",
                                     "2021-09-24T16:27:46.884+0200"
                                 ]
@@ -1164,6 +1165,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     $this.matches = [];
                     this.mainservice.showMsg($localize `:@@no_tasks_found:No tasks found!`)
                 }
+                this.changeDetector.detectChanges();
             }, (err) => {
                 $this.cfpLoadingBar.complete();
                 $this.matches = [];
@@ -1181,7 +1183,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         }
     }
     prev(){
-        if(this.filterObject["offset"] > 0){
+        if(this.filterObject['offset'] > 0){
             let filter = Object.assign({},this.filterObject);
             if(filter['limit'])
                 this.filterObject['offset'] = filter['offset'] = filter['offset']*1 - this.filterObject['limit']*1;
@@ -1202,6 +1204,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                 this.count = "";
             }
             this.cfpLoadingBar.complete();
+            this.changeDetector.detectChanges();
         },(err)=>{
             this.cfpLoadingBar.complete();
             this.httpErrorHandler.handleError(err);
@@ -1229,7 +1232,7 @@ export class ExportComponent implements OnInit, OnDestroy {
         delete filter.limit;
         delete filter.offset;
         switch (this.allAction) {
-            case "cancel":
+            case 'cancel':
                 this.confirm({
                     content: text
                 }).subscribe((ok) => {
@@ -1237,7 +1240,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                         this.cfpLoadingBar.start();
                         this.service.cancelAll(filter).subscribe((res) => {
                             this.cfpLoadingBar.complete();
-                            if(_.hasIn(res,"count")){
+                            if(_.hasIn(res,'count')){
                                 this.mainservice.showMsg($localize `:@@tasks_canceled_param:${res.count || 0}:count: tasks canceled successfully!`);
                             }else{
                                 this.mainservice.showMsg($localize `:@@tasks_canceled:Tasks canceled successfully!`);
@@ -1247,11 +1250,12 @@ export class ExportComponent implements OnInit, OnDestroy {
                             this.httpErrorHandler.handleError(err);
                         });
                     }
-                    this.allAction = "";
+                    this.allAction = '';
                     this.allAction = undefined;
+                    this.changeDetector.detectChanges();
                 });
                 break;
-            case "reschedule":
+            case 'reschedule':
                 this.confirm({
                     content: $localize `:@@export.tasks_reschedule:Tasks reschedule`,
                     doNotSave:true,
@@ -1259,17 +1263,17 @@ export class ExportComponent implements OnInit, OnDestroy {
                         [
                             [
                                 {
-                                    tag:"label_large",
+                                    tag:'label_large',
                                     text:text || $localize `:@@export.change_exporter_text:Change the exporter for all rescheduled tasks. To reschedule with the original exporters associated with the tasks, leave blank:`
                                 }
                             ],
                             [
                                 {
-                                    tag:"label",
+                                    tag:'label',
                                     text:$localize `:@@exporter_id:Exporter ID`,
                                 },
                                 {
-                                    tag:"select",
+                                    tag:'select',
                                     options:this.exporters.map(exporter=>{
                                         return {
                                             text:exporter.description || exporter.id,
@@ -1277,24 +1281,24 @@ export class ExportComponent implements OnInit, OnDestroy {
                                         }
                                     }),
                                     showStar:true,
-                                    filterKey:"selectedExporter",
+                                    filterKey:'selectedExporter',
                                     description:$localize `:@@exporter_id:Exporter ID`,
                                     placeholder:$localize `:@@exporter_id:Exporter ID`
                                 }
                             ],
                             [
                                 {
-                                    tag:"label_large",
+                                    tag:'label_large',
                                     text:$localize `:@@export.select_device_if_you_want_to_reschedule:Select device if you want to reschedule to an other device:`
                                 }
                             ],
                             [
                                 {
-                                    tag:"label",
+                                    tag:'label',
                                     text:$localize `:@@device:Device`
                                 },
                                 {
-                                    tag:"multi-select",
+                                    tag:'multi-select',
                                     options:this.devices.map(device=>{
                                         return {
                                             text:device.dicomDeviceName,
@@ -1302,20 +1306,20 @@ export class ExportComponent implements OnInit, OnDestroy {
                                         }
                                     }),
                                     showStar:true,
-                                    filterKey:"newDeviceName",
+                                    filterKey:'newDeviceName',
                                     description:$localize `:@@device:Device`,
                                     placeholder:$localize `:@@device:Device`
                                 }
                             ],
                             [
                                 {
-                                    tag:"label",
+                                    tag:'label',
                                     text:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                                 },
                                 {
-                                    tag:"single-date-time-picker",
-                                    type:"text",
-                                    filterKey:"scheduledTime",
+                                    tag:'single-date-time-picker',
+                                    type:'text',
+                                    filterKey:'scheduledTime',
                                     description:$localize `:@@schedule_at_desc:Schedule at (if not set, schedule immediately)`
                                 }
                             ]
@@ -1330,15 +1334,15 @@ export class ExportComponent implements OnInit, OnDestroy {
                 ).subscribe((ok)=>{
                     if (ok) {
                         this.cfpLoadingBar.start();
-                        if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
-                            filter["newDeviceName"] = ok.schema_model.newDeviceName;
+                        if(_.hasIn(ok, 'schema_model.newDeviceName') && ok.schema_model.newDeviceName != ''){
+                            filter['newDeviceName'] = ok.schema_model.newDeviceName;
                         }
-                        if(_.hasIn(ok, "schema_model.scheduledTime") && ok.schema_model.scheduledTime != ""){
-                            filter["scheduledTime"] = ok.schema_model.scheduledTime;
+                        if(_.hasIn(ok, 'schema_model.scheduledTime') && ok.schema_model.scheduledTime != ''){
+                            filter['scheduledTime'] = ok.schema_model.scheduledTime;
                         }
                         this.service.rescheduleAll(filter,ok.schema_model.selectedExporter).subscribe((res)=>{
                             this.cfpLoadingBar.complete();
-                            if(_.hasIn(res,"count")){
+                            if(_.hasIn(res,'count')){
                                 this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count || 0}:count: tasks rescheduled successfully!`);
                             }else{
                                 this.mainservice.showMsg($localize `:@@tasks_rescheduled:Tasks rescheduled successfully!`);
@@ -1348,11 +1352,12 @@ export class ExportComponent implements OnInit, OnDestroy {
                             this.httpErrorHandler.handleError(err);
                         });
                     }
-                    this.allAction = "";
+                    this.allAction = '';
                     this.allAction = undefined;
+                    this.changeDetector.detectChanges();
                 });
                 break;
-            case "delete":
+            case 'delete':
                 this.confirm({
                     content: text
                 }).subscribe((ok)=>{
@@ -1366,12 +1371,13 @@ export class ExportComponent implements OnInit, OnDestroy {
                             this.httpErrorHandler.handleError(err);
                         });
                     }
-                    this.allAction = "";
+                    this.allAction = '';
                     this.allAction = undefined;
+                    this.changeDetector.detectChanges();
                 });
                 break;
             default:
-                this.allAction = "";
+                this.allAction = '';
                 this.allAction = undefined;
         }
     }
@@ -1398,25 +1404,26 @@ export class ExportComponent implements OnInit, OnDestroy {
                 schema_model: schema_model || {}
             },
             saveButton: $localize `:@@SUBMIT:SUBMIT`
+
         },
             '520px').subscribe((ok)=>{
                 callBack.call(this, ok);
         });
     }
     executeAll(mode){
-        if(mode === "reschedule"){
+        if(mode === 'reschedule'){
             this.rescheduleDialog((ok)=>{
                 if (ok) {
                     this.cfpLoadingBar.start();
                     let filter  = {};
                     let id;
-                    if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
-                        filter["newDeviceName"] = ok.schema_model.newDeviceName;
+                    if(_.hasIn(ok, 'schema_model.newDeviceName') && ok.schema_model.newDeviceName != ''){
+                        filter['newDeviceName'] = ok.schema_model.newDeviceName;
                     }
-                    if(_.hasIn(ok, "schema_model.scheduledTime") && ok.schema_model.scheduledTime != ""){
-                        filter["scheduledTime"] = ok.schema_model.scheduledTime;
+                    if(_.hasIn(ok, 'schema_model.scheduledTime') && ok.schema_model.scheduledTime != ''){
+                        filter['scheduledTime'] = ok.schema_model.scheduledTime;
                     }
-                    if(_.hasIn(ok, "schema_model.selectedExporter")){
+                    if(_.hasIn(ok, 'schema_model.selectedExporter')){
                         id = ok.schema_model.selectedExporter;
                     }
                     this.matches.forEach((match, i)=>{
@@ -1442,7 +1449,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                         }
                     });
                 }
-                this.allAction = "";
+                this.allAction = '';
                 this.allAction = undefined;
             });
             ////
@@ -1456,8 +1463,8 @@ export class ExportComponent implements OnInit, OnDestroy {
                         if(match.selected){
                             this.service[mode](match.taskID)
                                 .subscribe((res) => {
-                                    console.log("Execute result",res);
-                                    if(mode === "cancel")
+                                    console.log('Execute result',res);
+                                    if(mode === 'cancel')
                                         this.mainservice.showMsg($localize `:@@task_canceled_param:Task ${match.taskID}:taskid: canceled successfully!`);
                                     else
                                         this.mainservice.showMsg($localize `:@@task_deleted_param:Task ${match.taskID}:taskid: deleted successfully!`);
@@ -1477,7 +1484,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     }
     msToTime(duration,mode?) {
         if(mode)
-            if(mode === "sec")
+            if(mode === 'sec')
                 return ((duration*6 / 6000).toFixed(4)).toString() + ' s';
         else
             return ((duration / 60000).toFixed(4)).toString() + ' min';
@@ -1489,9 +1496,9 @@ export class ExportComponent implements OnInit, OnDestroy {
             if(ok){
                 if(batchedTask.batchID){
                     let filter = Object.assign({},this.filterObject);
-                    filter["batchID"] = batchedTask.batchID;
-                    delete filter["limit"];
-                    delete filter["offset"];
+                    filter['batchID'] = batchedTask.batchID;
+                    delete filter['limit'];
+                    delete filter['offset'];
                     this.service.deleteAll(filter).subscribe((res)=>{
                         this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
                         this.cfpLoadingBar.complete();
@@ -1566,20 +1573,20 @@ export class ExportComponent implements OnInit, OnDestroy {
                 this.cfpLoadingBar.start();
                 let filter  = {};
                 let id;
-                if(_.hasIn(ok, "schema_model.newDeviceName") && ok.schema_model.newDeviceName != ""){
-                    filter["newDeviceName"] = ok.schema_model.newDeviceName;
+                if(_.hasIn(ok, 'schema_model.newDeviceName') && ok.schema_model.newDeviceName != ''){
+                    filter['newDeviceName'] = ok.schema_model.newDeviceName;
                 }
-                if(_.hasIn(ok, "schema_model.scheduledTime") && ok.schema_model.scheduledTime != ""){
-                    filter["scheduledTime"] = ok.schema_model.scheduledTime;
+                if(_.hasIn(ok, 'schema_model.scheduledTime') && ok.schema_model.scheduledTime != ''){
+                    filter['scheduledTime'] = ok.schema_model.scheduledTime;
                 }
-                if(_.hasIn(ok, "schema_model.selectedExporter")){
+                if(_.hasIn(ok, 'schema_model.selectedExporter')){
                     id = ok.schema_model.selectedExporter;
                 }
                 this.service.reschedule(match.taskID, id || match.ExporterID, filter)
                     .subscribe(
                         (res) => {
                             this.cfpLoadingBar.complete();
-                            if(_.hasIn(res,"count")){
+                            if(_.hasIn(res,'count')){
                                 this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count || 0}:count: tasks rescheduled successfully!`);
                             }else{
                                 this.mainservice.showMsg($localize `:@@task_rescheduled:Task rescheduled successfully!`);
@@ -1626,6 +1633,7 @@ export class ExportComponent implements OnInit, OnDestroy {
                     }
                     $this.getDevices();
                     // $this.mainservice.setGlobal({exporterID:$this.exporterID});
+                    this.changeDetector.detectChanges();
                 },
                 (res) => {
                     if (retries)
@@ -1638,9 +1646,10 @@ export class ExportComponent implements OnInit, OnDestroy {
             this.cfpLoadingBar.complete();
             this.devices = devices.filter(dev => dev.hasArcDevExt);
             this.initSchema();
+            this.changeDetector.detectChanges();
         },(err)=>{
             this.cfpLoadingBar.complete();
-            console.error("Could not get devices",err);
+            console.error('Could not get devices',err);
         });
     }
     getAets(){
@@ -1653,8 +1662,9 @@ export class ExportComponent implements OnInit, OnDestroy {
                         text:ae.dicomAETitle
                     }
                 })
+                this.changeDetector.detectChanges();
             },(err)=>{
-                console.error("Could not get aets",err);
+                console.error('Could not get aets',err);
             });
     }
     ngOnDestroy(){

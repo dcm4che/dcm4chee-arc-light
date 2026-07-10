@@ -9,18 +9,25 @@ import {SelectDropdown} from '../../interfaces';
 export class AeListService {
 
     constructor(
-      private $http: J4careHttpService,
-      private devicesService: DevicesService,
-      private appService: AppService
+        private $http: J4careHttpService,
+        private devicesService: DevicesService,
+        private appService: AppService
     ) { }
 
     getAes(filters?) {
-      return this.$http.get(
-          `${j4care.addLastSlash(this.appService.baseUrl)}aes`
-      )
+        let urlParam = '';
+        if (filters) {
+            urlParam = this.appService.param(filters);
+            if (urlParam) {
+                urlParam = '?' + urlParam;
+            }
+        }
+        return this.$http.get(
+            `${j4care.addLastSlash(this.appService.baseUrl)}aes${urlParam}`
+        )
     }
     getAets() {
-       return this.$http.get(
+        return this.$http.get(
             `${j4care.addLastSlash(this.appService.baseUrl)}aets`
         )
     }
@@ -59,7 +66,7 @@ export class AeListService {
         return j4care.prepareFlatFilterObject([
             {
                 tag: 'html-select',
-                options: devices.map(d => {
+                options: devices?.map(d => {
                     return{
                         text: d.dicomDescription ? `${d.dicomDescription} ( ${d.dicomDeviceName} )` : d.dicomDeviceName,
                         value: d.dicomDeviceName
@@ -72,7 +79,7 @@ export class AeListService {
                 placeholder: $localize `:@@device_name:Device Name`
             }, {
                 tag: 'html-select',
-                options: aes.map(ae => {
+                options: aes?.map(ae => {
                     return{
                         value: ae.dicomAETitle,
                         text: ae.dicomAETitle

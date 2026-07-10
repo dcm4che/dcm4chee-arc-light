@@ -15,7 +15,6 @@
                         <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-top"></i></a>
 
                         <a href="" (click)="$event.preventDefault();createAe()" class="more ng-hide" i18n-title="@@title.ae-list.register_new_application_entity" title="Register new application entity"> <span class="glyphicon glyphicon-plus"></span><ng-container i18n="@@ae-list.new_aet">New AET</ng-container></a>
-
                     </div>
                 </div>
                 <div class="filter_block">
@@ -44,10 +43,10 @@
             <tr *ngFor="let ae of  aes | search:aesfilter | slice:moreAes.start:moreAes.limit; let i = index">
                 <td class="buttons_td">
                     <span class="numbers">{{i+1}}.</span>
-                    <a class="table_btn" title="Echo" href="" (click)="$event.preventDefault();echoAe(ae.dicomAETitle)">
+                    <a class="table_btn" title="Echo" href="" (click)="$event.preventDefault();echoAe(ae['dicomAETitle'])">
                         <span class="echo_icon"></span>
                     </a>
-                    <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.ae-list.delete_from_device_the_ae" title="Delete from device the AE" href="" (click)="$event.preventDefault();deleteAE(ae.dicomDeviceName, ae.dicomAETitle)">
+                    <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.ae-list.delete_from_device_the_ae" title="Delete from device the AE" href="" (click)="$event.preventDefault();deleteAE(ae['dicomDeviceName'], ae['dicomAETitle'])">
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>
                 </td>

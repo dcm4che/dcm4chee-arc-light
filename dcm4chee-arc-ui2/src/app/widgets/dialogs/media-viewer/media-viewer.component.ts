@@ -27,7 +27,7 @@ export class MediaViewerComponent implements OnInit {
     ){}
 
     ngOnInit() {
-        if(this.contentType.indexOf("xml") > -1){
+        if(this.contentType.indexOf('xml') > -1){
             this.loadXML();
         }else{
             this.setPDFUrl();
@@ -35,13 +35,13 @@ export class MediaViewerComponent implements OnInit {
     }
 
     onVideoMouseEnter(e){
-        console.log("e",e);
-        e.target.setAttribute("controls",true);
+        console.log('e',e);
+        e.target.setAttribute('controls',true);
     }
 
     onVideoMouseLeave(e){
-        console.log("e",e);
-        e.target.setAttribute("controls",false);
+        console.log('e',e);
+        e.target.setAttribute('controls',false);
 
     }
     setPDFUrl(){
@@ -56,8 +56,8 @@ export class MediaViewerComponent implements OnInit {
         try{
             let loadXMLDoc = (filename) => {
                 let xhttp = new XMLHttpRequest();
-                xhttp.open("GET", filename, false);
-                xhttp.send("");
+                xhttp.open('GET', filename, false);
+                xhttp.send('');
                 return xhttp.responseXML;
             };
 
@@ -70,7 +70,7 @@ export class MediaViewerComponent implements OnInit {
                 xsltProcessor.importStylesheet(xsl);
                 resultDocument = xsltProcessor.transformToFragment(xml, document);
 
-                this.iframe = document.createElement("iframe");
+                this.iframe = document.createElement('iframe');
                 this.iframe.style.width = "100%";
                 this.iframe.style.height = "100%";
                 document.getElementById('container').appendChild(this.iframe);
@@ -79,14 +79,14 @@ export class MediaViewerComponent implements OnInit {
                 let userSelection = iframeDoc.getElementsByClassName('cda-render');
 
                 for(let i = 0; i < userSelection.length; i++) {
-                    userSelection[i].addEventListener("click", (e)=> {
+                    userSelection[i].addEventListener('click', (e)=> {
                         e.preventDefault();
                         iframeDoc.getElementById(e.target.hash.replace(/#/g, '')).scrollIntoView();
                     })
                 }
             }
         }catch (e) {
-            j4care.log("Error on loading xml",e);
+            j4care.log('Error on loading xml',e);
 
         }
     }

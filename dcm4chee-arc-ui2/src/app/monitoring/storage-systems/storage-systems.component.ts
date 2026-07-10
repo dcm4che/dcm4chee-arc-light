@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
+import { Component, OnInit, ViewContainerRef, ChangeDetectorRef } from '@angular/core';
 import {User} from '../../models/user';
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {AppService} from '../../app.service';
@@ -49,7 +49,7 @@ export class StorageSystemsComponent implements OnInit {
         dicomAETitle: undefined,
         usage: undefined,
         usableSpaceBelow: undefined,
-        usableSpaceBelowMode:"GB"
+        usableSpaceBelowMode:'GB'
     };
     isRole: any;
     dialogRef: MatDialogRef<any>;
@@ -66,7 +66,8 @@ export class StorageSystemsComponent implements OnInit {
         public  service: StorageSystemsService,
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
-        public httpErrorHandler:HttpErrorHandler
+        public httpErrorHandler:HttpErrorHandler,
+        private changeDetector: ChangeDetectorRef
     ){}
     ngOnInit(){
         this.initCheck(10);
@@ -102,7 +103,7 @@ export class StorageSystemsComponent implements OnInit {
     confirm(confirmparameters){
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
@@ -110,13 +111,13 @@ export class StorageSystemsComponent implements OnInit {
     calculateUsableSpaceBelowFilter(filters){
         if(filters.usableSpaceBelow){
             switch(filters.usableSpaceBelowMode) {
-                case "TB":
+                case 'TB':
                     filters.usableSpaceBelow = filters.usableSpaceBelow * 1000000000000;
                     break;
-                case "GB":
+                case 'GB':
                     filters.usableSpaceBelow = filters.usableSpaceBelow * 1000000000;
                     break;
-                case "MB":
+                case 'MB':
                     filters.usableSpaceBelow = filters.usableSpaceBelow * 1000000;
                     break;
             }
@@ -124,27 +125,27 @@ export class StorageSystemsComponent implements OnInit {
         return filters;
     }
     statusesOFLocations = [
-        "OK",
-        "TO_DELETE",
-        "FAILED_TO_DELETE",
-        "MISSING_OBJECT",
-        "FAILED_TO_FETCH_METADATA",
-        "FAILED_TO_FETCH_OBJECT",
-        "DIFFERING_OBJECT_SIZE",
-        "DIFFERING_OBJECT_CHECKSUM",
-        "DIFFERING_S3_MD5SUM",
-        "FAILED_TO_DELETE2",
-        "ORPHANED",
-        "VERIFY_QSTAR_ACCESS_STATE",
-        "QSTAR_ACCESS_STATE_NONE",
-        "QSTAR_ACCESS_STATE_EMPTY",
-        "QSTAR_ACCESS_STATE_UNSTABLE",
-        "QSTAR_ACCESS_STATE_OUT_OF_CACHE",
-        "QSTAR_ACCESS_STATE_OFFLINE",
-        "QSTAR_ACCESS_STATE_ERROR_STATUS"
+        'OK',
+        'TO_DELETE',
+        'FAILED_TO_DELETE',
+        'MISSING_OBJECT',
+        'FAILED_TO_FETCH_METADATA',
+        'FAILED_TO_FETCH_OBJECT',
+        'DIFFERING_OBJECT_SIZE',
+        'DIFFERING_OBJECT_CHECKSUM',
+        'DIFFERING_S3_MD5SUM',
+        'FAILED_TO_DELETE2',
+        'ORPHANED',
+        'VERIFY_QSTAR_ACCESS_STATE',
+        'QSTAR_ACCESS_STATE_NONE',
+        'QSTAR_ACCESS_STATE_EMPTY',
+        'QSTAR_ACCESS_STATE_UNSTABLE',
+        'QSTAR_ACCESS_STATE_OUT_OF_CACHE',
+        'QSTAR_ACCESS_STATE_OFFLINE',
+        'QSTAR_ACCESS_STATE_ERROR_STATUS'
     ]
     changeLocationStatus(model){
-        console.log("model",model);
+        console.log('model',model);
         let parameters: any = {
             content: $localize `:@@change_status_of_the_location:Change Status of the Location`,
             doNotSave: true,
@@ -152,27 +153,27 @@ export class StorageSystemsComponent implements OnInit {
                 [
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@from:From`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.statusesOFLocations.map(status=>new SelectDropdown(status, status)),
-                            filterKey:"from",
+                            filterKey:'from',
                             placeholder:$localize `:@@from:From`
                         }
                     ],
                     [
                         {
-                            tag:"label",
+                            tag:'label',
                             text:$localize `:@@to:To`
                         },
                         {
-                            tag:"select",
-                            type:"text",
+                            tag:'select',
+                            type:'text',
                             options:this.statusesOFLocations.map(status=>new SelectDropdown(status, status)),
-                            filterKey:"to",
+                            filterKey:'to',
                             placeholder:$localize `:@@to:To`
                         }
                     ]
@@ -186,10 +187,10 @@ export class StorageSystemsComponent implements OnInit {
         this.confirm(parameters).subscribe(ok => {
             if(ok){
                 this.cfpLoadingBar.start();
-                console.log("ok",ok)
-                if(j4care.hasSet(ok,"schema_model.from") && j4care.hasSet(ok,"schema_model.to") && j4care.hasSet(model,"properties.dcmStorageID")){
+                console.log('ok',ok)
+                if(j4care.hasSet(ok,'schema_model.from') && j4care.hasSet(ok,'schema_model.to') && j4care.hasSet(model,'properties.dcmStorageID')){
                     this.service.changeLocationStatus(model.properties.dcmStorageID,ok.schema_model).subscribe(res=>{
-                        if(res && _.hasIn(res,"count")){
+                        if(res && _.hasIn(res,'count')){
                             this.mainservice.showMsg($localize `:@@count_of_corresponding_operation:Count of corresponding operation:${res.count}`);
                         }else{
                             this.mainservice.showMsg($localize `:@@count_of_corresponding_operation:Count of corresponding operation:${0}`);
@@ -277,7 +278,7 @@ export class StorageSystemsComponent implements OnInit {
                         if (_.hasIn(properties, 'storageThreshold')){
                             properties.storageThreshold = $this.convertBtoGBorMB(properties.storageThreshold);
                         }
-                        _.forEach(properties, (l, k) => {https://github.com/dcm4che/dcm4chee-arc-light/issues/2751
+                        _.forEach(properties, (l, k) => {
                             if (_.isArray(l)){
                                 properties[k] = l.join(' | ');
                             }
@@ -295,6 +296,7 @@ export class StorageSystemsComponent implements OnInit {
                     $this.matches = [];
                     this.mainservice.showMsg($localize `:@@no_storages_found:No storages found!`)
                 }
+                this.changeDetector.detectChanges();
             }, (err) => {
                 $this.cfpLoadingBar.complete();
                 $this.matches = [];
@@ -435,6 +437,7 @@ export class StorageSystemsComponent implements OnInit {
             .subscribe((response) => {
                 this.aets = j4care.extendAetObjectWithAlias(response);
                 this.filterSchema = this.service.getFiltersSchema(this.aets);
+                this.changeDetector.detectChanges();
             }, (err) => {
                 console.log('error getting aets', err);
             });

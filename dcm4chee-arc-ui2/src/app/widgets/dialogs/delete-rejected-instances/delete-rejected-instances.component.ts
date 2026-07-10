@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialogRef} from '@angular/material/dialog';
 import {FormsModule} from '@angular/forms';
 import {RangePickerComponent} from '../../range-picker/range-picker.component';
 import {CommonModule} from '@angular/common';

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 // import {FileUploader} from 'ng2-file-upload';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {UploadDicomService} from './upload-dicom.service';
@@ -21,10 +21,10 @@ import {CommonModule} from '@angular/common';
     selector: 'app-upload-dicom',
     templateUrl: './upload-dicom.component.html',
     imports: [
-        FormsModule,
-        MatDialogContent,
         MatSelect,
+        FormsModule,
         MatOption,
+        MatDialogContent,
         MatProgressBar,
         CommonModule
     ],
@@ -55,8 +55,8 @@ export class UploadDicomComponent implements OnInit{
         private studieService:StudiesService,
         private studyService:StudyService,
         private httpErrorHandler:HttpErrorHandler,
-        private _keycloakService: KeycloakService
-    ) {
+        private _keycloakService: KeycloakService,
+        private changeDetector: ChangeDetectorRef) {
         this.service.progress$.subscribe(
             data => {
                 console.log('progress = ' + data);
@@ -90,7 +90,7 @@ export class UploadDicomComponent implements OnInit{
     }
 
     getToken(){
-        if(this.selectedWebApp && _.hasIn(this.selectedWebApp, "dcmKeycloakClientID")){
+        if(this.selectedWebApp && _.hasIn(this.selectedWebApp, 'dcmKeycloakClientID')){
             return this.$http.getRealm(this.selectedWebApp);
         }else{
             return this._keycloakService.getToken();
@@ -105,27 +105,26 @@ export class UploadDicomComponent implements OnInit{
         this.fileList = event.target.files;
 
         if (this.fileList) {
-            console.log("getToken",this.getToken());
+            console.log('getToken',this.getToken());
             this.getToken().subscribe((response) => {
                 if(!this.mainservice.global.notSecure){
                     token = response.token;
                 }
                 _.forEach(this.fileList, (file, i) => {
     /*                {
-                        mode:"determinate",
+                        mode:'determinate',
                             value:0,
                         show:false
                     }*/
-                    if(file.type && file.type != "application/dicom"){
+                    if(file.type && file.type != 'application/dicom'){
                         $this.mainservice.showError($localize `:@@filetype_not_allowed:Filetype "${file.type}:filetype:
 " not allowed!`);
                         $this.fileList = [];
                         event = null;
                         $this.file = null;
                     }else{
-
-                        console.log("file",file);
-                        console.log("filetype",file.type);
+                        console.log('file',file);
+                        console.log('filetype',file.type);
                         this.percentComplete[file.name] = {};
                         this.percentComplete[file.name]['value'] = 0;
                         $this.percentComplete[file.name]['showTicker'] = false;
@@ -136,7 +135,7 @@ export class UploadDicomComponent implements OnInit{
                         let url;
                         if(this.selectedWebApp){
                             // url = this.service.getUrlFromWebApp(this.selectedWebApp);
-                            url = this.studyService.getDicomURL("study",this.selectedWebApp);
+                            url = this.studyService.getDicomURL('study',this.selectedWebApp);
                         }else{
                             url = `${j4care.addLastSlash(this.mainservice.baseUrl)}aets/${$this._selectedAe}/rs/studies`;
                         }
@@ -176,6 +175,7 @@ export class UploadDicomComponent implements OnInit{
                                     let jsonFormat = JSON.parse(xmlHttpRequest.response);
                                     $this.httpErrorHandler.handleError(jsonFormat || xmlHttpRequest.response);
                                 }
+                                $this.changeDetector.detectChanges();
                             }
                         };
                         xmlHttpRequest.upload.onloadstart = function (e) {
@@ -192,7 +192,8 @@ export class UploadDicomComponent implements OnInit{
                         // };
                     }
                 });
-            });
+
+                this.changeDetector.detectChanges();});
         }
 
     }
@@ -200,7 +201,7 @@ export class UploadDicomComponent implements OnInit{
 
 /*        this.vendorUpload.setOptions({url: `../aets/${this._selectedAe}/rs/studies`});
         this.vendorUpload.uploadAll();*/
-        // dialogRef.close("ok");
+        // dialogRef.close('ok');
     }
     close(dialogRef){
         dialogRef.close(null);
@@ -225,7 +226,7 @@ export class UploadDicomComponent implements OnInit{
     }
     getWebApps(){
         let filters = {
-            dcmWebServiceClass:"STOW_RS"
+            dcmWebServiceClass:'STOW_RS'
         };
         this.studyService.getWebApps(filters).subscribe((res)=>{
             this.webApps = res;
@@ -233,8 +234,9 @@ export class UploadDicomComponent implements OnInit{
                if(webApp.dicomAETitle === this._selectedAe || (this.selectedWebApp && this.selectedWebApp.dcmWebAppName === webApp.dcmWebAppName))
                  this.selectedWebApp = webApp;
             });
-        },(err)=>{
-            j4care.log("Something went wrong on getting webApps", err);
+
+            this.changeDetector.detectChanges();},(err)=>{
+            j4care.log('Something went wrong on getting webApps', err);
             this.httpErrorHandler.handleError(err);
         });
     }

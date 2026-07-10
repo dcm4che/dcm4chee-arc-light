@@ -1,16 +1,19 @@
 import { Component } from '@angular/core';
-import {MatDialogRef} from "@angular/material/dialog";
+import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 
 @Component({
     selector: 'app-info',
     templateUrl: './info.component.html',
+    imports: [
+        MatDialogContent
+    ],
     standalone: true
 })
 export class InfoComponent{
 
     private _info: any = {
-        title: $localize `:@@title:Info`,
+        title: $localize `:@@info:Info`,
         content: undefined
     };
     constructor(public dialogRef: MatDialogRef<InfoComponent>) {

@@ -31,8 +31,7 @@ import {SvgDirective} from '../svg/svg.directive';
         CustomAttributeListComponent,
         CommonModule,
         SearchDicomPipe,
-        SvgDirective,
-        NgOptimizedImage
+        SvgDirective
     ],
     standalone: true
 })

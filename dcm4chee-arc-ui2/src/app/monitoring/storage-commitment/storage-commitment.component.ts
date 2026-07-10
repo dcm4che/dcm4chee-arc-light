@@ -1,13 +1,13 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
+import { Component, OnInit, ViewContainerRef, ChangeDetectorRef } from '@angular/core';
 import {User} from '../../models/user';
 import {ConfirmComponent} from '../../widgets/dialogs/confirm/confirm.component';
-import {MatDialog, MatDialogRef} from "@angular/material/dialog";
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import * as _ from 'lodash-es';
 import {AppService} from '../../app.service';
 import {StorageCommitmentService} from './storage-commitment.service';
-import {WindowRefService} from "../../helpers/window-ref.service";
-import {HttpErrorHandler} from "../../helpers/http-error-handler";
-import {J4careHttpService} from "../../helpers/j4care-http.service";
+import {WindowRefService} from '../../helpers/window-ref.service';
+import {HttpErrorHandler} from '../../helpers/http-error-handler';
+import {J4careHttpService} from '../../helpers/j4care-http.service';
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {j4care} from "../../helpers/j4care.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
@@ -52,14 +52,15 @@ export class StorageCommitmentComponent implements OnInit {
         public  service: StorageCommitmentService,
         public viewContainerRef: ViewContainerRef,
         public dialog: MatDialog,
-        public httpErrorHandler:HttpErrorHandler
+        public httpErrorHandler:HttpErrorHandler,
+        private changeDetector: ChangeDetectorRef
     ) {}
     ngOnInit(){
         this.initCheck(10);
     }
     initCheck(retries){
         let $this = this;
-        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,'global.notSecure') && this.mainservice.global.notSecure)){
             this.init();
         }else{
             if (retries){
@@ -84,7 +85,7 @@ export class StorageCommitmentComponent implements OnInit {
         //this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
@@ -115,6 +116,7 @@ export class StorageCommitmentComponent implements OnInit {
                     $this.matches = [];
                     this.mainservice.showMsg($localize `:@@no_tasks_found:No tasks found!`)
                 }
+                this.changeDetector.detectChanges();
             }, (err) => {
                 $this.cfpLoadingBar.complete();
                 $this.matches = [];
@@ -267,6 +269,7 @@ export class StorageCommitmentComponent implements OnInit {
                     if (res && res[0] && res[0].id){
                         this.exporterID = res[0].id;
                     }
+                    this.changeDetector.detectChanges();
                 },
                 (res) => {
                     if (retries)

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 
 
 import {ControlService} from './control.service';
@@ -53,7 +53,8 @@ export class ControlComponent implements OnInit {
         private cfpLoadingBar: LoadingBarService,
         private service: ControlService,
         private devicesService: DevicesService,
-        public httpErrorHandler: HttpErrorHandler
+        public httpErrorHandler: HttpErrorHandler,
+        private changeDetector: ChangeDetectorRef
     ) {}
     ngOnInit() {
         this.initCheck(10);
@@ -152,6 +153,7 @@ export class ControlComponent implements OnInit {
                 this.devices = devices;
                 this.fetchStatuses();
             });
+            this.changeDetector.detectChanges();
         }, (err) => {
             this.httpErrorHandler.handleError(err);
         });

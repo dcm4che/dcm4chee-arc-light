@@ -91,15 +91,16 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
         private controlService:ControlService,
         private j4care:j4care,
         private _fb: UntypedFormBuilder,
-        private _keycloakService: KeycloakService
-    ){
+        private _keycloakService: KeycloakService,
+        private changeDetector: ChangeDetectorRef) {
         this.partRemoved = false;
     }
 
     ngOnInit(): void {
         this.mainservice.getUser().subscribe((user) => {
             this.user = user;
-        })
+
+            this.changeDetector.detectChanges();})
     }
     get isValid(){
         return this.form.controls[this.formelement.key].valid;
@@ -108,14 +109,14 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
         // this.config.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         /*        this.dialogRef.afterClosed().subscribe(result => {
          if(result){
-         console.log("result", result);
+         console.log('result', result);
          }else{
-         console.log("false");
+         console.log('false');
          }
          });*/
         return this.dialogRef.afterClosed();
@@ -150,14 +151,14 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
                                             $this.form = $this.formservice.toFormGroup($this.formelements);
                                             $this.formcomp.setForm($this.form);*/
                         /*                    _.forEach(formelement,(m, i)=>{
-                                                if(m.controlType && m.controlType === "filedownload"){
-                                                    m.controlType = "fileupload";
+                                                if(m.controlType && m.controlType === 'filedownload'){
+                                                    m.controlType = 'fileupload';
                                                 }
                                             });*/
                         console.log('formelements', $this.formelements);
                         console.log('formelement', $this.formelement);
                         // $this.formelements = [];
-                        // formelement.controlType = "fileupload";
+                        // formelement.controlType = 'fileupload';
                         let test = {
                             controlType: 'filedownload',
                             description: $localize `:@@dynamic-form-element.device_specific_vendor_configuration_information:Device specific vendor configuration information`,
@@ -193,7 +194,8 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
                         // $this.router.navigateByUrl(`/device/edit/${deviceName}`);
                     });
                 }
-            });
+
+                this.changeDetector.detectChanges();});
         }
     }
     replaceFile(deviceName){
@@ -213,7 +215,7 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
             let $this = this;
             this.dialogRef = this.dialog.open(UploadVendorComponent, {
                 height: 'auto',
-                width: '500px'
+                width: '510px'
             });
             this.dialogRef.componentInstance.deviceName = deviceName;
             this.dialogRef.afterClosed().subscribe((selected) => {
@@ -313,7 +315,7 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
                     });
 
                     //If removed element is referenced prevent removing it
-                    if (formelement.key === "dicomNetworkConnection" && $this.isReferenceUsed($this.deviceConfiguratorService.device, toRemoveIndex)) {
+                    if (formelement.key === 'dicomNetworkConnection' && $this.isReferenceUsed($this.deviceConfiguratorService.device, toRemoveIndex)) {
                         $this.mainservice.showWarning($localize `:@@this_element_is_referenced:This element is referenced, remove references first then you can delete this element!`);
                     } else {
                         let newAddUrl = formelement.options[formelement.options.length - 1].url;
@@ -330,7 +332,7 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
                             });
                             formelement.addUrl = newAddUrl;
                             //If removed element was dicomNetworkConnection than update references in the object
-                            if (formelement.key === "dicomNetworkConnection") {
+                            if (formelement.key === 'dicomNetworkConnection') {
                                 $this.updateReferences($this.deviceConfiguratorService.device, toRemoveIndex);
                             }
                         }
@@ -341,7 +343,7 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
                                 let oldCurrentElementUrl = formelement.options[index].currentElementUrl;
                                 formelement.options[index].currentElementUrl = `${pathObject.path}[${(pathObject.index - 1)}]`;
                                 formelement.options[index].url = _.replace(formelement.options[index].url, oldCurrentElementUrl, formelement.options[index].currentElementUrl);
-                                if(formelement.key === "dicomNetworkConnection"){
+                                if(formelement.key === 'dicomNetworkConnection'){
                                     formelement.options[index].refString = `/dicomNetworkConnection/${(pathObject.index - 1)}`;
                                 }
                             }
@@ -350,13 +352,14 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
                     new OrderByPipe().transform(formelement.options,'title');
                     $this.ref.detectChanges();
                 }
-            });
+
+                this.changeDetector.detectChanges();});
         }
     }
     //Update DicomNetworkConnection reference index
     updateReferences(o, removedDicomNetworkConnectionIndex) {
         for (let i in o) {
-            if(i === "dicomNetworkConnectionReference"){
+            if(i === 'dicomNetworkConnectionReference'){
                 for(let index in o[i]){
                     let extracedIndex = this.extractIndexFromPath(o[i][index]);
                     if(extracedIndex > removedDicomNetworkConnectionIndex){
@@ -364,7 +367,7 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
                     }
                 }
             }
-            if (o[i] !== null && typeof(o[i])=="object") {
+            if (o[i] !== null && typeof(o[i])=='object') {
                 this.updateReferences(o[i],removedDicomNetworkConnectionIndex);
             }
         }
@@ -378,23 +381,23 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
     }
     _isReferenceUsed(o,index,check){
         for (let i in o) {
-            if(i === "dicomNetworkConnectionReference"){
+            if(i === 'dicomNetworkConnectionReference'){
                 for(let reffIndex in o[i]){
                     if(this.extractIndexFromPath(o[i][reffIndex]) == index){
                         check.used = true;
                     }
                 }
             }
-            if (o[i] !== null && typeof(o[i])=="object") {
+            if (o[i] !== null && typeof(o[i])=='object') {
                 this._isReferenceUsed(o[i],index,check);
             }
         }
     }
 
     clone(formelement,selected, options){
-/*        console.log("formelement",formelement);
-        let value = (<FormArray>this.form.controls[formelement.key]).getRawValue();
-        (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(value));*/
+        /*        console.log('formelement',formelement);
+                let value = (<FormArray>this.form.controls[formelement.key]).getRawValue();
+                (<FormArray>this.form.controls[formelement.key]).insert(this.form.controls[formelement.key].value.length, new FormControl(value));*/
         if(!this.readOnlyMode){
             // let $this = this;
             // let globalForm = this.formcomp.getForm();
@@ -406,12 +409,12 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
             // this.dialogRef.componentInstance.toCloneElement = formelement;
             // this.dialogRef.afterClosed().subscribe((selected) => {
             //     if (selected){
-            //         if(formelement.key === "dicomNetworkAE"){
+            //         if(formelement.key === 'dicomNetworkAE'){
             //
             //         }
-                    let cloneUrl = formelement.addUrl + '/' + selected.currentElementUrl;
-                    this.navigateTo(cloneUrl,options);
-                    // this.router.navigateByUrl(cloneUrl);
+            let cloneUrl = formelement.addUrl + '/' + selected.currentElementUrl;
+            this.navigateTo(cloneUrl,options);
+            // this.router.navigateByUrl(cloneUrl);
             //     }
             // });
         }
@@ -459,7 +462,7 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
     private tryToConvertValueToInt(value){
         try{
             const convertedValue = value*1;
-            if(!isNaN(convertedValue) && typeof convertedValue === "number"){
+            if(!isNaN(convertedValue) && typeof convertedValue === 'number'){
                 return value*1;
             }
         }catch (e) {
@@ -486,15 +489,15 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
             let valueObject = globalForm.value;
 
             _.forEach(this.formelements, (m, i) => {
-               if (Math.floor(m.order) === orderId + 1){
-                   if (m.show === true){
-                       m.show = false;
-                   }else{
-                       m.show = true;
-                   }
-               } else{
-                   m.show = false;
-               }
+                if (Math.floor(m.order) === orderId + 1){
+                    if (m.show === true){
+                        m.show = false;
+                    }else{
+                        m.show = true;
+                    }
+                } else{
+                    m.show = false;
+                }
             });
             this.form = this.formservice.toFormGroup(this.formelements);
             this.form.patchValue(valueObject);
@@ -513,7 +516,7 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
                     (<UntypedFormControl>this.form.controls[formelement.key]).setValue(e);
             }else{
                 if(e && e != ''){
-                    if(formelement.controlType === "arrayelement"){
+                    if(formelement.controlType === 'arrayelement'){
                         // (<FormArray>this.form.controls[formelement.key]).insert(i, new FormControl(e))
                         formcontrol[i].setValue(e);
                         formelement.value[i] = e;
@@ -543,7 +546,7 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
                             this.formcomp.setFormModel(valueObject);
                         }*/
                     }else{
-                        if(e === "empty"){
+                        if(e === 'empty'){
                             formcontrol.setValue('');
                             formelement.value = '';
                         }else{
@@ -553,7 +556,7 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
                     }
                 }
             }
-        }catch(ev: unknown){
+        }catch(ev){
             console.error($localize `:@@dynamic-form-element.error_setting_changed_value:error setting changed value`,ev);
         }
         formelement.showPicker = false;
@@ -576,21 +579,21 @@ export class DynamicFormElementComponent implements OnInit, OnDestroy{
                     m.active = false;
                 }
             });
-            if(!oneOptActive && formcontrols.value === ""){
-                formcontrols.setValue("");
+            if(!oneOptActive && formcontrols.value === ''){
+                formcontrols.setValue('');
             }
         }
     }
 
     getTitleBackup(mode:('append'|'remove'), title){
         switch (mode){
-            case "remove":
+            case 'remove':
                 return $localize `:@@remove_extension_from_device:Remove ${title} extension from device`;
-            case "append":
+            case 'append':
                 return $localize `:@@append_extension_to_device:Append ${title} extension to device`;
 
         }
-        return ""
+        return ''
     }
     onFocuse(formelement,i=null) {
         if(formelement.format){

@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {AppService} from "../../app.service";
-import {PersonNamePickerService} from "./person-name-picker.service";
-import * as _ from "lodash-es";
+import {AppService} from '../../app.service';
+import {PersonNamePickerService} from './person-name-picker.service';
+import * as _ from 'lodash-es';
 import {CommonModule, NgClass} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
@@ -38,8 +38,8 @@ export class PersonNamePickerComponent implements OnInit {
   @Input() p_nameSuffix;
   dialogOpen:boolean = false;
   private _internModel:string;
-  private _asFilterModel = "";
-  inputMode:("alphabetic"|"ideographic"|"phonetic") = "alphabetic";
+  private _asFilterModel = '';
+  inputMode:('alphabetic'|'ideographic'|'phonetic') = 'alphabetic';
   format:string = `{NAME-PREFIX} {GIVEN-NAME} {MIDDLE-NAME} {FAMILY-NAME}, {NAME-SUFFIX}`;
   private _model:string;
 
@@ -63,13 +63,13 @@ export class PersonNamePickerComponent implements OnInit {
 
   ngOnInit(): void {
     this._internModel = this.model;
-    if(_.hasIn(this.appService,"global.personNameFormat")){
+    if(_.hasIn(this.appService,'global.personNameFormat')){
       this.format = this.appService.global.personNameFormat;
     }
   }
 
   onInternModelChange(e){
-    if(this._internModel && this._internModel.indexOf(" ") > -1){
+    if(this._internModel && this._internModel.indexOf(' ') > -1){
       this.asFilterModel = this.personNameService.convertPNameFromFormattedToDicomForm(this._internModel, this.format);
       [
         this.familyName,
@@ -79,20 +79,20 @@ export class PersonNamePickerComponent implements OnInit {
         this.nameSuffix
       ] = this._asFilterModel.split("^");
     }else{
-      if(this._internModel != "" && this._internModel.indexOf(" ") === -1){
+      if(this._internModel != '' && this._internModel.indexOf(' ') === -1){
         this.asFilterModel = this._internModel;
-        this.familyName = "";
-        this.givenName = "";
-        this.middleName = "";
-        this.namePrefix = "";
-        this.nameSuffix = "";
+        this.familyName = '';
+        this.givenName = '';
+        this.middleName = '';
+        this.namePrefix = '';
+        this.nameSuffix = '';
       }else{
-        this.asFilterModel = "";
-        this.familyName = "";
-        this.givenName = "";
-        this.middleName = "";
-        this.namePrefix = "";
-        this.nameSuffix = "";
+        this.asFilterModel = '';
+        this.familyName = '';
+        this.givenName = '';
+        this.middleName = '';
+        this.namePrefix = '';
+        this.nameSuffix = '';
       }
     }
   }
@@ -110,8 +110,8 @@ export class PersonNamePickerComponent implements OnInit {
   onComponentChange(){
 
     let collected:string[];
-    let filterPrefix = "";
-    if(this.inputMode === "ideographic"){
+    let filterPrefix = '';
+    if(this.inputMode === 'ideographic'){
       collected = [
         this.i_familyName,
         this.i_givenName,
@@ -120,7 +120,7 @@ export class PersonNamePickerComponent implements OnInit {
         this.i_nameSuffix
       ];
       filterPrefix = "=";
-    } else if(this.inputMode === "phonetic"){
+    } else if(this.inputMode === 'phonetic'){
       collected = [
         this.p_familyName,
         this.p_givenName,
@@ -138,12 +138,12 @@ export class PersonNamePickerComponent implements OnInit {
         this.nameSuffix
       ];
     }
-    if(collected.join("") != ""){
+    if(collected.join('') != ''){
       this.asFilterModel = filterPrefix + this.personNameService.addCarets(collected[0], collected[1], collected[2], collected[3], collected[4]);
       this._internModel = this.personNameService.convertPNameFromDicomFormToFormatted(this._asFilterModel, this.format)
     }else{
-      this.asFilterModel = "";
-      this._internModel = "";
+      this.asFilterModel = '';
+      this._internModel = '';
     }
   }
 
@@ -159,11 +159,11 @@ export class PersonNamePickerComponent implements OnInit {
     this.modelChange.emit(value);
   }
   clear(){
-    this._internModel = "";
+    this._internModel = '';
     this.onInternModelChange(undefined);
   }
 
-  mode(mode: ("alphabetic"|"ideographic"|"phonetic")) {
+  mode(mode: ('alphabetic'|'ideographic'|'phonetic')) {
       this.inputMode = mode;
       this.onComponentChange();
   }

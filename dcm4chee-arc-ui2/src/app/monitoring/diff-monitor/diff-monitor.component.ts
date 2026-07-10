@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewContainerRef} from '@angular/core';
+import {Component, OnInit, ViewContainerRef, ChangeDetectorRef} from '@angular/core';
 import {DiffMonitorService} from "./diff-monitor.service";
 import {AppService} from "../../app.service";
 import {ActivatedRoute} from "@angular/router";
@@ -77,13 +77,13 @@ export class DiffMonitorComponent implements OnInit {
     allActionsActive = [];
     allActionsOptions = [
         {
-            value:"cancel",
+            value:'cancel',
             label:$localize `:@@cancel_all_matching_tasks:Cancel all matching tasks`
         },{
-            value:"reschedule",
+            value:'reschedule',
             label:$localize `:@@reschedule_all_matching_tasks:Reschedule all matching tasks`
         },{
-            value:"delete",
+            value:'delete',
             label:$localize `:@@delete_all_matching_tasks:Delete all matching tasks`
         }
     ];
@@ -98,19 +98,21 @@ export class DiffMonitorComponent implements OnInit {
         public dialog: MatDialog,
         private permissionService:PermissionService,
         private deviceService:DevicesService,
-        private _keycloakService: KeycloakService
-    ){}
+        private _keycloakService: KeycloakService,
+        private changeDetector: ChangeDetectorRef
+    ) {}
 
     ngOnInit(){
         this.initCheck(10);
     }
     initCheck(retries){
         let $this = this;
-        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,"global.notSecure") && this.mainservice.global.notSecure)){
+        if((KeycloakService.keycloakAuth && KeycloakService.keycloakAuth.authenticated) || (_.hasIn(this.mainservice,'global.notSecure') && this.mainservice.global.notSecure)){
             this.route.queryParams.subscribe(params => {
-                console.log("params",params);
+                console.log('params',params);
                 this.urlParam = Object.assign({},params);
                 this.init();
+                this.changeDetector.detectChanges();
             });
         }else{
             if (retries){
@@ -161,6 +163,7 @@ export class DiffMonitorComponent implements OnInit {
                 });
             this.initSchema();
             this.setTableSchema();
+            this.changeDetector.detectChanges();
         });
         this.onFormChange(this.filterObject);
     }
@@ -200,15 +203,15 @@ export class DiffMonitorComponent implements OnInit {
     allActionChanged(e){
         let text = $localize `:@@matching_task_question:Are you sure, you want to ${Globalvar.getActionText(this.allAction)} all matching tasks?`;
         let filter = Object.assign({}, this.filterObject);
-        delete filter["limit"];
-        delete filter["offset"];
+        delete filter['limit'];
+        delete filter['offset'];
         this.confirm({
             content: text
         }).subscribe((ok)=>{
             if(ok){
                 this.cfpLoadingBar.start();
                 switch (this.allAction){
-                    case "cancel":
+                    case 'cancel':
                         this.service.cancelAll(this.filterObject).subscribe((res)=>{
                             this.mainservice.showMsg($localize `:@@tasks_deleted_param:${res.count}:tasks: tasks deleted successfully!`);
                             this.cfpLoadingBar.complete();
@@ -218,20 +221,20 @@ export class DiffMonitorComponent implements OnInit {
                         });
 
                         break;
-                    case "reschedule":
+                    case 'reschedule':
                         this.cfpLoadingBar.complete();
                         this.deviceService.selectParametersForMatching((res)=>{
                                 if(res){
                                     this.cfpLoadingBar.start();
                                     let filter = Object.assign({},this.filterObject);
-                                    if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
-                                        filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                    if(_.hasIn(res, 'schema_model.newDeviceName') && res.schema_model.newDeviceName != ''){
+                                        filter['newDeviceName'] = res.schema_model.newDeviceName;
                                     }
-                                    if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
-                                        filter["scheduledTime"] = res.schema_model.scheduledTime;
+                                    if(_.hasIn(res, 'schema_model.scheduledTime') && res.schema_model.scheduledTime != ''){
+                                        filter['scheduledTime'] = res.schema_model.scheduledTime;
                                     }
-                                    delete filter["limit"];
-                                    delete filter["offset"];
+                                    delete filter['limit'];
+                                    delete filter['offset'];
                                     this.service.rescheduleAll(filter).subscribe((res)=>{
                                         this.mainservice.showMsg($localize `:@@tasks_rescheduled_param:${res.count}:count: tasks rescheduled successfully!`);
                                         this.cfpLoadingBar.complete();
@@ -244,29 +247,29 @@ export class DiffMonitorComponent implements OnInit {
                             this.devices);
 
                         break;
-                    case "delete":
+                    case 'delete':
                         this.deleteAllTasks(this.filterObject);
                         break;
                 }
                 this.cfpLoadingBar.complete();
             }
-            this.allAction = "";
+            this.allAction = '';
             this.allAction = undefined;
+            this.changeDetector.detectChanges();
         });
     }
     onSubmit(e){
-        console.log("e",e);
+        console.log('e',e);
         if(e.id){
-            if(e.id === "search"){
-                let filter = Object.assign({},this.filterObject);
+            let filter = Object.assign({},this.filterObject);
+            if(e.id === 'search'){
                 if(filter['limit'])
                     filter['limit']++;
                 this.getDiffTasks(filter);
             }
-            if(e.id === "count"){
-                let filter = Object.assign({},this.filterObject);
-                delete filter["limit"];
-                delete filter["offset"];
+            if(e.id === 'count'){
+                delete filter['limit'];
+                delete filter['offset'];
                 this.getDiffTasksCount(filter);
             }
         }
@@ -309,6 +312,7 @@ export class DiffMonitorComponent implements OnInit {
                 this.mainservice.showMsg($localize `:@@diff-monitor.no_diff:No diff tasks found!`);
             }
             this.cfpLoadingBar.complete();
+            this.changeDetector.detectChanges();
         },err=>{
             this.cfpLoadingBar.complete();
             this.httpErrorHandler.handleError(err);
@@ -326,7 +330,7 @@ export class DiffMonitorComponent implements OnInit {
         });
     }
     action(mode, match){
-        console.log("in action",mode,"match",match);
+        console.log('in action',mode,'match',match);
         if(mode && match && match.taskID){
             this.confirm({
                 content: $localize `:@@action_task_question:Are you sure you want to ${Globalvar.getActionText(mode)} this task?`
@@ -338,11 +342,11 @@ export class DiffMonitorComponent implements OnInit {
                                     if(res){
                                         this.cfpLoadingBar.start();
                                         let filter = {};
-                                        if(_.hasIn(res, "schema_model.newDeviceName") && res.schema_model.newDeviceName != ""){
-                                            filter["newDeviceName"] = res.schema_model.newDeviceName;
+                                        if(_.hasIn(res, 'schema_model.newDeviceName') && res.schema_model.newDeviceName != ''){
+                                            filter['newDeviceName'] = res.schema_model.newDeviceName;
                                         }
-                                        if(_.hasIn(res, "schema_model.scheduledTime") && res.schema_model.scheduledTime != ""){
-                                            filter["scheduledTime"] = res.schema_model.scheduledTime;
+                                        if(_.hasIn(res, 'schema_model.scheduledTime') && res.schema_model.scheduledTime != ''){
+                                            filter['scheduledTime'] = res.schema_model.scheduledTime;
                                         }
                                         this.service.reschedule(match.taskID, filter)
                                             .subscribe(
@@ -402,17 +406,18 @@ export class DiffMonitorComponent implements OnInit {
             try{
                 this.count = res.count;
             }catch (e){
-                this.count = "";
+                this.count = '';
             }
             this.initSchema();
             this.cfpLoadingBar.complete();
+            this.changeDetector.detectChanges();
         },(err)=>{
             this.cfpLoadingBar.complete();
             this.httpErrorHandler.handleError(err);
         });
     }
     showDetails(e){
-        console.log("in show details",e);
+        console.log('in show details',e);
         this.batchGrouped = false;
         this.filterObject['batchID'] = e.batchID;
         let filter = Object.assign({},this.filterObject);
@@ -431,7 +436,7 @@ export class DiffMonitorComponent implements OnInit {
         }
     }
     prev(){
-        if(this.filterObject["offset"] > 0){
+        if(this.filterObject['offset'] > 0){
             let filter = Object.assign({},this.filterObject);
             if(filter['limit'])
                 this.filterObject['offset'] = filter['offset'] = filter['offset']*1 - this.filterObject['limit']*1;
@@ -442,7 +447,7 @@ export class DiffMonitorComponent implements OnInit {
         //this.dialogConfig.viewContainerRef = this.viewContainerRef;
         this.dialogRef = this.dialog.open(ConfirmComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.parameters = confirmparameters;
         return this.dialogRef.afterClosed();
@@ -473,10 +478,10 @@ export class DiffMonitorComponent implements OnInit {
                 delete filterClone['limit'];
                 if(!this.mainservice.global.notSecure){
                     // WindowRefService.nativeWindow.open(`../monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`);
-                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`,"diff.csv")
+                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&access_token=${token}&${this.mainservice.param(filterClone)}`,'diff.csv')
                 }else{
                     // WindowRefService.nativeWindow.open(`../monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`);
-                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`,"diff.csv")
+                    j4care.downloadFile(`${j4care.addLastSlash(this.mainservice.baseUrl)}monitor/diff?accept=text/csv${(semicolon?';delimiter=semicolon':'')}&${this.mainservice.param(filterClone)}`,'diff.csv')
                 }
             });
         })
@@ -484,7 +489,7 @@ export class DiffMonitorComponent implements OnInit {
     uploadCsv(){
         this.dialogRef = this.dialog.open(CsvUploadComponent, {
             height: 'auto',
-            width: '500px'
+            width: '510px'
         });
         this.dialogRef.componentInstance.aes = this.aes;
         this.dialogRef.componentInstance.params = {
@@ -494,79 +499,79 @@ export class DiffMonitorComponent implements OnInit {
             batchID:this.filterObject['batchID']||'',
             formSchema:[
                 {
-                    tag:"input",
-                    type:"checkbox",
-                    filterKey:"semicolon",
+                    tag:'input',
+                    type:'checkbox',
+                    filterKey:'semicolon',
                     description:$localize `:@@use_semicolon_as_delimiter:Use semicolon as delimiter`
                 },{
-                    tag:"select",
+                    tag:'select',
                     options:this.aets,
                     showStar:true,
-                    filterKey:"LocalAET",
+                    filterKey:'LocalAET',
                     description:$localize `:@@local_aet:Local AET`,
                     placeholder:$localize `:@@local_aet:Local AET`,
                     validation:Validators.required
                 },{
-                    tag:"select",
+                    tag:'select',
                     options:this.aes,
                     showStar:true,
-                    filterKey:"PrimaryAET",
+                    filterKey:'PrimaryAET',
                     description:$localize `:@@primary_aet:Primary AET`,
                     placeholder:$localize `:@@primary_aet:Primary AET`,
                     validation:Validators.required
                 },{
-                    tag:"select",
+                    tag:'select',
                     options:this.aes,
                     showStar:true,
-                    filterKey:"SecondaryAET",
+                    filterKey:'SecondaryAET',
                     description:$localize `:@@secondary_aet:Secondary AET`,
                     placeholder:$localize `:@@secondary_aet:Secondary AET`,
                     validation:Validators.required
                 },{
-                    tag:"input",
-                    type:"number",
-                    filterKey:"field",
+                    tag:'input',
+                    type:'number',
+                    filterKey:'field',
                     description:$localize `:@@field:Field`,
                     placeholder:$localize `:@@field:Field`,
                     validation:[Validators.minLength(1),Validators.min(1)],
                     defaultValue:1
                 },{
-                    tag:"input",
-                    type:"checkbox",
-                    filterKey:"missing",
+                    tag:'input',
+                    type:'checkbox',
+                    filterKey:'missing',
                     description:$localize `:@@check_missing:Check Missing`
                 },{
-                    tag:"input",
-                    type:"checkbox",
-                    filterKey:"different",
+                    tag:'input',
+                    type:'checkbox',
+                    filterKey:'different',
                     description:$localize `:@@check_different:Check Different`
                 },{
-                    tag:"input",
-                    type:"text",
-                    filterKey:"comparefield",
+                    tag:'input',
+                    type:'text',
+                    filterKey:'comparefield',
                     description:$localize `:@@compare_field:Compare field`,
                     placeholder:$localize `:@@compare_field:Compare field`
                 },{
-                    tag:"input",
-                    type:"checkbox",
-                    filterKey:"ForceQueryByStudyUID",
+                    tag:'input',
+                    type:'checkbox',
+                    filterKey:'ForceQueryByStudyUID',
                     description:$localize `:@@force_query_by_study_uid:Force query by Study UID`
                 },{
-                    tag:"input",
-                    type:"text",
-                    filterKey:"SplitStudyDateRange",
+                    tag:'input',
+                    type:'text',
+                    filterKey:'SplitStudyDateRange',
                     description:$localize `:@@split_study_date_range:Split Study Date Range`,
                     placeholder:$localize `:@@split_study_date_range_duration_format:Split Study Date Range as per duration format`
                 },{
-                    tag:"input",
-                    type:"number",
-                    filterKey:"priority",
+                    tag:'input',
+                    type:'number',
+                    filterKey:'priority',
                     description:$localize `:@@priority:Priority`,
                     placeholder:$localize `:@@priority:Priority`
                 },{
-                    tag:"input",
-                    type:"text",
-                    filterKey:"batchID",
+                    tag:'input',
+                    type:'text',
+                    filterKey:'batchID',
                     description:$localize `:@@batch_id:Batch ID`,
                     placeholder:$localize `:@@batch_id:Batch ID`
                 }
@@ -586,7 +591,7 @@ export class DiffMonitorComponent implements OnInit {
         };
         this.dialogRef.afterClosed().subscribe((ok)=>{
             if(ok){
-                console.log("ok",ok);
+                console.log('ok',ok);
                 //TODO
             }
         });
@@ -613,7 +618,7 @@ export class DiffMonitorComponent implements OnInit {
                 try{
                     this.statusValues[status].count = count.count;
                 }catch (e){
-                    this.statusValues[status].count = "";
+                    this.statusValues[status].count = '';
                 }
             },(err)=>{
                 this.statusValues[status].loader = false;
@@ -622,7 +627,7 @@ export class DiffMonitorComponent implements OnInit {
         });
     }
     keyUp(e){
-        console.log("e",e);
+        console.log('e',e);
         if(e.which === 13){
             this.getCounts();
         }

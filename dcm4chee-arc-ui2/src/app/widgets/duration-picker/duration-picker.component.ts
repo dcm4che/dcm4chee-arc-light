@@ -68,7 +68,7 @@ export class DurationPickerComponent implements OnInit {
         let ptrn = /(\d)(\w)/g;
         try {
             while ((match = ptrn.exec(this.value)) != null) {
-                if(this.mode === "dcmDuration"){
+                if(this.mode === 'dcmDuration'){
                     switch(match[2]) {
                         case 'D':
                             this.d = parseInt(match[1]);
@@ -84,7 +84,7 @@ export class DurationPickerComponent implements OnInit {
                             break;
                     }
                 }else{
-                    if(this.mode === "datePicker"){
+                    if(this.mode === 'datePicker'){
                         switch(match[2]) {
                             case 'D':
                                 this.d = parseInt(match[1]);
@@ -126,7 +126,7 @@ export class DurationPickerComponent implements OnInit {
     }
     generateDuration(){
         let duration = 'P';
-        if(this.mode === "dcmPeriod" && this._isset(this.week) ){
+        if(this.mode === 'dcmPeriod' && this._isset(this.week) ){
             return `P${this.week}W`;
         }else {
             if (this.y) {
@@ -139,7 +139,7 @@ export class DurationPickerComponent implements OnInit {
                 duration = duration + `${this.d}D`;
             }
             if (this.h || this.m || this.s) {
-                duration = duration + "T";
+                duration = duration + 'T';
             }
             if (this.h) {
                 duration = duration + `${this.h}H`;
@@ -151,20 +151,20 @@ export class DurationPickerComponent implements OnInit {
                 duration = duration + `${this.s}S`;
             }
         }
-        if(duration === "P"){
-            return "";
+        if(duration === 'P'){
+            return '';
         }else  return duration;
     }
     close(){
-        this.onValueSet.emit("");
+        this.onValueSet.emit('');
     }
     noWeekChange(){
-        this.week = "";
+        this.week = '';
     }
     weekChanged(){
-        this.y = "";
-        this.month = "";
-        this.d = "";
+        this.y = '';
+        this.month = '';
+        this.d = '';
     }
     onModelChange(e){
         if(this.mode === 'dcmPeriod'){
@@ -225,7 +225,7 @@ export class DurationPickerComponent implements OnInit {
 
     }
     _isset(v){
-        if(v && v != "" && v != null && v != undefined){
+        if(v && v != '' && v != null && v != undefined){
             return true;
         }else{
             return false;
@@ -243,14 +243,14 @@ export class DurationPickerComponent implements OnInit {
                 return `${o.start} ${o.words[0].value} ${(o.words[0].value > 1 ? o.words[0].wordPlural : o.words[0].word)}`
             }else{
                 let msg = `${o.start}`;
-                let firstPart = "";
-                let middlePart = "";
-                let lastPart = "";
+                let firstPart = '';
+                let middlePart = '';
+                let lastPart = '';
                 _.forEach(o.words,(m,i)=>{
                     if(parseInt(i) == o.words.length-1){
                         lastPart = `and ${o.words[i].value} ${(o.words[i].value > 1 ? o.words[i].wordPlural : o.words[i].word)}`;
                     }else{
-                        if(middlePart === "" && firstPart === ""){
+                        if(middlePart === '' && firstPart === ''){
                             firstPart = `${o.words[i].value} ${(o.words[i].value > 1 ? o.words[i].wordPlural : o.words[i].word)} `;
                         }else{
                             middlePart = middlePart + `, ${o.words[i].value} ${(o.words[i].value > 1 ? o.words[i].wordPlural : o.words[i].word)} `;
@@ -260,7 +260,7 @@ export class DurationPickerComponent implements OnInit {
                 return `${msg} ${firstPart}${middlePart} ${lastPart}`;
             }
         }else{
-            return "";
+            return '';
         }
     }
 
