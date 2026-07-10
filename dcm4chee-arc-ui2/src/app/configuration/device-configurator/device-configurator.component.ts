@@ -548,6 +548,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                             setTimeout(() => {
                                 $this.showForm = true;
                                 $this.cfpLoadingBar.complete();
+                                this.changeDetector.detectChanges();
                             }, 1);
                         }, (err) => {
                             $this.cfpLoadingBar.complete();
@@ -561,6 +562,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     setTimeout(() => {
                         $this.showForm = true;
                         $this.cfpLoadingBar.complete();
+                        this.changeDetector.detectChanges();
                     }, 1);
                     // this._changeDetectionRef.detectChanges();
 
@@ -665,6 +667,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                     setTimeout(() => {
                         $this.showForm = true;
                         $this.cfpLoadingBar.complete();
+                        this.changeDetector.detectChanges();
                     }, 1);
                     this.changeDetector.detectChanges();
                 }, (err) => {
@@ -679,6 +682,7 @@ export class DeviceConfiguratorComponent implements OnInit, OnDestroy {
                 setTimeout(() => {
                     $this.showForm = true;
                     $this.cfpLoadingBar.complete();
+                    this.changeDetector.detectChanges();
                 }, 1);
                 // this._changeDetectionRef.detectChanges();
 
