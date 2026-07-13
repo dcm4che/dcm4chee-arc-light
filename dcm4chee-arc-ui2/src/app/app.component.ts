@@ -576,7 +576,7 @@ export class AppComponent implements OnInit {
                         );
                     this.changeDetector.detectChanges();
                 }, (err) => {
-                    console.log('---------err', err);
+                    console.error('Err on getting the Device name:', err);
                     if (retries) {
                         $this.initGetDevicename(retries - 1);
                     }
