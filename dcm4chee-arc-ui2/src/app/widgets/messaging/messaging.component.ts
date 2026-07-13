@@ -1,4 +1,4 @@
-import {Component, OnDestroy} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
 import {AppService} from '../../app.service';
 import {Subscription} from 'rxjs';
 import {InfoComponent} from '../dialogs/info/info.component';
@@ -35,10 +35,12 @@ export class MessagingComponent implements OnDestroy{
     dialogRef: MatDialogRef<any>;
     constructor(
         private mainservice: AppService,
-        public dialog: MatDialog
+        public dialog: MatDialog,
+        private changeDetector: ChangeDetectorRef
     ){
         this.subscription = this.mainservice.messageSet$.subscribe(msg => {
             console.log('msg in subscribe messagecomponent ', msg);
+
             this.setMsg(msg);
         });
     }
@@ -91,6 +93,7 @@ export class MessagingComponent implements OnDestroy{
             this.msg.push(msg);
             this.msgCounter(id, timeout);
         }
+        this.changeDetector.detectChanges();
     }
 
     private removeMsgFromArray(id) {
