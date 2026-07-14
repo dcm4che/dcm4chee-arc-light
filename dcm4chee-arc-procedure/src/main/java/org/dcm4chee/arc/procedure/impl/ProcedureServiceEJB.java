@@ -388,7 +388,7 @@ public class ProcedureServiceEJB {
                             .setParameter(1, ctx.getStudyInstanceUIDInstRefs())
                             .getResultList();
         else
-            seriesList = arcDev.getMergeDelayedMWLMatchingKey() == MergeDelayedMWLMatchingKey.AccessionNumber
+            seriesList = arcDev.getHL7MergeCompositeObjectMatchingKey() == HL7MergeCompositeObjectMatchingKey.AccessionNumber
                             ? em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_ACCESSION_NO_EAGER, Series.class)
                                 .setParameter(1, ctx.getAttributes().getString(Tag.AccessionNumber))
                                 .getResultList()
@@ -405,6 +405,7 @@ public class ProcedureServiceEJB {
         AttributeFilter studyFilter = arcDev.getAttributeFilter(Entity.Study);
         LOG.info("Update attributes of Study[uid={}], triggered by {}", study.getStudyInstanceUID(), ctx);
         Attributes.unifyCharacterSets(studyAttr, mwlAttr);
+        mwlAttr.remove(Tag.StudyInstanceUID);
         if (studyAttr.updateSelected(Attributes.UpdatePolicy.MERGE,
                 mwlAttr, modified, studyFilter.getSelection())) {
             modified.setString(Tag.StudyDescription, VR.LO, studyAttr.getString(Tag.StudyDescription));
@@ -415,7 +416,8 @@ public class ProcedureServiceEJB {
                 studyAttr.setString(Tag.StudyInstanceUID, VR.UI, ctx.getStudyInstanceUIDInstRefs());
                 modified.remove(Tag.StudyInstanceUID);
             }
-            study.setAttributes(recordAttributeModification(ctx)
+            boolean recordAttributeModification = recordAttributeModification(ctx);
+            study.setAttributes(recordAttributeModification
                     ? studyAttr.addOriginalAttributes(
                         null,
                         now,

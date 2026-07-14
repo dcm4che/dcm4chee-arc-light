@@ -17,7 +17,7 @@
  *
  * The Initial Developer of the Original Code is
  * J4Care.
- * Portions created by the Initial Developer are Copyright (C) 2015-2020
+ * Portions created by the Initial Developer are Copyright (C) 2015-2026
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
@@ -44,6 +44,6 @@ package org.dcm4chee.arc.conf;
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
  * @since July 2026
  */
-public enum MergeDelayedMWLMatchingKey {
+public enum HL7MergeCompositeObjectMatchingKey {
     AccessionNumber, StudyInstanceUID
 }

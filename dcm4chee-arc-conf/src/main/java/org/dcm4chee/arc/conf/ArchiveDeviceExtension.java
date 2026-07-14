@@ -223,7 +223,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int storePermissionCacheSize = 10;
     private volatile Duration mergeMWLCacheStaleTimeout;
     private volatile int mergeMWLCacheSize = 10;
-    private volatile MergeDelayedMWLMatchingKey mergeDelayedMWLMatchingKey = MergeDelayedMWLMatchingKey.StudyInstanceUID;
     private volatile int storeUpdateDBMaxRetries = 3;
     private volatile int storeUpdateDBMaxRetryDelay = 1000;
     private volatile int storeUpdateDBMinRetryDelay = 500;
@@ -326,6 +325,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile HL7OtherPatientIDs hl7OtherPatientIDs = HL7OtherPatientIDs.OTHER;
     private volatile HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy = HL7OrderMissingStudyIUIDPolicy.GENERATE;
     private volatile HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy = HL7OrderMissingAdmissionIDPolicy.ACCEPT;
+    private volatile HL7MergeCompositeObjectMatchingKey hl7MergeCompositeObjectMatchingKey = HL7MergeCompositeObjectMatchingKey.StudyInstanceUID;
     private volatile HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy =
             HL7ImportReportMissingAdmissionIDPolicy.ACCEPT;
     private volatile HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy =
@@ -1676,12 +1676,12 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.mergeMWLCacheSize = greaterZero(mergeMWLCacheSize, "mergeMWLCacheSize");
     }
 
-    public MergeDelayedMWLMatchingKey getMergeDelayedMWLMatchingKey() {
-        return mergeDelayedMWLMatchingKey;
+    public HL7MergeCompositeObjectMatchingKey getHL7MergeCompositeObjectMatchingKey() {
+        return hl7MergeCompositeObjectMatchingKey;
     }
 
-    public void setMergeDelayedMWLMatchingKey(MergeDelayedMWLMatchingKey mergeDelayedMWLMatchingKey) {
-        this.mergeDelayedMWLMatchingKey = mergeDelayedMWLMatchingKey;
+    public void setHL7MergeCompositeObjectMatchingKey(HL7MergeCompositeObjectMatchingKey hl7MergeCompositeObjectMatchingKey) {
+        this.hl7MergeCompositeObjectMatchingKey = hl7MergeCompositeObjectMatchingKey;
     }
 
     public int getStoreUpdateDBMaxRetries() {
@@ -4092,7 +4092,6 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storePermissionCacheSize = arcdev.storePermissionCacheSize;
         mergeMWLCacheStaleTimeout = arcdev.mergeMWLCacheStaleTimeout;
         mergeMWLCacheSize = arcdev.mergeMWLCacheSize;
-        mergeDelayedMWLMatchingKey = arcdev.mergeDelayedMWLMatchingKey;
         storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
         storeUpdateDBMaxRetryDelay = arcdev.storeUpdateDBMaxRetryDelay;
         storeUpdateDBMinRetryDelay = arcdev.storeUpdateDBMinRetryDelay;
@@ -4194,6 +4193,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7OtherPatientIDs = arcdev.hl7OtherPatientIDs;
         hl7OrderMissingStudyIUIDPolicy = arcdev.hl7OrderMissingStudyIUIDPolicy;
         hl7OrderMissingAdmissionIDPolicy = arcdev.hl7OrderMissingAdmissionIDPolicy;
+        hl7MergeCompositeObjectMatchingKey = arcdev.hl7MergeCompositeObjectMatchingKey;
         hl7ImportReportMissingStudyIUIDPolicy = arcdev.hl7ImportReportMissingStudyIUIDPolicy;
         hl7ImportReportMissingAdmissionIDPolicy = arcdev.hl7ImportReportMissingAdmissionIDPolicy;
         hl7ImportReportMissingStudyIUIDCFindSCP = arcdev.hl7ImportReportMissingStudyIUIDCFindSCP;

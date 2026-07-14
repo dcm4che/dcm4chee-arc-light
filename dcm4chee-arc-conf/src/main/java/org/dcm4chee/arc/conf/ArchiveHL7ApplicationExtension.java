@@ -70,6 +70,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private HL7OtherPatientIDs hl7OtherPatientIDs;
     private HL7OrderMissingStudyIUIDPolicy hl7OrderMissingStudyIUIDPolicy;
     private HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy;
+    private HL7MergeCompositeObjectMatchingKey hl7MergeCompositeObjectMatchingKey;
     private HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy;
     private HL7ImportReportMissingAdmissionIDPolicy hl7ImportReportMissingAdmissionIDPolicy;
     private String hl7ImportReportMissingStudyIUIDCFindSCP;
@@ -124,6 +125,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7OtherPatientIDs = arcapp.hl7OtherPatientIDs;
         hl7OrderMissingStudyIUIDPolicy = arcapp.hl7OrderMissingStudyIUIDPolicy;
         hl7OrderMissingAdmissionIDPolicy = arcapp.hl7OrderMissingAdmissionIDPolicy;
+        hl7MergeCompositeObjectMatchingKey = arcapp.hl7MergeCompositeObjectMatchingKey;
         hl7ImportReportMissingStudyIUIDPolicy = arcapp.hl7ImportReportMissingStudyIUIDPolicy;
         hl7ImportReportMissingAdmissionIDPolicy = arcapp.hl7ImportReportMissingAdmissionIDPolicy;
         hl7ImportReportAdjustIUID = arcapp.hl7ImportReportAdjustIUID;
@@ -611,6 +613,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
 
     public void setHl7OrderMissingAdmissionIDPolicy(HL7OrderMissingAdmissionIDPolicy hl7OrderMissingAdmissionIDPolicy) {
         this.hl7OrderMissingAdmissionIDPolicy = hl7OrderMissingAdmissionIDPolicy;
+    }
+
+    public HL7MergeCompositeObjectMatchingKey hl7MergeCompositeObjectMatchingKey() {
+        return hl7MergeCompositeObjectMatchingKey != null
+                ? hl7MergeCompositeObjectMatchingKey
+                : getArchiveDeviceExtension().getHL7MergeCompositeObjectMatchingKey();
+    }
+
+    public HL7MergeCompositeObjectMatchingKey getHL7MergeCompositeObjectMatchingKey() {
+        return hl7MergeCompositeObjectMatchingKey;
+    }
+
+    public void setHL7MergeCompositeObjectMatchingKey(HL7MergeCompositeObjectMatchingKey hl7MergeCompositeObjectMatchingKey) {
+        this.hl7MergeCompositeObjectMatchingKey = hl7MergeCompositeObjectMatchingKey;
     }
 
     public HL7ImportReportMissingStudyIUIDPolicy hl7ImportReportMissingStudyIUIDPolicy() {

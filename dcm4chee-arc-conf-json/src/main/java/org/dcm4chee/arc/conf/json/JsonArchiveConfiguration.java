@@ -230,8 +230,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getMergeMWLCacheStaleTimeout(), null);
         writer.writeNotDef("dcmMergeMWLCacheSize",
                 arcDev.getMergeMWLCacheSize(), 10);
-        writer.writeNotNullOrDef("dcmMergeDelayedMWLMatchingKey",
-                arcDev.getMergeDelayedMWLMatchingKey(), MergeDelayedMWLMatchingKey.StudyInstanceUID);
         writer.writeNotDef("dcmStoreUpdateDBMaxRetries", arcDev.getStoreUpdateDBMaxRetries(), 3);
         writer.writeNotDef("dcmStoreUpdateDBMinRetryDelay", arcDev.getStoreUpdateDBMinRetryDelay(), 500);
         writer.writeNotDef("dcmStoreUpdateDBMaxRetryDelay", arcDev.getStoreUpdateDBMaxRetryDelay(), 1000);
@@ -391,6 +389,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 HL7OrderMissingStudyIUIDPolicy.GENERATE);
         writer.writeNotNullOrDef("hl7OrderMissingAdmissionIDPolicy", arcDev.getHl7OrderMissingAdmissionIDPolicy(),
                 HL7OrderMissingAdmissionIDPolicy.ACCEPT);
+        writer.writeNotNullOrDef("hl7MergeCompositeObjectMatchingKey",
+                arcDev.getHL7MergeCompositeObjectMatchingKey(), HL7MergeCompositeObjectMatchingKey.StudyInstanceUID);
         writer.writeNotNullOrDef("hl7ImportReportMissingStudyIUIDPolicy",
                 arcDev.getHl7ImportReportMissingStudyIUIDPolicy(), HL7ImportReportMissingStudyIUIDPolicy.GENERATE);
         writer.writeNotNullOrDef("hl7ImportReportMissingAdmissionIDPolicy",
@@ -1886,9 +1886,6 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 case "dcmMergeMWLCacheSize":
                     arcDev.setMergeMWLCacheSize(reader.intValue());
                     break;
-                case "dcmMergeDelayedMWLMatchingKey":
-                    arcDev.setMergeDelayedMWLMatchingKey(MergeDelayedMWLMatchingKey.valueOf(reader.stringValue()));
-                    break;
                 case "dcmStoreUpdateDBMaxRetries":
                     arcDev.setStoreUpdateDBMaxRetries(reader.intValue());
                     break;
@@ -2225,6 +2222,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "hl7OrderMissingAdmissionIDPolicy":
                     arcDev.setHl7OrderMissingAdmissionIDPolicy(HL7OrderMissingAdmissionIDPolicy.valueOf(reader.stringValue()));
+                    break;
+                case "hl7MergeCompositeObjectMatchingKey":
+                    arcDev.setHL7MergeCompositeObjectMatchingKey(HL7MergeCompositeObjectMatchingKey.valueOf(reader.stringValue()));
                     break;
                 case "hl7ImportReportMissingStudyIUIDPolicy":
                     arcDev.setHl7ImportReportMissingStudyIUIDPolicy(

@@ -482,6 +482,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHl7OrderMissingStudyIUIDPolicy(), HL7OrderMissingStudyIUIDPolicy.GENERATE);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7OrderMissingAdmissionIDPolicy",
                 ext.getHl7OrderMissingAdmissionIDPolicy(), HL7OrderMissingAdmissionIDPolicy.ACCEPT);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7MergeCompositeObjectMatchingKey",
+                ext.getHL7MergeCompositeObjectMatchingKey(), HL7MergeCompositeObjectMatchingKey.StudyInstanceUID);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportMissingStudyIUIDPolicy",
                 ext.getHl7ImportReportMissingStudyIUIDPolicy(), HL7ImportReportMissingStudyIUIDPolicy.GENERATE);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7ImportReportMissingAdmissionIDPolicy",
@@ -918,6 +920,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setHl7OrderMissingAdmissionIDPolicy(
                 LdapUtils.enumValue(HL7OrderMissingAdmissionIDPolicy.class,
                         attrs.get("hl7OrderMissingAdmissionIDPolicy"), HL7OrderMissingAdmissionIDPolicy.ACCEPT));
+        ext.setHL7MergeCompositeObjectMatchingKey(
+                LdapUtils.enumValue(HL7MergeCompositeObjectMatchingKey.class,
+                        attrs.get("hl7MergeCompositeObjectMatchingKey"), HL7MergeCompositeObjectMatchingKey.StudyInstanceUID));
         ext.setHl7ImportReportMissingStudyIUIDPolicy(
                 LdapUtils.enumValue(HL7ImportReportMissingStudyIUIDPolicy.class,
                         attrs.get("hl7ImportReportMissingStudyIUIDPolicy"), HL7ImportReportMissingStudyIUIDPolicy.GENERATE));
@@ -1571,6 +1576,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7OrderMissingAdmissionIDPolicy",
                 aa.getHl7OrderMissingAdmissionIDPolicy(), bb.getHl7OrderMissingAdmissionIDPolicy(),
                 HL7OrderMissingAdmissionIDPolicy.ACCEPT);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7MergeCompositeObjectMatchingKey",
+                aa.getHL7MergeCompositeObjectMatchingKey(), bb.getHL7MergeCompositeObjectMatchingKey(),
+                HL7MergeCompositeObjectMatchingKey.StudyInstanceUID);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7ImportReportMissingStudyIUIDPolicy",
                 aa.getHl7ImportReportMissingStudyIUIDPolicy(), bb.getHl7ImportReportMissingStudyIUIDPolicy(),
                 HL7ImportReportMissingStudyIUIDPolicy.GENERATE);
