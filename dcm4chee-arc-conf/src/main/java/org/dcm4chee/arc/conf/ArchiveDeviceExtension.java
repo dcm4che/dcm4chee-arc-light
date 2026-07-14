@@ -223,6 +223,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile int storePermissionCacheSize = 10;
     private volatile Duration mergeMWLCacheStaleTimeout;
     private volatile int mergeMWLCacheSize = 10;
+    private volatile MergeDelayedMWLMatchingKey mergeDelayedMWLMatchingKey = MergeDelayedMWLMatchingKey.StudyInstanceUID;
     private volatile int storeUpdateDBMaxRetries = 3;
     private volatile int storeUpdateDBMaxRetryDelay = 1000;
     private volatile int storeUpdateDBMinRetryDelay = 500;
@@ -1673,6 +1674,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setMergeMWLCacheSize(int mergeMWLCacheSize) {
         this.mergeMWLCacheSize = greaterZero(mergeMWLCacheSize, "mergeMWLCacheSize");
+    }
+
+    public MergeDelayedMWLMatchingKey getMergeDelayedMWLMatchingKey() {
+        return mergeDelayedMWLMatchingKey;
+    }
+
+    public void setMergeDelayedMWLMatchingKey(MergeDelayedMWLMatchingKey mergeDelayedMWLMatchingKey) {
+        this.mergeDelayedMWLMatchingKey = mergeDelayedMWLMatchingKey;
     }
 
     public int getStoreUpdateDBMaxRetries() {
@@ -4083,6 +4092,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         storePermissionCacheSize = arcdev.storePermissionCacheSize;
         mergeMWLCacheStaleTimeout = arcdev.mergeMWLCacheStaleTimeout;
         mergeMWLCacheSize = arcdev.mergeMWLCacheSize;
+        mergeDelayedMWLMatchingKey = arcdev.mergeDelayedMWLMatchingKey;
         storeUpdateDBMaxRetries = arcdev.storeUpdateDBMaxRetries;
         storeUpdateDBMaxRetryDelay = arcdev.storeUpdateDBMaxRetryDelay;
         storeUpdateDBMinRetryDelay = arcdev.storeUpdateDBMinRetryDelay;

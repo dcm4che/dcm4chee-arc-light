@@ -87,6 +87,13 @@ import java.util.stream.Stream;
                 "join fetch st.attributesBlob " +
                 "where st.studyInstanceUID = ?1 "),
 @NamedQuery(
+        name=Series.FIND_SERIES_OF_STUDY_BY_ACCESSION_NO_EAGER,
+        query="select se from Series se " +
+                "join fetch se.study st " +
+                "join fetch se.attributesBlob " +
+                "join fetch st.attributesBlob " +
+                "where st.accessionNumber = ?1 "),
+@NamedQuery(
     name=Series.FIND_BY_SERIES_IUID_EAGER,
     query="select se from Series se " +
             "join fetch se.study st " +
@@ -365,6 +372,7 @@ public class Series {
     public static final String FIND_BY_SERIES_IUID = "Series.findBySeriesIUID";
     public static final String ATTRS_BY_SERIES_IUID = "Series.attrsBySeriesIUID";
     public static final String FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER = "Series.findSeriesOfStudyByStudyIUIDEager";
+    public static final String FIND_SERIES_OF_STUDY_BY_ACCESSION_NO_EAGER = "Series.findSeriesOfStudyByAccessionNoEager";
     public static final String FIND_BY_SERIES_IUID_EAGER = "Series.findBySeriesIUIDEager";
     public static final String COUNT_SERIES_OF_STUDY = "Series.countSeriesOfStudy";
     public static final String SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE = "Series.seriesPKsOfStudyWithUnknownSize";

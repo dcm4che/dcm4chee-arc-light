@@ -382,11 +382,19 @@ public class ProcedureServiceEJB {
     public void updateStudySeriesAttributesFromMWL(ProcedureContext ctx) {
         ArchiveDeviceExtension arcDev = getArchiveDeviceExtension();
         Attributes mwlAttr = ctx.getAttributes();
-        List<Series> seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
-                                    .setParameter(1, ctx.getStudyInstanceUIDInstRefs() == null
-                                                                ? ctx.getStudyInstanceUID()
-                                                                : ctx.getStudyInstanceUIDInstRefs())
-                                    .getResultList();
+        List<Series> seriesList;
+        if (ctx.getStudyInstanceUIDInstRefs() != null)
+            seriesList = em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
+                            .setParameter(1, ctx.getStudyInstanceUIDInstRefs())
+                            .getResultList();
+        else
+            seriesList = arcDev.getMergeDelayedMWLMatchingKey() == MergeDelayedMWLMatchingKey.AccessionNumber
+                            ? em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_ACCESSION_NO_EAGER, Series.class)
+                                .setParameter(1, ctx.getAttributes().getString(Tag.AccessionNumber))
+                                .getResultList()
+                            : em.createNamedQuery(Series.FIND_SERIES_OF_STUDY_BY_STUDY_IUID_EAGER, Series.class)
+                                .setParameter(1, ctx.getStudyInstanceUID())
+                                .getResultList();;
         if (seriesList.isEmpty())
             return;
 

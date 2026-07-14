@@ -230,6 +230,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getMergeMWLCacheStaleTimeout(), null);
         writer.writeNotDef("dcmMergeMWLCacheSize",
                 arcDev.getMergeMWLCacheSize(), 10);
+        writer.writeNotNullOrDef("dcmMergeDelayedMWLMatchingKey",
+                arcDev.getMergeDelayedMWLMatchingKey(), MergeDelayedMWLMatchingKey.StudyInstanceUID);
         writer.writeNotDef("dcmStoreUpdateDBMaxRetries", arcDev.getStoreUpdateDBMaxRetries(), 3);
         writer.writeNotDef("dcmStoreUpdateDBMinRetryDelay", arcDev.getStoreUpdateDBMinRetryDelay(), 500);
         writer.writeNotDef("dcmStoreUpdateDBMaxRetryDelay", arcDev.getStoreUpdateDBMaxRetryDelay(), 1000);
@@ -1883,6 +1885,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmMergeMWLCacheSize":
                     arcDev.setMergeMWLCacheSize(reader.intValue());
+                    break;
+                case "dcmMergeDelayedMWLMatchingKey":
+                    arcDev.setMergeDelayedMWLMatchingKey(MergeDelayedMWLMatchingKey.valueOf(reader.stringValue()));
                     break;
                 case "dcmStoreUpdateDBMaxRetries":
                     arcDev.setStoreUpdateDBMaxRetries(reader.intValue());
