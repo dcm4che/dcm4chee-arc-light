@@ -266,8 +266,8 @@ class StoreSessionImpl implements StoreSession {
     @Override
     public String getReceivingPresentationAddress() {
         return httpRequest != null ? toReceivingPresentationAddress(httpRequest)
-                : as != null ? "dicom:" + conn.getHostname() + ":" + conn.getPort()
-                : hl7App != null ? "mllp:" + conn.getHostname() + ":" + conn.getPort()
+                : as != null ? "dicom:" + ReverseDNS.hostNameOf(socket.getLocalAddress()) + ":" + socket.getLocalPort()
+                : hl7App != null ? "mllp:" + ReverseDNS.hostNameOf(socket.getLocalAddress()) + ":" + socket.getLocalPort()
                 : null;
     }
 
