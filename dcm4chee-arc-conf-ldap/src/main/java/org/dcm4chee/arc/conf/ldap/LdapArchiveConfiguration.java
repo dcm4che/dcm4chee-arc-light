@@ -1954,6 +1954,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getPurgeInstanceRecordsDelay(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmStoreAccessControlID", ext.getStoreAccessControlIDs());
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmAccessControlID", ext.getAccessControlIDs());
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmGrantAccessPrevStudiesOfPatient", ext.getGrantAccessPrevStudiesOfPatient(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmOverwritePolicy", ext.getOverwritePolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRelationalMismatchPolicy",
                 ext.getRelationalMismatchPolicy(), null);
@@ -2168,6 +2169,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setPurgeInstanceRecordsDelay(toDuration(attrs.get("dcmPurgeInstanceRecordsDelay"), null));
         ext.setStoreAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmStoreAccessControlID")));
         ext.setAccessControlIDs(LdapUtils.stringArray(attrs.get("dcmAccessControlID")));
+        ext.setGrantAccessPrevStudiesOfPatient(toPeriod(attrs.get("dcmGrantAccessPrevStudiesOfPatient")));
         ext.setOverwritePolicy(LdapUtils.enumValue(OverwritePolicy.class, attrs.get("dcmOverwritePolicy"), null));
         ext.setRelationalMismatchPolicy(LdapUtils.enumValue(
                 RelationalMismatchPolicy.class, attrs.get("dcmRelationalMismatchPolicy"), null));
@@ -2372,6 +2374,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getStoreAccessControlIDs(), bb.getStoreAccessControlIDs());
         LdapUtils.storeDiff(ldapObj, mods, "dcmAccessControlID",
                 aa.getAccessControlIDs(), bb.getAccessControlIDs());
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmGrantAccessPrevStudiesOfPatient",
+                aa.getGrantAccessPrevStudiesOfPatient(), bb.getGrantAccessPrevStudiesOfPatient(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmOverwritePolicy",
                 aa.getOverwritePolicy(), bb.getOverwritePolicy(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRelationalMismatchPolicy",

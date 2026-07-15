@@ -44,6 +44,7 @@ import org.dcm4che3.data.Code;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.soundex.FuzzyStr;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.ExpirationState;
 import org.dcm4chee.arc.entity.Patient;
@@ -71,6 +72,7 @@ public class QueryParam {
     private boolean compressionfailed;
     private boolean template;
     private boolean merged;
+    private boolean ignoreAEAccessControlIDs;
     private String[] accessControlIDs = {};
     private String accessControlIDNot;
     private String externalRetrieveAET;
@@ -109,7 +111,7 @@ public class QueryParam {
     }
 
     public String[] getAEAccessControlIDs() {
-        return arcAE.getAccessControlIDs();
+        return ignoreAEAccessControlIDs ? StringUtils.EMPTY_STRING : arcAE.getAccessControlIDs();
     }
 
     public SPSStatus[] getHideSPSWithStatusFromMWL() {
@@ -238,6 +240,14 @@ public class QueryParam {
 
     public void setCompressionFailed(boolean compressionfailed) {
         this.compressionfailed = compressionfailed;
+    }
+
+    public boolean isIgnoreAEAccessControlIDs() {
+        return ignoreAEAccessControlIDs;
+    }
+
+    public void setIgnoreAEAccessControlIDs(boolean ignoreAEAccessControlIDs) {
+        this.ignoreAEAccessControlIDs = ignoreAEAccessControlIDs;
     }
 
     public String[] getAccessControlIDs() {

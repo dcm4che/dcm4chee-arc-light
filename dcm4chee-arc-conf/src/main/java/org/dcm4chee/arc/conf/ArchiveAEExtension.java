@@ -80,6 +80,7 @@ public class ArchiveAEExtension extends AEExtension {
     private Duration purgeInstanceRecordsDelay;
     private String[] storeAccessControlIDs = {};
     private String[] accessControlIDs = {};
+    private Period grantAccessPrevStudiesOfPatient;
     private OverwritePolicy overwritePolicy;
     private RelationalMismatchPolicy relationalMismatchPolicy;
     private Boolean recordAttributeModification;
@@ -399,6 +400,14 @@ public class ArchiveAEExtension extends AEExtension {
 
     public void setAccessControlIDs(String[] accessControlIDs) {
         this.accessControlIDs = accessControlIDs;
+    }
+
+    public Period getGrantAccessPrevStudiesOfPatient() {
+        return grantAccessPrevStudiesOfPatient;
+    }
+
+    public void setGrantAccessPrevStudiesOfPatient(Period grantAccessPrevStudiesOfPatient) {
+        this.grantAccessPrevStudiesOfPatient = grantAccessPrevStudiesOfPatient;
     }
 
     public OverwritePolicy getOverwritePolicy() {
@@ -2169,6 +2178,7 @@ public class ArchiveAEExtension extends AEExtension {
         purgeInstanceRecordsDelay = aeExt.purgeInstanceRecordsDelay;
         storeAccessControlIDs = aeExt.storeAccessControlIDs;
         accessControlIDs = aeExt.accessControlIDs;
+        grantAccessPrevStudiesOfPatient = aeExt.grantAccessPrevStudiesOfPatient;
         overwritePolicy = aeExt.overwritePolicy;
         relationalMismatchPolicy = aeExt.relationalMismatchPolicy;
         recordAttributeModification = aeExt.recordAttributeModification;

@@ -55,6 +55,10 @@ import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 import java.util.*;
 import java.util.function.Function;
 
@@ -2031,6 +2035,13 @@ public class QueryBuilder {
                         cb.or(
                                 cb.lessThanOrEqualTo(timePath, endTime),
                                 cb.equal(timePath, "*"))));
+    }
+
+    public <Z> Predicate studyNotOlderThan(From<Z, Study> study, Period period) {
+        LocalDateTime now = (LocalDateTime) period.subtractFrom(LocalDateTime.now());
+        return combinedRangeStart(study.get(Study_.studyDate), study.get(Study_.studyTime),
+                now.format(DateTimeFormatter.BASIC_ISO_DATE),
+                now.format(DateTimeFormatter.ofPattern("HHmmss.SSS")));
     }
 
     private Predicate combinedRangeStart(Path<String> datePath, Path<String> timePath,

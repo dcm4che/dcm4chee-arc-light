@@ -357,6 +357,18 @@ public class QueryServiceEJB {
         return attrs;
     }
 
+    public long countRecentStudiesOfPatient(QueryContext ctx) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Study> study = q.from(Study.class);
+        QueryBuilder builder = new QueryBuilder(cb);
+        List<Predicate> predicates = new ArrayList<>();
+        builder.patientIDPredicate(predicates, q, study.join(Study_.patient), ctx.getPatientIDs());
+        builder.accessControl(predicates, study, ctx.getArchiveAEExtension().getAccessControlIDs());
+        predicates.add(builder.studyNotOlderThan(study, ctx.getArchiveAEExtension().getGrantAccessPrevStudiesOfPatient()));
+        return em.createQuery(q.where(predicates.toArray(new Predicate[0])).select(cb.count(study))).getSingleResult();
+    }
+
     public enum SOPInstanceRefsType { IAN, KOS_IOCM, KOS_XDSI, STGCMT, UPS }
 
     public Attributes getStudyAttributesWithSOPInstanceRefs(

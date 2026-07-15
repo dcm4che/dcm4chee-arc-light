@@ -285,6 +285,7 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public Query createStudyQuery(QueryContext ctx) {
+        ctx.getQueryParam().setIgnoreAEAccessControlIDs(grantAccessPrevStudiesOfPatient(ctx));
         return new StudyQuery(ctx, em, codeCache);
     }
 
@@ -381,6 +382,13 @@ class QueryServiceImpl implements QueryService {
         return purgeState == Series.InstancePurgeState.PURGED
                 ? calculateSeriesQueryAttributes(seriesPk, storageID, storagePath, qrView)
                 : calculateSeriesQueryAttributes(seriesPk, qrView);
+    }
+
+    private boolean grantAccessPrevStudiesOfPatient(QueryContext ctx) {
+        return ctx.getPatientIDs().length > 0
+                && ctx.getArchiveAEExtension().getAccessControlIDs().length > 0
+                && ctx.getArchiveAEExtension().getGrantAccessPrevStudiesOfPatient() != null
+                && ejb.countRecentStudiesOfPatient(ctx) > 0L;
     }
 
     private SeriesQueryAttributes calculateSeriesQueryAttributes(

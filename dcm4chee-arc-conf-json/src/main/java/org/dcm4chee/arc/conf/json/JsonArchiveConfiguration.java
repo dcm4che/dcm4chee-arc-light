@@ -1369,6 +1369,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("dcmPurgeInstanceRecordsDelay", arcAE.getPurgeInstanceRecordsDelay(), null);
         writer.writeNotEmpty("dcmStoreAccessControlID", arcAE.getStoreAccessControlIDs());
         writer.writeNotEmpty("dcmAccessControlID", arcAE.getAccessControlIDs());
+        writer.writeNotNullOrDef("dcmGrantAccessPrevStudiesOfPatient", arcAE.getGrantAccessPrevStudiesOfPatient(), null);
         writer.writeNotNullOrDef("dcmOverwritePolicy", arcAE.getOverwritePolicy(), null);
         writer.writeNotNullOrDef("dcmRelationalMismatchPolicy", arcAE.getRelationalMismatchPolicy(), null);
         writer.writeNotNull("dcmRecordAttributeModification", arcAE.getRecordAttributeModification());
@@ -4440,6 +4441,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAccessControlID":
                     arcAE.setAccessControlIDs(reader.stringArray());
+                    break;
+                case "dcmGrantAccessPrevStudiesOfPatient":
+                    arcAE.setGrantAccessPrevStudiesOfPatient(Period.parse(reader.stringValue()));
                     break;
                 case "dcmOverwritePolicy":
                     arcAE.setOverwritePolicy(OverwritePolicy.valueOf(reader.stringValue()));
