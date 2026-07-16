@@ -1050,8 +1050,14 @@ export class UploadFilesComponent implements OnInit {
                         $this.percentComplete[file.name]['showLoader'] = false;
                         console.log(`in response error`, xmlHttpRequest.status);
                         console.log('statusText', xmlHttpRequest.statusText);
+                        console.log('xmlHttpRequest', xmlHttpRequest);
+                        let warning;
+                        try{
+                            warning = xmlHttpRequest.getResponseHeader('Warning');
+                            console.log('Warning Header:', warning);
+                        }catch (e) {}
                         $this.percentComplete[file.name]['value'] = 0;
-                        $this.percentComplete[file.name]['status'] = xmlHttpRequest.status + ` ` + xmlHttpRequest.statusText;
+                        $this.percentComplete[file.name]['status'] = warning ? warning : (xmlHttpRequest.status + ` ` + xmlHttpRequest.statusText);
                     }
                     $this.changeDetector.detectChanges();
                 }
