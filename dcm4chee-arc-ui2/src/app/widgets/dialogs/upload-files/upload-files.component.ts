@@ -20,6 +20,7 @@ import {CommonModule} from '@angular/common';
 import {EditStudyComponent} from '../edit-study/edit-study.component';
 import {MatProgressBar} from '@angular/material/progress-bar';
 import {FormsModule} from '@angular/forms';
+import {HttpErrorHandler} from "../../../helpers/http-error-handler";
 // import {StudyWebService} from '../../../study/study/study-web-service.model';
 
 // declare var uuidv4: any;
@@ -204,13 +205,16 @@ export class UploadFilesComponent implements OnInit {
         ["00400275.Value[0].00400008", "00400100.Value[0].00400008"],
         ["00400275.Value[0].00400009", "00400100.Value[0].00400009"]
     ];
-    constructor(public dialogRef: MatDialogRef<UploadFilesComponent>,
+    constructor(
+        public dialogRef: MatDialogRef<UploadFilesComponent>,
         public mainservice:AppService,
         public $http:J4careHttpService,
         private studyService:StudyService,
         private _keycloakService: KeycloakService,
         private service:UploadFilesService,
-        private changeDetector: ChangeDetectorRef) {
+        private httpErrorHandler:HttpErrorHandler,
+        private changeDetector: ChangeDetectorRef
+    ) {
     }
 
     ngOnInit() {
@@ -1054,8 +1058,8 @@ export class UploadFilesComponent implements OnInit {
                         let warning;
                         try{
                             warning = xmlHttpRequest.getResponseHeader('Warning');
-                            console.log('Warning Header:', warning);
                         }catch (e) {}
+                        this.httpErrorHandler.handleError(xmlHttpRequest);
                         $this.percentComplete[file.name]['value'] = 0;
                         $this.percentComplete[file.name]['status'] = warning ? warning : (xmlHttpRequest.status + ` ` + xmlHttpRequest.statusText);
                     }
