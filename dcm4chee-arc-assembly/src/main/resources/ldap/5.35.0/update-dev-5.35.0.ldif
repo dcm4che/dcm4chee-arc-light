@@ -29,5 +29,5 @@ delete: dcmURI
 dcmURI: ${jboss.server.data.url}/fs1/
 -
 add: dcmURI
-dcmURI: ${jboss.home.url}/../storage/fs1/
+dcmURI: ${jboss.server.storage.url}/fs1/
 -
