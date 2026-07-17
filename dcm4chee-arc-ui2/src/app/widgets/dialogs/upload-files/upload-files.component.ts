@@ -13,7 +13,7 @@ import {StudyService} from '../../../study/study/study.service';
 import {DcmWebApp} from '../../../models/dcm-web-app';
 import {Observable, Subscriber} from 'rxjs';
 import {UploadFilesService} from './upload-files.service';
-import {MatDialogRef} from '@angular/material/dialog';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {TrimPipe} from '../../../pipes/trim.pipe';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {CommonModule} from '@angular/common';
@@ -21,6 +21,7 @@ import {EditStudyComponent} from '../edit-study/edit-study.component';
 import {MatProgressBar} from '@angular/material/progress-bar';
 import {FormsModule} from '@angular/forms';
 import {HttpErrorHandler} from "../../../helpers/http-error-handler";
+import {InfoComponent} from "../info/info.component";
 // import {StudyWebService} from '../../../study/study/study-web-service.model';
 
 // declare var uuidv4: any;
@@ -64,6 +65,13 @@ import {HttpErrorHandler} from "../../../helpers/http-error-handler";
         .edit_attribute_block {
             max-height: 32vh;
         }
+        .show_response{
+            font-weight: 500;
+            margin-left: 10px;
+            &:hover{
+                cursor: pointer;
+            }
+        }
     `],
     imports: [
         MatSelect,
@@ -84,6 +92,7 @@ export class UploadFilesComponent implements OnInit {
     private _dicomObject;
     private _fromExternalWebApp;
     private _preselectedWebApp:DcmWebApp;
+    dialogRefInfo: MatDialogRef<any>;
     private _mode;
     get mode() {
         return this._mode;
@@ -213,6 +222,7 @@ export class UploadFilesComponent implements OnInit {
         private _keycloakService: KeycloakService,
         private service:UploadFilesService,
         private httpErrorHandler:HttpErrorHandler,
+        public dialog: MatDialog,
         private changeDetector: ChangeDetectorRef
     ) {
     }
@@ -1059,8 +1069,16 @@ export class UploadFilesComponent implements OnInit {
                         try{
                             warning = xmlHttpRequest.getResponseHeader('Warning');
                         }catch (e) {}
-                        this.httpErrorHandler.handleError(xmlHttpRequest);
+                        //this.httpErrorHandler.handleError(xmlHttpRequest);
+/*                        this.mainservice.setMessage({
+                            'title': $localize `:@@http-error-handler.error:Error ${xmlHttpRequest.status || ''}`,
+                            'text': xmlHttpRequest.statusText + '!',
+                            'status': 'error',
+                            'detailError': xmlHttpRequest.response
+                        });*/
+
                         $this.percentComplete[file.name]['value'] = 0;
+                        $this.percentComplete[file.name]['response'] = xmlHttpRequest.response;
                         $this.percentComplete[file.name]['status'] = warning ? warning : (xmlHttpRequest.status + ` ` + xmlHttpRequest.statusText);
                     }
                     $this.changeDetector.detectChanges();
@@ -1084,6 +1102,19 @@ export class UploadFilesComponent implements OnInit {
         /*                        },err=>{
                                     console.log('errwebApp',err);
                                 });*/
+    }
+    alert(m){
+        // alert(m.detailError);
+        // this.config.viewContainerRef = this.viewContainerRef;
+        this.dialogRefInfo = this.dialog.open(InfoComponent, {
+            height: 'auto',
+            width: '60%'
+        });
+        this.dialogRefInfo.componentInstance.info = {
+            title: $localize `:@@messaging.error_detail:Error detail`,
+            content: m
+        };
+        this.dialogRefInfo.afterClosed().subscribe();
     }
 
 /*    fixFileSpecificEntries(file,object){

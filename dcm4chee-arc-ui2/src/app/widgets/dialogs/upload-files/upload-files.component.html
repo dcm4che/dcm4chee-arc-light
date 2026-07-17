@@ -75,6 +75,9 @@
                     <div class="upload_state" *ngFor="let file of fileList">
                         {{file.name |trim:62}}
                         <span class="text-danger" *ngIf="percentComplete[file.name] && percentComplete[file.name].status">Error {{percentComplete[file.name].status}}</span>
+                        @if (percentComplete[file.name] && percentComplete[file.name].response){
+                            <a class="show_response" (click)="$event.preventDefault();alert(percentComplete[file.name].response)" i18n="@@show_response">Show response</a>
+                        }
                         <span class="upload_ticker" *ngIf="percentComplete[file.name] && percentComplete[file.name].showLoader && !percentComplete[file.name].showTicker"><i class="fa fa-circle-o-notch fa-spin"></i></span>
                         <span class="upload_ticker"  *ngIf="percentComplete[file.name] && percentComplete[file.name].showTicker"><i class="material-icons">check</i></span>
                         <div *ngIf="percentComplete[file.name]">
