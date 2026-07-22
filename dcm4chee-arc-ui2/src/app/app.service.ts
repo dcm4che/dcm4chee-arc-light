@@ -7,7 +7,6 @@ import {DatePipe} from "@angular/common";
 import { HttpClient } from "@angular/common/http";
 import {j4care} from "./helpers/j4care.service";
 import {DcmWebApp} from "./models/dcm-web-app";
-import {Error} from "tslint/lib/error";
 import {first, map, combineLatest, switchMap} from "rxjs/operators";
 import { loadTranslations } from '@angular/localize';
 import {ConfiguredDateTameFormatObject, DateTimeFormatMode, TimeRange} from "./interfaces";
