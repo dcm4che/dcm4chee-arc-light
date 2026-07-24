@@ -98,6 +98,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private Series.MetadataUpdate metadataUpdate;
     private String[] sopInstanceUIDs = {};
     private Location.ObjectType objectType = Location.ObjectType.DICOM_FILE;
+    private boolean ignoreAEAccessControlIDs;
     private boolean retrieveMetadata;
     private int numberOfMatches;
     private final List<InstanceLocations> matches = new ArrayList<>();
@@ -210,7 +211,12 @@ class RetrieveContextImpl implements RetrieveContext {
 
     @Override
     public String[] getAccessControlIDs() {
-        return arcAE == null ? StringUtils.EMPTY_STRING : arcAE.getAccessControlIDs();
+        return arcAE == null || ignoreAEAccessControlIDs ? StringUtils.EMPTY_STRING : arcAE.getAccessControlIDs();
+    }
+
+    @Override
+    public void setIgnoreAEAccessControlIDs(boolean ignoreAEAccessControlIDs) {
+        this.ignoreAEAccessControlIDs = ignoreAEAccessControlIDs;
     }
 
     @Override

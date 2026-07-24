@@ -96,6 +96,8 @@ public interface RetrieveContext extends Closeable {
 
     String[] getAccessControlIDs();
 
+    void setIgnoreAEAccessControlIDs(boolean ignoreAEAccessControlIDs);
+
     QueryRetrieveView getQueryRetrieveView();
 
     int getPriority();

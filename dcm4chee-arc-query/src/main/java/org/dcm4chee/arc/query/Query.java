@@ -45,6 +45,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.net.service.DicomServiceException;
 
 import java.io.Closeable;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -63,6 +64,8 @@ public interface Query extends Closeable {
     long fetchCount();
 
     Stream<Long> withUnknownSize(int fetchSize);
+
+    List<Long> listPatientPKs(int limit);
 
     long fetchSize();
 

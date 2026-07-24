@@ -45,10 +45,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Tuple;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.*;
 import jakarta.persistence.criteria.*;
 import org.dcm4che3.data.*;
 import org.dcm4che3.io.SAXTransformer;
@@ -66,6 +63,7 @@ import org.dcm4chee.arc.MergeMWLQueryParam;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.coerce.CoercionFactory;
 import org.dcm4chee.arc.conf.*;
+import org.dcm4chee.arc.conf.Entity;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.mima.SupplementAssigningAuthorities;
@@ -285,18 +283,17 @@ class QueryServiceImpl implements QueryService {
 
     @Override
     public Query createStudyQuery(QueryContext ctx) {
-        ctx.getQueryParam().setIgnoreAEAccessControlIDs(grantAccessPrevStudiesOfPatient(ctx));
-        return new StudyQuery(ctx, em, codeCache);
+        return grantAccessPrevStudiesOfPatient(ctx, new StudyQuery(ctx, em, codeCache));
     }
 
     @Override
     public Query createSeriesQuery(QueryContext ctx) {
-        return new SeriesQuery(ctx, em, codeCache);
+        return grantAccessPrevStudiesOfPatient(ctx, new SeriesQuery(ctx, em, codeCache));
     }
 
     @Override
     public Query createInstanceQuery(QueryContext ctx) {
-        return new InstanceQuery(ctx, em, codeCache);
+        return grantAccessPrevStudiesOfPatient(ctx, new InstanceQuery(ctx, em, codeCache));
     }
 
     @Override
@@ -384,11 +381,16 @@ class QueryServiceImpl implements QueryService {
                 : calculateSeriesQueryAttributes(seriesPk, qrView);
     }
 
-    private boolean grantAccessPrevStudiesOfPatient(QueryContext ctx) {
-        return ctx.getPatientIDs().length > 0
-                && ctx.getArchiveAEExtension().getAccessControlIDs().length > 0
-                && ctx.getArchiveAEExtension().getGrantAccessPrevStudiesOfPatient() != null
-                && ejb.countRecentStudiesOfPatient(ctx) > 0L;
+    private Query grantAccessPrevStudiesOfPatient(QueryContext ctx, Query query) {
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        if (arcAE.getAccessControlIDs().length > 0 && arcAE.getGrantAccessPrevStudiesOfPatient() != null) {
+            QueryParam queryParam = ctx.getQueryParam();
+            queryParam.setIgnoreAEAccessControlIDs(true);
+            List<Long> patientPK = query.listPatientPKs(2);
+            queryParam.setIgnoreAEAccessControlIDs(patientPK.size() == 1 &&
+                ejb.countRecentStudiesOfPatient(arcAE, patientPK.get(0), arcAE.getAccessControlIDs()) > 0L);
+        }
+        return query;
     }
 
     private SeriesQueryAttributes calculateSeriesQueryAttributes(

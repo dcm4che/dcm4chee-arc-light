@@ -713,7 +713,7 @@ public class QueryBuilder {
         return predicates;
     }
 
-    private <Z> void studyLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
+    public <Z> void studyLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
             From<Z, Study> study, Attributes keys, QueryParam queryParam, QueryRetrieveLevel2 queryRetrieveLevel,
             CodeEntity[] showInstancesRejectedByCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
@@ -852,7 +852,7 @@ public class QueryBuilder {
         anyMember(predicates, accessControlIDs, series.get(Series_.accessControlIDs), true);
     }
 
-    private <Z> void seriesLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
+    public <Z> void seriesLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
              From<Series, Study> study, From<Z, Series> series, Attributes keys, QueryParam queryParam,
              QueryRetrieveLevel2 queryRetrieveLevel2, CodeEntity[] showInstancesRejectedByCodes) {
         seriesAccessControl(predicates, series, queryParam.getAEAccessControlIDs());
@@ -948,7 +948,7 @@ public class QueryBuilder {
             predicates.add(series.get(Series_.expirationState).in(queryParam.getExpirationState()));
     }
 
-    private void instanceLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
+    public void instanceLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
             Path<Study> study, Path<Series> series, Root<Instance> instance, Attributes keys, QueryParam queryParam,
             CodeEntity[] showInstancesRejectedByCodes, CodeEntity[] hideRejectionNoteWithCodes) {
         boolean combinedDatetimeMatching = queryParam.isCombinedDatetimeMatching();
@@ -1011,7 +1011,7 @@ public class QueryBuilder {
         return predicates;
     }
 
-    private void mwlItemLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria, Root<MWLItem> mwlItem,
+    public void mwlItemLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria, Root<MWLItem> mwlItem,
             Attributes keys, QueryParam queryParam) {
         anyOf(predicates, mwlItem.get(MWLItem_.worklistLabel), keys.getStrings(Tag.WorklistLabel), false, true);
         anyOf(predicates, mwlItem.get(MWLItem_.studyInstanceUID), keys.getStrings(Tag.StudyInstanceUID), false);
@@ -1111,8 +1111,8 @@ public class QueryBuilder {
             predicates.add(mwlItem.get(MWLItem_.status).in(hideSPSWithStatusFromMWL).not());
     }
 
-    private void upsLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
-            Root<UPS> ups, Attributes keys, QueryParam queryParam) {
+    public void upsLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
+                                   Root<UPS> ups, Attributes keys, QueryParam queryParam) {
         anyOf(predicates, ups.get(UPS_.upsInstanceUID), keys.getStrings(Tag.SOPInstanceUID), false);
         anyOf(predicates, ups.get(UPS_.upsPriority), UPSPriority::valueOf,
                 toUpperCase(keys.getStrings(Tag.ScheduledProcedureStepPriority)));
@@ -1240,7 +1240,7 @@ public class QueryBuilder {
             predicates.add(cb.exists(sq.select(request).where(requestPredicates.toArray(new Predicate[0]))));
     }
 
-    private void mppsLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
+    public void mppsLevelPredicates(List<Predicate> predicates, CommonAbstractCriteria criteria,
                                         Root<MPPS> mpps, Attributes keys, QueryParam queryParam) {
         anyOf(predicates, mpps.get(MPPS_.sopInstanceUID), keys.getStrings(Tag.SOPInstanceUID), true);
         dateRange(predicates,

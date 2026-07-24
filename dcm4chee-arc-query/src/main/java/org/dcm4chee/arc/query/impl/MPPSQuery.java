@@ -46,10 +46,12 @@ import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.*;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.dict.archive.PrivateTag;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -96,6 +98,26 @@ public class MPPSQuery extends AbstractQuery {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<MPPS> mpps = q.from(MPPS.class);
         return createQuery(q, mpps, cb.count(mpps));
+    }
+
+    @Override
+    protected CriteriaQuery<Long> patientPKs() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Patient> patient = q.from(Patient.class);
+        List<Predicate> patPredicates = builder.patientPredicates(q, patient,
+                context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        Subquery<MPPS> sq = q.subquery(MPPS.class);
+        Root<MPPS> mpps = sq.from(MPPS.class);
+        List<Predicate> mppsPredicates = new ArrayList<>();
+        mppsPredicates.add(cb.equal(mpps.get(MPPS_.patient), patient));
+        builder.mppsLevelPredicates(mppsPredicates, sq, mpps,
+                context.getQueryKeys(),
+                context.getQueryParam());
+        patPredicates.add(cb.exists(sq.where(mppsPredicates.toArray(new Predicate[0]))));
+        return q.select(patient.get(Patient_.pk)).where(patPredicates.toArray(patPredicates.toArray(new Predicate[0])));
     }
 
     @Override

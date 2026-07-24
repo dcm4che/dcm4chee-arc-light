@@ -50,6 +50,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.query.QueryContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -90,6 +91,26 @@ public class MWLQuery extends AbstractQuery {
         Root<MWLItem> mwlItem = q.from(MWLItem.class);
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
         return restrict(q, patient, mwlItem).select(cb.count(mwlItem));
+    }
+
+    @Override
+    protected CriteriaQuery<Long> patientPKs() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Patient> patient = q.from(Patient.class);
+        List<Predicate> patPredicates = builder.patientPredicates(q, patient,
+                context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        Subquery<MWLItem> sq = q.subquery(MWLItem.class);
+        Root<MWLItem> mwlItem = sq.from(MWLItem.class);
+        List<Predicate> mwlItemPredicates = new ArrayList<>();
+        mwlItemPredicates.add(cb.equal(mwlItem.get(MWLItem_.patient), patient));
+        builder.mwlItemLevelPredicates(mwlItemPredicates, sq, mwlItem,
+                context.getQueryKeys(),
+                context.getQueryParam());
+        patPredicates.add(cb.exists(sq.where(mwlItemPredicates.toArray(new Predicate[0]))));
+        return q.select(patient.get(Patient_.pk)).where(patPredicates.toArray(patPredicates.toArray(new Predicate[0])));
     }
 
     @Override

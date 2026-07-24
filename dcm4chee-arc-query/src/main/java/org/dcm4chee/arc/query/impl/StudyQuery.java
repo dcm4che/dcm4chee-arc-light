@@ -48,6 +48,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.PrivateTag;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.Availability;
@@ -56,6 +57,7 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -123,6 +125,30 @@ class StudyQuery extends AbstractQuery {
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<Study> study = q.from(Study.class);
         return createQuery(q, study, cb.count(study));
+    }
+
+    @Override
+    protected CriteriaQuery<Long> patientPKs() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Patient> patient = q.from(Patient.class);
+        List<Predicate> patPredicates = builder.patientPredicates(q, patient,
+                context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        Subquery<Study> sq = q.subquery(Study.class);
+        Root<Study> study = sq.from(Study.class);
+        List<Predicate> studyPredicates = new ArrayList<>();
+        studyPredicates.add(cb.equal(study.get(Study_.patient), patient));
+        CodeEntity[] showInstancesRejectedByCodes = codeCache.findOrCreateEntities(
+                context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes());
+        builder.studyLevelPredicates(studyPredicates, sq, study,
+                context.getQueryKeys(),
+                context.getQueryParam(),
+                QueryRetrieveLevel2.STUDY,
+                showInstancesRejectedByCodes);
+        patPredicates.add(cb.exists(sq.where(studyPredicates.toArray(new Predicate[0]))));
+        return q.select(patient.get(Patient_.pk)).where(patPredicates.toArray(patPredicates.toArray(new Predicate[0])));
     }
 
     @Override

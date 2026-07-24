@@ -53,6 +53,7 @@ import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.Status;
 import org.dcm4che3.net.service.DicomServiceException;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.SafeClose;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.Availability;
@@ -64,6 +65,7 @@ import org.dcm4chee.arc.query.QueryContext;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -141,6 +143,44 @@ class InstanceQuery extends AbstractQuery {
         Join<Series, Study> study = series.join(Series_.study);
         Join<Study, Patient> patient = study.join(Study_.patient);
         return restrict(q, patient, study, series, instance).select(cb.count(instance));
+    }
+
+    @Override
+    protected CriteriaQuery<Long> patientPKs() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Patient> patient = q.from(Patient.class);
+        List<Predicate> patPredicates = builder.patientPredicates(q, patient,
+                context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        Subquery<Instance> sq = q.subquery(Instance.class);
+        Root<Instance> instance = sq.from(Instance.class);
+        Join<Instance, Series> series = instance.join(Instance_.series);
+        Join<Series, Study> study = series.join(Series_.study);
+        List<Predicate> instPredicates = new ArrayList<>();
+        instPredicates.add(cb.equal(study.get(Study_.patient), patient));
+        CodeEntity[] showInstancesRejectedByCodes = codeCache.findOrCreateEntities(
+                context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes());
+        CodeEntity[] hideRejectionNotesWithCodes = codeCache.findOrCreateEntities(
+                context.getQueryParam().getQueryRetrieveView().getHideRejectionNotesWithCodes());
+        builder.studyLevelPredicates(instPredicates, sq, study,
+                context.getQueryKeys(),
+                context.getQueryParam(),
+                QueryRetrieveLevel2.IMAGE,
+                showInstancesRejectedByCodes);
+        builder.seriesLevelPredicates(instPredicates, sq, study, series,
+                context.getQueryKeys(),
+                context.getQueryParam(),
+                QueryRetrieveLevel2.IMAGE,
+                showInstancesRejectedByCodes);
+        builder.instanceLevelPredicates(instPredicates, sq, study, series, instance,
+                context.getQueryKeys(),
+                context.getQueryParam(),
+                showInstancesRejectedByCodes,
+                hideRejectionNotesWithCodes);
+        patPredicates.add(cb.exists(sq.where(instPredicates.toArray(new Predicate[0]))));
+        return q.select(patient.get(Patient_.pk)).where(patPredicates.toArray(patPredicates.toArray(new Predicate[0])));
     }
 
     @Override

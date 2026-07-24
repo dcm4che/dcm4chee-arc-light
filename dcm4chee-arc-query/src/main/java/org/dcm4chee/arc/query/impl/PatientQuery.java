@@ -100,6 +100,13 @@ class PatientQuery extends AbstractQuery {
     }
 
     @Override
+    protected CriteriaQuery<Long> patientPKs() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Patient> patient = q.from(Patient.class);
+        return restrict(q, patient).select(patient.get(Patient_.pk));
+    }
+
+    @Override
     protected Attributes toAttributes(Tuple results) {
         Attributes patAttrs = AttributesBlob.decodeAttributes(results.get(patientAttrBlob), null);
         addPatientQRAttrs(patient, context, results, patAttrs);

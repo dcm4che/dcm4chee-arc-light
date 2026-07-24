@@ -57,7 +57,6 @@ import org.dcm4che3.data.*;
 import org.dcm4che3.deident.DeIdentificationAttributesCoercion;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.imageio.codec.Transcoder;
-import org.dcm4che3.imageio.codec.TransferSyntaxType;
 import org.dcm4che3.io.*;
 import org.dcm4che3.json.JSONReader;
 import org.dcm4che3.net.*;
@@ -71,6 +70,7 @@ import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
+import org.dcm4chee.arc.query.impl.QueryServiceEJB;
 import org.dcm4chee.arc.query.scu.CFindSCU;
 import org.dcm4chee.arc.query.scu.CFindSCUAttributeCoercion;
 import org.dcm4chee.arc.query.util.QueryBuilder;
@@ -112,6 +112,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @PersistenceContext(unitName = "dcm4chee-arc")
     private EntityManager em;
+
+    @Inject
+    private QueryServiceEJB queryServiceEJB;
 
     @Inject
     private StorageFactory storageFactory;
@@ -386,6 +389,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                         seriesAttributes.attrs);
                 adjustLocationsFromDB(ctx);
             } else {
+                if (grantAccessPrevStudiesOfPatient(cb, ctx))
+                    ctx.setIgnoreAEAccessControlIDs(true);
                 new LocationQuery(em, cb, ctx, codeCache).execute(studyInfoMap);
                 if (metadataUpdate == null && ctx.isRetrieveMetadata() || ctx.isConsiderPurgedInstances())
                     queryLocationsFromMetadata(ctx, cb, studyInfoMap);
@@ -397,6 +402,70 @@ public class RetrieveServiceImpl implements RetrieveService {
         } catch (IOException e) {
             throw new DicomServiceException(Status.UnableToCalculateNumberOfMatches, e);
         }
+    }
+
+    private boolean grantAccessPrevStudiesOfPatient(CriteriaBuilder cb, RetrieveContext ctx) {
+        ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+        if (ctx.getQueryRetrieveLevel() != QueryRetrieveLevel2.PATIENT
+                && arcAE.getAccessControlIDs().length > 0
+                && arcAE.getGrantAccessPrevStudiesOfPatient() != null) {
+            QueryBuilder builder = new QueryBuilder(cb);
+            CriteriaQuery<Long> q = cb.createQuery(Long.class);
+            Root<Patient> patient = q.from(Patient.class);
+            List<Predicate> predicates = new ArrayList<>();
+            if (!QueryBuilder.isUniversalMatching(ctx.getPatientIDs())) {
+                builder.patientIDPredicate(predicates, q, patient, ctx.getPatientIDs());
+            }
+            predicates.add(switch (ctx.getQueryRetrieveLevel()) {
+                case STUDY -> studiesExists(cb, ctx, builder, q, patient);
+                case SERIES -> seriesExists(cb, ctx, builder, q, patient);
+                default -> instancesExists(cb, ctx, builder, q, patient);
+            });
+            List<Long> patientPK = em.createQuery(
+                    q.select(patient.get(Patient_.pk))
+                            .where(predicates.toArray(new Predicate[0])))
+                    .setMaxResults(2)
+                    .getResultList();
+            return patientPK.size() == 1 && queryServiceEJB.countRecentStudiesOfPatient(
+                    arcAE, patientPK.get(0), arcAE.getAccessControlIDs()) > 0L;
+        }
+        return false;
+    }
+
+    private Predicate studiesExists(CriteriaBuilder cb, RetrieveContext ctx, QueryBuilder builder,
+                                      CriteriaQuery<Long> q, Root<Patient> patient) {
+        Subquery<Study> sq = q.subquery(Study.class);
+        Root<Study> study = sq.from(Study.class);
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(study.get(Study_.patient), patient));
+        builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());
+        return cb.exists(sq.where(predicates.toArray(new Predicate[0])));
+    }
+
+    private Predicate seriesExists(CriteriaBuilder cb, RetrieveContext ctx, QueryBuilder builder,
+                                      CriteriaQuery<Long> q, Root<Patient> patient) {
+        Subquery<Series> sq = q.subquery(Series.class);
+        Root<Series> series = sq.from(Series.class);
+        Join<Series, Study> study = series.join(Series_.study);
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(study.get(Study_.patient), patient));
+        builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());
+        builder.uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), ctx.getSeriesInstanceUIDs());
+        return cb.exists(sq.where(predicates.toArray(new Predicate[0])));
+    }
+
+    private Predicate instancesExists(CriteriaBuilder cb, RetrieveContext ctx, QueryBuilder builder,
+                                      CriteriaQuery<Long> q, Root<Patient> patient) {
+        Subquery<Instance> sq = q.subquery(Instance.class);
+        Root<Instance> instance = sq.from(Instance.class);
+        Join<Instance, Series> series = instance.join(Instance_.series);
+        Join<Series, Study> study = series.join(Series_.study);
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(study.get(Study_.patient), patient));
+        builder.uidsPredicate(predicates, study.get(Study_.studyInstanceUID), ctx.getStudyInstanceUIDs());
+        builder.uidsPredicate(predicates, series.get(Series_.seriesInstanceUID), ctx.getSeriesInstanceUIDs());
+        builder.uidsPredicate(predicates, instance.get(Instance_.sopInstanceUID), ctx.getSopInstanceUIDs());
+        return cb.exists(sq.where(predicates.toArray(new Predicate[0])));
     }
 
     private void adjustLocationsFromDB(RetrieveContext ctx) {

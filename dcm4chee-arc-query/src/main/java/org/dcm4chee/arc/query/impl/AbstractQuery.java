@@ -61,6 +61,7 @@ import org.hibernate.jpa.AvailableHints;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -119,6 +120,10 @@ abstract class AbstractQuery implements Query {
     @Override
     public long fetchCount() {
         return QueryBuilder.unbox(em.createQuery(count()).getSingleResult(), 0L);
+    }
+
+    public List<Long> listPatientPKs(int limit) {
+        return em.createQuery(patientPKs()).setMaxResults(limit).getResultList();
     }
 
     @Override
@@ -186,6 +191,8 @@ abstract class AbstractQuery implements Query {
     protected abstract CriteriaQuery<Tuple> multiselect();
 
     protected abstract CriteriaQuery<Long> count();
+
+    protected abstract CriteriaQuery<Long> patientPKs();
 
     protected CriteriaQuery<Long> sumStudySize() {
         throw new UnsupportedOperationException();

@@ -47,6 +47,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.PrivateTag;
+import org.dcm4che3.net.service.QueryRetrieveLevel2;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
 import org.dcm4chee.arc.conf.Availability;
@@ -55,6 +56,7 @@ import org.dcm4chee.arc.query.QueryContext;
 import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -170,6 +172,36 @@ class SeriesQuery extends AbstractQuery {
         Join<Series, Study> study = series.join(Series_.study);
         Join<Study, Patient> patient = study.join(Study_.patient);
         return restrict(q, patient, study, series).select(cb.count(patient));
+    }
+
+    @Override
+    protected CriteriaQuery<Long> patientPKs() {
+        CriteriaQuery<Long> q = cb.createQuery(Long.class);
+        Root<Patient> patient = q.from(Patient.class);
+        List<Predicate> patPredicates = builder.patientPredicates(q, patient,
+                context.getPatientIDs(),
+                context.getIssuerOfPatientID(),
+                context.getQueryKeys(),
+                context.getQueryParam());
+        Subquery<Series> sq = q.subquery(Series.class);
+        Root<Series> series = sq.from(Series.class);
+        Join<Series, Study> study = series.join(Series_.study);
+        List<Predicate> seriesPredicates = new ArrayList<>();
+        seriesPredicates.add(cb.equal(study.get(Study_.patient), patient));
+        CodeEntity[] showInstancesRejectedByCodes = codeCache.findOrCreateEntities(
+                context.getQueryParam().getQueryRetrieveView().getShowInstancesRejectedByCodes());
+        builder.studyLevelPredicates(seriesPredicates, sq, study,
+                context.getQueryKeys(),
+                context.getQueryParam(),
+                QueryRetrieveLevel2.SERIES,
+                showInstancesRejectedByCodes);
+        builder.seriesLevelPredicates(seriesPredicates, sq, study, series,
+                context.getQueryKeys(),
+                context.getQueryParam(),
+                QueryRetrieveLevel2.SERIES,
+                showInstancesRejectedByCodes);
+        patPredicates.add(cb.exists(sq.where(seriesPredicates.toArray(new Predicate[0]))));
+        return q.select(patient.get(Patient_.pk)).where(patPredicates.toArray(patPredicates.toArray(new Predicate[0])));
     }
 
     @Override

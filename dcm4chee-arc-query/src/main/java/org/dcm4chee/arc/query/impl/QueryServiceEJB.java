@@ -54,6 +54,7 @@ import org.dcm4che3.data.VR;
 import org.dcm4che3.dict.archive.PrivateTag;
 import org.dcm4che3.util.StringUtils;
 import org.dcm4chee.arc.code.CodeCache;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.Availability;
 import org.dcm4chee.arc.conf.LocationStatus;
 import org.dcm4chee.arc.conf.QueryRetrieveView;
@@ -357,15 +358,15 @@ public class QueryServiceEJB {
         return attrs;
     }
 
-    public long countRecentStudiesOfPatient(QueryContext ctx) {
+    public long countRecentStudiesOfPatient(ArchiveAEExtension arcAE, Long patientPK, String[] accessControlIDs) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> q = cb.createQuery(Long.class);
         Root<Study> study = q.from(Study.class);
         QueryBuilder builder = new QueryBuilder(cb);
         List<Predicate> predicates = new ArrayList<>();
-        builder.patientIDPredicate(predicates, q, study.join(Study_.patient), ctx.getPatientIDs());
-        builder.accessControl(predicates, study, ctx.getArchiveAEExtension().getAccessControlIDs());
-        predicates.add(builder.studyNotOlderThan(study, ctx.getArchiveAEExtension().getGrantAccessPrevStudiesOfPatient()));
+        predicates.add(cb.equal(study.join(Study_.patient).get(Patient_.pk), patientPK));
+        builder.accessControl(predicates, study, accessControlIDs);
+        predicates.add(builder.studyNotOlderThan(study, arcAE.getGrantAccessPrevStudiesOfPatient()));
         return em.createQuery(q.where(predicates.toArray(new Predicate[0])).select(cb.count(study))).getSingleResult();
     }
 
