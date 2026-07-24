@@ -208,12 +208,11 @@ final class RetrieveTaskImpl implements RetrieveTask {
         String iuid = inst.getSopInstanceUID();
         String cuid = inst.getSopClassUID();
         int priority = ctx.getPriority();
-        TransferCapability destTC = ctx.getDestinationAE().getTransferCapabilityFor(cuid, TransferCapability.Role.SCP);
         Set<String> tsuids = storeas.getTransferSyntaxesFor(cuid);
         try {
             RetrieveService service = ctx.getRetrieveService();
             try (Transcoder transcoder = service.openTranscoder(ctx, inst, tsuids, false,
-                    destTC != null ? destTC.preferredTransferSyntaxes() : StringUtils.EMPTY_STRING)) {
+                    preferredTransferSyntaxes(cuid))) {
                 String tsuid = transcoder.getDestinationTransferSyntax();
                 AttributesCoercion coerce;
                 List<ArchiveAttributeCoercion2> coercions = service.getArchiveAttributeCoercions(ctx, inst);
@@ -249,6 +248,14 @@ final class RetrieveTaskImpl implements RetrieveTask {
             ctx.addFailedMatch(inst);
             LOG.warn("{}: failed to send {} to {}:", rqas != null ? rqas : storeas, inst, ctx.getDestinationAETitle(), e);
         }
+    }
+
+    private String[] preferredTransferSyntaxes(String cuid) {
+        ApplicationEntity destAE = ctx.getDestinationAE();
+        TransferCapability destTC = destAE != null
+                ? destAE.getTransferCapabilityFor(cuid, TransferCapability.Role.SCP)
+                : null;
+        return destTC != null ? destTC.preferredTransferSyntaxes() : StringUtils.EMPTY_STRING;
     }
 
     private void writeFinalRSP() {
