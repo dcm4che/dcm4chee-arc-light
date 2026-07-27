@@ -76,8 +76,8 @@ export class EditPatientService {
           $localize `:@@family_ame:Family Name`,
           $localize `:@@given_name:Given Name`,
           $localize `:@@middle_name:Middle Name`,
-          $localize `:@@prefix:Prefix`,
           $localize `:@@suffix:Suffix`,
+          $localize `:@@prefix:Prefix`,
         ],
         description: $localize`:@@patient_name_alphabetic:Patient name ( Alphabetic )`,
         placeholder: $localize`:@@patient_name_alphabetic:Patient name ( Alphabetic )`
@@ -91,8 +91,8 @@ export class EditPatientService {
           $localize `:@@family_ame:Family Name`,
           $localize `:@@given_name:Given Name`,
           $localize `:@@middle_name:Middle Name`,
-          $localize `:@@prefix:Prefix`,
           $localize `:@@suffix:Suffix`,
+          $localize `:@@prefix:Prefix`,
         ],
         description: $localize`:@@patient_name_ideographic:Patient name ( Ideographic )`,
         placeholder: $localize`:@@patient_name_ideographic:Patient name ( Ideographic )`
@@ -106,8 +106,8 @@ export class EditPatientService {
           $localize `:@@family_ame:Family Name`,
           $localize `:@@given_name:Given Name`,
           $localize `:@@middle_name:Middle Name`,
-          $localize `:@@prefix:Prefix`,
           $localize `:@@suffix:Suffix`,
+          $localize `:@@prefix:Prefix`,
         ],
         description: $localize`:@@patient_name_phonetic:Patient name ( Phonetic )`,
         placeholder: $localize`:@@patient_name_phonetic:Patient name ( Phonetic )`

@@ -56,8 +56,8 @@ export class PersonNamePickerService {
         collectedParts["FAMILY-NAME"] || "",
         collectedParts["GIVEN-NAME"] || "",
         collectedParts["MIDDLE-NAME"] || "",
-        collectedParts["NAME-PREFIX"] || "",
-        collectedParts["NAME-SUFFIX"] || ""
+        collectedParts["NAME-SUFFIX"] || "",
+        collectedParts["NAME-PREFIX"] || ""
     )
   }
   mapOnEqual(formats, names, collectedParts){
@@ -137,13 +137,13 @@ export class PersonNamePickerService {
     const formatPipe = new PersonNamePipe();
     return formatPipe.transform(input.replace(/\*/,""), format);
   }
-  addCarets(familyName, givenName, middleName, namePrefix, nameSuffix){
+  addCarets(familyName, givenName, middleName, nameSuffix, namePrefix){
     let collected = [
       familyName,
       givenName,
       middleName,
-      namePrefix,
-      nameSuffix
+      nameSuffix,
+      namePrefix
     ];
     if(collected.join("") != ""){
       collected = this.removeLastEmptyParts(collected);

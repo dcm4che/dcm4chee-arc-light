@@ -24,18 +24,18 @@ export class PersonNamePickerComponent implements OnInit {
   @Input() familyName;
   @Input() givenName;
   @Input() middleName;
-  @Input() namePrefix;
   @Input() nameSuffix;
+  @Input() namePrefix;
   @Input() i_familyName;
   @Input() i_givenName;
   @Input() i_middleName;
-  @Input() i_namePrefix;
   @Input() i_nameSuffix;
+  @Input() i_namePrefix;
   @Input() p_familyName;
   @Input() p_givenName;
   @Input() p_middleName;
-  @Input() p_namePrefix;
   @Input() p_nameSuffix;
+  @Input() p_namePrefix;
   dialogOpen:boolean = false;
   private _internModel:string;
   private _asFilterModel = '';
@@ -75,8 +75,8 @@ export class PersonNamePickerComponent implements OnInit {
         this.familyName,
         this.givenName,
         this.middleName,
-        this.namePrefix,
-        this.nameSuffix
+        this.nameSuffix,
+        this.namePrefix
       ] = this._asFilterModel.split("^");
     }else{
       if(this._internModel != '' && this._internModel.indexOf(' ') === -1){
@@ -84,15 +84,15 @@ export class PersonNamePickerComponent implements OnInit {
         this.familyName = '';
         this.givenName = '';
         this.middleName = '';
-        this.namePrefix = '';
         this.nameSuffix = '';
+        this.namePrefix = '';
       }else{
         this.asFilterModel = '';
         this.familyName = '';
         this.givenName = '';
         this.middleName = '';
-        this.namePrefix = '';
         this.nameSuffix = '';
+        this.namePrefix = '';
       }
     }
   }
@@ -116,8 +116,8 @@ export class PersonNamePickerComponent implements OnInit {
         this.i_familyName,
         this.i_givenName,
         this.i_middleName,
-        this.i_namePrefix,
-        this.i_nameSuffix
+        this.i_nameSuffix,
+        this.i_namePrefix
       ];
       filterPrefix = "=";
     } else if(this.inputMode === 'phonetic'){
@@ -125,8 +125,8 @@ export class PersonNamePickerComponent implements OnInit {
         this.p_familyName,
         this.p_givenName,
         this.p_middleName,
-        this.p_namePrefix,
-        this.p_nameSuffix
+        this.p_nameSuffix,
+        this.p_namePrefix
       ];
       filterPrefix = "==";
     }else{
@@ -134,8 +134,8 @@ export class PersonNamePickerComponent implements OnInit {
         this.familyName,
         this.givenName,
         this.middleName,
-        this.namePrefix,
-        this.nameSuffix
+        this.nameSuffix,
+        this.namePrefix
       ];
     }
     if(collected.join('') != ''){
