@@ -18,10 +18,8 @@
     </xsl:if>
   </xsl:template>
 
-  <xsl:template name="cx2pidAttrsPrimary">
+  <xsl:template name="rootDatasetPID">
     <xsl:param name="cx"/>
-    <xsl:param name="chip"/>
-    <xsl:param name="tattoo"/>
     <xsl:variable name="primaryIssuer" select="$cx/repeat[component[3] = $hl7PrimaryAssigningAuthorityOfPatientID]"/>
     <xsl:choose>
       <xsl:when test="$primaryIssuer">
@@ -39,30 +37,44 @@
         </xsl:call-template>
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
 
+  <xsl:template name="addMainPIDWithRepeatedPIDsToOtherPIDs">
+    <xsl:param name="cx"/>
+    <Item number="1">
+      <xsl:call-template name="cx2pidAttrs">
+        <xsl:with-param name="cx" select="$cx"/>
+        <xsl:with-param name="default-pid-issuer" select="''"/>
+        <xsl:with-param name="default-pid-type" select="''"/>
+      </xsl:call-template>
+    </Item>
+    <xsl:for-each select="$cx/repeat">
+      <xsl:variable name="itemNo" select="position() + 1"/>
+      <xsl:variable name="pidCX" select="."/>
+      <xsl:if test="normalize-space($pidCX/text()) != '' and normalize-space($pidCX/text()) != '&quot;&quot;'">
+        <Item number="{$itemNo}">
+          <xsl:call-template name="cx2pidAttrs">
+            <xsl:with-param name="cx" select="$pidCX"/>
+            <xsl:with-param name="default-pid-issuer" select="''"/>
+            <xsl:with-param name="default-pid-type" select="''"/>
+          </xsl:call-template>
+        </Item>
+      </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template name="cx2pidAttrsPrimary">
+    <xsl:param name="cx"/>
+    <xsl:param name="chip"/>
+    <xsl:param name="tattoo"/>
+    <xsl:call-template name="rootDatasetPID">
+      <xsl:with-param name="cx" select="$cx"/>
+    </xsl:call-template>
     <xsl:variable name="repeatPatientIdentifiers" select="count($cx/repeat)"/>
-
     <DicomAttribute tag="00101002" vr="SQ">
-      <Item number="1">
-        <xsl:call-template name="cx2pidAttrs">
-          <xsl:with-param name="cx" select="$cx"/>
-          <xsl:with-param name="default-pid-issuer" select="''"/>
-          <xsl:with-param name="default-pid-type" select="''"/>
-        </xsl:call-template>
-      </Item>
-      <xsl:for-each select="$cx/repeat">
-        <xsl:variable name="itemNo" select="position() + 1"/>
-        <xsl:variable name="pidCX" select="."/>
-        <xsl:if test="normalize-space($pidCX/text()) != '' and normalize-space($pidCX/text()) != '&quot;&quot;'">
-          <Item number="{$itemNo}">
-            <xsl:call-template name="cx2pidAttrs">
-              <xsl:with-param name="cx" select="$pidCX"/>
-              <xsl:with-param name="default-pid-issuer" select="''"/>
-              <xsl:with-param name="default-pid-type" select="''"/>
-            </xsl:call-template>
-          </Item>
-        </xsl:if>
-      </xsl:for-each>
+      <xsl:call-template name="addMainPIDWithRepeatedPIDsToOtherPIDs">
+        <xsl:with-param name="cx" select="$cx"/>
+      </xsl:call-template>
       <xsl:choose>
         <xsl:when test="normalize-space($chip/text()) != '' and normalize-space($chip/text()) != '&quot;&quot;'
                         and normalize-space($tattoo/text()) != '' and normalize-space($tattoo/text()) != '&quot;&quot;'">
@@ -558,7 +570,7 @@
       <xsl:with-param name="tag" select="'00100010'"/>
       <xsl:with-param name="xpn" select="field[5]"/>
     </xsl:call-template>
-    <!-- Patient ID -->
+    <!-- Patient Identifier & Other Patient IDs Sequence -->
     <xsl:call-template name="cx2pidAttrsPrimary">
       <xsl:with-param name="cx" select="field[3]"/>
       <xsl:with-param name="chip" select="field[2]"/>
@@ -775,12 +787,17 @@
           <xsl:with-param name="tag" select="'00100010'"/>
           <xsl:with-param name="xpn" select="field[7]"/>
         </xsl:call-template>
-        <!-- Patient ID -->
-        <xsl:call-template name="cx2pidAttrsPrimary">
-          <xsl:with-param name="cx" select="field[1]"/>
-          <xsl:with-param name="chip" select="''"/>
-          <xsl:with-param name="tattoo" select="''"/>
+        <!-- Patient Identifier -->
+        <xsl:variable name="cx" select="field[1]"/>
+        <xsl:call-template name="rootDatasetPID">
+          <xsl:with-param name="cx" select="$cx"/>
         </xsl:call-template>
+        <!-- Other PatientIDs Sequence -->
+        <DicomAttribute tag="00101002" vr="SQ">
+          <xsl:call-template name="addMainPIDWithRepeatedPIDsToOtherPIDs">
+            <xsl:with-param name="cx" select="$cx"/>
+          </xsl:call-template>
+        </DicomAttribute>
       </Item>
     </DicomAttribute>
   </xsl:template>
