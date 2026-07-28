@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, Output} from '@angular/core';
 import {AppService} from '../../../app.service';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {Globalvar} from '../../../constants/globalvar';
@@ -86,7 +86,11 @@ export class EditSeriesComponent{
     options = Globalvar.OPTIONS;
 
     DCM4CHE = DCM4CHE;
-    constructor(public dialogRef: MatDialogRef<EditSeriesComponent>, public mainservice: AppService) {
+    constructor(
+        public dialogRef: MatDialogRef<EditSeriesComponent>,
+        public mainservice: AppService,
+        private changeDetector: ChangeDetectorRef
+    ) {
         console.log('this.series',this._seriesResult.series);
     }
 
@@ -193,6 +197,10 @@ export class EditSeriesComponent{
         }else{
             this._seriesResult.series.attrs[attrcode]  = this._iod[attrcode];
         }
+        this._seriesResult.series.attrs = Object.assign({}, this._seriesResult.series.attrs);
+        this.addSeriesAttribut           = '';
+        this.opendropdown               = false;
+        this.changeDetector.detectChanges();
     };
 
     pressedKey(e){

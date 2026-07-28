@@ -46,7 +46,11 @@ export class EditMwlComponent {
     private _iod: any;
     private _mode;
 
-    constructor(public dialogRef: MatDialogRef<EditMwlComponent>, public mainservice: AppService) {
+    constructor(
+        public dialogRef: MatDialogRef<EditMwlComponent>,
+        public mainservice: AppService,
+        private changeDetector: ChangeDetectorRef
+    ) {
 
     }
     options = Globalvar.OPTIONS;
@@ -291,6 +295,10 @@ export class EditMwlComponent {
                         this._mwl.attrs[attrcode]  = this.iod[attrcode];
             }
         }
+        this._mwl.attrs = Object.assign({}, this._mwl.attrs);
+        this.addmwlAttribut           = '';
+        this.opendropdown               = false;
+        this.changeDetector.detectChanges();
         // this.items = $filter('mwl')(this._mwl.attrs,$scope.iod);
     };
     removeAttr(attrcode){
