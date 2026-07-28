@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, Output} from '@angular/core';
 import {AppService} from '../../../app.service';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {Globalvar} from '../../../constants/globalvar';
@@ -106,7 +106,11 @@ export class EditStudyComponent{
     @Input()
     hideAdditionalParams:boolean;
 
-    constructor(public dialogRef: MatDialogRef<EditStudyComponent>, public mainservice: AppService) {
+    constructor(
+        public dialogRef: MatDialogRef<EditStudyComponent>,
+        public mainservice: AppService,
+        private changeDetector: ChangeDetectorRef
+    ) {
         console.log('this.study',this._studyResult.study);
 /*
         setTimeout(function(){
@@ -233,14 +237,17 @@ export class EditStudyComponent{
         if (this._studyResult.study.attrs[attrcode] != undefined){
             if (this._iod[attrcode].multi){
                 this._studyResult.study.attrs[attrcode]['Value'].push('');
-                this.addStudyAttribut           = '';
-                this.opendropdown                 = false;
             }else{
                 this.mainservice.showWarning($localize `:@@attribute_already_exists:Attribute already exists!`);
             }
         }else{
             this._studyResult.study.attrs[attrcode]  = this._iod[attrcode];
+            //delete this._studyResult.study.attrs[attrcode].required
         }
+        this._studyResult.study.attrs = Object.assign({}, this._studyResult.study.attrs);
+        this.addStudyAttribut           = '';
+        this.opendropdown               = false;
+        this.changeDetector.detectChanges();
     };
 
     pressedKey(e){
