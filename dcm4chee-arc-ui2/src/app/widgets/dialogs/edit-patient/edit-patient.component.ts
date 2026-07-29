@@ -1,4 +1,4 @@
-import {Component, Input, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, ViewEncapsulation} from '@angular/core';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {Globalvar} from '../../../constants/globalvar';
 declare var DCM4CHE: any;
@@ -77,11 +77,13 @@ export class EditPatientComponent {
     constructor(
         public dialogRef: MatDialogRef<EditPatientComponent>,
         public mainservice: AppService,
-        private service:EditPatientService
+        private service:EditPatientService,
+        private changeDetector: ChangeDetectorRef
     ) {
         setTimeout(()=>{
             this.simpleForm.schema = this.service.getSimpleFormSchema();
             this.formMode = localStorage.getItem('patient_edit_mode') || 'simple';
+            this.changeDetector.detectChanges();
         },10)
     }
     onChange(newValue, model) {
