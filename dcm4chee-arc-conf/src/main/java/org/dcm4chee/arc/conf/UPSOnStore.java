@@ -79,8 +79,8 @@ public class UPSOnStore {
     private AttributesFormat requestedProcedureDescription;
     private AttributesFormat requestingPhysician;
     private AttributesFormat requestingService;
-    private Issuer issuerOfAdmissionID;
-    private Issuer issuerOfAccessionNumber;
+    private AttributesFormat issuerOfAdmissionID;
+    private AttributesFormat issuerOfAccessionNumber;
     private Code scheduledWorkitemCode;
     private Code[] scheduledStationNames = {};
     private Code[] scheduledStationClasses = {};
@@ -322,20 +322,28 @@ public class UPSOnStore {
         return format(requestingService, attrs);
     }
 
-    public Issuer getIssuerOfAdmissionID() {
-        return issuerOfAdmissionID;
+    public String getIssuerOfAdmissionID() {
+        return Objects.toString(issuerOfAdmissionID, null);
     }
 
-    public void setIssuerOfAdmissionID(Issuer issuerOfAdmissionID) {
-        this.issuerOfAdmissionID = issuerOfAdmissionID;
+    public void setIssuerOfAdmissionID(String issuerOfAdmissionID) {
+        this.issuerOfAdmissionID = AttributesFormat.valueOf(issuerOfAdmissionID);
     }
 
-    public Issuer getIssuerOfAccessionNumber() {
-        return issuerOfAccessionNumber;
+    public Issuer getIssuerOfAdmissionID(Attributes attrs) {
+        return formatIssuer(issuerOfAdmissionID, attrs);
     }
 
-    public void setIssuerOfAccessionNumber(Issuer issuerOfAccessionNumber) {
-        this.issuerOfAccessionNumber = issuerOfAccessionNumber;
+    public String getIssuerOfAccessionNumber() {
+        return Objects.toString(issuerOfAccessionNumber, null);
+    }
+
+    public void setIssuerOfAccessionNumber(String issuerOfAccessionNumber) {
+        this.issuerOfAccessionNumber = AttributesFormat.valueOf(issuerOfAccessionNumber);
+    }
+
+    public Issuer getIssuerOfAccessionNumber(Attributes attrs) {
+        return formatIssuer(issuerOfAccessionNumber, attrs);
     }
 
     public Code getScheduledWorkitemCode() {
@@ -426,6 +434,14 @@ public class UPSOnStore {
 
     private static String format(AttributesFormat format, Attributes attrs) {
         return format != null ? StringUtils.nullify(format.format(attrs), "null") : null;
+    }
+
+    private static Issuer formatIssuer(AttributesFormat format, Attributes attrs) {
+        String issuerStr;
+        if (format == null || (issuerStr = format.format(attrs)).contains("null"))
+            return null;
+
+        return new Issuer(issuerStr);
     }
 
 }

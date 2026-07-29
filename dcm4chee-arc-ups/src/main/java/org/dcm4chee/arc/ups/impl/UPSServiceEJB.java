@@ -780,7 +780,7 @@ public class UPSServiceEJB {
         }
         if (!attrs.contains(Tag.AdmissionID)) {
             attrs.setString(Tag.AdmissionID, VR.LO, rule.getAdmissionID(storeCtx.getAttributes()));
-            UPSUtils.setIssuer(attrs, Tag.IssuerOfAdmissionIDSequence, rule.getIssuerOfAdmissionID());
+            UPSUtils.setIssuer(attrs, Tag.IssuerOfAdmissionIDSequence, rule.getIssuerOfAdmissionID(storeCtx.getAttributes()));
         }
         if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime)) {
             attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, UPSUtils.add(now, rule.getStartDateTimeDelay()));
@@ -840,7 +840,7 @@ public class UPSServiceEJB {
     private Attributes referencedRequest(StoreContext storeCtx, UPSOnStore rule) {
         Attributes item = new Attributes(8);
         item.setString(Tag.AccessionNumber, VR.SH, rule.getAccessionNumber(storeCtx.getAttributes()));
-        UPSUtils.setIssuer(item, Tag.IssuerOfAccessionNumberSequence, rule.getIssuerOfAccessionNumber());
+        UPSUtils.setIssuer(item, Tag.IssuerOfAccessionNumberSequence, rule.getIssuerOfAccessionNumber(storeCtx.getAttributes()));
         item.setString(Tag.StudyInstanceUID, VR.UI, storeCtx.getStudyInstanceUID());
         setNotNull(item, Tag.RequestingPhysician, VR.PN, rule.getRequestingPhysician(storeCtx.getAttributes()));
         setNotNull(item, Tag.RequestingService, VR.LO, rule.getRequestingService(storeCtx.getAttributes()));

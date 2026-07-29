@@ -3881,13 +3881,13 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         upsOnStore.setAdmissionID(reader.stringValue());
                         break;
                     case "dicomIssuerOfAdmissionID":
-                        upsOnStore.setIssuerOfAdmissionID(reader.issuerValue());
+                        upsOnStore.setIssuerOfAdmissionID(reader.stringValue());
                         break;
                     case "dcmAccessionNumber":
                         upsOnStore.setAccessionNumber(reader.stringValue());
                         break;
                     case "dicomIssuerOfAccessionNumber":
-                        upsOnStore.setIssuerOfAccessionNumber(reader.issuerValue());
+                        upsOnStore.setIssuerOfAccessionNumber(reader.stringValue());
                         break;
                     case "dcmRequestedProcedureID":
                         upsOnStore.setRequestedProcedureID(reader.stringValue());

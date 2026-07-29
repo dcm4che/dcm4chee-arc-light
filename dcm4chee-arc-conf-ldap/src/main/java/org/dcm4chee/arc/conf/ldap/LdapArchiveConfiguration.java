@@ -4186,9 +4186,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnStore.setScheduledHumanPerformerOrganization(
                         LdapUtils.stringValue(attrs.get("dcmUPSScheduledHumanPerformerOrganization"), null));
                 upsOnStore.setAdmissionID(LdapUtils.stringValue(attrs.get("dcmAdmissionID"), null));
-                upsOnStore.setIssuerOfAdmissionID(LdapUtils.issuerValue(attrs.get("dicomIssuerOfAdmissionID")));
+                upsOnStore.setIssuerOfAdmissionID(LdapUtils.stringValue(attrs.get("dicomIssuerOfAdmissionID"), null));
                 upsOnStore.setAccessionNumber(LdapUtils.stringValue(attrs.get("dcmAccessionNumber"), null));
-                upsOnStore.setIssuerOfAccessionNumber(LdapUtils.issuerValue(attrs.get("dicomIssuerOfAccessionNumber")));
+                upsOnStore.setIssuerOfAccessionNumber(LdapUtils.stringValue(attrs.get("dicomIssuerOfAccessionNumber"), null));
                 upsOnStore.setRequestedProcedureID(LdapUtils.stringValue(attrs.get("dcmRequestedProcedureID"), null));
                 upsOnStore.setRequestedProcedureDescription(
                         LdapUtils.stringValue(attrs.get("dcmRequestedProcedureDescription"), null));
