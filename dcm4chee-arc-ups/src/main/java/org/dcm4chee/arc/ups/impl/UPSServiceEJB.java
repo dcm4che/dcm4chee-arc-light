@@ -780,7 +780,7 @@ public class UPSServiceEJB {
         }
         if (!attrs.contains(Tag.AdmissionID)) {
             attrs.setString(Tag.AdmissionID, VR.LO, rule.getAdmissionID(storeCtx.getAttributes()));
-            UPSUtils.setIssuer(attrs, Tag.IssuerOfAdmissionID, rule.getIssuerOfAdmissionID());
+            UPSUtils.setIssuer(attrs, Tag.IssuerOfAdmissionIDSequence, rule.getIssuerOfAdmissionID());
         }
         if (!attrs.contains(Tag.ScheduledProcedureStepStartDateTime)) {
             attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, UPSUtils.add(now, rule.getStartDateTimeDelay()));
