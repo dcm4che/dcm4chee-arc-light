@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {Input} from '@angular/core';
 import * as _ from 'lodash-es';
 import {AppService} from '../../app.service';
@@ -46,7 +46,8 @@ export class AttributeListComponent implements OnInit {
         public cfpLoadingBar: LoadingBarService,
         public mainservice: AppService,
         public httpErrorHandler:HttpErrorHandler,
-        private studyService:StudyService
+        private studyService:StudyService,
+        private changeDetector: ChangeDetectorRef
     ) { }
     ngOnInit() {
         this.init();
@@ -84,6 +85,7 @@ export class AttributeListComponent implements OnInit {
                     this.attrs2rows('', attrs, this.rows);
                     console.log('after attrs2call', this.rows);
                     this.cfpLoadingBar.complete();
+                    this.changeDetector.detectChanges();
                 }, (err) => {
                     // vex.dialog.alert("Error loading Attributes!");
                     this.httpErrorHandler.handleError(err);
