@@ -1,13 +1,11 @@
-import {ChangeDetectorRef, Injectable} from '@angular/core';
+import { Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import * as _ from "lodash-es";
 import {share} from "rxjs/operators";
 @Injectable()
 export class UploadDicomService {
     progress$;
     progressObserver;
     constructor (
-        private changeDetector:ChangeDetectorRef
     ) {
         this.progress$ = new Observable(observer => {
             this.progressObserver = observer;
@@ -37,7 +35,6 @@ export class UploadDicomService {
                     } else {
                         observer.error(xhr.response);
                     }
-                    $this.changeDetector.detectChanges();
                 }
 
             };
