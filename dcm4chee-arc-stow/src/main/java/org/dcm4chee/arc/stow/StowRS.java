@@ -733,6 +733,10 @@ public class StowRS {
             } finally {
                 imageReader.dispose();
             }
+        } else {
+            String msg = "Content type: \"" + bulkdata.mediaType + "\"  of pixel data is not supported";
+            LOG.info(msg);
+            throw new DicomServiceException(Status.ReferencedTransferSyntaxNotSupported, msg);
         }
     }
 
