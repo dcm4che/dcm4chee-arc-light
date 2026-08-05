@@ -12,17 +12,22 @@
     <!--<div class="devicelist_block">-->
         <div class="tab-content">
             <h2 i18n="@@devices">Devices</h2>
-            <div class="filter_line" *ngIf="advancedConfig">
-                <div class="filter_block">
-                    <filter-generator [filterIdTemplate]="'device-list'" [filterID]="'device-list'" [schema]="filterSchema" [model]="filter" (submit)="searchDevices($event)" [filterTreeHeight]="filterHeight"></filter-generator>
+            @if (advancedConfig) {
+                <div class="filter_line">
+                    <div class="filter_block">
+                        <filter-generator [filterIdTemplate]="'device-list'" [filterID]="'device-list'" [schema]="filterSchema" [model]="filter" (submit)="searchDevices($event)" [filterTreeHeight]="filterHeight"></filter-generator>
+                    </div>
                 </div>
-            </div>
+            }
             <div class="filter_line more_function_block">
                 <div class="filter single_block">
                     <div class="filter_block">
                         <div class="line">
-                            <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-bottom"></i></a>
-                            <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-top"></i></a>
+                            @if(!advancedConfig){
+                                <a href="" (click)="$event.preventDefault();advancedConfig=true" class="more"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-bottom"></i></a>
+                            } @else {
+                                <a href="" (click)="$event.preventDefault();advancedConfig=false" class="more ng-hide"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-top"></i></a>
+                            }
                             <dcm-drop-down
                                     [placeholder]="moreFunctionConfig.placeholder"
                                     [options]="moreFunctionConfig.options"
@@ -57,40 +62,82 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let device of devices | search:devicefilter | slice:moreDevices.start:moreDevices.limit; let i = index">
-                    <td class="buttons_td">
-                        <span class="numbers">{{i+1}}.</span>
-                        <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@edit_device" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device.dicomDeviceName)">
-                            <span class="glyphicon glyphicon-pencil"></span>
-                        </a>
-                        <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.clone_device" title="Clone device" href="" (click)="$event.preventDefault();cloneDevice(device)">
-                            <span class="glyphicon glyphicon-duplicate"></span>
-                        </a>
-                        @if (!device['hasArcDevExt']){
-                            <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.delete_device" title="Delete device" href="" (click)="$event.preventDefault();deleteDevice(device)">
-                                <span class="glyphicon glyphicon-remove"></span>
+                @for (device of devices | search:devicefilter | slice:moreDevices.start:moreDevices.limit;track device['dicomDeviceName']; let i = $index){
+                    <tr>
+                        <td class="buttons_td">
+                            <span class="numbers">{{i+1}}.</span>
+                            <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@edit_device" title="Edit device" href="" (click)="$event.preventDefault();editDevice(device['dicomDeviceName'])">
+                                <span class="glyphicon glyphicon-pencil"></span>
                             </a>
+                            <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.clone_device" title="Clone device" href="" (click)="$event.preventDefault();cloneDevice(device)">
+                                <span class="glyphicon glyphicon-duplicate"></span>
+                            </a>
+                            @if (!device['hasArcDevExt']){
+                                <a [permission]="{id:'action-devicelist-device_configuration',param:'visible'}" class="table_btn" i18n-title="@@title.devices.delete_device" title="Delete device" href="" (click)="$event.preventDefault();deleteDevice(device)">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </a>
+                            } @else {
+                                <div class="table_btn"></div>
+                            }
+                        </td>
+                        <td>
+
+                            @if (device['dicomDeviceName']){
+                                <div  >
+                                    <a i18n-title="@@title.devices.edit_param" title="Edit {{device['dicomDeviceName']}}" href="" (click)="$event.preventDefault();editDevice(device['dicomDeviceName'])">
+                                        {{device['dicomDeviceName']}}
+                                    </a>
+                                </div>
+                            }
+                        </td>
+                        <td>
+                            @if(_.hasIn(device,'dicomInstitutionDepartmentName[0]')){
+                                <div>{{device['dicomInstitutionDepartmentName'][0]}}</div>
+                            }
+                        </td>
+                        <td>
+                            @if(_.hasIn(device,'dicomDescription')){
+                                <div>{{_.get(device,"dicomDescription")}}</div>
+                            }
+                        </td>
+                        <td>
+                            @if(_.hasIn(device,'dicomManufacturer')){
+                                <div>{{_.get(device,"dicomManufacturer")}}</div>
+                            }
+                        </td>
+                        <td>
+                            @if(_.hasIn(device,'dicomManufacturerModelName')){
+                                <div>{{_.get(device,"dicomManufacturerModelName")}}</div>
+                            }
+                        </td>
+                        <td>
+                            @if(_.hasIn(device,'dicomPrimaryDeviceType[0]')){
+                                <div>{{_.get(device,"dicomPrimaryDeviceType[0]")}}</div>
+                            }
+                        </td>
+                        <td>
+                            @if(_.hasIn(device,'dicomStationName')){
+                                <div>{{device['dicomStationName']}}</div>
+                            }
+                        </td>
+                        @if(device['dicomInstalled']=== false){
+                            <td i18n="@@false">false</td>
                         } @else {
-                            <div class="table_btn"></div>
+                            <td i18n="@@true">true</td>
                         }
-                    </td>
-                    <td><div *ngIf="device['dicomDeviceName']" >
-                        <a i18n-title="@@title.devices.edit_param" title="Edit {{device['dicomDeviceName']}}" href="" (click)="$event.preventDefault();editDevice(device['dicomDeviceName'])">
-                            {{device['dicomDeviceName']}}
-                        </a>
-                    </div></td>
-                    <td><div *ngIf="_.hasIn(device,'dicomInstitutionDepartmentName[0]')" >{{device['dicomInstitutionDepartmentName'][0]}}</div></td>
-                    <td><div *ngIf="_.hasIn(device,'dicomDescription')" >{{_.get(device,"dicomDescription")}}</div></td>
-                    <td><div *ngIf="_.hasIn(device,'dicomManufacturer')" >{{_.get(device,"dicomManufacturer")}}</div></td>
-                    <td><div *ngIf="_.hasIn(device,'dicomManufacturerModelName')" >{{_.get(device,"dicomManufacturerModelName")}}</div></td>
-                    <td><div *ngIf="_.hasIn(device,'dicomPrimaryDeviceType[0]')" >{{_.get(device,"dicomPrimaryDeviceType[0]")}}</div></td>
-                    <td><div *ngIf="_.hasIn(device,'dicomStationName')" >{{device['dicomStationName']}}</div></td>
-                    <td *ngIf="device['dicomInstalled']=== false" i18n="@@false">false</td>
-                    <td *ngIf="device['dicomInstalled']!= false" i18n="@@true">true</td>
-                </tr>
+
+                    </tr>
+                }
                 </tbody>
             </table>
-            <button class="load_more" *ngIf="devices && moreDevices.limit <= devices.length" (click)="loadMoreDevices()"><i *ngIf="moreDevices.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i><ng-container i18n="@@more">More</ng-container></button>
+            @if(devices && moreDevices.limit <= devices.length){
+                <button class="load_more" (click)="loadMoreDevices()">
+                    @if(moreDevices.loaderActive){
+                        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+                    }
+                    <ng-container i18n="@@more">More</ng-container>
+                </button>
+            }
         <!--</div>-->
     </div>
 </div>

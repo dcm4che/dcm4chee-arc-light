@@ -1,23 +1,39 @@
 <table class="table table-bordered table-condensed attribute_list">
-    <tr *ngFor="let row of rows">
-        <td>{{row.level}}</td>
-        <td class="attr_name" *ngIf="row.el">{{row.name}}</td>
-        <td class="attr_tag" *ngIf="row.el">{{row.tag | formatTag}}</td>
-        <td class="attr_vr" *ngIf="row.el">{{row.el.vr}}</td>
-        <td class="attr_value">
-            <ng-container *ngIf="row.el && row.el.vr === 'PN' && _.hasIn(row,'el.Value.0')">
-                <!--{{row.el.Value[0]  | personName:personNameFormat}}-->
-                <ng-container *ngIf="_.hasIn(row,'el.Value.0.Alphabetic')"><span>{{_.get(row,"el.Value.0.Alphabetic")}}</span></ng-container>
-                <ng-container *ngIf="_.hasIn(row,'el.Value.0.Ideographic')"><span>={{_.get(row,"el.Value.0.Ideographic")}}</span></ng-container>
-                <ng-container *ngIf="_.hasIn(row,'el.Value.0.Phonetic')"><span>={{_.get(row,"el.Value.0.Phonetic")}}</span></ng-container>
-            </ng-container>
-            <ng-container *ngIf="row.el && (row.el.vr === 'DA' || row.el.vr === 'TM' || row.el.vr === 'DT') && _.hasIn(row,'el.Value.0')">
-                {{row.el.Value[0]  | customDate:customDateTimeFormat}}
-            </ng-container>
-            <ng-container *ngIf="row.el && !(row.el.vr === 'DA' || row.el.vr === 'TM' || row.el.vr === 'PN'  || row.el.vr === 'DT')">
-                {{row.el | formatAttributeValue}}
-            </ng-container>
-        </td>
-        <td *ngIf="row.item || row.item === 0" colspan="4">Item # {{row.item + 1}}</td>
-    </tr>
+    @for (row of rows; track row) {
+        <tr>
+            <td>{{row.level}}</td>
+            @if(row.name){
+                <td class="attr_name">{{row.name}}</td>
+            }
+            @if(row.tag){
+                <td class="attr_tag">{{row.tag | formatTag}}</td>
+            }
+            @if(row.el){
+                <td class="attr_vr">{{row.el.vr}}</td>
+            }
+            <td class="attr_value">
+                @if(row.el && row.el.vr === 'PN' && _.hasIn(row,'el.Value.0')) {
+                    <!--{{row.el.Value[0]  | personName:personNameFormat}}-->
+                    @if(_.hasIn(row,'el.Value.0.Alphabetic')){
+                        <span>{{_.get(row,"el.Value.0.Alphabetic")}}</span>
+                    }
+                    @if(_.hasIn(row,'el.Value.0.Ideographic')){
+                        <span>={{_.get(row,"el.Value.0.Ideographic")}}</span>
+                    }
+                    @if(_.hasIn(row,'el.Value.0.Phonetic')){
+                        <span>={{_.get(row,"el.Value.0.Phonetic")}}</span>
+                    }
+                }
+                @if(row.el && (row.el.vr === 'DA' || row.el.vr === 'TM' || row.el.vr === 'DT') && _.hasIn(row,'el.Value.0')){
+                    {{row.el.Value[0]  | customDate:customDateTimeFormat}}
+                }
+                @if(row.el && !(row.el.vr === 'DA' || row.el.vr === 'TM' || row.el.vr === 'PN'  || row.el.vr === 'DT')){
+                    {{row.el | formatAttributeValue}}
+                }
+            </td>
+            @if(row.item || row.item === 0) {
+                <td colspan="4">Item # {{row.item + 1}}</td>
+            }
+        </tr>
+    }
 </table>

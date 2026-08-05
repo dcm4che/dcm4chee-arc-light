@@ -3,24 +3,29 @@
     <!--<div class="devicelist_block">-->
         <div class="tab-content">
             <h2 i18n="@@hl7_applications">Hl7 Applications</h2>
-            <div class="filter_line" *ngIf="advancedConfig">
-                <div class="filter_block">
-                    <filter-generator 
-                            [filterIdTemplate]="'device-list'" 
-                            [filterID]="'device-list'" 
-                            [schema]="filterSchema"
-                            [model]="filter" 
-                            (submit)="getHl7ApplicationsList(0)" 
-                            [filterTreeHeight]="filterHeight"
-                    ></filter-generator>
+            @if(advancedConfig){
+                <div class="filter_line">
+                    <div class="filter_block">
+                        <filter-generator
+                                [filterIdTemplate]="'device-list'"
+                                [filterID]="'device-list'"
+                                [schema]="filterSchema"
+                                [model]="filter"
+                                (submit)="getHl7ApplicationsList(0)"
+                                [filterTreeHeight]="filterHeight"
+                        ></filter-generator>
+                    </div>
                 </div>
-            </div>
+            }
             <div class="filter_line more_function_block">
                 <div class="filter single_block">
                     <div class="filter_block">
                         <div class="line">
-                            <a href="" (click)="$event.preventDefault();advancedConfig=true" *ngIf="!advancedConfig" class="more"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-bottom"></i></a>
-                            <a href="" (click)="$event.preventDefault();advancedConfig=false" *ngIf="advancedConfig" class="more ng-hide"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-top"></i></a>
+                            @if(advancedConfig){
+                                <a href="" (click)="$event.preventDefault();advancedConfig=false" class="more ng-hide"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-top"></i></a>
+                            } @else {
+                                <a href="" (click)="$event.preventDefault();advancedConfig=true" class="more"><ng-container i18n="@@extended_search">Extended search</ng-container><i class="glyphicon glyphicon-triangle-bottom"></i></a>
+                            }
                             <input autocomplete="off" id="devicefilter" class="devicefilter" [(ngModel)]="devicefilter" i18n-placeholder="@@search_device" placeholder="Search device"/>
                         </div>
                     </div>
