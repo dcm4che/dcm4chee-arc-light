@@ -14,7 +14,7 @@ import {TableGeneratorComponent} from '../../helpers/table-generator/table-gener
 import {FormsModule} from '@angular/forms';
 import {ConfigTabComponent} from '../config-tab.component';
 import {SearchPipe} from '../../pipes/search.pipe';
-import {CommonModule} from '@angular/common';
+
 import {WebAppsListService} from './web-apps-list.service';
 
 @Component({
@@ -22,13 +22,12 @@ import {WebAppsListService} from './web-apps-list.service';
     templateUrl: './web-apps-list.component.html',
     styleUrls: ['./web-apps-list.component.scss'],
     imports: [
-        FilterGeneratorComponent,
-        TableGeneratorComponent,
-        FormsModule,
-        ConfigTabComponent,
-        SearchPipe,
-        CommonModule
-    ],
+    FilterGeneratorComponent,
+    TableGeneratorComponent,
+    FormsModule,
+    ConfigTabComponent,
+    SearchPipe
+],
     standalone: true
 })
 export class WebAppsListComponent implements OnInit {

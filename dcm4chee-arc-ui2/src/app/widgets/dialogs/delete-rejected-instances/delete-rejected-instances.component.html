@@ -3,7 +3,9 @@
         <div class="form-group">
             <label i18n="@@delete-rejected.delete_instances_with_rejected_type">Delete rejected instances with rejection note type</label>
             <select id="reject" [(ngModel)]="results.reject" name="reject" class="form-control">
-                <option *ngFor="let rjn of rjnotes" title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
+                @for (rjn of rjnotes; track rjn) {
+<option title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
+}
                 </select>
             </div>
         <div class="form-group">

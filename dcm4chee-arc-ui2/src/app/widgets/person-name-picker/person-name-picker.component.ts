@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {AppService} from '../../app.service';
 import {PersonNamePickerService} from './person-name-picker.service';
 import * as _ from 'lodash-es';
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
 @Component({

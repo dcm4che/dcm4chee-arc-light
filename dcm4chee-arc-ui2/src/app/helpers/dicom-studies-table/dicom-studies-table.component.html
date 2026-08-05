@@ -35,10 +35,16 @@
                                     {{patient.offset + 1}}
                                 }
                                 @case('actions'){
-                                    <ng-container *ngFor="let action of patient_table.actions">
-                                        <a class="pointer dicom_table_buttons" *ngIf="(!action.showIf || action.showIf(patient, config))" (click)="$event.preventDefault();action.click(patient,'patient')" title="{{action.title || ''}}">
-                                            <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                                            <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                    @for (action of patient_table.actions; track action) {
+
+                                        @if ((!action.showIf || action.showIf(patient, config))) {
+<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient,'patient')" title="{{action.title || ''}}">
+                                            @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+}
+                                            @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+}
                                             @if(action.icon.svg && action.icon.svg != ''){
                                                 <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                             }
@@ -46,7 +52,9 @@
                                                 <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                             }
                                         </a>
-                                    </ng-container>
+}
+                                    
+}
                                 }
                                 @case('actions-menu'){
                                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
@@ -55,10 +63,16 @@
                                                                     <span *ngIf="!patient.selected" class="glyphicon glyphicon-unchecked"></span>
                                                                     <span *ngIf="patient.selected" class="glyphicon glyphicon-check"></span>
                                                                 </button>-->
-                                        <ng-container *ngFor="let action of patient_table.menu.actions">
-                                            <a *ngIf="(!action.showIf || action.showIf(patient, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient,'patient')" title="{{action.title || ''}}">
-                                                <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                                <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                        @for (action of patient_table.menu.actions; track action) {
+
+                                            @if ((!action.showIf || action.showIf(patient, config))) {
+<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient,'patient')" title="{{action.title || ''}}">
+                                                @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+}
+                                                @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+}
                                                 @if(action.icon.svg && action.icon.svg != ''){
                                                     <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                 }
@@ -66,7 +80,9 @@
                                                     <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                 }
                                             </a>
-                                        </ng-container>
+}
+                                        
+}
                                     </mat-menu>
                                 }
                             @case('pipe'){
@@ -109,25 +125,35 @@
                             <div class="tr" [ngClass]="config?.cssTrClass">
                                 <div class="study_block table_item" (mouseenter)="hover_mode = 'studies'" [ngClass]="{'selected':study.selected}">
 
-                                    @for(studies_table of tableSchema.studies; track $index){
-                                        <div class="td"
-                                             *ngFor="let studies_table of tableSchema.studies"
+                                    @for (studies_table of tableSchema.studies; track studies_table) {
+<div class="td"
+                                            
                                              [ngClass]="[config?.cssTdClass || '', studies_table.cssClass || '', studies_table.type || '']"
                                              [ngStyle]="{width: studies_table.calculatedWidth}"
-                                             [ngSwitch]="studies_table.type"
+                                            
                                              (mouseenter)="active_td = studies_table.elementId"
                                              tooltip="{{getTooltip(study, studies_table)}}"
                                         >
-                                            <ng-container *ngSwitchCase="'index'">{{study.offset + 1}}</ng-container>
-                                            <ng-container *ngSwitchCase="'actions'">
+@switch (studies_table.type) {
+                                            @case ('index') {
+{{study.offset + 1}}
+}
+                                            @case ('actions') {
+
                                                 <!--                            <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
                                                                                 <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
                                                                                 <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
                                                                             </button>-->
-                                                <ng-container *ngFor="let action of studies_table.actions">
-                                                    <a *ngIf="(!action.showIf || action.showIf(study, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(study,'study')" title="{{action.title || ''}}">
-                                                        <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                                @for (action of studies_table.actions; track action) {
+
+                                                    @if ((!action.showIf || action.showIf(study, config))) {
+<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(study,'study')" title="{{action.title || ''}}">
+                                                        @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+}
+                                                        @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+}
                                                         @if(action.icon.svg && action.icon.svg != ''){
                                                             <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                         }
@@ -135,9 +161,13 @@
                                                             <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                         }
                                                     </a>
-                                                </ng-container>
-                                            </ng-container>
-                                            <ng-container *ngSwitchCase="'actions-menu'">
+}
+                                                
+}
+                                            
+}
+                                            @case ('actions-menu') {
+
                                                 <!--                            <button (click)="showStudyMenu = !showStudyMenu"><span class="glyphicon glyphicon-option-vertical"></span></button>
                                                                             <div class="study_action_buttons" *ngIf="showStudyMenu">
                                                                                 <ng-container *ngFor="let action of studies_table.menu.actions">
@@ -153,10 +183,16 @@
                                                                                         <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
                                                                                         <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
                                                                                     </button-->
-                                                    <ng-container *ngFor="let action of studies_table.menu.actions">
-                                                        <a *ngIf="(!action.showIf || action.showIf(study, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study,'study')" title="{{action.title || ''}}">
-                                                            <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                                            <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                    @for (action of studies_table.menu.actions; track action) {
+
+                                                        @if ((!action.showIf || action.showIf(study, config))) {
+<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study,'study')" title="{{action.title || ''}}">
+                                                            @if (action.icon.tag === 'span' ) {
+<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+}
+                                                            @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+}
                                                             @if(action.icon.svg && action.icon.svg != ''){
                                                                 <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                             }
@@ -164,11 +200,15 @@
                                                                 <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                             }
                                                         </a>
+}
 
-                                                    </ng-container>
+                                                    
+}
                                                 </mat-menu>
-                                            </ng-container>
-                                            <ng-container *ngSwitchCase="'pipe'">
+                                            
+}
+                                            @case ('pipe') {
+
                                                 <span [innerHTML]="getDynamicPipeValue(study,studies_table)"></span>
                                                 <!--
                                                                             <ng-container *ngIf="studies_table.pathToValue">
@@ -177,16 +217,24 @@
                                                                             <ng-container *ngIf="!studies_table.pathToValue">
                                                                                 {{study.attrs | dynamicPipe:studies_table.pipe}}
                                                                             </ng-container>-->
-                                            </ng-container>
-                                            <ng-container *ngSwitchCase="'value'">
-                                                <ng-container *ngIf="!studies_table.hook">
+                                            
+}
+                                            @case ('value') {
+
+                                                @if (!studies_table.hook) {
+
                                                     {{_.get(study.attrs, studies_table.pathToValue) || '&nbsp;'}}
-                                                </ng-container>
-                                                <ng-container *ngIf="studies_table.hook">
+                                                
+}
+                                                @if (studies_table.hook) {
+
                                                     {{studies_table.hook(_.get(study.attrs, studies_table.pathToValue), study.attrs,studies_table.pathToValue, study)}}
-                                                </ng-container>
-                                            </ng-container>
-                                        </div>
+                                                
+}
+                                            
+}
+                                        }
+</div>
                                     }
                                     @if(study.showAttributes){
                                         <attribute-list [attrs]="study.attrs"></attribute-list>
@@ -205,20 +253,30 @@
                                                         <div class="td"
                                                              [ngClass]="[config?.cssTdClass || '', serie_table.cssClass || '', serie_table.type || '']"
                                                              [ngStyle]="{width: serie_table.calculatedWidth}"
-                                                             [ngSwitch]="serie_table.type"
+                                                            
                                                              (mouseenter)="active_td = serie_table.elementId"
                                                              tooltip="{{getTooltip(serie, serie_table)}}"
                                                         >
-                                                            <ng-container *ngSwitchCase="'index'">{{serie.offset + 1}}</ng-container>
-                                                            <ng-container *ngSwitchCase="'actions'">
+@switch (serie_table.type) {
+                                                            @case ('index') {
+{{serie.offset + 1}}
+}
+                                                            @case ('actions') {
+
                                                                 <!--                                    <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
                                                                                                         <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
                                                                                                         <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
                                                                                                     </button>-->
-                                                                <ng-container *ngFor="let action of serie_table.actions">
-                                                                    <a *ngIf="(!action.showIf || action.showIf(serie, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
-                                                                        <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                                                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                                                @for (action of serie_table.actions; track action) {
+
+                                                                    @if ((!action.showIf || action.showIf(serie, config))) {
+<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
+                                                                        @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+}
+                                                                        @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+}
                                                                         @if(action.icon.svg && action.icon.svg != ''){
                                                                             <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                                         }
@@ -226,19 +284,29 @@
                                                                             <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                                         }
                                                                     </a>
-                                                                </ng-container>
-                                                            </ng-container>
-                                                            <ng-container *ngSwitchCase="'actions-menu'">
+}
+                                                                
+}
+                                                            
+}
+                                                            @case ('actions-menu') {
+
                                                                 <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                                                 <mat-menu #menu="matMenu" class="study_action_buttons series">
                                                                     <!--                                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
                                                                                                                 <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
                                                                                                                 <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
                                                                                                             </button>-->
-                                                                    <ng-container *ngFor="let action of serie_table.menu.actions">
-                                                                        <a *ngIf="(!action.showIf || action.showIf(serie, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
-                                                                            <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                                                            <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                                    @for (action of serie_table.menu.actions; track action) {
+
+                                                                        @if ((!action.showIf || action.showIf(serie, config))) {
+<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
+                                                                            @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+}
+                                                                            @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+}
                                                                             @if(action.icon.svg && action.icon.svg != ''){
                                                                                 <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                                             }
@@ -246,10 +314,14 @@
                                                                                 <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                                             }
                                                                         </a>
-                                                                    </ng-container>
+}
+                                                                    
+}
                                                                 </mat-menu>
-                                                            </ng-container>
-                                                            <ng-container *ngSwitchCase="'pipe'">
+                                                            
+}
+                                                            @case ('pipe') {
+
                                                                 <span [innerHTML]="getDynamicPipeValue(serie,serie_table)"></span>
                                                                 <!--
                                                                                                     <ng-container *ngIf="serie_table.pathToValue">
@@ -258,16 +330,24 @@
                                                                                                     <ng-container *ngIf="!serie_table.pathToValue">
                                                                                                         {{serie.attrs | dynamicPipe:serie_table.pipe}}
                                                                                                     </ng-container>-->
-                                                            </ng-container>
-                                                            <ng-container *ngSwitchCase="'value'">
-                                                                <ng-container *ngIf="!serie_table.hook">
+                                                            
+}
+                                                            @case ('value') {
+
+                                                                @if (!serie_table.hook) {
+
                                                                     {{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}
-                                                                </ng-container>
-                                                                <ng-container *ngIf="serie_table.hook">
+                                                                
+}
+                                                                @if (serie_table.hook) {
+
                                                                     {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs,serie_table.pathToValue, serie)}}
-                                                                </ng-container>
-                                                            </ng-container>
-                                                        </div>
+                                                                
+}
+                                                            
+}
+                                                        }
+</div>
                                                     }
                                                     @if(serie.showAttributes){
                                                         <attribute-list [attrs]="serie.attrs"></attribute-list>
@@ -332,9 +412,14 @@
                                                                                                                                             <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
                                                                                                                                         </button>-->
                                                                                         @for (action of instance_table.menu.actions;track action){
-                                                                                            <a *ngIf="(!action.showIf || action.showIf(instance, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
-                                                                                                <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                                                                                <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                                                            @if ((!action.showIf || action.showIf(instance, config))) {
+<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
+                                                                                                @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+}
+                                                                                                @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+}
                                                                                                 @if(action.icon.svg && action.icon.svg != ''){
                                                                                                     <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                                                                 }
@@ -342,6 +427,7 @@
                                                                                                     <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                                                                 }
                                                                                             </a>
+}
                                                                                         }
                                                                                     </mat-menu>
                                                                                 }
@@ -463,26 +549,38 @@
                 <!--mwl 2:-->
                 @if(patient.showMwls){
                     <div class="study_main_block">
-                        <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let mwl of patient.mwls;let i = index">
+                        @for (mwl of patient.mwls; track mwl; let i = $index) {
+<div class="tr" [ngClass]="config?.cssTrClass">
                             <div class="mwl_block table_item" (mouseenter)="hover_mode = 'mwl'" [ngClass]="{'selected':mwl.selected}">
-                                <div class="td"
-                                     *ngFor="let mwl_table of tableSchema.mwl"
+                                @for (mwl_table of tableSchema.mwl; track mwl_table) {
+<div class="td"
+                                    
                                      [ngClass]="[config?.cssTdClass || '', mwl_table.type || '']"
                                      [ngStyle]="{width: mwl_table.calculatedWidth}"
-                                     [ngSwitch]="mwl_table.type"
+                                    
                                      (mouseenter)="active_td = mwl_table.elementId"
                                      tooltip="{{getTooltip(mwl, mwl_table)}}"
                                 >
-                                    <ng-container *ngSwitchCase="'index'">{{mwl.offset + 1}}</ng-container>
-                                    <ng-container *ngSwitchCase="'actions'">
+@switch (mwl_table.type) {
+                                    @case ('index') {
+{{mwl.offset + 1}}
+}
+                                    @case ('actions') {
+
                                         <!--                            <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="mwl.selected = !mwl.selected">
                                                                         <span *ngIf="!mwl.selected" class="glyphicon glyphicon-unchecked"></span>
                                                                         <span *ngIf="mwl.selected" class="glyphicon glyphicon-check"></span>
                                                                     </button>-->
-                                        <ng-container *ngFor="let action of mwl_table.actions">
-                                            <a *ngIf="(!action.showIf || action.showIf(mwl, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(mwl,'mwl')" title="{{action.title || ''}}">
-                                                <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                                                <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                        @for (action of mwl_table.actions; track action) {
+
+                                            @if ((!action.showIf || action.showIf(mwl, config))) {
+<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(mwl,'mwl')" title="{{action.title || ''}}">
+                                                @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+}
+                                                @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+}
                                                 @if(action.icon.svg && action.icon.svg != ''){
                                                     <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                 }
@@ -490,15 +588,25 @@
                                                     <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                 }
                                             </a>
-                                        </ng-container>
-                                    </ng-container>
-                                    <ng-container *ngSwitchCase="'actions-menu'">
+}
+                                        
+}
+                                    
+}
+                                    @case ('actions-menu') {
+
                                         <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                         <mat-menu #menu="matMenu" class="mwl_action_buttons" (click)="$event.stopPropagation()">
-                                            <ng-container *ngFor="let action of mwl_table.menu.actions">
-                                                <a *ngIf="(!action.showIf || action.showIf(mwl, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(mwl,'mwl')" title="{{action.title || ''}}">
-                                                    <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                                    <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                            @for (action of mwl_table.menu.actions; track action) {
+
+                                                @if ((!action.showIf || action.showIf(mwl, config))) {
+<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(mwl,'mwl')" title="{{action.title || ''}}">
+                                                    @if (action.icon.tag === 'span' ) {
+<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+}
+                                                    @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+}
                                                     @if(action.icon.svg && action.icon.svg != ''){
                                                         <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                     }
@@ -506,10 +614,14 @@
                                                         <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                     }
                                                 </a>
-                                            </ng-container>
+}
+                                            
+}
                                         </mat-menu>
-                                    </ng-container>
-                                    <ng-container *ngSwitchCase="'pipe'">
+                                    
+}
+                                    @case ('pipe') {
+
                                         <span [innerHTML]="getDynamicPipeValue(mwl,mwl_table)"></span>
 
                                         <!--                            <ng-container *ngIf="mwl_table.pathToValue">
@@ -518,12 +630,20 @@
                                                                     <ng-container *ngIf="!mwl_table.pathToValue">
                                                                         {{mwl.attrs | dynamicPipe:mwl_table.pipe}}
                                                                     </ng-container>-->
-                                    </ng-container>
-                                    <ng-container *ngSwitchCase="'value'">{{_.get(mwl.attrs, mwl_table.pathToValue) || '&nbsp;'}}</ng-container>
-                                </div>
-                                <attribute-list *ngIf="mwl.showAttributes" [attrs]="mwl.attrs"></attribute-list>
+                                    
+}
+                                    @case ('value') {
+{{_.get(mwl.attrs, mwl_table.pathToValue) || '&nbsp;'}}
+}
+                                }
+</div>
+}
+                                @if (mwl.showAttributes) {
+<attribute-list [attrs]="mwl.attrs"></attribute-list>
+}
                             </div>
                         </div>
+}
                     </div>
                 }
                 <!--mwl 2:END;-->
@@ -537,11 +657,11 @@
                                     <div class="td"
                                          [ngClass]="[config?.cssTdClass || '', uwl_table.type || '']"
                                          [ngStyle]="{width: uwl_table.calculatedWidth}"
-                                         [ngSwitch]="uwl_table.type"
+                                        
                                          (mouseenter)="active_td = uwl_table.elementId"
                                          tooltip="{{getTooltip(uwl, uwl_table)}}"
                                     >
-                                        @switch ( uwl_table.type ) {
+@switch (uwl_table.type) {
                                             @case ('index') {
                                                 {{uwl.offset + 1}}
                                             }
@@ -598,8 +718,8 @@
                                             @case ('value'){
                                                 {{_.get(uwl.attrs, uwl_table.pathToValue) || '&nbsp;'}}
                                             }
-                                        }
-                                    </div>
+                                    }
+</div>
                                 }
                                 @if(uwl.showAttributes){
                                     <attribute-list [attrs]="uwl.attrs"></attribute-list>
@@ -614,22 +734,33 @@
                 <!--mpps 2:-->
                 @if(patient.showMpps){
                     <div class="study_main_block">
-                        <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let mpps of patient.mpps;let i = index">
+                        @for (mpps of patient.mpps; track mpps; let i = $index) {
+<div class="tr" [ngClass]="config?.cssTrClass">
                             <div class="mwl_block table_item" (mouseenter)="hover_mode = 'mpps'" [ngClass]="{'selected':mpps.selected}">
                                 @for (mpps_table of tableSchema.mpps; track mpps_table){
                                     <div class="td"
                                          [ngClass]="[config?.cssTdClass || '', mpps_table.type || '']"
                                          [ngStyle]="{width: mpps_table.calculatedWidth}"
-                                         [ngSwitch]="mpps_table.type"
+                                        
                                          (mouseenter)="active_td = mpps_table.elementId"
                                          tooltip="{{getTooltip(mpps, mpps_table)}}"
                                     >
-                                        <ng-container *ngSwitchCase="'index'">{{mpps.offset + 1}}</ng-container>
-                                        <ng-container *ngSwitchCase="'actions'">
-                                            <ng-container *ngFor="let action of mpps_table.actions">
-                                                <a *ngIf="(!action.showIf || action.showIf(mpps, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(mpps,'mpps')" title="{{action.title || ''}}">
-                                                    <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                                                    <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+@switch (mpps_table.type) {
+                                        @case ('index') {
+{{mpps.offset + 1}}
+}
+                                        @case ('actions') {
+
+                                            @for (action of mpps_table.actions; track action) {
+
+                                                @if ((!action.showIf || action.showIf(mpps, config))) {
+<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(mpps,'mpps')" title="{{action.title || ''}}">
+                                                    @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+}
+                                                    @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+}
                                                     @if(action.icon.svg && action.icon.svg != ''){
                                                         <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                     }
@@ -637,15 +768,25 @@
                                                         <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                     }
                                                 </a>
-                                            </ng-container>
-                                        </ng-container>
-                                        <ng-container *ngSwitchCase="'actions-menu'">
+}
+                                            
+}
+                                        
+}
+                                        @case ('actions-menu') {
+
                                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                             <mat-menu #menu="matMenu" class="mpps_action_buttons" (click)="$event.stopPropagation()">
-                                                <ng-container *ngFor="let action of mpps_table.menu.actions">
-                                                    <a *ngIf="(!action.showIf || action.showIf(mpps, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(mpps,'mpps')" title="{{action.title || ''}}">
-                                                        <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                @for (action of mpps_table.menu.actions; track action) {
+
+                                                    @if ((!action.showIf || action.showIf(mpps, config))) {
+<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(mpps,'mpps')" title="{{action.title || ''}}">
+                                                        @if (action.icon.tag === 'span' ) {
+<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+}
+                                                        @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+}
                                                         @if(action.icon.svg && action.icon.svg != ''){
                                                             <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                         }
@@ -653,10 +794,14 @@
                                                             <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                         }
                                                     </a>
-                                                </ng-container>
+}
+                                                
+}
                                             </mat-menu>
-                                        </ng-container>
-                                        <ng-container *ngSwitchCase="'pipe'">
+                                        
+}
+                                        @case ('pipe') {
+
                                             <span [innerHTML]="getDynamicPipeValue(mpps,mpps_table)"></span>
 
                                             <!--                            <ng-container *ngIf="mpps_table.pathToValue">
@@ -665,34 +810,54 @@
                                                                         <ng-container *ngIf="!mpps_table.pathToValue">
                                                                             {{mpps.attrs | dynamicPipe:mpps_table.pipe}}
                                                                         </ng-container>-->
-                                        </ng-container>
-                                        <ng-container *ngSwitchCase="'value'">{{_.get(mpps.attrs, mpps_table.pathToValue) || '&nbsp;'}}</ng-container>
-                                    </div>
+                                        
+}
+                                        @case ('value') {
+{{_.get(mpps.attrs, mpps_table.pathToValue) || '&nbsp;'}}
+}
+                                    }
+</div>
                                 }
-                                <attribute-list *ngIf="mpps.showAttributes" [attrs]="mpps.attrs"></attribute-list>
+                                @if (mpps.showAttributes) {
+<attribute-list [attrs]="mpps.attrs"></attribute-list>
+}
                             </div>
                         </div>
+}
                     </div>
                 }
                 <!--mpps 2:END;-->
                 <!--diff 2:-->
-                <div *ngIf="patient.showDiffs" class="study_main_block">
-                    <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let diff of patient.diffs;let i = index">
+                @if (patient.showDiffs) {
+<div class="study_main_block">
+                    @for (diff of patient.diffs; track diff; let i = $index) {
+<div class="tr" [ngClass]="config?.cssTrClass">
                         <div class="diff_block table_item" (mouseenter)="hover_mode = 'diff'" [ngClass]="{'selected':diff.selected}">
-                            <div class="td"
-                                 *ngFor="let diff_table of tableSchema.diff"
+                            @for (diff_table of tableSchema.diff; track diff_table) {
+<div class="td"
+                                
                                  [ngClass]="[config?.cssTdClass || '', diff_table.type || '']"
                                  [ngStyle]="{width: diff_table.calculatedWidth}"
-                                 [ngSwitch]="diff_table.type"
+                                
                                  (mouseenter)="active_td = diff_table.elementId"
                                  tooltip="{{getTooltip(diff, diff_table)}}"
                             >
-                                <ng-container *ngSwitchCase="'index'">{{diff.offset + 1}}</ng-container>
-                                <ng-container *ngSwitchCase="'actions'">
-                                    <ng-container *ngFor="let action of diff_table.actions">
-                                        <a *ngIf="(!action.showIf || action.showIf(diff, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
-                                            <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                                            <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+@switch (diff_table.type) {
+                                @case ('index') {
+{{diff.offset + 1}}
+}
+                                @case ('actions') {
+
+                                    @for (action of diff_table.actions; track action) {
+
+                                        @if ((!action.showIf || action.showIf(diff, config))) {
+<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
+                                            @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+}
+                                            @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+}
                                             @if(action.icon.svg && action.icon.svg != ''){
                                                 <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                             }
@@ -700,15 +865,25 @@
                                                 <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                             }
                                         </a>
-                                    </ng-container>
-                                </ng-container>
-                                <ng-container *ngSwitchCase="'actions-menu'">
+}
+                                    
+}
+                                
+}
+                                @case ('actions-menu') {
+
                                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                     <mat-menu #menu="matMenu" class="diff_action_buttons" (click)="$event.stopPropagation()">
-                                        <ng-container *ngFor="let action of diff_table.menu.actions">
-                                            <a *ngIf="(!action.showIf || action.showIf(diff, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
-                                                <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                                <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                        @for (action of diff_table.menu.actions; track action) {
+
+                                            @if ((!action.showIf || action.showIf(diff, config))) {
+<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
+                                                @if (action.icon.tag === 'span' ) {
+<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+}
+                                                @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+}
                                                 @if(action.icon.svg && action.icon.svg != ''){
                                                     <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                 }
@@ -716,10 +891,14 @@
                                                     <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                 }
                                             </a>
-                                        </ng-container>
+}
+                                        
+}
                                     </mat-menu>
-                                </ng-container>
-                                <ng-container *ngSwitchCase="'pipe'">
+                                
+}
+                                @case ('pipe') {
+
                                     <span [innerHTML]="getDynamicPipeValue(diff,diff_table)"></span>
 
                                     <!--                            <ng-container *ngIf="diff_table.pathToValue">
@@ -728,20 +907,33 @@
                                                                 <ng-container *ngIf="!diff_table.pathToValue">
                                                                     {{diff.attrs | dynamicPipe:diff_table.pipe}}
                                                                 </ng-container>-->
-                                </ng-container>
-                                <ng-container *ngSwitchCase="'value'">
-                                    <ng-container *ngIf="_.get(diff.diffHeaders, diff_table.showBorderPath)">
+                                
+}
+                                @case ('value') {
+
+                                    @if (_.get(diff.diffHeaders, diff_table.showBorderPath)) {
+
                                         <span class="red_border">{{_.get(diff.diffHeaders, diff_table.pathToValue) || '&nbsp;'}}</span>
-                                    </ng-container>
-                                    <ng-container *ngIf="!_.get(diff.diffHeaders, diff_table.showBorderPath)">
+                                    
+}
+                                    @if (!_.get(diff.diffHeaders, diff_table.showBorderPath)) {
+
                                         {{_.get(diff.diffHeaders, diff_table.pathToValue) || '&nbsp;'}}
-                                    </ng-container>
-                                </ng-container>
-                            </div>
-                            <attribute-list *ngIf="diff.showAttributes" [attrs]="diff.attrs"></attribute-list>
+                                    
+}
+                                
+}
+                            }
+</div>
+}
+                            @if (diff.showAttributes) {
+<attribute-list [attrs]="diff.attrs"></attribute-list>
+}
                         </div>
                     </div>
-                    <div class="tr" *ngIf="patient.diffs && patient.diffs.length > 0 && patient.diffs[0].showPaginations">
+}
+                    @if (patient.diffs && patient.diffs.length > 0 && patient.diffs[0].showPaginations) {
+<div class="tr">
                         <div class="instance_block table_item">
                             <div class="td td_with_centered_child">
                                 <div class="centered_child">
@@ -759,7 +951,9 @@
                             </div>
                         </div>
                     </div>
+}
                 </div>
+}
                 <!--diff 2:END;-->
 
             </div>
@@ -770,45 +964,68 @@
 
 
 
-<div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass" *ngIf="patients1 && patients1.length > 0" (mouseleave)="active_td = ''">
+@if (patients1 && patients1.length > 0) {
+<div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass" (mouseleave)="active_td = ''">
     <!--Headers 1:-->
     <div class="th {{hover_mode}}" [ngClass]="config?.cssThClass" [ngStyle]="{top:config.headerTop || '186px'}">
-        <div class="td"
-             *ngFor="let table of tableSchema[hover_mode]"
+        @for (table of tableSchema[hover_mode]; track table) {
+<div class="td"
+            
              [ngClass]="[config?.cssTdClass || '',(table.type != 'value' && table.type != 'pipe')?'empty_td':'not_empty_td', (table.elementId && active_td === table.elementId) ? 'active':'', table.type || '']"
              [ngStyle]="{width: table.calculatedWidth}"
         >
-            <ng-container *ngIf="table.type === 'value' || table.type === 'pipe'">{{table.header}}</ng-container>
-            <ng-container *ngIf="!(table.type === 'value' || table.type === 'pipe')">&nbsp;</ng-container>
+            @if (table.type === 'value' || table.type === 'pipe') {
+{{table.header}}
+}
+            @if (!(table.type === 'value' || table.type === 'pipe')) {
+&nbsp;
+}
         </div>
+}
     </div>
     <!--1:END;-->
 
-    <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let patient of patients1|searchDicom:searchList;let i = index">
-        <div *ngIf="patient.showStudies" class="study_main_block">
-            <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let study of patient.studies;let i = index">
+    @for (patient of patients1|searchDicom:searchList; track patient; let i = $index) {
+<div class="tr" [ngClass]="config?.cssTrClass">
+        @if (patient.showStudies) {
+<div class="study_main_block">
+            @for (study of patient.studies; track study; let i = $index) {
+<div class="tr" [ngClass]="config?.cssTrClass">
                 <!--Series 3:-->
-                <div *ngIf="study.showSeries" class="series_main_block">
-                    <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let serie of study.series;let i = index">
+                @if (study.showSeries) {
+<div class="series_main_block">
+                    @for (serie of study.series; track serie; let i = $index) {
+<div class="tr" [ngClass]="config?.cssTrClass">
                         <div class="series_block table_item" (mouseenter)="hover_mode = 'series'" [ngClass]="{'selected':serie.selected}">
-                            <div class="td"
-                                 *ngFor="let serie_table of tableSchema.series"
+                            @for (serie_table of tableSchema.series; track serie_table) {
+<div class="td"
+                                
                                  [ngClass]="[config?.cssTdClass || '', serie_table.cssClass || '', serie_table.type || '']"
                                  [ngStyle]="{width: serie_table.calculatedWidth}"
-                                 [ngSwitch]="serie_table.type"
+                                
                                  (mouseenter)="active_td = serie_table.elementId"
                                  tooltip="{{getTooltip(serie, serie_table)}}"
                             >
-                                <ng-container *ngSwitchCase="'index'">{{serie.offset + 1}}</ng-container>
-                                <ng-container *ngSwitchCase="'actions'">
+@switch (serie_table.type) {
+                                @case ('index') {
+{{serie.offset + 1}}
+}
+                                @case ('actions') {
+
                                     <!--                                    <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
                                                                             <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
                                                                             <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
                                                                         </button>-->
-                                    <ng-container *ngFor="let action of serie_table.actions">
-                                        <a *ngIf="(!action.showIf || action.showIf(serie, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
-                                            <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                                            <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                    @for (action of serie_table.actions; track action) {
+
+                                        @if ((!action.showIf || action.showIf(serie, config))) {
+<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
+                                            @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+}
+                                            @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+}
                                             @if(action.icon.svg && action.icon.svg != ''){
                                                 <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                             }
@@ -816,19 +1033,29 @@
                                                 <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                             }
                                         </a>
-                                    </ng-container>
-                                </ng-container>
-                                <ng-container *ngSwitchCase="'actions-menu'">
+}
+                                    
+}
+                                
+}
+                                @case ('actions-menu') {
+
                                     <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                     <mat-menu #menu="matMenu" class="study_action_buttons series">
                                         <!--                                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
                                                                                     <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
                                                                                     <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
                                                                                 </button>-->
-                                        <ng-container *ngFor="let action of serie_table.menu.actions">
-                                            <a *ngIf="(!action.showIf || action.showIf(serie, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
-                                                <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                                <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                        @for (action of serie_table.menu.actions; track action) {
+
+                                            @if ((!action.showIf || action.showIf(serie, config))) {
+<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
+                                                @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+}
+                                                @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+}
                                                 @if(action.icon.svg && action.icon.svg != ''){
                                                     <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                 }
@@ -836,10 +1063,14 @@
                                                     <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                 }
                                             </a>
-                                        </ng-container>
+}
+                                        
+}
                                     </mat-menu>
-                                </ng-container>
-                                <ng-container *ngSwitchCase="'pipe'">
+                                
+}
+                                @case ('pipe') {
+
                                     <span [innerHTML]="getDynamicPipeValue(serie,serie_table)"></span>
 
 <!--                                    <ng-container *ngIf="serie_table.pathToValue">
@@ -848,43 +1079,67 @@
                                     <ng-container *ngIf="!serie_table.pathToValue">
                                         {{serie.attrs | dynamicPipe:serie_table.pipe}}
                                     </ng-container>-->
-                                </ng-container>
-                                <ng-container *ngSwitchCase="'value'">
-                                    <ng-container *ngIf="!serie_table.hook">
+                                
+}
+                                @case ('value') {
+
+                                    @if (!serie_table.hook) {
+
                                         {{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}
-                                    </ng-container>
-                                    <ng-container *ngIf="serie_table.hook">
+                                    
+}
+                                    @if (serie_table.hook) {
+
                                         {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs,serie_table.pathToValue, serie)}}
-                                    </ng-container>
-                                </ng-container>
-                            </div>
-                            <attribute-list *ngIf="serie.showAttributes" [attrs]="serie.attrs"></attribute-list>
+                                    
+}
+                                
+}
+                            }
+</div>
+}
+                            @if (serie.showAttributes) {
+<attribute-list [attrs]="serie.attrs"></attribute-list>
+}
                         </div>
 
                         <!--Instance 4:-->
-                        <div *ngIf="serie.showInstances" class="instance_main_block">
-                            <div class="tr" [ngClass]="config?.cssTrClass" *ngFor="let instance of serie.instances;let i = index">
+                        @if (serie.showInstances) {
+<div class="instance_main_block">
+                            @for (instance of serie.instances; track instance; let i = $index) {
+<div class="tr" [ngClass]="config?.cssTrClass">
                                 <div class="instance_block table_item" (mouseenter)="hover_mode = 'instance'" [ngClass]="{'selected':instance.selected}">
-                                    <div class="td"
-                                         *ngFor="let instance_table of tableSchema.instance"
+                                    @for (instance_table of tableSchema.instance; track instance_table) {
+<div class="td"
+                                        
                                          [ngClass]="[config?.cssTdClass || '', instance_table.cssClass || '', instance_table.type || '']"
                                          [ngStyle]="{width: instance_table.calculatedWidth}"
-                                         [ngSwitch]="instance_table.type"
+                                        
                                          (mouseenter)="active_td = instance_table.elementId"
                                          tooltip="{{getTooltip(instance, instance_table)}}"
                                     >
-                                        <ng-container *ngSwitchCase="'index'">{{instance.offset + 1}}</ng-container>
+@switch (instance_table.type) {
+                                        @case ('index') {
+{{instance.offset + 1}}
+}
                                         <!--                                        <ng-container *ngSwitchCase="'selected-checkbox'">
                                                                                     <a class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
                                                                                         <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
                                                                                         <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
                                                                                     </a>
                                                                                 </ng-container>-->
-                                        <ng-container *ngSwitchCase="'actions'">
-                                            <ng-container *ngFor="let action of instance_table.actions">
-                                                <a *ngIf="(!action.showIf || action.showIf(instance, config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
-                                                    <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                                                    <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+                                        @case ('actions') {
+
+                                            @for (action of instance_table.actions; track action) {
+
+                                                @if ((!action.showIf || action.showIf(instance, config))) {
+<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
+                                                    @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+}
+                                                    @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+}
                                                     @if(action.icon.svg && action.icon.svg != ''){
                                                         <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                     }
@@ -892,19 +1147,29 @@
                                                         <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                     }
                                                 </a>
-                                            </ng-container>
-                                        </ng-container>
-                                        <ng-container *ngSwitchCase="'actions-menu'">
+}
+                                            
+}
+                                        
+}
+                                        @case ('actions-menu') {
+
                                             <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
                                             <mat-menu #menu="matMenu" class="study_action_buttons instance">
                                                 <!--                                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
                                                                                                     <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
                                                                                                     <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
                                                                                                 </button>-->
-                                                <ng-container *ngFor="let action of instance_table.menu.actions">
-                                                    <a *ngIf="(!action.showIf || action.showIf(instance, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
-                                                        <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                @for (action of instance_table.menu.actions; track action) {
+
+                                                    @if ((!action.showIf || action.showIf(instance, config))) {
+<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
+                                                        @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+}
+                                                        @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+}
                                                         @if(action.icon.svg && action.icon.svg != ''){
                                                             <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
                                                         }
@@ -912,10 +1177,14 @@
                                                             <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
                                                         }
                                                     </a>
-                                                </ng-container>
+}
+                                                
+}
                                             </mat-menu>
-                                        </ng-container>
-                                        <ng-container *ngSwitchCase="'pipe'">
+                                        
+}
+                                        @case ('pipe') {
+
                                             <span [innerHTML]="getDynamicPipeValue(instance,instance_table)"></span>
 
    <!--                                         <ng-container *ngIf="instance_table.pathToValue">
@@ -924,27 +1193,42 @@
                                             <ng-container *ngIf="!instance_table.pathToValue">
                                                 {{instance.attrs | dynamicPipe:instance_table.pipe}}
                                             </ng-container>-->
-                                        </ng-container>
-                                        <ng-container *ngSwitchCase="'value'">
-                                            <ng-container *ngIf="!instance_table.hook">
+                                        
+}
+                                        @case ('value') {
+
+                                            @if (!instance_table.hook) {
+
                                                 {{_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;'}}
-                                            </ng-container>
-                                            <ng-container *ngIf="instance_table.hook">
+                                            
+}
+                                            @if (instance_table.hook) {
+
                                                 {{instance_table.hook(_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;', instance.attrs, instance_table.pathToValue, instance)}}
-                                            </ng-container>
-                                        </ng-container>
-                                    </div>
-                                    <attribute-list *ngIf="instance.showAttributes" [attrs]="instance.attrs"></attribute-list>
-                                    <attribute-list
-                                            *ngIf="instance.showFileAttributes"
+                                            
+}
+                                        
+}
+                                    }
+</div>
+}
+                                    @if (instance.showAttributes) {
+<attribute-list [attrs]="instance.attrs"></attribute-list>
+}
+                                    @if (instance.showFileAttributes) {
+<attribute-list
+                                           
                                             [studyWebService]="studyWebService"
                                             [studyuid]="instance.wadoQueryParams.studyUID"
                                             [seriesuid]="instance.wadoQueryParams.seriesUID"
                                             [objectuid]="instance.wadoQueryParams.objectUID">
                                     </attribute-list>
+}
                                 </div>
                             </div>
-                            <div class="tr" *ngIf="serie.instances && serie.instances.length > 0 && serie.instances[0].showPaginations">
+}
+                            @if (serie.instances && serie.instances.length > 0 && serie.instances[0].showPaginations) {
+<div class="tr">
                                 <div class="instance_block table_item">
                                     <div class="td td_with_centered_child">
                                         <div class="centered_child">
@@ -964,10 +1248,14 @@
                                     </div>
                                 </div>
                             </div>
+}
                         </div>
+}
                         <!--4:END;-->
                     </div>
-                    <div class="tr" *ngIf="study.series && study.series.length > 0 && study.series[0].showPaginations">
+}
+                    @if (study.series && study.series.length > 0 && study.series[0].showPaginations) {
+<div class="tr">
                         <div class="series_block table_item">
                             <div class="td td_with_centered_child">
                                 <div class="centered_child">
@@ -987,10 +1275,14 @@
                             </div>
                         </div>
                     </div>
+}
                 </div>
+}
                 <!--3:END;-->
             </div>
-            <div class="tr" *ngIf="patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations">
+}
+            @if (patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations) {
+<div class="tr">
                 <div class="instance_block table_item">
                     <div class="td td_with_centered_child">
                         <div class="centered_child">
@@ -1008,7 +1300,11 @@
                     </div>
                 </div>
             </div>
+}
         </div>
+}
         <!--2:END;-->
     </div>
+}
 </div>
+}

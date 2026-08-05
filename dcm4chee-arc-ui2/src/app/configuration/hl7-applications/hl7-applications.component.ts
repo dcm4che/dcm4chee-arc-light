@@ -13,7 +13,7 @@ import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-ge
 import {FormsModule} from '@angular/forms';
 import {ConnectionFormaterComponent} from '../../helpers/connection-formater/connection-formater.component';
 import {SearchPipe} from '../../pipes/search.pipe';
-import {CommonModule, SlicePipe} from '@angular/common';
+import { CommonModule, SlicePipe } from '@angular/common';
 import {Aet} from '../../models/aet';
 
 @Component({

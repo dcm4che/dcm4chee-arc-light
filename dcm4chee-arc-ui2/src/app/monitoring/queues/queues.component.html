@@ -5,14 +5,21 @@
         <div class="filter_line">
             <div class="filter_block">
                 <filter-generator [schema]="filterSchema" filterIdTemplate="monitoring-queues" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="statusChange()" (onFilterLoadFinish)="filterLoadFinished = true" [filterTreeHeight]="3"></filter-generator>
-                <div class="filter" (keyup)="filterKeyUp($event)"  *ngIf="filterLoadFinished">
+                @if (filterLoadFinished) {
+<div class="filter" (keyup)="filterKeyUp($event)" >
                     <div class="filter_block auto_reloader" >
                         <table>
-                            <tr *ngFor="let status of Object.keys(statusValues)" [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
+                            @for (status of Object.keys(statusValues); track status) {
+<tr [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
                                 <td>{{statusValues[status]?.text}}:</td>
-                                <td *ngIf="!statusValues[status]?.loader">{{statusValues[status]?.count}}</td>
-                                <td *ngIf="statusValues[status]?.loader"><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
+                                @if (!statusValues[status]?.loader) {
+<td>{{statusValues[status]?.count}}</td>
+}
+                                @if (statusValues[status]?.loader) {
+<td><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
+}
                             </tr>
+}
                         </table>
                         <div class="option_block">
                             <div class="interval_block">
@@ -22,15 +29,24 @@
                             </div>
                             <button class="btn-default submit" (click)="toggleAutoRefresh()">
                                 <div class="spinnter_container">
-                                    <span *ngIf="!timer.started" class="glyphicon glyphicon-refresh"></span>
-                                    <mat-progress-spinner *ngIf="timer.started" mode="indeterminate" [diameter]="20" ></mat-progress-spinner>
+                                    @if (!timer.started) {
+<span class="glyphicon glyphicon-refresh"></span>
+}
+                                    @if (timer.started) {
+<mat-progress-spinner mode="indeterminate" [diameter]="20" ></mat-progress-spinner>
+}
                                 </div>
-                                <span *ngIf="!timer.started" class="spinnter_text">{{timer.startText}}</span>
-                                <span *ngIf="timer.started" class="spinnter_text">{{timer.stopText}}</span>
+                                @if (!timer.started) {
+<span class="spinnter_text">{{timer.startText}}</span>
+}
+                                @if (timer.started) {
+<span class="spinnter_text">{{timer.stopText}}</span>
+}
                             </button>
                         </div>
                     </div>
                 </div>
+}
             </div>
         </div>
         <div class="filter_line">
@@ -38,7 +54,9 @@
                 <div class="filter_block">
                     <div class="line">
                         <mat-select [(ngModel)]="allAction" class="w45percent pull-left"  i18n-placeholder="@@placeholder.all_actions" placeholder="All actions" (selectionChange)="allActionChanged($event)">
-                            <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsOptions">{{actions.label}}</mat-option>
+                            @for (actions of allActionsOptions; track actions.value) {
+<mat-option value="{{actions.value}}">{{actions.label}}</mat-option>
+}
                         </mat-select>
                     </div>
                 </div>
@@ -50,9 +68,15 @@
         <button class="right_arrow arrow no_style"  i18n-title="@@title.next_page" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
             <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
         </button>-->
-        <div class="left_arrow arrow"  *ngIf="matches && matches.length && matches.length > 0" [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
-        <div class="right_arrow arrow" *ngIf="matches && matches.length && matches.length > 0" [ngClass]="{'active':moreTasks}" (click)="next()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
-        <table-generator *ngIf="tableConfig && matches && matches.length && matches.length > 0" [stringifyDetailAttributes]="true" [config]="tableConfig" [models]="matches"></table-generator>
+        @if (matches && matches.length && matches.length > 0) {
+<div class="left_arrow arrow"  [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+}
+        @if (matches && matches.length && matches.length > 0) {
+<div class="right_arrow arrow" [ngClass]="{'active':moreTasks}" (click)="next()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+}
+        @if (tableConfig && matches && matches.length && matches.length > 0) {
+<table-generator [stringifyDetailAttributes]="true" [config]="tableConfig" [models]="matches"></table-generator>
+}
        <!-- <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>
             <tr>

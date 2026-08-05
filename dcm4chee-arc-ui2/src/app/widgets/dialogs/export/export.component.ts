@@ -13,19 +13,18 @@ import {FormsModule} from '@angular/forms';
 import {RangePickerComponent} from '../../range-picker/range-picker.component';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
-import {CommonModule} from '@angular/common';
+
 
 @Component({
     selector: 'app-export',
     templateUrl: './export.component.html',
     imports: [
-        MatSelect,
-        FormsModule,
-        RangePickerComponent,
-        MatOption,
-        DcmDropDownComponent,
-        CommonModule
-    ],
+    MatSelect,
+    FormsModule,
+    RangePickerComponent,
+    MatOption,
+    DcmDropDownComponent
+],
     standalone: true
 })
 export class ExportDialogComponent implements OnInit, OnDestroy{

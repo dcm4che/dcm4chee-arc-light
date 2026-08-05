@@ -15,19 +15,18 @@ import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
 import {FormsModule} from '@angular/forms';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {MatProgressBar} from '@angular/material/progress-bar';
-import {CommonModule} from '@angular/common';
+
 
 @Component({
     selector: 'app-upload-dicom',
     templateUrl: './upload-dicom.component.html',
     imports: [
-        MatSelect,
-        FormsModule,
-        MatOption,
-        MatDialogContent,
-        MatProgressBar,
-        CommonModule
-    ],
+    MatSelect,
+    FormsModule,
+    MatOption,
+    MatDialogContent,
+    MatProgressBar
+],
     standalone: true
 })
 export class UploadDicomComponent implements OnInit{

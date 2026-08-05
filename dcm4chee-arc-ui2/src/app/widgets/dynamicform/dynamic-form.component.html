@@ -2,14 +2,18 @@
     <input class="search_form" i18n-placeholder="@@placeholder.search_in_this_part" placeholder="Search in this part..." [(ngModel)]="partSearch" (keyup)="filterFormElements()">
     <!--<div (click)="form.disable()">disable</div>-->
     <form  [formGroup]="form">
-        <div *ngFor="let formelement of formelements" class="form-row">
+        @for (formelement of formelements; track formelement) {
+<div class="form-row">
             <df-element [formelement]="formelement" [formelements]="formelements" [form]="form" [partSearch]="partSearch" [readOnlyMode]="readOnlyMode"></df-element>
         </div>
-        <div class="form-row submit_button_block" *ngIf="!readOnlyMode">
+}
+        @if (!readOnlyMode) {
+<div class="form-row submit_button_block">
             <fieldset [disabled]="!form.valid">
                 <div class="btn btn-default submit" (click)="onSubmit(form.valid)" type="submit" i18n="@@dynamic-form.save">Save</div>
             </fieldset>
         </div>
+}
     </form>
 <!--    <div>
         form.valid:{{form.valid}}

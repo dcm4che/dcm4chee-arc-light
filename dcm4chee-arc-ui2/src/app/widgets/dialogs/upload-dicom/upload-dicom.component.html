@@ -2,18 +2,26 @@
     <div class="vex-dialog-form">
         <h5 i18n="@@upload-dicom.title">Upload DICOM data</h5>
         <div class="content">
-            <ng-container *ngIf="!selectedWebApp">
+            @if (!selectedWebApp) {
+
                 <label i18n="@@upload-dicom.select_the_ae_title">Select the ae title:</label>
                 <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
-                    <mat-option *ngFor="let ae of aes" [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
+                    @for (ae of aes; track ae) {
+<mat-option [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
+}
                 </mat-select>
-            </ng-container>
-            <ng-container *ngIf="selectedWebApp">
+            
+}
+            @if (selectedWebApp) {
+
                 <label i18n="@@select_the_stow_rs_server">Select the STOW-RS server:</label>
                 <mat-select [ngModel]="selectedWebApp" (ngModelChange)="selectedWebApp = $event">
-                    <mat-option *ngFor="let webApp of webApps" [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
+                    @for (webApp of webApps; track webApp) {
+<mat-option [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
+}
                 </mat-select>
-            </ng-container>
+            
+}
             <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
             <label i18n="@@upload-dicom.choose_dicom_files_to_upload">Choose DICOM Files to upload:</label>
             <input type="file" [(ngModel)]="file" (change)="fileChange($event)"
@@ -21,15 +29,25 @@
                    title="Choose DICOM files to upload"
                    i18n-placeholder="@@upload_file" placeholder="Upload file"  multiple>
             <div mat-dialog-content>
-                <div class="upload_state" *ngFor="let file of fileList">
+                @for (file of fileList; track file) {
+<div class="upload_state">
                     {{file.name}}
-                    <span class="text-danger" *ngIf="percentComplete[file.name] && percentComplete[file.name].status">Error {{percentComplete[file.name].status}}</span>
-                    <span class="upload_ticker" *ngIf="percentComplete[file.name] && percentComplete[file.name].showLoader && !percentComplete[file.name].showTicker"><i class="fa fa-circle-o-notch fa-spin"></i></span>
-                    <span class="upload_ticker" *ngIf="percentComplete[file.name] && percentComplete[file.name].showTicker"><i class="material-icons">check</i></span>
-                    <div *ngIf="percentComplete && percentComplete[file.name] && percentComplete[file.name].value">
+                    @if (percentComplete[file.name] && percentComplete[file.name].status) {
+<span class="text-danger">Error {{percentComplete[file.name].status}}</span>
+}
+                    @if (percentComplete[file.name] && percentComplete[file.name].showLoader && !percentComplete[file.name].showTicker) {
+<span class="upload_ticker"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+}
+                    @if (percentComplete[file.name] && percentComplete[file.name].showTicker) {
+<span class="upload_ticker"><i class="material-icons">check</i></span>
+}
+                    @if (percentComplete && percentComplete[file.name] && percentComplete[file.name].value) {
+<div>
                         <mat-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></mat-progress-bar>
                     </div>
+}
                 </div>
+}
             </div>
         </div>
         <div class="dialogbuttons">

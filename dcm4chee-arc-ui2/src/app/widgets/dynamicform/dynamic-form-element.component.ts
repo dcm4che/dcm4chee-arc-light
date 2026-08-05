@@ -23,7 +23,7 @@ import {j4care} from "../../helpers/j4care.service";
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {OrderByPipe} from "../../pipes/order-by.pipe";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
-import {CommonModule, NgClass, NgSwitch} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {WidgetsComponents} from '../widgets.module';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {DictionaryPickerComponent} from '../dictionary-picker/dictionary-picker.component';
@@ -43,24 +43,23 @@ import {User} from "../../models/user";
     templateUrl: './dynamic-form-element.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
-        ReactiveFormsModule,
-        NgClass,
-        NgSwitch,
-        MatSelect,
-        DictionaryPickerComponent,
-        LanguagePickerComponent,
-        AttributeInfoComponent,
-        TimePickerComponent,
-        DurationPickerComponent,
-        SchedulePickerComponent,
-        SpecificCharPickerComponent,
-        DynamicFieldComponent,
-        MatOption,
-        RouterLink,
-        DcmSelectComponent,
-        CommonModule,
-        SearchPipe
-    ],
+    ReactiveFormsModule,
+    NgClass,
+    MatSelect,
+    DictionaryPickerComponent,
+    LanguagePickerComponent,
+    AttributeInfoComponent,
+    TimePickerComponent,
+    DurationPickerComponent,
+    SchedulePickerComponent,
+    SpecificCharPickerComponent,
+    DynamicFieldComponent,
+    MatOption,
+    RouterLink,
+    DcmSelectComponent,
+    CommonModule,
+    SearchPipe
+],
     standalone: true
 })
 export class DynamicFormElementComponent implements OnInit, OnDestroy{

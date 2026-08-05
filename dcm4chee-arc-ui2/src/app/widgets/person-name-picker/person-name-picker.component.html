@@ -2,11 +2,15 @@
     <div class="input_field">
         <div class="input_block">
             <input type="text" [(ngModel)]="internModel" placeholder="{{placeholder}}" title="{{title}}" (ngModelChange)="onInternModelChange($event)">
-            <span class="glyphicon glyphicon-remove" *ngIf="internModel" (click)="clear()"></span>
+            @if (internModel) {
+<span class="glyphicon glyphicon-remove" (click)="clear()"></span>
+}
         </div>
         <span class="glyphicon glyphicon-pencil" (click)="toggleDialog()"></span>
     </div>
-    <div class="overlay" *ngIf="dialogOpen" (click)="dialogOpen = false"></div>
+    @if (dialogOpen) {
+<div class="overlay" (click)="dialogOpen = false"></div>
+}
     <div class="dialog" [hidden]="!dialogOpen">
         <div class="dialog_block">
             <h5>Person Name Components:</h5>
@@ -56,12 +60,14 @@
                 </div>
             </div>
         </div>
-        <div class="dialog_block"  *ngIf=" namePrefix || givenName || middleName || familyName || nameSuffix || asFilterModel">
+        @if ( namePrefix || givenName || middleName || familyName || nameSuffix || asFilterModel) {
+<div class="dialog_block" >
             <h5>DICOM version ( Will be used as filter ):</h5>
             <div>
                 {{asFilterModel}}
             </div>
 
         </div>
+}
     </div>
 </div>

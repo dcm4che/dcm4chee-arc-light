@@ -6,7 +6,7 @@ import {AppService} from "../../../app.service";
 import {j4care} from "../../../helpers/j4care.service";
 import * as _ from "lodash-es";
 import {MatDialogRef} from "@angular/material/dialog";
-import {CommonModule, NgStyle, NgSwitch} from '@angular/common';
+import { CommonModule, NgStyle } from '@angular/common';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {RangePickerComponent} from '../../range-picker/range-picker.component';
 
@@ -15,14 +15,13 @@ import {RangePickerComponent} from '../../range-picker/range-picker.component';
     templateUrl: './csv-upload.component.html',
     styleUrls: ['./csv-upload.component.scss'],
     imports: [
-        ReactiveFormsModule,
-        NgSwitch,
-        MatSelect,
-        MatOption,
-        RangePickerComponent,
-        NgStyle,
-        CommonModule
-    ],
+    ReactiveFormsModule,
+    MatSelect,
+    MatOption,
+    RangePickerComponent,
+    NgStyle,
+    CommonModule
+],
     standalone: true
 })
 export class CsvUploadComponent implements OnInit {

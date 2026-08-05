@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import * as _ from "lodash-es";
 import {j4care} from "../../helpers/j4care.service";
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {FormsModule} from '@angular/forms';
 @Component({
     selector: 'issuer-selector',

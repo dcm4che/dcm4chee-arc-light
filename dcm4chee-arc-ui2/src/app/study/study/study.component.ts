@@ -84,7 +84,7 @@ import {DcmDropDownComponent} from '../../widgets/dcm-drop-down/dcm-drop-down.co
 import {DynamicPipePipe} from '../../pipes/dynamic-pipe.pipe';
 import {FormsModule} from '@angular/forms';
 import {PermissionDirective} from '../../helpers/permissions/permission.directive';
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {ClickOutsideDirective} from '../../helpers/click-outside.directive';
 import {DicomStudiesTableComponent} from '../../helpers/dicom-studies-table/dicom-studies-table.component';
 import {SelectionsDicomViewComponent} from './selections-dicom-view/selections-dicom-view.component';

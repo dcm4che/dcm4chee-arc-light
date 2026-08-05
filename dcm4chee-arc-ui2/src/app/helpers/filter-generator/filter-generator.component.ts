@@ -31,7 +31,7 @@ import {PersonNamePickerComponent} from '../../widgets/person-name-picker/person
 import {ModalityComponent} from '../../widgets/modality/modality.component';
 import {MatOption, MatSelect} from '@angular/material/select';
 import {FormsModule} from '@angular/forms';
-import {CommonModule, NgClass, NgStyle, NgSwitch} from '@angular/common';
+import { CommonModule, NgClass, NgStyle } from '@angular/common';
 import {SizeRangePickerComponent} from '../../widgets/size-range-picker/size-range-picker.component';
 
 @Component({
@@ -39,28 +39,27 @@ import {SizeRangePickerComponent} from '../../widgets/size-range-picker/size-ran
     templateUrl: './filter-generator.component.html',
     styleUrls: ['./filter-generator.component.scss'],
     imports: [
-        MatProgressSpinner,
-        TrimPipe,
-        DcmDropDownComponent,
-        ModifiedWidgetComponent,
-        IssuerSelectorComponent,
-        CodeSelectorComponent,
-        RangePickerComponent,
-        MatRadioGroup,
-        MatRadioButton,
-        DropdownComponent,
-        OptionComponent,
-        PersonNamePickerComponent,
-        ModalityComponent,
-        MatSelect,
-        FormsModule,
-        NgClass,
-        NgStyle,
-        SizeRangePickerComponent,
-        MatOption,
-        NgSwitch,
-        CommonModule
-    ],
+    MatProgressSpinner,
+    TrimPipe,
+    DcmDropDownComponent,
+    ModifiedWidgetComponent,
+    IssuerSelectorComponent,
+    CodeSelectorComponent,
+    RangePickerComponent,
+    MatRadioGroup,
+    MatRadioButton,
+    DropdownComponent,
+    OptionComponent,
+    PersonNamePickerComponent,
+    ModalityComponent,
+    MatSelect,
+    FormsModule,
+    NgClass,
+    NgStyle,
+    SizeRangePickerComponent,
+    MatOption,
+    CommonModule
+],
     standalone: true
 })
 export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContentChecked {

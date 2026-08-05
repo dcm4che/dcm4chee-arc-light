@@ -10,18 +10,17 @@ import {environment} from '../../../environments/environment';
 import {MonitoringTabsComponent} from '../monitoring-tabs.component';
 import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
 import {TableGeneratorComponent} from '../../helpers/table-generator/table-generator.component';
-import {CommonModule} from '@angular/common';
+
 
 @Component({
     selector: 'app-metrics',
     templateUrl: './metrics.component.html',
     styleUrls: ['./metrics.component.scss'],
     imports: [
-        MonitoringTabsComponent,
-        FilterGeneratorComponent,
-        TableGeneratorComponent,
-        CommonModule
-    ],
+    MonitoringTabsComponent,
+    FilterGeneratorComponent,
+    TableGeneratorComponent
+],
     standalone: true
 })
 export class MetricsComponent implements OnInit {

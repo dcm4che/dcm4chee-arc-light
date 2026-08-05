@@ -11,7 +11,7 @@ import {MatDialogRef} from "@angular/material/dialog";
 import {FormsModule} from '@angular/forms';
 import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
 import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
-import {CommonModule} from '@angular/common';
+
 import {j4care} from '../../../helpers/j4care.service';
 
 
@@ -42,12 +42,11 @@ import {j4care} from '../../../helpers/j4care.service';
         }
     `],
     imports: [
-        FormsModule,
-        IodFormGeneratorComponent,
-        DcmDropDownComponent,
-        CommonModule,
-        SearchPipe
-    ],
+    FormsModule,
+    IodFormGeneratorComponent,
+    DcmDropDownComponent,
+    SearchPipe
+],
     standalone: true
 })
 export class EditStudyComponent{

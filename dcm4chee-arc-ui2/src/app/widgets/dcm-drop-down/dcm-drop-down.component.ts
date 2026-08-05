@@ -12,7 +12,7 @@ import {
 import {OptionComponent} from "../dropdown/option.component";
 import {SelectDropdown} from "../../interfaces";
 import {animate, state, style, transition, trigger} from "@angular/animations";
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {ArrayToStringPipe} from '../../pipes/array-to-string.pipe';
 import {SearchPipe} from '../../pipes/search.pipe';

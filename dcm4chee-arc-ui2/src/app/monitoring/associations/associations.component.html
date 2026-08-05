@@ -13,10 +13,18 @@
                                 <input i18n-title="@@title.associations.with_a_dot_you_can_set_milliseconds" title="With a dot '.' you can set milliseconds for example: '0.6' = 600 milliseconds" type="text" [(ngModel)]="updaterate" [disabled]="!stopLoop" class="no-close-button"/>
                             </div>
                             <div class="line">
-                                <div *ngIf="stopLoop" class="dummy"></div>
-                                <mat-progress-spinner *ngIf="!stopLoop" mode="indeterminate" [diameter]="28" ></mat-progress-spinner>
-                                <button *ngIf="stopLoop" type="button" class="btn-default submit" (click)="monitor()" i18n-title="@@title.associations.start_getting_associations" title="Start getting associations">Start</button>
-                                <button *ngIf="!stopLoop" type="button" class="btn-default submit" (click)="stopLoop=true" i18n-title="@@stop_auto_refresh" title="Stop Auto Refresh">Stop</button>
+                                @if (stopLoop) {
+<div class="dummy"></div>
+}
+                                @if (!stopLoop) {
+<mat-progress-spinner mode="indeterminate" [diameter]="28" ></mat-progress-spinner>
+}
+                                @if (stopLoop) {
+<button type="button" class="btn-default submit" (click)="monitor()" i18n-title="@@title.associations.start_getting_associations" title="Start getting associations">Start</button>
+}
+                                @if (!stopLoop) {
+<button type="button" class="btn-default submit" (click)="stopLoop=true" i18n-title="@@stop_auto_refresh" title="Stop Auto Refresh">Stop</button>
+}
                             </div>
                         </div>
                         <div class="filter_block height_2">
@@ -67,40 +75,53 @@
                     <th><span i18n-title="@@title.associations.sort_by_connection_time_server" title="Sort by Connection time (Server)" class="pointer" (click)="sortBy('connectTime')" i18n="@@connection_time_server">Connection time (Server)</span></th>
                     <th><span i18n-title="@@title.associations.sort_by_connection_time_local" title="Sort by Connection time (Local)" class="pointer" (click)="sortBy('browserTime')" i18n="@@connection_time_browser">Connection time (Browser)</span></th>
                     <th><span i18n-title="@@title.associations.sort_by_duration" title="Sort by Duration" class="pointer" (click)="sortBy('openSinceOrder')" i18n="@@duration">Duration (hh:mm:ss.SSS)</span></th>
-                    <th *ngIf="others">
+                    @if (others) {
+<th>
                         <span i18n-title="@@title.associations.sort_by_other_attributes" title="Sort by Other attributes" class="pointer" (click)="sortBy('others')" i18n="@@other_attr">Other attributes
                         </span>
                     </th>
+}
                     <th i18n="@@abort">
                         Abort
                     </th>
                 </tr>
 
-                <tr  *ngFor="let value of associationStatus| orderBy:propertyName:reverse" [ngClass]="{'danger':value.tooLong === true}">
-                    <ng-container *ngIf="value.initiated">
+                @for (value of associationStatus| orderBy:propertyName:reverse; track value) {
+<tr  [ngClass]="{'danger':value.tooLong === true}">
+                    @if (value.initiated) {
+
                          <td>{{value.localAETitle}}</td>
                          <td><span class="glyphicon glyphicon-arrow-right"></span></td>
                          <td>{{value.remoteAETitle}}</td>
-                    </ng-container>
-                    <ng-container *ngIf="!value.initiated">
+                    
+}
+                    @if (!value.initiated) {
+
                         <td>{{value.localAETitle}}</td>
                         <td><span class="glyphicon glyphicon-arrow-left"></span></td>
                         <td>{{value.remoteAETitle}}</td>
-                    </ng-container>
+                    
+}
                     <td>
-                        <div *ngFor="let key of Object.keys(value?.invokedOps)">
+                        @for (key of Object.keys(value?.invokedOps); track key) {
+<div>
                             {{key}}-RQ/RSP : {{value.invokedOps[key].RQ}}/{{value.invokedOps[key].RSP}}
                         </div>
+}
                     </td>
                     <td>
-                        <div *ngFor="let key of Object.keys(value.performedOps)">
+                        @for (key of Object.keys(value.performedOps); track key) {
+<div>
                             {{key}}-RQ/RSP : {{value.performedOps[key].RQ}}/{{value.performedOps[key].RSP}}
                         </div>
+}
                     </td>
                     <td class="text-right" [innerHtml]="value.connectTime"></td>
                     <td class="text-right" [innerHtml]="value.browserTime"></td>
                     <td class="text-right" [innerHtml]="value.openSince"></td>
-                    <td *ngIf="others" class="others" [innerHtml]="value.others"></td>
+                    @if (others) {
+<td class="others" [innerHtml]="value.others"></td>
+}
                     <td class="abort">
                         <a class="crud_button" (click)="$event.preventDefault();abort(value.serialNo)">
                             <i class="glyphicon glyphicon-remove"></i>
@@ -108,9 +129,12 @@
                     </td>
 
                 </tr>
-                <tr *ngIf="!associationStatus">
+}
+                @if (!associationStatus) {
+<tr>
                     <td colspan="9" i18n="@@associations.no_associations">No open associations found!</td>
                 </tr>
+}
             </table>
         </div>
     </div>

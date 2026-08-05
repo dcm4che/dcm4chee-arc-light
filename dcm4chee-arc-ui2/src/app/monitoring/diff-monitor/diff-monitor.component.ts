@@ -22,7 +22,7 @@ import {FormsModule, Validators} from '@angular/forms';
 import {environment} from "../../../environments/environment";
 import {MonitoringTabsComponent} from '../monitoring-tabs.component';
 import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {TableGeneratorComponent} from '../../helpers/table-generator/table-generator.component';
 import {PermissionDirective} from '../../helpers/permissions/permission.directive';

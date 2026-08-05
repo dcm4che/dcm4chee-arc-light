@@ -11,7 +11,7 @@ import {SelectDropdown} from '../../../interfaces';
 import {CreateAeService} from './create-ae.service';
 import {DeviceConfiguratorService} from '../../../configuration/device-configurator/device-configurator.service';
 import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
 import {MatOption, MatSelect} from '@angular/material/select';

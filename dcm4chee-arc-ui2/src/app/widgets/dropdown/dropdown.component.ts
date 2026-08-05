@@ -16,7 +16,7 @@ import {animate, state, style, transition, trigger} from '@angular/animations';
 import {SearchPipe} from '../../pipes/search.pipe';
 import {FormsModule} from '@angular/forms';
 import {ClickOutsideDirective} from '../../helpers/click-outside.directive';
-import {CommonModule} from '@angular/common';
+
 
 @Component({
     selector: 'j4care-select',
@@ -44,10 +44,9 @@ import {CommonModule} from '@angular/common';
         ])
     ],
     imports: [
-        FormsModule,
-        ClickOutsideDirective,
-        CommonModule
-    ],
+    FormsModule,
+    ClickOutsideDirective
+],
     standalone: true
 })
 export class DropdownComponent implements AfterContentInit, AfterViewChecked {

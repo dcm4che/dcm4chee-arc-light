@@ -14,20 +14,19 @@ import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
 import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
 import {FormsModule} from '@angular/forms';
 import {DcmDropDownComponent} from '../../dcm-drop-down/dcm-drop-down.component';
-import {CommonModule} from '@angular/common';
+
 
 @Component({
     selector: 'modify-ups',
     templateUrl: './modify-ups.component.html',
     styleUrls: ['./modify-ups.component.scss'],
     imports: [
-        IodFormGeneratorComponent,
-        FormsModule,
-        DcmDropDownComponent,
-        MatDialogContent,
-        CommonModule,
-        SearchPipe
-    ],
+    IodFormGeneratorComponent,
+    FormsModule,
+    DcmDropDownComponent,
+    MatDialogContent,
+    SearchPipe
+],
     standalone: true
 })
 export class ModifyUpsComponent {

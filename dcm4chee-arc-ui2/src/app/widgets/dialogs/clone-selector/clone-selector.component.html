@@ -3,7 +3,9 @@
         <h5 i18n="@@select_element_for_clone">Select element for clone</h5>
         <div class="content">
             <mat-select [(ngModel)]="selectedOption" (ngModelChange)="selectedOption = $event">
-                <mat-option *ngFor="let options of toCloneElement.options" [value]="options" title="{{options.description}}">{{ options.title }}</mat-option>
+                @for (options of toCloneElement.options; track options) {
+<mat-option [value]="options" title="{{options.description}}">{{ options.title }}</mat-option>
+}
             </mat-select>
         </div>
         <div class="dialogbuttons">

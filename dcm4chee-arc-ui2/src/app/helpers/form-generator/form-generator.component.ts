@@ -3,7 +3,7 @@ import {FormElement} from "../form/form-element";
 import {FormGeneratorService} from "./form-generator.service";
 import {FormsModule, NgForm} from '@angular/forms';
 import * as _ from 'lodash-es';
-import {CommonModule, NgClass, NgStyle, NgSwitch} from '@angular/common';
+import { CommonModule, NgClass, NgStyle } from '@angular/common';
 import {ComposedInputComponent} from '../../widgets/composed-input/composed-input.component';
 import {IssuerSelectorComponent} from '../../widgets/issuer-selector/issuer-selector.component';
 import {RangePickerComponent} from '../../widgets/range-picker/range-picker.component';
@@ -15,7 +15,6 @@ import {DcmDropDownComponent} from '../../widgets/dcm-drop-down/dcm-drop-down.co
   styleUrls: ['./form-generator.component.scss'],
   imports: [
     NgClass,
-    NgSwitch,
     FormsModule,
     NgStyle,
     ComposedInputComponent,
@@ -23,7 +22,7 @@ import {DcmDropDownComponent} from '../../widgets/dcm-drop-down/dcm-drop-down.co
     RangePickerComponent,
     DcmDropDownComponent,
     CommonModule
-  ],
+],
   standalone: true
 })
 export class FormGeneratorComponent implements OnInit{

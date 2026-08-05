@@ -5,7 +5,7 @@ import {AeListService} from "../../configuration/ae-list/ae-list.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {ConfirmComponent} from "../../widgets/dialogs/confirm/confirm.component";
-import {CommonModule, DatePipe, NgClass} from '@angular/common';
+import { CommonModule, DatePipe, NgClass } from '@angular/common';
 import {j4care} from "../../helpers/j4care.service";
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {LoadingBarService} from '@ngx-loading-bar/core';

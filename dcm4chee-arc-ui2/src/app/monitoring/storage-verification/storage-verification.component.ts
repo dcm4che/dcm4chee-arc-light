@@ -18,7 +18,7 @@ import {map} from 'rxjs/operators';
 import {environment} from '../../../environments/environment';
 import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
 import {AppModule} from '../../app.module';
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {PermissionDirective} from '../../helpers/permissions/permission.directive';

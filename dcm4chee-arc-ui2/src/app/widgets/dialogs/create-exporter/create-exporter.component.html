@@ -2,8 +2,12 @@
     <h2 i18n="@@exporter">Exporter</h2>
     <div class="dialog_content">
         <div mat-dialog-content>
-            <dynamic-form *ngIf="formObj" [formelements]="formObj" [dontShowSearch]="true" [model]="archive" [dontGroup]="true" (submitFunction)="submitFunction($event)"></dynamic-form>
-            <i *ngIf="!formObj" class="fa fa-circle-o-notch fa-spin"></i>
+            @if (formObj) {
+<dynamic-form [formelements]="formObj" [dontShowSearch]="true" [model]="archive" [dontGroup]="true" (submitFunction)="submitFunction($event)"></dynamic-form>
+}
+            @if (!formObj) {
+<i class="fa fa-circle-o-notch fa-spin"></i>
+}
         </div>
     </div>
 </div>

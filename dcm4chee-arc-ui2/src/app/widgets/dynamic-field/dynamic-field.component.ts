@@ -1,7 +1,7 @@
 import {ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {DynamicFieldService} from "./dynamic-field.service";
 import * as _ from "lodash-es";
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {SearchPipe} from '../../pipes/search.pipe';
 @Component({

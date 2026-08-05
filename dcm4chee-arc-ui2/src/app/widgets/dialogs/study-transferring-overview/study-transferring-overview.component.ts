@@ -6,7 +6,7 @@ import {MatDialogRef} from "@angular/material/dialog";
 import {FormsModule} from '@angular/forms';
 import {PatientIssuerPipe} from '../../../pipes/patient-issuer.pipe';
 import {AppModule} from '../../../app.module';
-import {CommonModule, NgSwitch, UpperCasePipe} from '@angular/common';
+import { CommonModule, UpperCasePipe } from '@angular/common';
 import {SelectionsDicomViewComponent} from '../../../study/study/selections-dicom-view/selections-dicom-view.component';
 
 @Component({
@@ -14,13 +14,12 @@ import {SelectionsDicomViewComponent} from '../../../study/study/selections-dico
     templateUrl: './study-transferring-overview.component.html',
     styleUrls: ['./study-transferring-overview.component.scss'],
     imports: [
-        FormsModule,
-        PatientIssuerPipe,
-        NgSwitch,
-        UpperCasePipe,
-        SelectionsDicomViewComponent,
-        CommonModule
-    ],
+    FormsModule,
+    PatientIssuerPipe,
+    UpperCasePipe,
+    SelectionsDicomViewComponent,
+    CommonModule
+],
     standalone: true
 })
 export class StudyTransferringOverviewComponent implements OnInit {

@@ -6,7 +6,8 @@
             <div class="tr">
                 <div class="bluebar" (click)="toggle = 'name'">{{texts.device_base_data}}</div>
             </div>
-            <ng-container *ngIf="toggle === 'name'">
+            @if (toggle === 'name') {
+
                 <div class="tr">
                     <div class="td"></div>
                     <div class="td">{{texts.current_device}}</div>
@@ -21,12 +22,15 @@
                         <input type="text" [(ngModel)]="clonedDevice.dicomDeviceName">
                     </div>
                 </div>
-            </ng-container>
-            <ng-container *ngIf="_.hasIn(device, 'dicomNetworkConnection')">
+            
+}
+            @if (_.hasIn(device, 'dicomNetworkConnection')) {
+
                 <div class="tr">
                     <div class="bluebar" (click)="toggle = 'connections'">{{texts.dicom_network_connection}}</div>
                 </div>
-                <ng-container *ngIf="toggle === 'connections'">
+                @if (toggle === 'connections') {
+
                     <div class="tr">
                         <div class="td"></div>
                         <div class="td">{{texts.current_device}}</div>
@@ -34,7 +38,8 @@
                     </div>
                     <div class="tr scrollable_block">
                         <div class="td">
-                            <div class="td_block" *ngFor="let key of device.dicomNetworkConnection">
+                            @for (key of device.dicomNetworkConnection; track key) {
+<div class="td_block">
                                 <label>
                                     {{texts.network_connection_name}}
                                 </label>
@@ -45,29 +50,38 @@
                                     {{texts.port}}
                                 </label>
                             </div>
+}
                         </div>
                         <div class="td">
-                            <div class="td_block" *ngFor="let connection of device.dicomNetworkConnection">
+                            @for (connection of device.dicomNetworkConnection; track connection) {
+<div class="td_block">
                                 <input type="text" [(ngModel)]="connection.cn" disabled>
                                 <input type="text" [(ngModel)]="connection.dicomHostname" disabled>
                                 <input type="number" [(ngModel)]="connection.dicomPort" disabled>
                             </div>
+}
                         </div>
                         <div class="td">
-                            <div class="td_block" *ngFor="let connection of clonedDevice.dicomNetworkConnection">
+                            @for (connection of clonedDevice.dicomNetworkConnection; track connection) {
+<div class="td_block">
                                 <input type="text" [(ngModel)]="connection.cn">
                                 <input type="text" [(ngModel)]="connection.dicomHostname">
                                 <input type="number" [(ngModel)]="connection.dicomPort">
                             </div>
+}
                         </div>
                     </div>
-                </ng-container>
-            </ng-container>
-            <ng-container *ngIf="_.hasIn(device,'dicomNetworkAE')">
+                
+}
+            
+}
+            @if (_.hasIn(device,'dicomNetworkAE')) {
+
                 <div class="tr">
                     <div class="bluebar" (click)="toggle = 'aets'">{{texts.network_aes}}</div>
                 </div>
-                <ng-container *ngIf="toggle === 'aets'">
+                @if (toggle === 'aets') {
+
                     <div class="tr">
                         <div class="td"></div>
                         <div class="td">{{texts.current_device}}</div>
@@ -75,43 +89,61 @@
                     </div>
                     <div class="tr scrollable_block">
                         <div class="td">
-                            <div class="td_block" *ngFor="let key of device.dicomNetworkAE">
+                            @for (key of device.dicomNetworkAE; track key) {
+<div class="td_block">
                                 <label>
                                     {{texts.ae_title}}:
                                 </label>
-                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
-                                    <ng-container *ngIf="i === 0">
+                                @for (connection of device.dicomNetworkConnection; track connection; let i = $index) {
+<label>
+                                    @if (i === 0) {
+
                                         {{texts.network_connection_reference}}:
-                                    </ng-container>
+                                    
+}
                                 </label>
+}
                             </div>
+}
                         </div>
                         <div class="td">
-                            <div class="td_block" *ngFor="let aet of device.dicomNetworkAE">
+                            @for (aet of device.dicomNetworkAE; track aet) {
+<div class="td_block">
                                 <input type="text"  [(ngModel)]="aet.dicomAETitle" disabled>
-                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
+                                @for (connection of device.dicomNetworkConnection; track connection; let i = $index) {
+<label>
                                     <input type="checkbox" [checked]="_.get(aet,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" disabled>
                                     {{_.get(connection,'cn')}}
                                 </label>
+}
                             </div>
+}
                         </div>
                         <div class="td">
-                            <div class="td_block" *ngFor="let aet of clonedDevice.dicomNetworkAE;let i = index">
+                            @for (aet of clonedDevice.dicomNetworkAE; track aet; let i = $index) {
+<div class="td_block">
                                 <input type="text"  [(ngModel)]="aet.dicomAETitle" (keyup)="onAetChange( i, aet)">
-                                <label *ngFor="let connection of clonedDevice.dicomNetworkConnection;let i = index">
+                                @for (connection of clonedDevice.dicomNetworkConnection; track connection; let i = $index) {
+<label>
                                     <input type="checkbox" [checked]="_.get(aet,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnectionReffChange(aet, i, $event)">
                                     {{_.get(connection,'cn')}}
                                 </label>
+}
                             </div>
+}
                         </div>
                     </div>
-                </ng-container>
-            </ng-container>
-            <ng-container *ngIf="_.hasIn(device, 'dcmDevice.dcmWebApp')">
+                
+}
+            
+}
+            @if (_.hasIn(device, 'dcmDevice.dcmWebApp')) {
+
                 <div class="tr">
                     <div class="bluebar" (click)="toggle = 'webapps'">{{texts.web_apps}}</div>
                 </div>
-                <ng-container *ngIf="toggle === 'webapps'">
+                @if (toggle === 'webapps') {
+
                     <div class="tr">
                         <div class="td"></div>
                         <div class="td">{{texts.current_device}}</div>
@@ -119,48 +151,66 @@
                     </div>
                     <div class="tr scrollable_block">
                         <div class="td">
-                            <div class="td_block" *ngFor="let key of device.dcmDevice.dcmWebApp">
+                            @for (key of device.dcmDevice.dcmWebApp; track key) {
+<div class="td_block">
                                 <label>
                                     {{texts.web_app_name}}:
                                 </label>
-                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
-                                    <ng-container *ngIf="i === 0">
+                                @for (connection of device.dicomNetworkConnection; track connection; let i = $index) {
+<label>
+                                    @if (i === 0) {
+
                                         {{texts.network_connection_reference}}:
-                                    </ng-container>
+                                    
+}
                                 </label>
+}
                                 <label>
                                     {{texts.web_service_path}}:
                                 </label>
                             </div>
+}
                         </div>
                         <div class="td">
-                            <div class="td_block" *ngFor="let webApp of device.dcmDevice.dcmWebApp">
+                            @for (webApp of device.dcmDevice.dcmWebApp; track webApp) {
+<div class="td_block">
                                 <input type="text"  [(ngModel)]="webApp.dcmWebAppName" disabled>
-                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
+                                @for (connection of device.dicomNetworkConnection; track connection; let i = $index) {
+<label>
                                     <input type="checkbox" [checked]="_.get(webApp,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" disabled>
                                     {{_.get(connection,'cn')}}
                                 </label>
+}
                                 <input type="text"  [(ngModel)]="webApp.dcmWebServicePath" disabled>
                             </div>
+}
                         </div>
                         <div class="td">
-                            <div class="td_block" *ngFor="let webApp of clonedDevice.dcmDevice.dcmWebApp">
+                            @for (webApp of clonedDevice.dcmDevice.dcmWebApp; track webApp) {
+<div class="td_block">
                                 <input type="text"  [(ngModel)]="webApp.dcmWebAppName">
-                                <label *ngFor="let connection of clonedDevice.dicomNetworkConnection;let i = index">
+                                @for (connection of clonedDevice.dicomNetworkConnection; track connection; let i = $index) {
+<label>
                                     <input type="checkbox" [checked]="_.get(webApp,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnectionReffChange(webApp, i, $event)">
                                     {{_.get(connection,'cn')}}
                                 </label>
+}
                                 <input type="text"  [(ngModel)]="webApp.dcmWebServicePath">
                             </div>
+}
                         </div>
                     </div>
-                </ng-container>
-            </ng-container>
-            <ng-container *ngIf="_.hasIn(device,'dcmDevice.hl7Application')">
+                
+}
+            
+}
+            @if (_.hasIn(device,'dcmDevice.hl7Application')) {
+
                 <div class="tr">
                     <div class="bluebar" (click)="toggle = 'hl7'">{{texts.hl7_applications}}</div>
                 </div>
-                <ng-container *ngIf="toggle === 'hl7'">
+                @if (toggle === 'hl7') {
+
                     <div class="tr">
                         <div class="td"></div>
                         <div class="td">{{texts.current_device}}</div>
@@ -168,38 +218,54 @@
                     </div>
                     <div class="tr scrollable_block">
                         <div class="td">
-                            <div class="td_block" *ngFor="let key of device.dcmDevice.hl7Application">
+                            @for (key of device.dcmDevice.hl7Application; track key) {
+<div class="td_block">
                                 <label>
                                     {{texts.hl7_application_name}}:
                                 </label>
-                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
-                                    <ng-container *ngIf="i === 0">
+                                @for (connection of device.dicomNetworkConnection; track connection; let i = $index) {
+<label>
+                                    @if (i === 0) {
+
                                         {{texts.network_connection_reference}}:
-                                    </ng-container>
+                                    
+}
                                 </label>
+}
                             </div>
+}
                         </div>
                         <div class="td">
-                            <div class="td_block" *ngFor="let hl7 of device.dcmDevice.hl7Application">
+                            @for (hl7 of device.dcmDevice.hl7Application; track hl7) {
+<div class="td_block">
                                 <input type="text"  [(ngModel)]="hl7.hl7ApplicationName" disabled>
-                                <label *ngFor="let connection of device.dicomNetworkConnection;let i = index">
+                                @for (connection of device.dicomNetworkConnection; track connection; let i = $index) {
+<label>
                                     <input type="checkbox" [checked]="_.get(hl7,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" disabled>
                                     {{_.get(connection,'cn')}}
                                 </label>
+}
                             </div>
+}
                         </div>
                         <div class="td">
-                            <div class="td_block" *ngFor="let hl7 of clonedDevice.dcmDevice.hl7Application;let i = index">
+                            @for (hl7 of clonedDevice.dcmDevice.hl7Application; track hl7; let i = $index) {
+<div class="td_block">
                                 <input type="text"  [(ngModel)]="hl7.hl7ApplicationName">
-                                <label *ngFor="let connection of clonedDevice.dicomNetworkConnection;let i = index">
+                                @for (connection of clonedDevice.dicomNetworkConnection; track connection; let i = $index) {
+<label>
                                     <input type="checkbox" [checked]="_.get(hl7,'dicomNetworkConnectionReference').indexOf('/dicomNetworkConnection/' + i) > -1" (change)="onConnectionReffChange(hl7, i, $event)">
                                     {{_.get(connection,'cn')}}
                                 </label>
+}
                             </div>
+}
                         </div>
                     </div>
-                </ng-container>
-            </ng-container>
+                
+}
+            
+}
         </div>
     </div>
 </div>

@@ -3,8 +3,12 @@
     <input class="language_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.dictionary-picker.__search" placeholder="  Search..">
     <div class="language_widget" >
         <ul class="list">
-            <li *ngFor="let dictionary of dcmTags|search:filter" (click)="addSelectedElement(dictionary)"><span [innerHTML]="dictionary.text"></span></li>
+            @for (dictionary of dcmTags|search:filter; track dictionary) {
+<li (click)="addSelectedElement(dictionary)"><span [innerHTML]="dictionary.text"></span></li>
+}
         </ul>
-        <div class="no_result" *ngIf="(dcmTags|search:filter).length === 0" i18n="@@searched_element_not_found">Searched element not found!</div>
+        @if ((dcmTags|search:filter).length === 0) {
+<div class="no_result" i18n="@@searched_element_not_found">Searched element not found!</div>
+}
     </div>
 </div>

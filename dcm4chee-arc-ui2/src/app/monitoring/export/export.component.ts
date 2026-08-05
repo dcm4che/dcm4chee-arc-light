@@ -25,7 +25,7 @@ import {SelectDropdown} from "../../interfaces";
 import {environment} from "../../../environments/environment";
 import {MonitoringTabsComponent} from '../monitoring-tabs.component';
 import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {PermissionDirective} from '../../helpers/permissions/permission.directive';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MatOption, MatSelect} from '@angular/material/select';

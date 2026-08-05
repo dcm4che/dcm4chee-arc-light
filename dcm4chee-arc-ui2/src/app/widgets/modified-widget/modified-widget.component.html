@@ -4,17 +4,22 @@
         <label class="main_input" [ngClass]="{'black':stateText}" (click)="toggleSelector()" title="{{stateTextHover || placeholder}}">
             {{stateText || placeholder}}
         </label>
-        <span *ngIf="model" class="glyphicon glyphicon-remove clear_picker" (click)="hardClear()"></span>
+        @if (model) {
+<span class="glyphicon glyphicon-remove clear_picker" (click)="hardClear()"></span>
+}
 <!--        <i class="material-icons filter_button" (click)="toggleSelector()">
             subdirectory_arrow_right
         </i>-->
         <i class="glyphicon glyphicon-pencil filter_button" (click)="toggleSelector()">
         </i>
-        <ng-container *ngIf="selectorOpen">
+        @if (selectorOpen) {
+
             <div class="overlay" (click)="selectorOpen = false">
             </div>
             <div class="content_block">
-                <h5 class="title" *ngIf="title">{{title}}</h5>
+                @if (title) {
+<h5 class="title">{{title}}</h5>
+}
                 <div class="filter">
                     <div class="line">
                         <label>All modified:</label>
@@ -22,7 +27,8 @@
                     </div>
                     <div class="line">
                         <label>Modified DICOM attributes:</label>
-                        <div *ngIf="iod" >
+                        @if (iod) {
+<div >
                             <div class="add_block" [ngClass]="{'empty':modifiedAttr.size === 0}">
                                 <dcm-drop-down
                                         [options]="iod"
@@ -37,11 +43,14 @@
 -->
                             </div>
                             <ul class="modified_list" [ngClass]="{'not-empty':modifiedAttr && modifiedAttr.size && modifiedAttr.size > 0}">
-                                <li *ngFor="let attr of Array.from(modifiedAttr.values())">
+                                @for (attr of Array.from(modifiedAttr.values()); track attr) {
+<li>
                                     <label title="{{attr}}">{{getLabelFromIODTag(attr)}}</label><i title="Delete" (click)="remove(attr)" class="material-icons">clear</i>
                                 </li>
+}
                             </ul>
                         </div>
+}
 
                     </div>
 <!--                    <ng-container *ngIf="!allModified && iod">
@@ -62,6 +71,7 @@
                     <button class="cancle" type="button" (click)="clear()" i18n="@@Clear">Clear</button>
                 </div>
             </div>
-        </ng-container>
+        
+}
     </div>
 </div>

@@ -13,7 +13,7 @@ import {j4care} from "../../helpers/j4care.service";
 import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {MonitoringTabsComponent} from '../monitoring-tabs.component';
 import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
-import {CommonModule, DatePipe, NgClass} from '@angular/common';
+import { CommonModule, DatePipe, NgClass } from '@angular/common';
 
 @Component({
     selector: 'app-storage-commitment',

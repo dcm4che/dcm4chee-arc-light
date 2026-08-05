@@ -4,7 +4,7 @@ import {RangePickerService} from "./range-picker.service";
 import {Moment} from "moment";
 import * as _ from "lodash-es";
 import {FormControl, FormGroup, FormsModule} from '@angular/forms';
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {TimePickerComponent} from '../time-picker/time-picker.component';
 import {DurationPickerComponent} from '../duration-picker/duration-picker.component';
 import {ArrayToStringPipe} from '../../pipes/array-to-string.pipe';

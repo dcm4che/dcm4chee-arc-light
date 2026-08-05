@@ -2,7 +2,7 @@ import {Component, HostListener, Input, OnInit} from '@angular/core';
 import * as _ from 'lodash-es';
 import {WindowRefService} from "../../helpers/window-ref.service";
 import {j4care} from "../../helpers/j4care.service";
-import {CommonModule, NgStyle} from '@angular/common';
+import { CommonModule, NgStyle } from '@angular/common';
 
 @Component({
     selector: 'dicom-list',

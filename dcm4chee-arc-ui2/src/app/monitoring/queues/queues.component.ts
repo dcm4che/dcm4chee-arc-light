@@ -22,7 +22,7 @@ import {Device} from "../../models/device";
 import {SelectDropdown} from "../../interfaces";
 import {MonitoringTabsComponent} from '../monitoring-tabs.component';
 import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MatOption, MatSelect} from '@angular/material/select';

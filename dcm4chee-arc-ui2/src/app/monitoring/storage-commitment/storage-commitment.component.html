@@ -16,15 +16,18 @@
                 </div>
             </div>
         </div>
-        <ng-container *ngIf="_.size(matches) > 0">
+        @if (_.size(matches) > 0) {
+
             <button class="left_arrow arrow no_style"   i18n-title="@@title.preview_page" title="Preview page" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
                 <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
             </button>
             <button class="right_arrow arrow no_style"  i18n-title="@@title.next_page" title="Next page" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
                 <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
             </button>
-        </ng-container>
-        <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
+        
+}
+        @if (_.size(matches) > 0) {
+<table class="table table-bordered table-condensed">
             <thead>
             <tr>
                 <th colspan="2">
@@ -41,7 +44,8 @@
             </tr>
             </thead>
             <tbody>
-            <ng-container *ngFor="let match of matches">
+            @for (match of matches; track match) {
+
                 <tr>
                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                     <td>
@@ -62,22 +66,32 @@
                     <td [innerHtml]="match.properties.transactionUID"></td>
                     <td [innerHtml]="match.properties.studyUID"></td>
                 </tr>
-                <tr *ngIf="match.showProperties">
+                @if (match.showProperties) {
+<tr>
                     <td colspan="11">
                         <table class="table table-bordered table-condensed attribute_list">
-                            <tr *ngFor="let key of Object.keys(match.properties)">
+                            @for (key of Object.keys(match.properties); track key) {
+<tr>
                                 <th [innerHtml]="key"></th>
-                                <td *ngIf="key === 'createdTime' || key === 'updatedTime';else nodate_content" [innerHtml]="match.properties[key] | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                                <ng-template #nodate_content>
+                                @if (key === 'createdTime' || key === 'updatedTime') {
+<td [innerHtml]="match.properties[key] | date:'yyyy-MM-dd HH:mm:ss'"></td>
+} @else {
+
                                     <td [innerHtml]="match.properties[key]"></td>
-                                </ng-template>
+                                
+}
+                                
                             </tr>
+}
                         </table>
                     </td>
                 </tr>
+}
                 <tr [hidden]="true"></tr>
-            </ng-container>
+            
+}
             </tbody>
         </table>
+}
     </div>
 </div>

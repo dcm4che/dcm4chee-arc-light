@@ -1,6 +1,6 @@
 import {Component, Input, OnInit, TemplateRef, ContentChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {CommonModule, NgTemplateOutlet} from '@angular/common';
+import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import {ClickOutsideDirective} from '../../helpers/click-outside.directive';
 import {SearchPipe} from '../../pipes/search.pipe';
 

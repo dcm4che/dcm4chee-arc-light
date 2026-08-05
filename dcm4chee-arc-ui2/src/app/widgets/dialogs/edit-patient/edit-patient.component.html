@@ -28,16 +28,21 @@
                 </div>
                 <div class="complex">
                     <input autocomplete="off" id="addPatientAttribut" class="addPatientAttribut" [(ngModel)]="addPatientAttribut" i18n-placeholder="@@placeholder.add_new_attribute" placeholder="Add new attribute"  (click)="opendropdown = !opendropdown"  (keydown)="pressedKey($event)"/>
-                    <div id="dropdown" class="dropdown" *ngIf="opendropdown">
-                        <a class="dropdown_element" name="{{m.code}}" *ngFor="let m of dropdown | search:addPatientAttribut"  (click)="$event.preventDefault();addAttribute(m.code, patientResults.patient?.attrs || patient.attrs)">({{m.codeComma}}) {{m.name}}</a>
+                    @if (opendropdown) {
+<div id="dropdown" class="dropdown">
+                        @for (m of dropdown | search:addPatientAttribut; track m) {
+<a class="dropdown_element" name="{{m.code}}"  (click)="$event.preventDefault();addAttribute(m.code, patientResults.patient?.attrs || patient.attrs)">({{m.codeComma}}) {{m.name}}</a>
+}
                     </div>
+}
                     <div mat-dialog-content>
                         <iod-form-generator [externalInternalAetMode]="externalInternalAetMode" [object]="patient.attrs" [prefix]="" [mode]="mode" [iod]="iod"  (validityChange)="iodFormValid = $event" (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="inputpart" *ngIf="!hideAdditionalParams && mode === 'edit'">
+        @if (!hideAdditionalParams && mode === 'edit') {
+<div class="inputpart">
             <div class="form_input">
                 <label i18n="@@reason_for_modification_label">Reason for modification:</label>
                 <dcm-drop-down [options]="reasonForModification" [(model)]="patientResults.reasonForModificationResult"
@@ -50,6 +55,7 @@
                 <input type="text" [(ngModel)]="patientResults.sourceOfPrevVals" i18n-placeholder="source_of_previous_values" placeholder="Source of previous values">
             </div>
         </div>
+}
         <div class="dialogbuttons">
             @if (patientResults.patient) {
                <button class="save" type="button"  [disabled]="!isFormValid" (click)="onSaveClick(patientResults)">{{saveLabel}}</button>

@@ -3,7 +3,7 @@ import {Globalvar} from "../../constants/globalvar";
 import {SearchPipe} from "../../pipes/search.pipe";
 import * as _ from 'lodash-es';
 import {FormsModule} from '@angular/forms';
-import {CommonModule} from '@angular/common';
+
 import {SearchDicomPipe} from '../../pipes/search-dicom.pipe';
 
 @Component({
@@ -11,10 +11,9 @@ import {SearchDicomPipe} from '../../pipes/search-dicom.pipe';
     templateUrl: './language-picker.component.html',
     styleUrls: ['./language-picker.component.scss'],
     imports: [
-        FormsModule,
-        CommonModule,
-        SearchPipe
-    ],
+    FormsModule,
+    SearchPipe
+],
     standalone: true
 })
 export class LanguagePickerComponent implements OnInit {

@@ -5,9 +5,14 @@
           (dragleave)="dragleave($event)"
     >
         <!--{{draggedElements | json}}-->
-        <div class="drop_info" *ngIf="draggedElements.length == 0" i18n="@@schedule-picker.drop_here_some_element">Drop here some element to edit</div>
-        <div class="dragged_elements {{item.mode}}" [ngSwitch]="item.mode" *ngFor="let item of draggedElements; let i = index">
-                <div *ngSwitchCase="'single_hour'" class="element single">
+        @if (draggedElements.length == 0) {
+        <div class="drop_info" i18n="@@schedule-picker.drop_here_some_element">Drop here some element to edit</div>
+        }
+        @for (item of draggedElements; track $index; let i = $index) {
+        <div class="dragged_elements {{item.mode}}">
+                @switch (item.mode) {
+                    @case ('single_hour') {
+                <div class="element single">
                     <select name="single_hour" id="single_hour" [(ngModel)]="item.model">
                         <option value="*">*</option>
                         <option value="0">00</option>
@@ -37,7 +42,9 @@
                         <option value="24">24</option>
                     </select>
                 </div>
-                <div *ngSwitchCase="'hour_range'" class="element range">
+                    }
+                    @case ('hour_range') {
+                <div class="element range">
                     <select name="hour_range1" id="hour_range1" [(ngModel)]="item.model.model1">
                         <option value="0">00</option>
                         <option value="1">01</option>
@@ -94,7 +101,9 @@
                         <option value="24">24</option>
                     </select>
                 </div>
-                <div *ngSwitchCase="'single_day'" class="element single">
+                    }
+                    @case ('single_day') {
+                <div class="element single">
                     <select name="single_day" id="single_day" [(ngModel)]="item.model">
                         <option value="*">*</option>
                         <option value="1" i18n="@@monday">Monday</option>
@@ -106,7 +115,9 @@
                         <option value="0" i18n="@@sunday">Sunday</option>
                     </select>
                 </div>
-                <div *ngSwitchCase="'day_range'" class="element range">
+                    }
+                    @case ('day_range') {
+                <div class="element range">
                     <select name="day_range1" id="day_range1" [(ngModel)]="item.model.model1">
                         <option value="1" i18n="@@monday">Monday</option>
                         <option value="2" i18n="@@tuesday">Tuesday</option>
@@ -127,8 +138,11 @@
                         <option value="0" i18n="@@sunday">Sunday</option>
                     </select>
                 </div>
+                    }
+                }
                 <div class="delete_schedule" (click)="deleteDropped(i)"><i class="glyphicon glyphicon-remove"></i></div>
             </div>
+        }
     </div>
     <div class="schedule_drodown_buttons">
         <div (dragstart)="dragstart($event,'single_hour')" draggable="true" class="button clock">

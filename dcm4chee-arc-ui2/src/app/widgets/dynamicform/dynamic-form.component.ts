@@ -14,18 +14,17 @@ import {DeviceConfiguratorComponent} from '../../configuration/device-configurat
 import {ActivatedRoute} from '@angular/router';
 import {KeycloakService} from '../../helpers/keycloak-service/keycloak.service';
 import {DynamicFormElementComponent} from './dynamic-form-element.component';
-import {CommonModule} from '@angular/common';
+
 
 @Component({
     selector: 'dynamic-form',
     templateUrl: './dynamic-form.component.html',
     providers: [FormService],
     imports: [
-        DynamicFormElementComponent,
-        ReactiveFormsModule,
-        FormsModule,
-        CommonModule
-    ],
+    DynamicFormElementComponent,
+    ReactiveFormsModule,
+    FormsModule
+],
     standalone: true
 })
 export class DynamicFormComponent implements OnInit{

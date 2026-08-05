@@ -5,14 +5,20 @@ import * as _ from 'lodash-es';
 @Component({
     selector: 'connection-formater',
     template: `
-        <div *ngFor="let connblock of dicomNetworkConnection">
+        @for (connblock of dicomNetworkConnection; track connblock) {
+<div>
             <span>
                 {{connblock.dicomHostname}}
-                    <ng-container *ngIf="connblock.dicomPort">:</ng-container>
+                    @if (connblock.dicomPort) {
+:
+}
                 {{connblock.dicomPort}}
             </span>
-            <i *ngIf="connblock.dicomTLSCipherSuite" title="{{connblock.dicomTLSCipherSuite}}" class="material-icons connection_tls" i18n="@@vpn_key">vpn_key</i>
+            @if (connblock.dicomTLSCipherSuite) {
+<i title="{{connblock.dicomTLSCipherSuite}}" class="material-icons connection_tls" i18n="@@vpn_key">vpn_key</i>
+}
         </div>
+}
     `,
     standalone: true
 })

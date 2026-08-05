@@ -7,7 +7,8 @@
                 <filter-generator [schema]="filterSchema" filterIdTemplate="storage-systems" [model]="filters" (submit)="search(0)" [filterTreeHeight]="2"></filter-generator>
             </div>
         </div>
-        <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
+        @if (_.size(matches) > 0) {
+<table class="table table-bordered table-condensed">
             <thead>
                 <tr>
                     <th colspan="2">
@@ -30,7 +31,8 @@
                 </tr>
             </thead>
             <tbody>
-                <ng-container *ngFor="let match of matches" >
+                @for (match of matches; track match) {
+
                     <tr [attr.title]="match.properties.warning ? 'Deleter threshold	is bigger than usable space!':null">
                         <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
                         <td class="td_buttons">
@@ -48,60 +50,86 @@
                         <td [innerHtml]="match.properties.dcmStorageClusterID" ></td>
                         <td [innerHtml]="match.properties.dicomAETitle" ></td>
                         <td [innerHTML]="match.properties.deleterThresholdMaxUsableSpacePrepared"></td>
-                        <td [ngClass]="{'error':match.properties.warning}">{{match.properties.usableSpace}} <span *ngIf="match.properties.usableSpace && match.properties.totalSpace">/</span> {{match.properties.totalSpace}}</td>
+                        <td [ngClass]="{'error':match.properties.warning}">{{match.properties.usableSpace}} @if (match.properties.usableSpace && match.properties.totalSpace) {
+<span>/</span>
+} {{match.properties.totalSpace}}</td>
                         <td width="5%" class="used_space_bar">
                             <span [innerHtml]="match.properties.usedSpace + ' %' || ''"></span>
                             <div class="bar" [ngStyle]="{'width.%': match.properties.usedSpace}"></div>
-                            <div *ngIf="match.properties.deleterThresholdProcent" class="marker" [ngStyle]="{'left.%': ( 100 - match.properties.deleterThresholdProcent )}"></div>
+                            @if (match.properties.deleterThresholdProcent) {
+<div class="marker" [ngStyle]="{'left.%': ( 100 - match.properties.deleterThresholdProcent )}"></div>
+}
                         </td>
                         <td>{{match.properties.dcmStorageDuration || 'PERMANENT'}}</td>
                         <td>
-                            <ng-container *ngIf="match.properties.dcmExportStorageID || match.properties.dcmExternalRetrieveAET">
+                            @if (match.properties.dcmExportStorageID || match.properties.dcmExternalRetrieveAET) {
+
                                 <span>{{match.properties.dcmExportStorageID || '-'}}</span> /
                                 <span>{{match.properties.dcmExternalRetrieveAET || '-'}}</span>
-                            </ng-container>
+                            
+}
                         </td>
                         <td [ngClass]="{'error':match.properties.warning}">
-                            <ng-container *ngIf="match.properties.deleterThreshold || match.properties.storageThreshold">
-                                <span *ngIf="match.properties.deleterThresholdProcent">
+                            @if (match.properties.deleterThreshold || match.properties.storageThreshold) {
+
+                                @if (match.properties.deleterThresholdProcent) {
+<span>
                                     {{match.properties.deleterThresholdProcent}} % ( {{match.properties.deleterThreshold}} )
                                 </span>
-                                <span *ngIf="!match.properties.deleterThresholdProcent">-</span>
+}
+                                @if (!match.properties.deleterThresholdProcent) {
+<span>-</span>
+}
                                 /
                                 <span>{{match.properties.storageThreshold || '-'}}</span>
-                            </ng-container>
+                            
+}
                         </td>
                         <td>
-                            <ng-container *ngIf="match.properties.dcmDeleteStudiesOlderThan">
+                            @if (match.properties.dcmDeleteStudiesOlderThan) {
+
                                 <span>{{match.properties.dcmDeleteStudiesOlderThan || '-'}}</span>
-                            </ng-container>
+                            
+}
                         </td>
                         <td>
-                            <ng-container *ngIf="match.properties.dcmDeleteStudiesReceivedBefore">
+                            @if (match.properties.dcmDeleteStudiesReceivedBefore) {
+
                                 <span>{{match.properties.dcmDeleteStudiesReceivedBefore || '-'}}</span>
-                            </ng-container>
+                            
+}
                         </td>
                         <td>
-                            <ng-container *ngIf="match.properties.dcmDeleteStudiesNotUsedSince">
+                            @if (match.properties.dcmDeleteStudiesNotUsedSince) {
+
                                 <span>{{match.properties.dcmDeleteStudiesNotUsedSince || '-'}}</span>
-                            </ng-container>
+                            
+}
                         </td>
                     </tr>
-                    <tr *ngIf="match.showProperties">
+                    @if (match.showProperties) {
+<tr>
                         <td colspan="15">
                             <table class="table table-bordered table-condensed attribute_list">
-                                <ng-container *ngFor="let key of Object.keys(match.properties)">
-                                    <tr *ngIf="key != 'warning'">
+                                @for (key of Object.keys(match.properties); track key) {
+
+                                    @if (key != 'warning') {
+<tr>
                                         <th [innerHtml]="key"></th>
                                         <td [innerHtml]="match.properties[key]"></td>
                                     </tr>
-                                </ng-container>
+}
+                                
+}
                             </table>
                         </td>
                     </tr>
+}
                     <tr [hidden]="true"></tr>
-                </ng-container>
+                
+}
             </tbody>
         </table>
+}
     </div>
 </div>

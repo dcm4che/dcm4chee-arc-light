@@ -3,12 +3,20 @@
     <input class="dictionary_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.dictionary-picker.__search" placeholder="  Search.." (keyup)="onSearch()">
     <div class="dictionary_widget" (scroll)="onScroll($event)">
         <ul class="list">
-            <li *ngFor="let dictionary of dcmTagsFiltered|slice:0:sliceTo;" (click)="addSelectedElement(dictionary)" title="{{dictionary.description}}"><span [innerHTML]="dictionary.key"></span> <span *ngIf="!hideDots">:</span> <span [innerHTML]="dictionary.text"></span></li>
-            <button class="load_more" *ngIf="sliceTo <= dcmTags.length && (!filter || filter==='')" (click)="loadMore()">
+            @for (dictionary of dcmTagsFiltered|slice:0:sliceTo; track dictionary) {
+<li (click)="addSelectedElement(dictionary)" title="{{dictionary.description}}"><span [innerHTML]="dictionary.key"></span> @if (!hideDots) {
+<span>:</span>
+} <span [innerHTML]="dictionary.text"></span></li>
+}
+            @if (sliceTo <= dcmTags.length && (!filter || filter==='')) {
+<button class="load_more" (click)="loadMore()">
                 <!--<i *ngIf="moreHl7.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>-->
                 <ng-container i18n="@@more">More</ng-container>
             </button>
+}
         </ul>
-        <div class="no_result" *ngIf="(dcmTags|search:filter).length === 0" i18n="@@searched_element_not_found">Searched element not found!</div>
+        @if ((dcmTags|search:filter).length === 0) {
+<div class="no_result" i18n="@@searched_element_not_found">Searched element not found!</div>
+}
     </div>
 </div>

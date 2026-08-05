@@ -4,7 +4,7 @@ import {j4care} from '../j4care.service';
 import {TableSchemaElement} from '../../models/dicom-table-schema-element';
 import {PermissionService} from '../permissions/permission.service';
 import {TableAction} from '../dicom-studies-table/dicom-studies-table.interfaces';
-import {CommonModule, DatePipe, NgClass, NgStyle} from '@angular/common';
+import { CommonModule, DatePipe, NgClass, NgStyle } from '@angular/common';
 import {AppModule} from '../../app.module';
 import {TooltipDirective} from '../tooltip/tooltip.directive';
 import {AttributeListComponent} from '../attribute-list/attribute-list.component';

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import {MatDialogRef} from '@angular/material/dialog';
 import {FormsModule} from '@angular/forms';
 import {RangePickerComponent} from '../../range-picker/range-picker.component';
-import {CommonModule} from '@angular/common';
+
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 
 @Component({
@@ -11,10 +11,9 @@ import {CommonModule} from '@angular/common';
     styles: [`
     `],
     imports: [
-        FormsModule,
-        RangePickerComponent,
-        CommonModule
-    ],
+    FormsModule,
+    RangePickerComponent
+],
     standalone: true
 })
 export class DeleteRejectedInstancesComponent{

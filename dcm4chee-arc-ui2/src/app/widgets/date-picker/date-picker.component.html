@@ -1,8 +1,12 @@
 <div class="date_picker">
     <div [ngClass]="{'input_block':!datePickerMode}">
-        <input *ngIf="!datePickerMode"  [(ngModel)]="inputMask" type="text" class="input_mask" placeholder="{{placeholder || ''}}" title="{{title || placeholder || ''}}" (ngModelChange)="setValues($event)">
+        @if (!datePickerMode) {
+<input  [(ngModel)]="inputMask" type="text" class="input_mask" placeholder="{{placeholder || ''}}" title="{{title || placeholder || ''}}" (ngModelChange)="setValues($event)">
+}
         <div [ngClass]="{'icon_block':!datePickerMode}">
-            <span *ngIf="!datePickerMode" class="glyphicon glyphicon-calendar" (click)="togglePicker()"></span>
+            @if (!datePickerMode) {
+<span class="glyphicon glyphicon-calendar" (click)="togglePicker()"></span>
+}
             <div class="hide_layer">
                 <input type="date" class="original_input" [ngClass]="{'date_picker_mode':datePickerMode}" [(ngModel)]="originalInput" (ngModelChange)="onOriginalChange()" #datePicker>
             </div>

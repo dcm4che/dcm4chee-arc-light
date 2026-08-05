@@ -4,7 +4,8 @@
         <input class="main_input" type="text" [(ngModel)]="model" i18n-placeholder="@@placeholder.study_size_range"  placeholder="Study Size Range" i18n-title="@@title.size-range-picker.study_size_range_in_kb" title="Study Size Range in KB" (keyup)="keyUpMainInput()">
         <span class="size_range_icon" (click)="togglePicker()"></span>
     </div>
-    <div class="picker" *ngIf="showPicker">
+    @if (showPicker) {
+<div class="picker">
         <h5 i18n="@@size-range-picker.title">Set Size Range:</h5>
         <div class="input_block" (keyup)="onInputChange()">
             <div class="input_part">
@@ -14,11 +15,16 @@
             </div>
             <mat-select class="unit" [(ngModel)]="value.unit" i18n-placeholder="@@unit" placeholder="Unit" (selectionChange)="onInputChange()">
                 <mat-option value="">*</mat-option>
-                <mat-option *ngFor="let option of units" value="{{option.value}}" title="{{option.description || option.title}}">{{option.text}}</mat-option>
+                @for (option of units; track option) {
+<mat-option value="{{option.value}}" title="{{option.description || option.title}}">{{option.text}}</mat-option>
+}
             </mat-select>
         </div>
         <button (click)="setRange()" i18n="@@Set">Set</button>
         <button class="clear" (click)="clear()" i18n="@@Clear">Clear</button>
     </div>
+}
 </div>
-<div class="overlay" *ngIf="showPicker" (click)="closeFromOutside()"></div>
+@if (showPicker) {
+<div class="overlay" (click)="closeFromOutside()"></div>
+}

@@ -1,6 +1,6 @@
 import {Component, EventEmitter, forwardRef, Input, Output} from '@angular/core';
 import {ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR} from '@angular/forms';
-import {CommonModule, NgStyle} from '@angular/common';
+import { CommonModule, NgStyle } from '@angular/common';
 
 
 @Component({

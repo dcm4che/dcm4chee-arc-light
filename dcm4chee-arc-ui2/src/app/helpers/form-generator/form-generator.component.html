@@ -2,20 +2,29 @@
 <!--
 <form #form="ngForm" (ngSubmit)="onSubmit(form)">
 -->
-    <div class="form_block" *ngFor="let element of schema" [ngClass]="{'label_mode':showLabels}">
-        <ng-container *ngIf="showLabels">
+    @for (element of schema; track element) {
+<div class="form_block" [ngClass]="{'label_mode':showLabels}">
+        @if (showLabels) {
+
             <label>{{element.label || element.placeholder || element.description}}</label>
-        </ng-container>
-        <ng-container [ngSwitch]="element.type">
-            <ng-container *ngSwitchCase="'multi-checkbox'">
+        
+}
+        
+@switch (element.type) {
+            @case ('multi-checkbox') {
+
                 <!--options:{{line[index]?.options|json}}-->
-                <label *ngFor="let item of element.options">
+                @for (item of element.options; track item) {
+<label>
                     <input [disabled]="item.disabled" type="checkbox" (ngModelChange)="modelChange(element, $event)" [(ngModel)]="model[item.key]"  title="{{item?.description}}" />
                     <span [ngStyle]="item?.style" >{{item.text}}</span>
                 </label>
-            </ng-container>
-            <input
-                    *ngSwitchCase="'input'"
+}
+            
+}
+            @case ('input') {
+<input
+                   
                     [disabled]="element.disabled"
                     (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
                     [ngModel]="_.get(model,element.modelPath)"
@@ -27,8 +36,10 @@
                     title="{{element?.description}}"
                     placeholder="{{element?.placeholder}}"
             >
-            <input
-                    *ngSwitchCase="'input-number'"
+}
+            @case ('input-number') {
+<input
+                   
                     [disabled]="element.disabled"
                     (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
                     [ngModel]="_.get(model,element.modelPath)"
@@ -39,8 +50,10 @@
                     title="{{element?.description}}"
                     placeholder="{{element?.placeholder}}"
             >
-            <composed-input
-                    *ngSwitchCase="'composed-input'"
+}
+            @case ('composed-input') {
+<composed-input
+                   
                    [inputSize]="element.inputSize"
                     [placeholderElements]="element.placeholderElements"
                    [joinString]="element.joinString"
@@ -50,17 +63,23 @@
                    title="{{element?.description}}"
             >
             </composed-input>
-        </ng-container>
-        <ng-container [ngSwitch]="element.tag">
-            <issuer-selector *ngSwitchCase="'issuer-selector'"
+}
+        }
+
+        
+@switch (element.tag) {
+            @case ('issuer-selector') {
+<issuer-selector
                              [title]="element?.description"
                              [issuers]="element?.issuers"
                              placeholder="{{element?.placeholder || element?.description}}"
                              (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
                              [ngModel]="_.get(model,element.modelPath)"
             ></issuer-selector>
-            <range-picker
-                    *ngSwitchCase="'p-calendar'"
+}
+            @case ('p-calendar') {
+<range-picker
+                   
                     [ngStyle]="element.style"
                     [onlyDate]="element.onlyDate"
                     [model]="_.get(model,element.modelPath)"
@@ -70,9 +89,11 @@
                     dateFormat="yyyyMMdd"
                     title="{{element?.description}}"
             ></range-picker>
-            <dcm-drop-down
+}
+            @case ('editable-select') {
+<dcm-drop-down
                     [ngStyle]="element.style"
-                    *ngSwitchCase="'editable-select'"
+                   
                     [placeholder]="element?.placeholder"
                     [title]="element?.description || ''"
                     [ngClass]="element.cssClass"
@@ -85,9 +106,11 @@
                     [multiSelectMode]="false"
                     [showStar]="element.showStar"
             ></dcm-drop-down>
-            <dcm-drop-down
+}
+            @case ('editable-multi-select') {
+<dcm-drop-down
                     [ngStyle]="element.style"
-                    *ngSwitchCase="'editable-multi-select'"
+                   
                     [placeholder]="element?.placeholder || ''"
                     [title]="element?.description || ''"
                     [ngClass]="element.cssClass"
@@ -100,10 +123,12 @@
                     [multiSelectMode]="true"
                     [showStar]="element.showStar"
             ></dcm-drop-down>
-            <dcm-drop-down
+}
+            @case ('multi-select') {
+<dcm-drop-down
                     [multiSelectMode]="true"
                     [ngStyle]="element.style"
-                    *ngSwitchCase="'multi-select'"
+                   
                     [placeholder]="element?.placeholder"
                     [title]="element?.description || ''"
                     [ngClass]="element.cssClass"
@@ -114,9 +139,11 @@
                     [showSearchField]="element.showSearchField"
                     [showStar]="element.showStar"
             ></dcm-drop-down>
-            <dcm-drop-down
+}
+            @case ('html-select') {
+<dcm-drop-down
                     [ngStyle]="element.style"
-                    *ngSwitchCase="'html-select'"
+                   
                     [placeholder]="element?.placeholder"
                     [title]="element?.description || ''"
                     [ngClass]="element.cssClass"
@@ -128,9 +155,11 @@
                     [multiSelectMode]="false"
                     [showStar]="element.showStar"
             ></dcm-drop-down>
-            <dcm-drop-down
+}
+            @case ('select') {
+<dcm-drop-down
                     [ngStyle]="element.style"
-                    *ngSwitchCase="'select'"
+                   
                     [placeholder]="element?.placeholder"
                     [title]="element?.description || ''"
                     [ngClass]="element.cssClass"
@@ -143,7 +172,10 @@
                     [multiSelectMode]="false"
                     [showStar]="element.showStar"
             ></dcm-drop-down>
-        </ng-container>
+}
+        }
+
     </div>
+}
 <!--
 </form>-->

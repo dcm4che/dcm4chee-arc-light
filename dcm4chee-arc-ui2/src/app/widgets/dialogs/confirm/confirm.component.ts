@@ -2,7 +2,7 @@ import {Component, OnDestroy} from '@angular/core';
 //import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import * as _ from 'lodash-es';
 import {MatDialogRef} from '@angular/material/dialog';
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {RangePickerComponent} from '../../range-picker/range-picker.component';
 import {FormsModule} from '@angular/forms';
 import {FilterGeneratorComponent} from '../../../helpers/filter-generator/filter-generator.component';

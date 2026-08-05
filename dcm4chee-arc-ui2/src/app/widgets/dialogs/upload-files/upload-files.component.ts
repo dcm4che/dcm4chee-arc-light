@@ -16,7 +16,7 @@ import {UploadFilesService} from './upload-files.service';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {TrimPipe} from '../../../pipes/trim.pipe';
 import {MatOption, MatSelect} from '@angular/material/select';
-import {CommonModule} from '@angular/common';
+
 import {EditStudyComponent} from '../edit-study/edit-study.component';
 import {MatProgressBar} from '@angular/material/progress-bar';
 import {FormsModule} from '@angular/forms';
@@ -74,14 +74,13 @@ import {InfoComponent} from "../info/info.component";
         }
     `],
     imports: [
-        MatSelect,
-        TrimPipe,
-        CommonModule,
-        EditStudyComponent,
-        MatProgressBar,
-        FormsModule,
-        MatOption
-    ],
+    MatSelect,
+    TrimPipe,
+    EditStudyComponent,
+    MatProgressBar,
+    FormsModule,
+    MatOption
+],
     standalone: true
 })
 export class UploadFilesComponent implements OnInit {

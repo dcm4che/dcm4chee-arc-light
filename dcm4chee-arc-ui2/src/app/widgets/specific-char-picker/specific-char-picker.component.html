@@ -1,18 +1,30 @@
-<mat-select *ngIf="!mode" [ngModel]="localModel" (ngModelChange)="modelChanged($event)" ngDefaultControl>
-    <ng-container *ngFor="let chargroup of specificChar">
+@if (!mode) {
+<mat-select [ngModel]="localModel" (ngModelChange)="modelChanged($event)" ngDefaultControl>
+    @for (chargroup of specificChar; track chargroup) {
+
         <span title="{{chargroup.groupName}}" class="groupName">{{chargroup.groupName}}</span>
-        <mat-option title="{{ char.title }} ({{char.value}})" *ngFor="let char of chargroup.groupValues" value="{{char.value}}">{{ char.title }}</mat-option>
-    </ng-container>
+        @for (char of chargroup.groupValues; track char) {
+<mat-option title="{{ char.title }} ({{char.value}})" value="{{char.value}}">{{ char.title }}</mat-option>
+}
+    
+}
 </mat-select>
-<div *ngIf="mode && mode === 'configurator'"  class="widghet_content" (keydown)="keyDown($event)">
+}
+@if (mode && mode === 'configurator') {
+<div  class="widghet_content" (keydown)="keyDown($event)">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
     <input class="dictionary_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.specific-char-picker.__search" placeholder="  Search..">
     <div class="char_widget" >
         <div class="list">
-            <div *ngFor="let chargroup of specificChar|search:filter" >
+            @for (chargroup of specificChar|search:filter; track chargroup) {
+<div >
                 <span title="{{chargroup.groupName}}" class="groupName">{{chargroup.groupName}}</span>
-                <div class="list_element" title="{{ char.title }} ({{char.value}})" *ngFor="let char of chargroup.groupValues|search:filter" (click)="addSelectedElement(char.value)">{{ char.title }}</div>
+                @for (char of chargroup.groupValues|search:filter; track char) {
+<div class="list_element" title="{{ char.title }} ({{char.value}})" (click)="addSelectedElement(char.value)">{{ char.title }}</div>
+}
             </div>
+}
         </div>
     </div>
 </div>
+}

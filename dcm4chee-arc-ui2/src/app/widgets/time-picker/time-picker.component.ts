@@ -1,6 +1,6 @@
 import {Component, OnInit, EventEmitter, Output, Input, ViewEncapsulation} from '@angular/core';
 import {j4care} from "../../helpers/j4care.service";
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
 @Component({

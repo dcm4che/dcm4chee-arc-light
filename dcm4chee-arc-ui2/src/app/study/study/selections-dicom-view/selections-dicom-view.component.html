@@ -3,30 +3,56 @@
 <div class="dynamic_table">
     <div class="table_header">
         <div class="tr">
-            <div class="th {{header.cssClass}}" *ngFor="let header of tableSchema" title="{{header.headerDescription}}" [ngStyle]="{width: header.calculatedWidth}">{{header.header}}</div>
+            @for (header of tableSchema; track header) {
+<div class="th {{header.cssClass}}" title="{{header.headerDescription}}" [ngStyle]="{width: header.calculatedWidth}">{{header.header}}</div>
+}
         </div>
     </div>
     <div class="table_body">
-        <div class="tr load_more_start" *ngFor="let id of Object.keys(selectionsDicomObjects)">
-            <div class="td {{table_element.cssClass}}" *ngFor="let table_element of tableSchema" [ngStyle]="{width: table_element.calculatedWidth}" [ngSwitch]="table_element.type">
-                <ng-container *ngSwitchCase="'actions'">
-                    <ng-container *ngFor="let action of table_element.actions">
-                        <a *ngIf="(!action.showIf || action.showIf(selectionsDicomObjects[id], config))" class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(selectionsDicomObjects[id])" title="{{action.title || ''}}">
-                            <span *ngIf="action.icon.tag === 'span'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-                            <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+        @for (id of Object.keys(selectionsDicomObjects); track id) {
+<div class="tr load_more_start">
+            @for (table_element of tableSchema; track table_element) {
+<div class="td {{table_element.cssClass}}" [ngStyle]="{width: table_element.calculatedWidth}">
+@switch (table_element.type) {
+                @case ('actions') {
+
+                    @for (action of table_element.actions; track action) {
+
+                        @if ((!action.showIf || action.showIf(selectionsDicomObjects[id], config))) {
+<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(selectionsDicomObjects[id])" title="{{action.title || ''}}">
+                            @if (action.icon.tag === 'span') {
+<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
+}
+                            @if (action.icon.tag === 'i') {
+<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
+}
                         </a>
-                    </ng-container>
-                </ng-container>
-                <span *ngSwitchCase="'value'">{{_.get(selectionsDicomObjects[id].object.attrs,table_element.pathToValue) || '&nbsp;'}}</span>
-                <ng-container *ngSwitchCase="'pipe'">
-                    <ng-container *ngIf="table_element.pathToValue">
+}
+                    
+}
+                
+}
+                @case ('value') {
+<span>{{_.get(selectionsDicomObjects[id].object.attrs,table_element.pathToValue) || '&nbsp;'}}</span>
+}
+                @case ('pipe') {
+
+                    @if (table_element.pathToValue) {
+
                         <span [innerHTML]="getDynamicPipeValue(_.get(selectionsDicomObjects[id].object.attrs,table_element.pathToValue),table_element)"></span>
-                    </ng-container>
-                    <ng-container *ngIf="!table_element.pathToValue">
+                    
+}
+                    @if (!table_element.pathToValue) {
+
                         <span [innerHTML]="getDynamicPipeValue(selectionsDicomObjects[id].object.attrs,table_element)"></span>
-                    </ng-container>
-                </ng-container>
-            </div>
+                    
+}
+                
+}
+            }
+</div>
+}
         </div>
+}
     </div>
 </div>

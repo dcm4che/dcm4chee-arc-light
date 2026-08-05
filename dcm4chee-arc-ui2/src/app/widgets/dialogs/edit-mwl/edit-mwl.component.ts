@@ -9,7 +9,7 @@ import {WindowRefService} from "../../../helpers/window-ref.service";
 import {j4care} from "../../../helpers/j4care.service";
 import {MatDialogContent, MatDialogRef} from '@angular/material/dialog';
 import {FormsModule} from '@angular/forms';
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {IodFormGeneratorComponent} from '../../../helpers/iod-form-generator/iod-form-generator.component';
 
 @Component({

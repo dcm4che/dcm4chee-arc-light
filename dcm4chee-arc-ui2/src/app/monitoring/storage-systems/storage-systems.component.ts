@@ -15,7 +15,7 @@ import {KeycloakService} from "../../helpers/keycloak-service/keycloak.service";
 import {SelectDropdown} from "../../interfaces";
 import {MonitoringTabsComponent} from '../monitoring-tabs.component';
 import {FilterGeneratorComponent} from '../../helpers/filter-generator/filter-generator.component';
-import {CommonModule, NgClass, NgStyle} from '@angular/common';
+import { CommonModule, NgClass, NgStyle } from '@angular/common';
 
 @Component({
     selector: 'app-storage-systems',

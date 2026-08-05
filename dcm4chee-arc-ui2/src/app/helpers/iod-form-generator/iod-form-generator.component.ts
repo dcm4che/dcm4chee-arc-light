@@ -2,7 +2,7 @@ import {Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges
 import * as _ from 'lodash-es';
 import {Globalvar} from '../../constants/globalvar';
 import {AppService} from "../../app.service";
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {RangePickerComponent} from '../../widgets/range-picker/range-picker.component';
 import {FormsModule} from '@angular/forms';
 import {SpecificCharPickerComponent} from '../../widgets/specific-char-picker/specific-char-picker.component';

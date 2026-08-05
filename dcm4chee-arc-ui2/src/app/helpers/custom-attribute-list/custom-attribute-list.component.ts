@@ -1,15 +1,14 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {AttributeListComponent} from '../attribute-list/attribute-list.component';
-import {CommonModule} from '@angular/common';
+
 
 @Component({
     selector: 'custom-attribute-list',
     templateUrl: './custom-attribute-list.component.html',
     styleUrls: ['./custom-attribute-list.component.scss'],
     imports: [
-        AttributeListComponent,
-        CommonModule
-    ],
+    AttributeListComponent
+],
     standalone: true
 })
 export class CustomAttributeListComponent implements OnInit {

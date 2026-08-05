@@ -6,7 +6,7 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
 import {LoadingBarService} from "@ngx-loading-bar/core";
 import {j4care} from "../../helpers/j4care.service";
-import {CommonModule, NgClass} from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
 import {MonitoringTabsComponent} from '../monitoring-tabs.component';
 import {FormsModule} from '@angular/forms';
