@@ -170,13 +170,13 @@
           "description": "Missing Patient ID in request body or Circular Merge of Patients not allowed or Missing (prior) patient identifier with trusted assigning authority in specified / sent patient identifiers in request URL / payload."
         },
         "403": {
-          "description": "Update, Create, Merge or Change Patient ID of already merged patient forbidden"
+          "description": "Patient Tracking Not Allowed or Circular Patient Merge forbidden"
         },
         "404": {
           "description": "There is no Archive AE with the specified Title."
         },
         "409": {
-          "description": "Patient Tracking Not Allowed or Circular Patient Merge exception or Non Unique Patients found for patient identifiers in request payload"
+          "description": "Update, Create, Merge or Change Patient ID of already merged patient or Non Unique Patients found for patient identifiers in request payload"
         },
         "500": {
           "description": "Internal Server Error."
@@ -320,13 +320,13 @@
           "description": "JSON request body was not well formed or missing prior or target patient identifier with trusted assigning authority in specified patient identifiers"
         },
         "403": {
-          "description": "Merging to already merged patient forbidden"
+          "description": "Circular Patient Merge forbidden"
         },
         "404": {
           "description": "No such Application Entity or Patient."
         },
         "409": {
-          "description": "Circular Patient Merge detected"
+          "description": "Merging to already merged patient or Non Unique Patients found for patient identifiers"
         },
         "500": {
           "description": "Internal Server Error."
@@ -363,13 +363,13 @@
           "description": "Missing prior or target patient identifier with trusted assigning authority in specified patient identifiers"
         },
         "403": {
-          "description": "Merging to already merged patient forbidden"
+          "description": "Circular Patient Merge forbidden"
         },
         "404": {
           "description": "No such Archive or external C-FIND SCP Application Entity or Patient."
         },
         "409": {
-          "description": "Circular Patient Merge is detected or Studies with prior Patient ID or Studies with equal Study Instance UID but different Patient ID than the target Patient ID were found at the external C-FIND SCP."
+          "description": "Merging to already merged patient or Studies with prior Patient ID or or Non Unique Patients found for patient identifiers or Studies with equal Study Instance UID but different Patient ID than the target Patient ID were found at the external C-FIND SCP."
         },
         "500": {
           "description": "Internal Server Error."
@@ -406,13 +406,13 @@
           "description": "Missing prior or target patient identifier with trusted assigning authority in specified patient identifiers"
         },
         "403": {
-          "description": "Merging to already merged patient forbidden"
+          "description": "Circular Patient Merge forbidden"
         },
         "404": {
           "description": "No such Archive Application Entity or Either or both prior patient or target patient not found."
         },
         "409": {
-          "description": "Circular Patient Merge is detected"
+          "description": "Merging to already merged patient"
         },
         "500": {
           "description": "Internal Server Error."

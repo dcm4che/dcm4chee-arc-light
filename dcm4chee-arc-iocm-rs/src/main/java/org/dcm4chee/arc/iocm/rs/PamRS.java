@@ -464,13 +464,12 @@ public class PamRS {
 
             forwardAndNotify(rsOp, ctx, msgType);
             return Response.noContent().build();
+        } catch (PatientTrackingNotAllowedException | CircularPatientMergeException e) {
+            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (PatientAlreadyExistsException
                  | NonUniquePatientException
-                 | PatientTrackingNotAllowedException
-                 | CircularPatientMergeException e) {
+                 | PatientMergedException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (PatientMergedException e) {
-            return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -547,10 +546,10 @@ public class PamRS {
             return Response.noContent().build();
         } catch (JsonParsingException e) {
             return errResponse(e.getMessage() + " at location : " + e.getLocation(), Response.Status.BAD_REQUEST);
-        } catch (NonUniquePatientException | CircularPatientMergeException e) {
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (PatientMergedException e) {
+        } catch (CircularPatientMergeException e) {
             return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (NonUniquePatientException | PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -588,12 +587,12 @@ public class PamRS {
             mergePatient(trustedPatientIDs, trustedPriorPatientIDs, arcAE);
             rsForward.forward(RSOperation.MergePatient, arcAE, request);
             return Response.noContent().build();
-        } catch (NonUniquePatientException
-                | CircularPatientMergeException
-                | VerifyMergePatientException e) {
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (PatientMergedException e) {
+        } catch (CircularPatientMergeException e) {
             return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (NonUniquePatientException
+                 | PatientMergedException
+                 | VerifyMergePatientException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -627,9 +626,9 @@ public class PamRS {
             notifyHL7Receivers(MERGE_PATIENT_MSG_TYPE, ctx);
             return Response.noContent().build();
         } catch (CircularPatientMergeException e) {
-            return errResponse(e.getMessage(), Response.Status.CONFLICT);
-        } catch (PatientMergedException e) {
             return errResponse(e.getMessage(), Response.Status.FORBIDDEN);
+        } catch (PatientMergedException e) {
+            return errResponse(e.getMessage(), Response.Status.CONFLICT);
         } catch (Exception e) {
             return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
         }
