@@ -1,0 +1,5 @@
+date=2026-08-06 14:30:27+0200
+os=Linux 6.17.0-119029-tuxedo
+schemaspy-version=7.0.2
+schemaspy-revision=v7.0.2
+renderer=Graphviz dot 2.43.0 

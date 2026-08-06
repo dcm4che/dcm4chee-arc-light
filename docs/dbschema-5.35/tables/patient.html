@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>patient - pacsdb.public</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
+        <!-- Bootstrap 3.3.5 -->
+        <link rel="stylesheet" href="../bower/admin-lte/bootstrap/css/bootstrap.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="../bower/font-awesome/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="../bower/ionicons/css/ionicons.min.css">
+        <!-- DataTables -->
+        <link rel="stylesheet" href="../bower/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="../bower/datatables.net-buttons-bs/css/buttons.bootstrap.min.css">
+        <!-- Code Mirror -->
+        <link rel="stylesheet" href="../bower/codemirror/codemirror.css">
+        <!-- Fonts -->
+        <link href='../fonts/indieflower/indie-flower.css' rel='stylesheet' type='text/css'>
+        <link href='../fonts/source-sans-pro/source-sans-pro.css' rel='stylesheet' type='text/css'>
+
+        <!-- Theme style -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/AdminLTE.min.css">
+        <!-- Salvattore -->
+        <link rel="stylesheet" href="../bower/salvattore/salvattore.css">
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+           folder instead of downloading all of them to reduce the load. -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/skins/_all-skins.min.css">
+        <!-- SchemaSpy -->
+        <link rel="stylesheet" href="../schemaSpy.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="../bower/html5shiv/html5shiv.min.js"></script>
+        <script src="../bower/respond/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
+    <body class="hold-transition skin-blue layout-top-nav">
+        <div class="wrapper">
+            <header class="main-header">
+                <nav class="navbar navbar-static-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a href="../index.html" class="navbar-brand"><b>pacsdb</b></a><span class="navbar-brand" style="padding-left: 0">.public</span>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"><i class="fa fa-bars"></i></button>
+                        </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="../index.html">Tables <span class="sr-only">(current)</span></a></li>
+                                <li><a href="../columns.html" title="All of the columns in the schema">Columns</a></li>
+                                <li><a href="../constraints.html" title="Useful for diagnosing error messages that just give constraint name or number">Constraints</a></li>
+                                <li><a href="../relationships.html" title="Diagram of table relationships">Relationships</a></li>
+                                <li><a href="../orphans.html" title="View of tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
+                                <li><a href="../anomalies.html" title="Things that might not be quite right">Anomalies</a></li>
+                                <li><a href="../routines.html" title="Procedures and functions">Routines</a></li>
+                            </ul>
+                        </div>
+                        <!-- /.navbar-collapse -->
+                        <!-- Navbar Right Menu -->
+                    </div>
+                    <!-- /.container-fluid -->
+                </nav>
+            </header>
+            <!-- Main content -->
+            <!-- Full Width Column -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>patient</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                            <h3 id="Columns" class="box-title">Columns</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="standard_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="true"
+                                    data-page-length="10"
+                                    data-length-change="false">
+                                <thead align='left'>
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Type</th>
+                                    <th>Size</th>
+                                    <th title='Are nulls allowed?'>Nulls</th>
+                                    <th title='Is column automatically updated?'>Auto</th>
+                                    <th title='Default value'>Default</th>
+                                    <th title='Columns in tables that reference this column'>Children</th>
+                                    <th title='Columns in tables that are referenced by this column'>Parents</th>
+                                    <th title='Comments' class="toggle"><span>Comments</span></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pk">pk</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="mpps.patient_fk references patient.pk via fks7mb8qsr1mjijnw9bvx0dhqab"><a href='mpps.html'>mpps</a><span class='relatedKey'>.patient_fk</span></td>
+                                                <td class="constraint detail">fks7mb8qsr1mjijnw9bvx0dhqab</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="mwl_item.patient_fk references patient.pk via fkeursgxiy2u6ws39cgn1b25e6k"><a href='mwl_item.html'>mwl_item</a><span class='relatedKey'>.patient_fk</span></td>
+                                                <td class="constraint detail">fkeursgxiy2u6ws39cgn1b25e6k</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="patient.merge_fk references patient.pk via fkc66cfkdwiu7eq65kgmxilrocw"><a href='patient.html'>patient</a><span class='relatedKey'>.merge_fk</span></td>
+                                                <td class="constraint detail">fkc66cfkdwiu7eq65kgmxilrocw</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="patient_id.patient_fk references patient.pk via fkih8d22x50j7orytfmigrnssea"><a href='patient_id.html'>patient_id</a><span class='relatedKey'>.patient_fk</span></td>
+                                                <td class="constraint detail">fkih8d22x50j7orytfmigrnssea</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="study.patient_fk references patient.pk via fkocnq3so9ej7h0mnd6a6arjf6c"><a href='study.html'>study</a><span class='relatedKey'>.patient_fk</span></td>
+                                                <td class="constraint detail">fkocnq3so9ej7h0mnd6a6arjf6c</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="ups.patient_fk references patient.pk via fkjcmu4x6x02r0tc1d28xb3nf17"><a href='ups.html'>ups</a><span class='relatedKey'>.patient_fk</span></td>
+                                                <td class="constraint detail">fkjcmu4x6x02r0tc1d28xb3nf17</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="created_time">created_time</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="failed_verifications">failed_verifications</span></td>
+                                    <td>int4</td>
+                                    <td>10</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="num_studies">num_studies</span></td>
+                                    <td>int4</td>
+                                    <td>10</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pat_birthdate">pat_birthdate</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pat_custom1">pat_custom1</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pat_custom2">pat_custom2</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pat_custom3">pat_custom3</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pat_sex">pat_sex</span></td>
+                                    <td>varchar</td>
+                                    <td>255</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="updated_time">updated_time</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="verification_status">verification_status</span></td>
+                                    <td>int2</td>
+                                    <td>5</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="verification_time">verification_time</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="version">version</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="dicomattrs_fk">dicomattrs_fk</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient.dicomattrs_fk references dicomattrs.pk via fke8j5c2rhq67rt3opqfggoplt2"><a href='dicomattrs.html'>dicomattrs</a><span class='relatedKey'>.pk</span></td>
+                                                <td class="constraint detail">fke8j5c2rhq67rt3opqfggoplt2</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="merge_fk">merge_fk</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient.merge_fk references patient.pk via fkc66cfkdwiu7eq65kgmxilrocw"><a href='patient.html'>patient</a><span class='relatedKey'>.pk</span></td>
+                                                <td class="constraint detail">fkc66cfkdwiu7eq65kgmxilrocw</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pat_name_fk">pat_name_fk</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient.pat_name_fk references person_name.pk via fkig1mwm5jpkyq6733t0hrf56g"><a href='person_name.html'>person_name</a><span class='relatedKey'>.pk</span></td>
+                                                <td class="constraint detail">fkig1mwm5jpkyq6733t0hrf56g</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="resp_person_fk">resp_person_fk</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="patient.resp_person_fk references person_name.pk via fkjh4miooi709vj5l6xi8h95f3e"><a href='person_name.html'>person_name</a><span class='relatedKey'>.pk</span></td>
+                                                <td class="constraint detail">fkjh4miooi709vj5l6xi8h95f3e</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 id="Indexes" class="box-title">Indexes</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="indexes_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="true"
+                                    data-page-length="10"
+                                    data-length-change="false">
+                                <thead>
+                                <tr>
+                                    <th>Constraint Name</th>
+                                    <th>Type</th>
+                                    <th>Sort</th>
+                                    <th>Column(s)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> patient_pkey</td>
+                                    <td>Primary key</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>pk</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>fkc66cfkdwiu7eq65kgmxilrocw</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>merge_fk</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>fkig1mwm5jpkyq6733t0hrf56g</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>pat_name_fk</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>fkjh4miooi709vj5l6xi8h95f3e</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>resp_person_fk</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx1ho1jyofty54ip8aqpuhi4mu1</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>pat_birthdate</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx296rccryifu6d8byisl2f4dvq</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>num_studies</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx3ioui3yamjf01yny98bliqfgs</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>pat_custom3</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx545wp9un24fhgcy2lcfu1o04y</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>pat_sex</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx9f2m2lkijm7wi0hpjsime069n</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>pat_custom1</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxbay8wkvwegw3pmyeypv2v93k1</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>verification_time</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxdhohkk791t9yvrlt0lihik992</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>created_time</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxdwp6no1c4624yii6sbo59fedg</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>pat_custom2</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idxe7rsyrt9n2mccyv1fcd2s6ikv</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>verification_status</td>
+                                </tr>
+                                <tr>
+                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> patient_dicomattrs_fk_key</td>
+                                    <td>Must be unique</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>dicomattrs_fk</td>
+                                </tr>
+                                <tr>
+                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> patient_pat_name_fk_key</td>
+                                    <td>Must be unique</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>pat_name_fk</td>
+                                </tr>
+                                <tr>
+                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> patient_resp_person_fk_key</td>
+                                    <td>Must be unique</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>resp_person_fk</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div><!-- /.box-body -->
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 class="box-title">Check Constraints</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="check_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="true"
+                                    data-page-length="10"
+                                    data-length-change="false">
+                                <thead align='left'>
+                                <tr>
+                                    <th>Constraint Name</th>
+                                    <th>Constraint</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>patient_verification_status_check</td>
+                                    <td>((verification_status &gt;&#61; 0) AND (verification_status &lt;&#61; 4))</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-code-fork"></i>
+                            <h3 id="Relationships" class="box-title">Relationships</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="nav-tabs-custom"><!-- Tabs within a box -->
+                                <h5>Close relationships within degrees of separation</h5>
+                                <ul class="nav nav-tabs pull-left ui-sortable-handle">
+                                    <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
+                                    <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
+                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
+                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
+                                </ul>
+                                <div class="tab-content no-padding">
+                                    <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="mpps.html" target="_top" title="mpps" alt="" coords="663,5,902,240">
+<area shape="rect" id="node2" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="20,1209,199,1327">
+<area shape="rect" id="node3" href="patient.html" target="_top" title="patient" alt="" coords="257,1309,608,1877">
+<area shape="rect" id="node5" href="person_name.html" target="_top" title="person_name" alt="" coords="5,1781,213,1963">
+<area shape="rect" id="node4" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="661,1952,904,2597">
+<area shape="rect" id="node6" href="patient_id.html" target="_top" title="patient_id" alt="" coords="685,1641,880,1935">
+<area shape="rect" id="node7" href="study.html" target="_top" title="study" alt="" coords="661,861,905,1624">
+<area shape="rect" id="node8" href="ups.html" target="_top" title="ups" alt="" coords="652,257,913,844">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/patient.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
+<area shape="rect" id="node1" href="global_subscription.html" target="_top" title="global_subscription" alt="" coords="299,234,551,322">
+<area shape="rect" id="node2" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="16,516,195,604">
+<area shape="rect" id="node3" href="hl7psu_task.html" target="_top" title="hl7psu_task" alt="" coords="959,178,1145,266">
+<area shape="rect" id="node4" href="mpps.html" target="_top" title="mpps" alt="" coords="676,178,807,266">
+<area shape="rect" id="node8" href="code.html" target="_top" title="code" alt="" coords="363,445,487,533">
+<area shape="rect" id="node11" href="patient.html" target="_top" title="patient" alt="" coords="249,718,600,1286">
+<area shape="rect" id="node5" href="ian_task.html" target="_top" title="ian_task" alt="" coords="975,73,1129,161">
+<area shape="rect" id="node6" href="instance.html" target="_top" title="instance" alt="" coords="1272,1162,1429,1250">
+<area shape="rect" id="node7" href="series.html" target="_top" title="series" alt="" coords="985,1162,1119,1250">
+<area shape="rect" id="node10" href="person_name.html" target="_top" title="person_name" alt="" coords="5,1377,205,1465">
+<area shape="rect" id="node15" href="study.html" target="_top" title="study" alt="" coords="675,1288,807,1376">
+<area shape="rect" id="node9" href="instance_req.html" target="_top" title="instance_req" alt="" coords="1492,1320,1685,1408">
+<area shape="rect" id="node12" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="657,726,825,814">
+<area shape="rect" id="node13" href="patient_id.html" target="_top" title="patient_id" alt="" coords="644,868,839,1161">
+<area shape="rect" id="node14" href="rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="941,952,1163,1040">
+<area shape="rect" id="node16" href="rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="298,340,551,428">
+<area shape="rect" id="node17" href="rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="934,530,1170,618">
+<area shape="rect" id="node18" href="ups.html" target="_top" title="ups" alt="" coords="684,533,799,621">
+<area shape="rect" id="node19" href="rel_ups_station_class_code.html" target="_top" title="rel_ups_station_class_code" alt="" coords="897,636,1207,724">
+<area shape="rect" id="node20" href="rel_ups_station_location_code.html" target="_top" title="rel_ups_station_location_code" alt="" coords="883,320,1221,408">
+<area shape="rect" id="node21" href="rel_ups_station_name_code.html" target="_top" title="rel_ups_station_name_code" alt="" coords="893,425,1211,513">
+<area shape="rect" id="node22" href="series_req.html" target="_top" title="series_req" alt="" coords="1265,1338,1436,1426">
+<area shape="rect" id="node23" href="soundex_code.html" target="_top" title="soundex_code" alt="" coords="322,1484,527,1572">
+<area shape="rect" id="node24" href="sps_station_aet.html" target="_top" title="sps_station_aet" alt="" coords="944,1057,1160,1145">
+<area shape="rect" id="node25" href="study_access_control_id.html" target="_top" title="study_access_control_id" alt="" coords="908,1268,1196,1356">
+<area shape="rect" id="node26" href="study_query_attrs.html" target="_top" title="study_query_attrs" alt="" coords="933,1373,1171,1461">
+<area shape="rect" id="node27" href="subscription.html" target="_top" title="subscription" alt="" coords="957,741,1147,829">
+<area shape="rect" id="node28" href="ups_req.html" target="_top" title="ups_req" alt="" coords="977,846,1127,934">
+<area shape="rect" id="node29" href="verify_observer.html" target="_top" title="verify_observer" alt="" coords="1480,1524,1697,1612">
+</map>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/patient.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="mpps.html" target="_top" title="mpps" alt="" coords="663,5,902,240">
+<area shape="rect" id="node2" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="20,1209,199,1327">
+<area shape="rect" id="node3" href="patient.html" target="_top" title="patient" alt="" coords="257,1309,608,1877">
+<area shape="rect" id="node5" href="person_name.html" target="_top" title="person_name" alt="" coords="5,1781,213,1963">
+<area shape="rect" id="node4" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="661,1952,904,2597">
+<area shape="rect" id="node6" href="patient_id.html" target="_top" title="patient_id" alt="" coords="685,1641,880,1935">
+<area shape="rect" id="node7" href="study.html" target="_top" title="study" alt="" coords="661,861,905,1624">
+<area shape="rect" id="node8" href="ups.html" target="_top" title="ups" alt="" coords="652,257,913,844">
+</map>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/patient.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="global_subscription.html" target="_top" title="global_subscription" alt="" coords="609,274,861,362">
+<area shape="rect" id="node2" href="dicomattrs.html" target="_top" title="dicomattrs" alt="" coords="288,380,467,468">
+<area shape="rect" id="node3" href="hl7psu_task.html" target="_top" title="hl7psu_task" alt="" coords="1270,12,1455,100">
+<area shape="rect" id="node4" href="id_sequence.html" target="_top" title="id_sequence" alt="" coords="5,1363,195,1451">
+<area shape="rect" id="node5" href="mpps.html" target="_top" title="mpps" alt="" coords="987,122,1117,210">
+<area shape="rect" id="node9" href="code.html" target="_top" title="code" alt="" coords="673,487,797,575">
+<area shape="rect" id="node12" href="patient.html" target="_top" title="patient" alt="" coords="560,724,911,1292">
+<area shape="rect" id="node6" href="ian_task.html" target="_top" title="ian_task" alt="" coords="1285,118,1440,206">
+<area shape="rect" id="node7" href="instance.html" target="_top" title="instance" alt="" coords="1583,1140,1740,1228">
+<area shape="rect" id="node8" href="series.html" target="_top" title="series" alt="" coords="1295,1140,1430,1228">
+<area shape="rect" id="node11" href="person_name.html" target="_top" title="person_name" alt="" coords="277,1366,477,1454">
+<area shape="rect" id="node17" href="study.html" target="_top" title="study" alt="" coords="986,1320,1118,1408">
+<area shape="rect" id="node10" href="instance_req.html" target="_top" title="instance_req" alt="" coords="1803,1280,1996,1368">
+<area shape="rect" id="node13" href="mwl_item.html" target="_top" title="mwl_item" alt="" coords="968,732,1136,820">
+<area shape="rect" id="node14" href="patient_demographics.html" target="_top" title="patient_demographics" alt="" coords="239,1630,516,1718">
+<area shape="rect" id="node15" href="patient_id.html" target="_top" title="patient_id" alt="" coords="955,1703,1149,1996">
+<area shape="rect" id="node16" href="rel_study_pcode.html" target="_top" title="rel_study_pcode" alt="" coords="1252,930,1473,1018">
+<area shape="rect" id="node18" href="rel_task_dicomattrs.html" target="_top" title="rel_task_dicomattrs" alt="" coords="609,168,862,256">
+<area shape="rect" id="node19" href="rel_ups_perf_code.html" target="_top" title="rel_ups_perf_code" alt="" coords="1245,298,1481,386">
+<area shape="rect" id="node20" href="ups.html" target="_top" title="ups" alt="" coords="995,467,1109,555">
+<area shape="rect" id="node21" href="rel_ups_station_class_code.html" target="_top" title="rel_ups_station_class_code" alt="" coords="1207,403,1518,491">
+<area shape="rect" id="node22" href="rel_ups_station_location_code.html" target="_top" title="rel_ups_station_location_code" alt="" coords="1193,614,1532,702">
+<area shape="rect" id="node23" href="rel_ups_station_name_code.html" target="_top" title="rel_ups_station_name_code" alt="" coords="1204,719,1521,807">
+<area shape="rect" id="node24" href="series_req.html" target="_top" title="series_req" alt="" coords="1576,1526,1747,1614">
+<area shape="rect" id="node25" href="soundex_code.html" target="_top" title="soundex_code" alt="" coords="633,1454,838,1542">
+<area shape="rect" id="node26" href="sps_station_aet.html" target="_top" title="sps_station_aet" alt="" coords="1255,1035,1471,1123">
+<area shape="rect" id="node27" href="study_access_control_id.html" target="_top" title="study_access_control_id" alt="" coords="1219,1246,1507,1334">
+<area shape="rect" id="node28" href="study_query_attrs.html" target="_top" title="study_query_attrs" alt="" coords="1243,1351,1482,1439">
+<area shape="rect" id="node29" href="subscription.html" target="_top" title="subscription" alt="" coords="1267,508,1458,596">
+<area shape="rect" id="node30" href="ups_req.html" target="_top" title="ups_req" alt="" coords="1287,824,1438,912">
+<area shape="rect" id="node31" href="verify_observer.html" target="_top" title="verify_observer" alt="" coords="1791,1438,2008,1526">
+</map>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/patient.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- /.box-body -->
+                    </div>
+                </section>
+                <script>
+                    var config = {
+                        pagination: true
+                    }
+                </script>
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                <div>
+                    <div class="pull-right hidden-xs">
+                        <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
+                        <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
+                    </div>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 7.0.2</a></strong>
+                </div>
+                <!-- /.container -->
+            </footer>
+        </div>
+        <!-- ./wrapper -->
+
+        <!-- jQuery 2.2.3 -->
+        <script src="../bower/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
+        <script src="../bower/admin-lte/plugins/jQueryUI/jquery-ui.min.js"></script>
+        <!-- Bootstrap 3.3.5 -->
+        <script src="../bower/admin-lte/bootstrap/js/bootstrap.min.js"></script>
+        <!-- DataTables -->
+        <script src="../bower/datatables.net/jquery.dataTables.min.js"></script>
+        <script src="../bower/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/dataTables.buttons.min.js"></script>
+        <script src="../bower/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.html5.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.print.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.colVis.min.js"></script>
+        <!-- SheetJS -->
+        <script src="../bower/js-xlsx/xlsx.full.min.js"></script>
+        <!-- pdfmake -->
+        <script src="../bower/pdfmake/pdfmake.min.js"></script>
+        <script src="../bower/pdfmake/vfs_fonts.js"></script>
+        <!-- SlimScroll -->
+        <script src="../bower/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+        <!-- FastClick -->
+        <script src="../bower/admin-lte/plugins/fastclick/fastclick.js"></script>
+        <!-- Salvattore -->
+        <script src="../bower/salvattore/salvattore.min.js"></script>
+        <!-- AnchorJS -->
+        <script src="../bower/anchor-js/anchor.min.js"></script>
+        <!-- CodeMirror -->
+        <script src="../bower/codemirror/codemirror.js"></script>
+        <script src="../bower/codemirror/sql.js"></script>
+        <!-- AdminLTE App -->
+        <script src="../bower/admin-lte/dist/js/app.min.js"></script>
+        <script src="table.js"></script>
+        <script src="../schemaSpy.js"></script>
+    </body>
+</html>
