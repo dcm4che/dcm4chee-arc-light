@@ -4,7 +4,8 @@
         <h2 i18n="@@storage_commitments">Storage commitments</h2>
         <div class="filter_line" (keyup)="filterKeyUp($event)">
             <div class="filter_block">
-                <filter-generator [schema]="filterSchema" filterIdTemplate="storage-commitment" [model]="filters" (submit)="search(0)"></filter-generator>
+                <filter-generator [schema]="filterSchema" filterIdTemplate="storage-commitment" [model]="filters"
+                                  (submit)="search(0)"></filter-generator>
             </div>
         </div>
         <div class="filter_line">
@@ -18,80 +19,83 @@
         </div>
         @if (_.size(matches) > 0) {
 
-            <button class="left_arrow arrow no_style"   i18n-title="@@title.preview_page" title="Preview page" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
+            <button class="left_arrow arrow no_style" i18n-title="@@title.preview_page" title="Preview page"
+                    [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}"
+                    (click)="search(newerOffset(matches))">
                 <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
             </button>
-            <button class="right_arrow arrow no_style"  i18n-title="@@title.next_page" title="Next page" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
+            <button class="right_arrow arrow no_style" i18n-title="@@title.next_page" title="Next page"
+                    [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}"
+                    (click)="search(olderOffset(matches))">
                 <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
             </button>
-        
-}
+
+        }
         @if (_.size(matches) > 0) {
-<table class="table table-bordered table-condensed">
-            <thead>
-            <tr>
-                <th colspan="2">
-                </th>
-                <th i18n="@@device_name">Device Name</th>
-                <th i18n="@@status">Status</th>
-                <th i18n="@@exporter_id">Exporter ID</th>
-                <th i18n="@@requested">Requested</th>
-                <th i18n="@@failures">Failures</th>
-                <th i18n="@@created_time">Created time</th>
-                <th i18n="@@updated_time">Updated time</th>
-                <th i18n="@@transaction_uid">Transaction UID</th>
-                <th i18n="@@study_uid">Study UID</th>
-            </tr>
-            </thead>
-            <tbody>
-            @for (match of matches; track match) {
-
+            <table class="table table-bordered table-condensed">
+                <thead>
                 <tr>
-                    <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
-                    <td>
-                        <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@show_properties" title="Show Properties">
-                            <span class="glyphicon glyphicon-list"></span>
-                        </a>
-                        <a (click)="$event.preventDefault();delete(match)" href=""  i18n-title="@@title.delete" title="Delete">
-                            <span class="glyphicon glyphicon-remove-circle"></span>
-                        </a>
-                    </td>
-                    <td [innerHtml]="match.properties.dicomDeviceName"></td>
-                    <td [innerHtml]="match.properties.status" ></td>
-                    <td [innerHtml]="match.properties.exporterID"></td>
-                    <td [innerHtml]="match.properties.requested"></td>
-                    <td [innerHtml]="match.properties.failures"></td>
-                    <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                    <td [innerHtml]="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                    <td [innerHtml]="match.properties.transactionUID"></td>
-                    <td [innerHtml]="match.properties.studyUID"></td>
+                    <th colspan="2">
+                    </th>
+                    <th i18n="@@device_name">Device Name</th>
+                    <th i18n="@@status">Status</th>
+                    <th i18n="@@exporter_id">Exporter ID</th>
+                    <th i18n="@@requested">Requested</th>
+                    <th i18n="@@failures">Failures</th>
+                    <th i18n="@@created_time">Created time</th>
+                    <th i18n="@@updated_time">Updated time</th>
+                    <th i18n="@@transaction_uid">Transaction UID</th>
+                    <th i18n="@@study_uid">Study UID</th>
                 </tr>
-                @if (match.showProperties) {
-<tr>
-                    <td colspan="11">
-                        <table class="table table-bordered table-condensed attribute_list">
-                            @for (key of Object.keys(match.properties); track key) {
-<tr>
-                                <th [innerHtml]="key"></th>
-                                @if (key === 'createdTime' || key === 'updatedTime') {
-<td [innerHtml]="match.properties[key] | date:'yyyy-MM-dd HH:mm:ss'"></td>
-} @else {
+                </thead>
+                <tbody>
+                    @for (match of matches; track match) {
 
-                                    <td [innerHtml]="match.properties[key]"></td>
-                                
-}
-                                
+                        <tr>
+                            <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
+                            <td>
+                                <a (click)="$event.preventDefault();match.showProperties = !match.showProperties"
+                                   href="" i18n-title="@@show_properties" title="Show Properties">
+                                    <span class="glyphicon glyphicon-list"></span>
+                                </a>
+                                <a (click)="$event.preventDefault();delete(match)" href="" i18n-title="@@title.delete"
+                                   title="Delete">
+                                    <span class="glyphicon glyphicon-remove-circle"></span>
+                                </a>
+                            </td>
+                            <td [innerHtml]="match.properties.dicomDeviceName"></td>
+                            <td [innerHtml]="match.properties.status"></td>
+                            <td [innerHtml]="match.properties.exporterID"></td>
+                            <td [innerHtml]="match.properties.requested"></td>
+                            <td [innerHtml]="match.properties.failures"></td>
+                            <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                            <td [innerHtml]="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                            <td [innerHtml]="match.properties.transactionUID"></td>
+                            <td [innerHtml]="match.properties.studyUID"></td>
+                        </tr>
+                        @if (match.showProperties) {
+                            <tr>
+                                <td colspan="11">
+                                    <table class="table table-bordered table-condensed attribute_list">
+                                        @for (key of Object.keys(match.properties); track key) {
+                                            <tr>
+                                                <th [innerHtml]="key"></th>
+                                                @if (key === 'createdTime' || key === 'updatedTime') {
+                                                    <td [innerHtml]="match.properties[key] | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                                                } @else {
+                                                    <td [innerHtml]="match.properties[key]"></td>
+                                                }
+
+                                            </tr>
+                                        }
+                                    </table>
+                                </td>
                             </tr>
-}
-                        </table>
-                    </td>
-                </tr>
-}
-                <tr [hidden]="true"></tr>
-            
-}
-            </tbody>
-        </table>
-}
+                        }
+                        <tr [hidden]="true"></tr>
+                    }
+                </tbody>
+            </table>
+        }
     </div>
 </div>

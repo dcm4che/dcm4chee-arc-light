@@ -3,112 +3,124 @@
     <div class="tab-content">
         <h2 i18n="@@export.export">Export</h2>
         <div class="filter_line">
-        <div class="filter_block">
-        <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)" (onFilterLoadFinish)="filterLoadFinished = true"></filter-generator>
-        @if (filterLoadFinished) {
-<div class="filter">
-            <div class="filter_block auto_reloader">
-                <table>
-                    @for (status of Object.keys(statusValues); track status) {
-<tr [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
-                        <td>{{statusValues[status].text}}:</td>
-                        @if (!statusValues[status]?.loader) {
-<td>{{statusValues[status]?.count}}</td>
-}
-                        @if (statusValues[status]?.loader) {
-<td><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
-}
-                    </tr>
-}
-                </table>
-                <div class="option_block">
-                    <div class="interval_block">
-                        <label i18n="@@interval">Interval:</label>
-                        <input type="text" i18n-placeholder="@@placeholder.interval" placeholder="Interval" [(ngModel)]="interval">
-                        <span>s</span>
-                    </div>
-                    <button class="btn-default submit" (click)="toggleAutoRefresh()">
-                        <div class="spinnter_container">
-                            @if (!timer.started) {
-<span class="glyphicon glyphicon-refresh"></span>
-}
-                            @if (timer.started) {
-<mat-progress-spinner mode="indeterminate" [diameter]="20" ></mat-progress-spinner>
-}
+            <div class="filter_block">
+                <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)"
+                                  (onChange)="onFormChange($event)"
+                                  (onFilterLoadFinish)="filterLoadFinished = true"></filter-generator>
+                @if (filterLoadFinished) {
+                    <div class="filter">
+                        <div class="filter_block auto_reloader">
+                            <table>
+                                @for (status of Object.keys(statusValues); track status) {
+                                    <tr [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
+                                        <td>{{ statusValues[status].text }}:</td>
+                                        @if (!statusValues[status]?.loader) {
+                                            <td>{{ statusValues[status]?.count }}</td>
+                                        }
+                                        @if (statusValues[status]?.loader) {
+                                            <td><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
+                                        }
+                                    </tr>
+                                }
+                            </table>
+                            <div class="option_block">
+                                <div class="interval_block">
+                                    <label i18n="@@interval">Interval:</label>
+                                    <input type="text" i18n-placeholder="@@placeholder.interval" placeholder="Interval"
+                                           [(ngModel)]="interval">
+                                    <span>s</span>
+                                </div>
+                                <button class="btn-default submit" (click)="toggleAutoRefresh()">
+                                    <div class="spinnter_container">
+                                        @if (!timer.started) {
+                                            <span class="glyphicon glyphicon-refresh"></span>
+                                        }
+                                        @if (timer.started) {
+                                            <mat-progress-spinner mode="indeterminate"
+                                                                  [diameter]="20"></mat-progress-spinner>
+                                        }
+                                    </div>
+                                    @if (!timer.started) {
+                                        <span>{{ timer.startText }}</span>
+                                    }
+                                    @if (timer.started) {
+                                        <span>{{ timer.stopText }}</span>
+                                    }
+                                </button>
+                            </div>
                         </div>
-                        @if (!timer.started) {
-<span>{{timer.startText}}</span>
-}
-                        @if (timer.started) {
-<span>{{timer.stopText}}</span>
-}
-                    </button>
-                </div>
-                </div>
-                </div>
-}
+                    </div>
+                }
             </div>
         </div>
         <div class="filter_line" [permission]="{id:'action-monitoring->export-all_action',param:'visible'}">
-<!--            <div class="morefunctionblock">
-                <div class="w45percent">
-                    <mat-select [(ngModel)]="allAction" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
-                        <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</mat-option>
-                    </mat-select>
-                </div>
-                <div class="w45percent csv_button"><span class="custom_icon csv_icon"></span>Download CSV</div>
-            </div>-->
+            <!--            <div class="morefunctionblock">
+                            <div class="w45percent">
+                                <mat-select [(ngModel)]="allAction" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
+                                    <mat-option value="{{actions.value}}" *ngFor="let actions of allActionsActive">{{actions.label}}</mat-option>
+                                </mat-select>
+                            </div>
+                            <div class="w45percent csv_button"><span class="custom_icon csv_icon"></span>Download CSV</div>
+                        </div>-->
             <div class="filter single_block">
                 <div class="filter_block">
                     <div class="line">
-                        <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text" i18n="@@download_csv">Download CSV</span></div>
-                        <div (click)="uploadCsv()" class="w45percent csv_button"><span class="material-icons">file_upload</span><span class="text" i18n="@@upload_csv">Upload CSV</span></div>
+                        <div (click)="downloadCsv()" class="w45percent csv_button"><span
+                                class="custom_icon csv_icon"></span><span class="text" i18n="@@download_csv">Download CSV</span>
+                        </div>
+                        <div (click)="uploadCsv()" class="w45percent csv_button"><span class="material-icons">file_upload</span><span
+                                class="text" i18n="@@upload_csv">Upload CSV</span></div>
                     </div>
                 </div>
                 <div class="filter_block">
                     <div class="line">
-                        <mat-select class="pull-left"  [(ngModel)]="allAction" i18n-placeholder="@@placeholder.all_actions" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
+                        <mat-select class="pull-left" [(ngModel)]="allAction"
+                                    i18n-placeholder="@@placeholder.all_actions" placeholder="All actions"
+                                    (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
                             @for (actions of allActionsOptions; track actions.value) {
-<mat-option value="{{actions.value}}">{{actions.label}}</mat-option>
-}
+                                <mat-option value="{{actions.value}}">{{ actions.label }}</mat-option>
+                            }
                         </mat-select>
-<!--                        <div class="checkbox_button pull-right" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="bachChange($event)" i18n="@@batch_id_grouped">Batch ID grouped</mat-checkbox></div>-->
-                        <label for="checkbox" class="checkbox_button pull-right"   [ngClass]="{'active':batchGrouped}">
-                            <input id="checkbox" [(ngModel)]="batchGrouped" (ngModelChange)="batchChange($event)" type="checkbox">
+                        <!--                        <div class="checkbox_button pull-right" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="bachChange($event)" i18n="@@batch_id_grouped">Batch ID grouped</mat-checkbox></div>-->
+                        <label for="checkbox" class="checkbox_button pull-right" [ngClass]="{'active':batchGrouped}">
+                            <input id="checkbox" [(ngModel)]="batchGrouped" (ngModelChange)="batchChange($event)"
+                                   type="checkbox">
                             <span i18n="@@batch_id_grouped">Batch ID grouped</span>
                         </label>
                     </div>
                 </div>
             </div>
         </div>
-<!--        <ng-container *ngIf="batchGrouped">
-            <button class="left_arrow arrow no_style"  i18n-title="@@title.preview_page" title="Preview page" *ngIf="_.size(matches) > 0" [disabled]="!hasNewer(externalRetrieveEntries)" [ngClass]="{'active':hasNewer(externalRetrieveEntries)}" (click)="getCounts(newerOffset(externalRetrieveEntries))">
-                <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
-            </button>
-            <button class="right_arrow arrow no_style" i18n-title="@@title.next_page" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(externalRetrieveEntries)" [ngClass]="{'active':hasOlder(externalRetrieveEntries)}" (click)="getCounts(olderOffset(externalRetrieveEntries))">
-                <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
-            </button>
-        </ng-container>
-        <ng-container *ngIf="!batchGrouped">
-            <button class="left_arrow arrow no_style"  i18n-title="@@title.preview_page" title="Preview page" *ngIf="_.size(matches) > 0"  [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
-                <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
-            </button>
-            <button class="right_arrow arrow no_style" i18n-title="@@title.next_page" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
-                <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
-            </button>
-        </ng-container>-->
+        <!--        <ng-container *ngIf="batchGrouped">
+                    <button class="left_arrow arrow no_style"  i18n-title="@@title.preview_page" title="Preview page" *ngIf="_.size(matches) > 0" [disabled]="!hasNewer(externalRetrieveEntries)" [ngClass]="{'active':hasNewer(externalRetrieveEntries)}" (click)="getCounts(newerOffset(externalRetrieveEntries))">
+                        <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+                    </button>
+                    <button class="right_arrow arrow no_style" i18n-title="@@title.next_page" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(externalRetrieveEntries)" [ngClass]="{'active':hasOlder(externalRetrieveEntries)}" (click)="getCounts(olderOffset(externalRetrieveEntries))">
+                        <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+                    </button>
+                </ng-container>
+                <ng-container *ngIf="!batchGrouped">
+                    <button class="left_arrow arrow no_style"  i18n-title="@@title.preview_page" title="Preview page" *ngIf="_.size(matches) > 0"  [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
+                        <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+                    </button>
+                    <button class="right_arrow arrow no_style" i18n-title="@@title.next_page" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
+                        <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+                    </button>
+                </ng-container>-->
         @if (matches && matches.length && matches.length > 0) {
-<div class="left_arrow arrow"  [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
-}
-        @if (matches && matches.length && matches.length > 0) {
-<div class="right_arrow arrow" [ngClass]="{'active':moreTasks}" (click)="next()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
-}
+            <div class="left_arrow arrow" [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span
+                    class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+            <div class="right_arrow arrow" [ngClass]="{'active':moreTasks}" (click)="next()"><span
+                    class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+        }
         @if (!batchGrouped && tableConfigNormal && matches && matches.length && matches.length > 0) {
-<table-generator [stringifyDetailAttributes]="true" [config]="tableConfigNormal" [models]="matches"></table-generator>
-}
+            <table-generator [stringifyDetailAttributes]="true" [config]="tableConfigNormal"
+                             [models]="matches"></table-generator>
+        }
         @if (batchGrouped && tableConfigGrouped && matches && matches.length && matches.length > 0) {
-<table-generator [stringifyDetailAttributes]="true" [config]="tableConfigGrouped" [models]="matches"></table-generator>
-}
+            <table-generator [stringifyDetailAttributes]="true" [config]="tableConfigGrouped"
+                             [models]="matches"></table-generator>
+        }
 
         <!--<table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
             <thead>

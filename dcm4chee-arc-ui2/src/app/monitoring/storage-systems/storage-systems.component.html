@@ -4,12 +4,13 @@
         <h2 i18n="@@storage_systems">Storage systems</h2>
         <div class="filter_line" (keyup)="filterKeyUp($event)">
             <div class="filter_block">
-                <filter-generator [schema]="filterSchema" filterIdTemplate="storage-systems" [model]="filters" (submit)="search(0)" [filterTreeHeight]="2"></filter-generator>
+                <filter-generator [schema]="filterSchema" filterIdTemplate="storage-systems" [model]="filters"
+                                  (submit)="search(0)" [filterTreeHeight]="2"></filter-generator>
             </div>
         </div>
         @if (_.size(matches) > 0) {
-<table class="table table-bordered table-condensed">
-            <thead>
+            <table class="table table-bordered table-condensed">
+                <thead>
                 <tr>
                     <th colspan="2">
                     </th>
@@ -29,107 +30,99 @@
                     <th i18n="@@delete_studies_received_before">Delete Studies Received Before</th>
                     <th i18n="@@delete_studies_not_used_since">Delete Studies Not Used Since</th>
                 </tr>
-            </thead>
-            <tbody>
-                @for (match of matches; track match) {
-
-                    <tr [attr.title]="match.properties.warning ? 'Deleter threshold	is bigger than usable space!':null">
-                        <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
-                        <td class="td_buttons">
-                            <a (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@show_properties" title="Show Properties">
-                                <span class="glyphicon glyphicon-list"></span>
-                            </a>
-                            <a (click)="$event.preventDefault();changeLocationStatus(match)" href=""  i18n-title="@@change_status_of_location" title="Change status of location">
-                                <span class="glyphicon glyphicon-retweet"></span>
-                            </a>
-                        </td>
-                        <td [innerHtml]="match.properties.dcmStorageID"></td>
-                        <td [innerHtml]="match.properties.dcmURI" ></td>
-                        <td [innerHtml]="match.properties.dcmReadOnly || 'false'" ></td>
-                        <td [innerHtml]="match.properties.dcmNoDeletionConstraint || 'false'" ></td>
-                        <td [innerHtml]="match.properties.dcmStorageClusterID" ></td>
-                        <td [innerHtml]="match.properties.dicomAETitle" ></td>
-                        <td [innerHTML]="match.properties.deleterThresholdMaxUsableSpacePrepared"></td>
-                        <td [ngClass]="{'error':match.properties.warning}">{{match.properties.usableSpace}} @if (match.properties.usableSpace && match.properties.totalSpace) {
-<span>/</span>
-} {{match.properties.totalSpace}}</td>
-                        <td width="5%" class="used_space_bar">
-                            <span [innerHtml]="match.properties.usedSpace + ' %' || ''"></span>
-                            <div class="bar" [ngStyle]="{'width.%': match.properties.usedSpace}"></div>
-                            @if (match.properties.deleterThresholdProcent) {
-<div class="marker" [ngStyle]="{'left.%': ( 100 - match.properties.deleterThresholdProcent )}"></div>
-}
-                        </td>
-                        <td>{{match.properties.dcmStorageDuration || 'PERMANENT'}}</td>
-                        <td>
-                            @if (match.properties.dcmExportStorageID || match.properties.dcmExternalRetrieveAET) {
-
-                                <span>{{match.properties.dcmExportStorageID || '-'}}</span> /
-                                <span>{{match.properties.dcmExternalRetrieveAET || '-'}}</span>
-                            
-}
-                        </td>
-                        <td [ngClass]="{'error':match.properties.warning}">
-                            @if (match.properties.deleterThreshold || match.properties.storageThreshold) {
-
+                </thead>
+                <tbody>
+                    @for (match of matches; track match) {
+                        <tr [attr.title]="match.properties.warning ? 'Deleter threshold	is bigger than usable space!':null">
+                            <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
+                            <td class="td_buttons">
+                                <a (click)="$event.preventDefault();match.showProperties = !match.showProperties"
+                                   href="" i18n-title="@@show_properties" title="Show Properties">
+                                    <span class="glyphicon glyphicon-list"></span>
+                                </a>
+                                <a (click)="$event.preventDefault();changeLocationStatus(match)" href=""
+                                   i18n-title="@@change_status_of_location" title="Change status of location">
+                                    <span class="glyphicon glyphicon-retweet"></span>
+                                </a>
+                            </td>
+                            <td [innerHtml]="match.properties.dcmStorageID"></td>
+                            <td [innerHtml]="match.properties.dcmURI"></td>
+                            <td [innerHtml]="match.properties.dcmReadOnly || 'false'"></td>
+                            <td [innerHtml]="match.properties.dcmNoDeletionConstraint || 'false'"></td>
+                            <td [innerHtml]="match.properties.dcmStorageClusterID"></td>
+                            <td [innerHtml]="match.properties.dicomAETitle"></td>
+                            <td [innerHTML]="match.properties.deleterThresholdMaxUsableSpacePrepared"></td>
+                            <td [ngClass]="{'error':match.properties.warning}">{{ match.properties.usableSpace }} @if (match.properties.usableSpace && match.properties.totalSpace) {
+                                <span>/</span>
+                            } {{ match.properties.totalSpace }}
+                            </td>
+                            <td width="5%" class="used_space_bar">
+                                <span [innerHtml]="match.properties.usedSpace + ' %' || ''"></span>
+                                <div class="bar" [ngStyle]="{'width.%': match.properties.usedSpace}"></div>
                                 @if (match.properties.deleterThresholdProcent) {
-<span>
-                                    {{match.properties.deleterThresholdProcent}} % ( {{match.properties.deleterThreshold}} )
-                                </span>
-}
-                                @if (!match.properties.deleterThresholdProcent) {
-<span>-</span>
-}
-                                /
-                                <span>{{match.properties.storageThreshold || '-'}}</span>
-                            
-}
-                        </td>
-                        <td>
-                            @if (match.properties.dcmDeleteStudiesOlderThan) {
+                                    <div class="marker"
+                                         [ngStyle]="{'left.%': ( 100 - match.properties.deleterThresholdProcent )}"></div>
+                                }
+                            </td>
+                            <td>{{ match.properties.dcmStorageDuration || 'PERMANENT' }}</td>
+                            <td>
+                                @if (match.properties.dcmExportStorageID || match.properties.dcmExternalRetrieveAET) {
+                                    <span>{{ match.properties.dcmExportStorageID || '-' }}</span> /
+                                    <span>{{ match.properties.dcmExternalRetrieveAET || '-' }}</span>
+                                }
+                            </td>
+                            <td [ngClass]="{'error':match.properties.warning}">
+                                @if (match.properties.deleterThreshold || match.properties.storageThreshold) {
+                                    @if (match.properties.deleterThresholdProcent) {
+                                        <span>
+                                            {{ match.properties.deleterThresholdProcent }}
+                                                    % ( {{ match.properties.deleterThreshold }} )
+                                        </span>
+                                    }
+                                    @if (!match.properties.deleterThresholdProcent) {
+                                        <span>-</span>
+                                    }
+                                    /
+                                    <span>{{ match.properties.storageThreshold || '-' }}</span>
 
-                                <span>{{match.properties.dcmDeleteStudiesOlderThan || '-'}}</span>
-                            
-}
-                        </td>
-                        <td>
-                            @if (match.properties.dcmDeleteStudiesReceivedBefore) {
-
-                                <span>{{match.properties.dcmDeleteStudiesReceivedBefore || '-'}}</span>
-                            
-}
-                        </td>
-                        <td>
-                            @if (match.properties.dcmDeleteStudiesNotUsedSince) {
-
-                                <span>{{match.properties.dcmDeleteStudiesNotUsedSince || '-'}}</span>
-                            
-}
-                        </td>
-                    </tr>
-                    @if (match.showProperties) {
-<tr>
-                        <td colspan="15">
-                            <table class="table table-bordered table-condensed attribute_list">
-                                @for (key of Object.keys(match.properties); track key) {
-
-                                    @if (key != 'warning') {
-<tr>
-                                        <th [innerHtml]="key"></th>
-                                        <td [innerHtml]="match.properties[key]"></td>
-                                    </tr>
-}
-                                
-}
-                            </table>
-                        </td>
-                    </tr>
-}
-                    <tr [hidden]="true"></tr>
-                
-}
-            </tbody>
-        </table>
-}
+                                }
+                            </td>
+                            <td>
+                                @if (match.properties.dcmDeleteStudiesOlderThan) {
+                                    <span>{{ match.properties.dcmDeleteStudiesOlderThan || '-' }}</span>
+                                }
+                            </td>
+                            <td>
+                                @if (match.properties.dcmDeleteStudiesReceivedBefore) {
+                                    <span>{{ match.properties.dcmDeleteStudiesReceivedBefore || '-' }}</span>
+                                }
+                            </td>
+                            <td>
+                                @if (match.properties.dcmDeleteStudiesNotUsedSince) {
+                                    <span>{{ match.properties.dcmDeleteStudiesNotUsedSince || '-' }}</span>
+                                }
+                            </td>
+                        </tr>
+                        @if (match.showProperties) {
+                            <tr>
+                                <td colspan="15">
+                                    <table class="table table-bordered table-condensed attribute_list">
+                                        @for (key of Object.keys(match.properties); track key) {
+                                            @if (key != 'warning') {
+                                                <tr>
+                                                    <th [innerHtml]="key"></th>
+                                                    <td [innerHtml]="match.properties[key]"></td>
+                                                </tr>
+                                            }
+                                        }
+                                    </table>
+                                </td>
+                            </tr>
+                        }
+                        <tr [hidden]="true"></tr>
+                    }
+                </tbody>
+            </table>
+        }
     </div>
 </div>

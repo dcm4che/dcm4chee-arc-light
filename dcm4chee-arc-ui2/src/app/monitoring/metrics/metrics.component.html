@@ -4,13 +4,14 @@
         <h2 i18n="@@metrics.metrics">Metrics</h2>
         <div class="filter_line">
             <div class="filter_block">
-                <filter-generator [filterIdTemplate]="'metric'" [schema]="filterSchema" [model]="filterObject" (submit)="getMetrics($event)" (onChange)="onFormChange($event)"></filter-generator>
+                <filter-generator [filterIdTemplate]="'metric'" [schema]="filterSchema" [model]="filterObject"
+                                  (submit)="getMetrics($event)" (onChange)="onFormChange($event)"></filter-generator>
             </div>
         </div>
     </div>
     <div>
         @if (tableConfig && metrics && metrics.length && metrics.length > 0) {
-<table-generator [config]="tableConfig" [models]="metrics"></table-generator>
-}
+            <table-generator [config]="tableConfig" [models]="metrics"></table-generator>
+        }
     </div>
 </div>

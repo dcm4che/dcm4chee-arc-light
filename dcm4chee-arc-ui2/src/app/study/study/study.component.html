@@ -2,209 +2,326 @@
 <button (click)="testKeycloak()" style="position: fixed;top: 10px;left:10px">TESTkeyclok</button>
 -->
 
-<div class="main_content white_design" >
-  <study-tab></study-tab>
-  <div class="tab-content tab_content_with_fixed_header">
-    <div class="sticky" #stickyHeader [ngClass]="{'fixed_header':fixedHeader}">
-      <h2>{{studyConfig.title}}</h2>
-        @if (studyConfig && studyConfig.tab) {
+<div class="main_content white_design">
+    <study-tab></study-tab>
+    <div class="tab-content tab_content_with_fixed_header">
+        <div class="sticky" #stickyHeader [ngClass]="{'fixed_header':fixedHeader}">
+            <h2>{{ studyConfig.title }}</h2>
+            @if (studyConfig && studyConfig.tab) {
 
-          <div class="filter_line">
-            <div class="filter_block" >
-              <filter-generator filterID="{{'study-filter-' + studyConfig.tab}}"  [filterTreeHeight]="filter.filterSchemaMain.lineLength"  [schema]="filter.filterSchemaMain.schema" [doNotSave]="[]" [model]="filter.filterModel" (submit)="search('current', $event)" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)" (onFilterClear)="onFilterClear($event)"></filter-generator>
-            </div>
-          </div>
-          <div class="filter_line" [hidden]="!filter.expand">
-            <div class="filter_block">
-              @if (filter.filterSchemaExpand.lineLength) {
-<filter-generator [schema]="filter.filterSchemaExpand.schema" filterID="{{'study-filter-' + studyConfig.tab}}" [doNotSave]="[]" [model]="filter.filterModel" [filterTreeHeight]="filter.filterSchemaExpand.lineLength" (onChange)="filterChanged()" [defaultSubmitId]="'submit'" (onTemplateSet)="onFilterTemplateSet($event)"></filter-generator>
-}
-            </div>
-          </div>
-        
-}
-  </div>
-      @if (studyConfig
-                        || (studyWebService && studyWebService.selectedWebService
-                            && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps')))
-                        || (studyWebService && studyWebService.selectedWebService
-                            && patients && patients.length > 0 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps')))) {
-<div class="filter_line more_function_block">
-        <div class="filter single_block">
-          @if (studyConfig) {
-<div class="filter_block">
-            <div class="line">
-              @if (!filter.expand && studyConfig.tab != 'patient') {
-<a href="" (click)="$event.preventDefault();toggleMore(true)" class="more pull-left"><ng-container i18n="@@more">More</ng-container><i class="glyphicon glyphicon-triangle-bottom"></i></a>
-}
-              @if (filter.expand && studyConfig.tab != 'patient') {
-<a href="" (click)="$event.preventDefault();toggleMore(false)" class="more [hidden] pull-left">
-                  <ng-container  i18n="@@close_more_block">Close More Block</ng-container>
-                  <i class="glyphicon glyphicon-triangle-top"></i>
-              </a>
-}
-              @if (patients && patients.length > 0) {
-<input  i18n-title="@@title.study.search_current_list" title="Search current local list ( That's NOT searching in the Server! )" type="text" [(ngModel)]="searchCurrentList"  i18n-placeholder="@@placeholder.study.search_current_list" placeholder="Search current list">
-}
-            </div>
-          </div>
-}
-          <div class="filter_block">
-            <div class="line">
-              @if ((studyWebService && studyWebService.selectedWebService && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'mpps')))) {
-<dcm-drop-down
-                  [placeholder]="moreFunctionConfig.placeholder"
-                  [options]="moreFunctionConfig.options | dynamicPipe:undefined:moreFunctionFilterPipe:internal:studyConfig"
-                  [editable]="false"
-                  [(model)]="moreFunctionConfig.model"
-                  [showSearchField]="false"
-                  [multiSelectMode]="false"
-                  (modelChange)="moreFunctionChanged($event)"
-                  [showStar]="false"
-                 
-                  [permission]="{id:'action-studies-more_function',param:'visible'}"
-              ></dcm-drop-down>
-}
-              @if (studyWebService
-                                && studyWebService.selectedWebService
-                                && ((patients && patients.length > 0)
-                                    || (patients1 && patients1.length > 0))
-                                && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps'))) {
-<dcm-drop-down
-                      [placeholder]="actionsSelections.placeholder"
-                      [options]="actionsSelections.options | dynamicPipe:undefined:actionsSelectionsFilterPipe:internal:trash.active:studyConfig"
-                      [editable]="false"
-                      [(model)]="actionsSelections.model"
-                      [showSearchField]="false"
-                      [multiSelectMode]="false"
-                      (modelChange)="actionsSelectionsChanged($event)"
-                      [showStar]="false"
-                     
-                      [permission]="{id:'action-studies-more_function',param:'visible'}"
-              ></dcm-drop-down>
-}
-                @if (patients && patients.length > 0 && studyConfig && studyConfig.tab === 'mpps') {
-                    <div (click)="downloadMPPSCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text" i18n="@@download_csv">Download CSV</span></div>
-                }
+                <div class="filter_line">
+                    <div class="filter_block">
+                        <filter-generator filterID="{{'study-filter-' + studyConfig.tab}}"
+                                          [filterTreeHeight]="filter.filterSchemaMain.lineLength"
+                                          [schema]="filter.filterSchemaMain.schema" [doNotSave]="[]"
+                                          [model]="filter.filterModel" (submit)="search('current', $event)"
+                                          (onChange)="filterChanged()" [defaultSubmitId]="'submit'"
+                                          (onTemplateSet)="onFilterTemplateSet($event)"
+                                          (onFilterClear)="onFilterClear($event)"></filter-generator>
+                    </div>
+                </div>
+                <div class="filter_line" [hidden]="!filter.expand">
+                    <div class="filter_block">
+                        @if (filter.filterSchemaExpand.lineLength) {
+                            <filter-generator [schema]="filter.filterSchemaExpand.schema"
+                                              filterID="{{'study-filter-' + studyConfig.tab}}" [doNotSave]="[]"
+                                              [model]="filter.filterModel"
+                                              [filterTreeHeight]="filter.filterSchemaExpand.lineLength"
+                                              (onChange)="filterChanged()" [defaultSubmitId]="'submit'"
+                                              (onTemplateSet)="onFilterTemplateSet($event)"></filter-generator>
+                        }
+                    </div>
+                </div>
 
-                <!--              <dcm-drop-down
-                                   i18n-placeholder="@@placeholder.study.primary_aet" placeholder="Primary AET"
-                                  [options]="diffOptions.aes"
-                                  [editable]="false"
-                                  [(model)]="diffOptions.primaryAET"
-                                  [showSearchField]="false"
-                                  [multiSelectMode]="false"
-                                  (modelChange)="moreFunctionChanged($event)"
-                                  [showStar]="false"
-                                  *ngIf="studyConfig && studyConfig.tab === 'diff'"
-                                  [permission]="{id:'action-studies-more_function',param:'visible'}"
-                              ></dcm-drop-down>
-                              <dcm-drop-down
-                                       i18n-placeholder="@@placeholder.study.secondary_aet" placeholder="Secondary AET"
-                                      [options]="diffOptions.aes"
-                                      [editable]="false"
-                                      [(model)]="diffOptions.secondaryAET"
-                                      [showSearchField]="false"
-                                      [multiSelectMode]="false"
-                                      (modelChange)="actionsSelectionsChanged($event)"
-                                      [showStar]="false"
-                                      *ngIf="studyConfig && studyConfig.tab === 'diff'"
-                                      [permission]="{id:'action-studies-more_function',param:'visible'}"
-                              ></dcm-drop-down>-->
-            </div>
-          </div>
-            @if (((patients && patients.length > 0) || (studyConfig && studyConfig.tab === 'diff'))) {
-<div class="filter_block">
-                <div class="line">
+            }
+        </div>
+        @if (studyConfig
+        || (studyWebService && studyWebService.selectedWebService
+            && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps')))
+        || (studyWebService && studyWebService.selectedWebService
+            && patients && patients.length > 0 && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps')))) {
+            <div class="filter_line more_function_block">
+                <div class="filter single_block">
+                    @if (studyConfig) {
+                        <div class="filter_block">
+                            <div class="line">
+                                @if (!filter.expand && studyConfig.tab != 'patient') {
+                                    <a href="" (click)="$event.preventDefault();toggleMore(true)"
+                                       class="more pull-left">
+                                        <ng-container i18n="@@more">More</ng-container>
+                                        <i class="glyphicon glyphicon-triangle-bottom"></i></a>
+                                }
+                                @if (filter.expand && studyConfig.tab != 'patient') {
+                                    <a href="" (click)="$event.preventDefault();toggleMore(false)"
+                                       class="more [hidden] pull-left">
+                                        <ng-container i18n="@@close_more_block">Close More Block</ng-container>
+                                        <i class="glyphicon glyphicon-triangle-top"></i>
+                                    </a>
+                                }
+                                @if (patients && patients.length > 0) {
+                                    <input i18n-title="@@title.study.search_current_list"
+                                           title="Search current local list ( That's NOT searching in the Server! )"
+                                           type="text" [(ngModel)]="searchCurrentList"
+                                           i18n-placeholder="@@placeholder.study.search_current_list"
+                                           placeholder="Search current list">
+                                }
+                            </div>
+                        </div>
+                    }
+                    <div class="filter_block">
+                        <div class="line">
+                            @if ((studyWebService && studyWebService.selectedWebService && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'mpps')))) {
+                                <dcm-drop-down
+                                        [placeholder]="moreFunctionConfig.placeholder"
+                                        [options]="moreFunctionConfig.options | dynamicPipe:undefined:moreFunctionFilterPipe:internal:studyConfig"
+                                        [editable]="false"
+                                        [(model)]="moreFunctionConfig.model"
+                                        [showSearchField]="false"
+                                        [multiSelectMode]="false"
+                                        (modelChange)="moreFunctionChanged($event)"
+                                        [showStar]="false"
 
+                                        [permission]="{id:'action-studies-more_function',param:'visible'}"
+                                ></dcm-drop-down>
+                            }
+                            @if (studyWebService
+                            && studyWebService.selectedWebService
+                            && ((patients && patients.length > 0)
+                                || (patients1 && patients1.length > 0))
+                            && !(studyConfig && (studyConfig.tab === 'diff' || studyConfig.tab === 'uwl' || studyConfig.tab === 'mpps'))) {
+                                <dcm-drop-down
+                                        [placeholder]="actionsSelections.placeholder"
+                                        [options]="actionsSelections.options | dynamicPipe:undefined:actionsSelectionsFilterPipe:internal:trash.active:studyConfig"
+                                        [editable]="false"
+                                        [(model)]="actionsSelections.model"
+                                        [showSearchField]="false"
+                                        [multiSelectMode]="false"
+                                        (modelChange)="actionsSelectionsChanged($event)"
+                                        [showStar]="false"
+
+                                        [permission]="{id:'action-studies-more_function',param:'visible'}"
+                                ></dcm-drop-down>
+                            }
+                            @if (patients && patients.length > 0 && studyConfig && studyConfig.tab === 'mpps') {
+                                <div (click)="downloadMPPSCsv()" class="w45percent csv_button"><span
+                                        class="custom_icon csv_icon"></span><span class="text" i18n="@@download_csv">Download CSV</span>
+                                </div>
+                            }
+
+                            <!--              <dcm-drop-down
+                                               i18n-placeholder="@@placeholder.study.primary_aet" placeholder="Primary AET"
+                                              [options]="diffOptions.aes"
+                                              [editable]="false"
+                                              [(model)]="diffOptions.primaryAET"
+                                              [showSearchField]="false"
+                                              [multiSelectMode]="false"
+                                              (modelChange)="moreFunctionChanged($event)"
+                                              [showStar]="false"
+                                              *ngIf="studyConfig && studyConfig.tab === 'diff'"
+                                              [permission]="{id:'action-studies-more_function',param:'visible'}"
+                                          ></dcm-drop-down>
+                                          <dcm-drop-down
+                                                   i18n-placeholder="@@placeholder.study.secondary_aet" placeholder="Secondary AET"
+                                                  [options]="diffOptions.aes"
+                                                  [editable]="false"
+                                                  [(model)]="diffOptions.secondaryAET"
+                                                  [showSearchField]="false"
+                                                  [multiSelectMode]="false"
+                                                  (modelChange)="actionsSelectionsChanged($event)"
+                                                  [showStar]="false"
+                                                  *ngIf="studyConfig && studyConfig.tab === 'diff'"
+                                                  [permission]="{id:'action-studies-more_function',param:'visible'}"
+                                          ></dcm-drop-down>-->
+                        </div>
+                    </div>
+                    @if (((patients && patients.length > 0) || (studyConfig && studyConfig.tab === 'diff'))) {
+                        <div class="filter_block">
+                            <div class="line">
+
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
-}
-        </div>
-      </div>
-}
-      @if (tableParam.config.showCheckboxes && studyWebService && studyWebService.selectedWebService && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') > -1) {
-<div class="selection_actions" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
-          <ul class="selection_functions">
-              <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
-              @if (studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1) {
-<li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected Studies/Series/Instances for copy"><i class="material-icons">content_copy</i></button></li>
-}
-              <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('move')"  i18n-title="@@title.study.mark_selected_study_for_move" title="Mark selected Studies/Series/Instances for move"><i class="material-icons">content_cut</i></button></li>
-              <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('link')"  i18n-title="@@title.study.mark_selected_study_for_linking_with_mwl" title="Mark selected Studies/Series/Instances for linking with MWL"><i class="material-icons">link</i></button></li>
-              <li><button [disabled]="selectedElements.action" (click)="selectionAction('patient_merge')"  i18n-title="@@title.study.mark_selected_patient_for_merge" title="Mark selected patient for merge"><i class="material-icons">supervisor_account</i></button></li>
-              <li><button (click)="selectionAction('paste')"  i18n-title="@@title.study.start_the_process_of_copieng_moving_linked_or_merge" title="Start the process of copying/moving/linking or merging"><i class="glyphicon glyphicon-paste"></i></button></li>
-          </ul>
-          @if (checkboxFunctions) {
-<ul class="checkbox_functions" (clickOutside)='checkboxFunctions = !checkboxFunctions' [clickOutsideExceptionClass]="['ignore_click_outside']">
-              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('remove_selection')" i18n="@@remove_all_selections">Remove all selections</button></li>
-              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('check_selection_study')" i18n="@@select_all_studies">Select all studies</button></li>
-              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_study')" i18n="@@unselect_all_studies">Unselect all studies</button></li>
-              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('check_selection_patient')" i18n="@@select_all_patients">Select all patients</button></li>
-              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_patient')" i18n="@@unselect_all_patients">Unselect all patients</button></li>
-              <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('hide_checkboxes')" i18n="@@hide_checkboxes">Hide checkboxes</button></li>
-          </ul>
-}
-      </div>
-}
-    @if (tableParam.config.showCheckboxes && studyWebService && studyWebService.selectedWebService && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') == -1) {
-<div class="selection_actions" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
-        <ul class="selection_functions">
-            <li class="ignore_click_outside"><button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}" (click)="selectionAction('checkbox_functions')"><i class="ignore_click_outside material-icons">playlist_add_check</i></button></li>
-<!--            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>-->
-<!--            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('move')"  i18n-title="@@title.study.mark_selected_study_for_move" title="Mark selected study for move"><i class="material-icons">content_cut</i></button></li>-->
-<!--            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('link')"  i18n-title="@@title.study.mark_selected_study_for_linking_with_mwl" title="Mark selected study for linking with MWL"><i class="material-icons">link</i></button></li>-->
-<!--            <li><button [disabled]="selectedElements.action" (click)="selectionAction('patient_merge')"  i18n-title="@@title.study.mark_selected_patient_for_merge" title="Mark selected patient for merge"><i class="material-icons">supervisor_account</i></button></li>-->
-<!--            <li><button (click)="selectionAction('paste')"  i18n-title="@@title.study.start_the_process_of_copieng_moving_linked_or_merge" title="Start the process of copying/moving/linking or merging"><i class="glyphicon glyphicon-paste"></i></button></li>-->
-        </ul>
-        @if (checkboxFunctions) {
-<ul class="checkbox_functions" (clickOutside)='checkboxFunctions = !checkboxFunctions' [clickOutsideExceptionClass]="['ignore_click_outside']">
-            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('remove_selection')" i18n="@@remove_all_selections">Remove all selections</button></li>
-            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('check_selection_study')" i18n="@@select_all_studies">Select all studies</button></li>
-            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_study')" i18n="@@unselect_all_studies">Unselect all studies</button></li>
-            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('check_selection_patient')" i18n="@@select_all_patients">Select all patients</button></li>
-            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_patient')" i18n="@@unselect_all_patients">Unselect all patients</button></li>
-            <li class="ignore_click_outside"><button class="ignore_click_outside" (click)="selectionAction('hide_checkboxes')" i18n="@@hide_checkboxes">Hide checkboxes</button></li>
-        </ul>
-}
-    </div>
-}
-    @if (( patients && patients.length > 0 ) || ( patients1 && patients1.length > 0 )) {
-<div class="left_arrow arrow"   i18n-title="@@title.preview_page" title="Preview page" [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
-}
-    @if (( patients && patients.length > 0 ) || ( patients1 && patients1.length > 0 )) {
-<div class="right_arrow arrow"  i18n-title="@@title.next_page" title="Next page" [ngClass]="{'active':more}" (click)="search('next',{id:'submit'})"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
-}
-    <dicom-studies-table [patients]="patients" [patients1]="patients1" [tableSchema]="tableParam.tableSchema" [config]="tableParam.config" [studyWebService]="studyWebService" (onPaginationClick)="onSubPaginationClick($event)" [searchList]="searchCurrentList"></dicom-studies-table>
-  </div>
-    @if (selectedElements.preActionElements && selectedElements.preActionElements.size > 0) {
-<div id="clipboard" class="clipboard said" >
-        <div id="clipboardtoggle" class="toggle_button" (click)="showClipboardContent = !showClipboardContent">
-            <span class="selected_size">{{selectedElements.preActionElements.size}}</span>
-            <i id="clipboardtoggle_icon" class="glyphicon glyphicon-copy"></i>
-        </div>
-        @if (showClipboardContent) {
-<div class="content" id="clipboard_content">
-            @if (selectedElements.action) {
-<h5 i18n="@@selected_objects_to_action">Selected Objects to {{selectedElements.action}}</h5>
-}
-            @if (!selectedElements.action) {
-<h5 i18n="@@selected_objects">Selected Objects</h5>
-}
-            <a class="clear_clipboard"  i18n-title="@@title.study.clear_clipboard" title="Clear clipboard" href="" (click)="$event.preventDefault();clearClipboard()">
-                Clear <span class="glyphicon glyphicon-remove"></span>
-            </a>
-            <div class="table_block">
-                @for (level of ['patient','study','series','instance']; track level) {
-
-                    @if (selectedElements.preActionElements[level] && Object.keys(selectedElements.preActionElements[level]) && Object.keys(selectedElements.preActionElements[level]).length > 0) {
-<selections-dicom-view [selectionsDicomObjects]="selectedElements.preActionElements[level]" [dicomLevel]="level" (onRemoveFromSelection)="onRemoveFromSelection($event)"></selections-dicom-view>
-}
-                
-}
+        }
+        @if (tableParam.config.showCheckboxes && studyWebService && studyWebService.selectedWebService && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') > -1) {
+            <div class="selection_actions" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
+                <ul class="selection_functions">
+                    <li class="ignore_click_outside">
+                        <button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}"
+                                (click)="selectionAction('checkbox_functions')"><i
+                                class="ignore_click_outside material-icons">playlist_add_check</i></button>
+                    </li>
+                    @if (studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1) {
+                        <li>
+                            <button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0"
+                                    (click)="selectionAction('copy')"
+                                    i18n-title="@@title.study.mark_selected_study_for_copy"
+                                    title="Mark selected Studies/Series/Instances for copy"><i class="material-icons">content_copy</i>
+                            </button>
+                        </li>
+                    }
+                    <li>
+                        <button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0"
+                                (click)="selectionAction('move')"
+                                i18n-title="@@title.study.mark_selected_study_for_move"
+                                title="Mark selected Studies/Series/Instances for move"><i class="material-icons">content_cut</i>
+                        </button>
+                    </li>
+                    <li>
+                        <button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0"
+                                (click)="selectionAction('link')"
+                                i18n-title="@@title.study.mark_selected_study_for_linking_with_mwl"
+                                title="Mark selected Studies/Series/Instances for linking with MWL"><i
+                                class="material-icons">link</i></button>
+                    </li>
+                    <li>
+                        <button [disabled]="selectedElements.action" (click)="selectionAction('patient_merge')"
+                                i18n-title="@@title.study.mark_selected_patient_for_merge"
+                                title="Mark selected patient for merge"><i class="material-icons">supervisor_account</i>
+                        </button>
+                    </li>
+                    <li>
+                        <button (click)="selectionAction('paste')"
+                                i18n-title="@@title.study.start_the_process_of_copieng_moving_linked_or_merge"
+                                title="Start the process of copying/moving/linking or merging"><i
+                                class="glyphicon glyphicon-paste"></i></button>
+                    </li>
+                </ul>
+                @if (checkboxFunctions) {
+                    <ul class="checkbox_functions" (clickOutside)='checkboxFunctions = !checkboxFunctions'
+                        [clickOutsideExceptionClass]="['ignore_click_outside']">
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('remove_selection')"
+                                    i18n="@@remove_all_selections">Remove all selections
+                            </button>
+                        </li>
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('check_selection_study')"
+                                    i18n="@@select_all_studies">Select all studies
+                            </button>
+                        </li>
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_study')"
+                                    i18n="@@unselect_all_studies">Unselect all studies
+                            </button>
+                        </li>
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('check_selection_patient')"
+                                    i18n="@@select_all_patients">Select all patients
+                            </button>
+                        </li>
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_patient')"
+                                    i18n="@@unselect_all_patients">Unselect all patients
+                            </button>
+                        </li>
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('hide_checkboxes')"
+                                    i18n="@@hide_checkboxes">Hide checkboxes
+                            </button>
+                        </li>
+                    </ul>
+                }
             </div>
-        </div>
-}
+        }
+        @if (tableParam.config.showCheckboxes && studyWebService && studyWebService.selectedWebService && studyWebService.selectedWebService.dcmWebServiceClass.indexOf('DCM4CHEE_ARC_AET') == -1) {
+            <div class="selection_actions" [permission]="{id:'action-studies-copy_merge_move',param:'visible'}">
+                <ul class="selection_functions">
+                    <li class="ignore_click_outside">
+                        <button class="ignore_click_outside" [ngClass]="{'active':checkboxFunctions}"
+                                (click)="selectionAction('checkbox_functions')"><i
+                                class="ignore_click_outside material-icons">playlist_add_check</i></button>
+                    </li>
+                    <!--            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('copy')"  i18n-title="@@title.study.mark_selected_study_for_copy" title="Mark selected study for copy"><i class="material-icons">content_copy</i></button></li>-->
+                    <!--            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('move')"  i18n-title="@@title.study.mark_selected_study_for_move" title="Mark selected study for move"><i class="material-icons">content_cut</i></button></li>-->
+                    <!--            <li><button [disabled]="selectedElements.action || selectedElements.preActionElements.getSpecificObjectSize('patient') > 0" (click)="selectionAction('link')"  i18n-title="@@title.study.mark_selected_study_for_linking_with_mwl" title="Mark selected study for linking with MWL"><i class="material-icons">link</i></button></li>-->
+                    <!--            <li><button [disabled]="selectedElements.action" (click)="selectionAction('patient_merge')"  i18n-title="@@title.study.mark_selected_patient_for_merge" title="Mark selected patient for merge"><i class="material-icons">supervisor_account</i></button></li>-->
+                    <!--            <li><button (click)="selectionAction('paste')"  i18n-title="@@title.study.start_the_process_of_copieng_moving_linked_or_merge" title="Start the process of copying/moving/linking or merging"><i class="glyphicon glyphicon-paste"></i></button></li>-->
+                </ul>
+                @if (checkboxFunctions) {
+                    <ul class="checkbox_functions" (clickOutside)='checkboxFunctions = !checkboxFunctions'
+                        [clickOutsideExceptionClass]="['ignore_click_outside']">
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('remove_selection')"
+                                    i18n="@@remove_all_selections">Remove all selections
+                            </button>
+                        </li>
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('check_selection_study')"
+                                    i18n="@@select_all_studies">Select all studies
+                            </button>
+                        </li>
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_study')"
+                                    i18n="@@unselect_all_studies">Unselect all studies
+                            </button>
+                        </li>
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('check_selection_patient')"
+                                    i18n="@@select_all_patients">Select all patients
+                            </button>
+                        </li>
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('uncheck_selection_patient')"
+                                    i18n="@@unselect_all_patients">Unselect all patients
+                            </button>
+                        </li>
+                        <li class="ignore_click_outside">
+                            <button class="ignore_click_outside" (click)="selectionAction('hide_checkboxes')"
+                                    i18n="@@hide_checkboxes">Hide checkboxes
+                            </button>
+                        </li>
+                    </ul>
+                }
+            </div>
+        }
+        @if ((patients && patients.length > 0) || (patients1 && patients1.length > 0)) {
+            <div class="left_arrow arrow" i18n-title="@@title.preview_page" title="Preview page"
+                 [ngClass]="{'active':filter.filterModel.offset > 0}" (click)="search('prev',{id:'submit'})"><span
+                    class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+        }
+        @if ((patients && patients.length > 0) || (patients1 && patients1.length > 0)) {
+            <div class="right_arrow arrow" i18n-title="@@title.next_page" title="Next page" [ngClass]="{'active':more}"
+                 (click)="search('next',{id:'submit'})"><span
+                    class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+        }
+        <dicom-studies-table [patients]="patients" [patients1]="patients1" [tableSchema]="tableParam.tableSchema"
+                             [config]="tableParam.config" [studyWebService]="studyWebService"
+                             (onPaginationClick)="onSubPaginationClick($event)"
+                             [searchList]="searchCurrentList"></dicom-studies-table>
     </div>
-}
+    @if (selectedElements.preActionElements && selectedElements.preActionElements.size > 0) {
+        <div id="clipboard" class="clipboard said">
+            <div id="clipboardtoggle" class="toggle_button" (click)="showClipboardContent = !showClipboardContent">
+                <span class="selected_size">{{ selectedElements.preActionElements.size }}</span>
+                <i id="clipboardtoggle_icon" class="glyphicon glyphicon-copy"></i>
+            </div>
+            @if (showClipboardContent) {
+                <div class="content" id="clipboard_content">
+                    @if (selectedElements.action) {
+                        <h5 i18n="@@selected_objects_to_action">Selected Objects to {{ selectedElements.action }}</h5>
+                    }
+                    @if (!selectedElements.action) {
+                        <h5 i18n="@@selected_objects">Selected Objects</h5>
+                    }
+                    <a class="clear_clipboard" i18n-title="@@title.study.clear_clipboard" title="Clear clipboard"
+                       href="" (click)="$event.preventDefault();clearClipboard()">
+                        Clear <span class="glyphicon glyphicon-remove"></span>
+                    </a>
+                    <div class="table_block">
+                        @for (level of ['patient', 'study', 'series', 'instance']; track level) {
+                            @if (selectedElements.preActionElements[level] && Object.keys(selectedElements.preActionElements[level]) && Object.keys(selectedElements.preActionElements[level]).length > 0) {
+                                <selections-dicom-view
+                                        [selectionsDicomObjects]="selectedElements.preActionElements[level]"
+                                        [dicomLevel]="level"
+                                        (onRemoveFromSelection)="onRemoveFromSelection($event)"></selections-dicom-view>
+                            }
+
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
 </div>

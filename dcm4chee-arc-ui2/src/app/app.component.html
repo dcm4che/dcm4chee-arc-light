@@ -82,11 +82,6 @@
 }
 <div class="background"></div>
 <!--<app-widgets></app-widgets>-->
-@if(!showMenu){
-    <div class="toggle-button out" (click)="showMenu = true;">
-        <mat-icon class="menu_button">reorder</mat-icon>
-    </div>
-}
 @if(showMenu){
     <ul id="mainmenu" class="nav slideInLeft animated" (clickOutside)="closeFromOutside()" [clickOutsideExceptionClass]="'menu_button'">
         <div (click)="showMenu = false;" class="glyphicon glyphicon-align-justify toggle-button "></div>
@@ -96,7 +91,12 @@
         <!--<li (click)="showMenu = false;" *ngIf="isRole('admin')"><a routerLink="control" routerLinkActive="active">Control</a></li>-->
         <li (click)="showMenu = false;" [permission]="{id:'menu-configuration',param:'visible'}"><a routerLink="device/devicelist" routerLinkActive="active" i18n="@@menu.configuration">Configuration</a></li>
     </ul>
+} @else {
+    <div class="toggle-button out" (click)="showMenu = true;">
+        <mat-icon class="menu_button">reorder</mat-icon>
+    </div>
 }
+
 <!--<img src="assets/img/logo.png" class="logo" i18n-title="@@about" title="About" (click)="productLabelling()" >-->
 <div class="logo" i18n-title="@@about" title="About" (click)="productLabelling()"></div>
 <router-outlet ></router-outlet>

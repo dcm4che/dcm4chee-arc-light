@@ -4,70 +4,78 @@
         <h2 i18n="@@diff_monitoring">Diff Monitoring</h2>
         <div class="filter_line" (keyup)="keyUp($event)">
             <div class="filter_block">
-                <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="onFormChange($event)" [filterTreeHeight]="3"></filter-generator>
+                <filter-generator [schema]="filterSchema" [model]="filterObject" (submit)="onSubmit($event)"
+                                  (onChange)="onFormChange($event)" [filterTreeHeight]="3"></filter-generator>
                 @if (statusValues) {
-<div class="filter">
-                    <div class="filter_block auto_reloader">
-                        <table>
-                            @for (status of Object.keys(statusValues); track status) {
-<tr [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
-                                <td>{{status}}:</td>
-                                @if (!statusValues[status]?.loader) {
-<td>{{statusValues[status]?.count}}</td>
-}
-                                @if (statusValues[status]?.loader) {
-<td><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
-}
-                            </tr>
-}
-                        </table>
+                    <div class="filter">
+                        <div class="filter_block auto_reloader">
+                            <table>
+                                @for (status of Object.keys(statusValues); track status) {
+                                    <tr [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
+                                        <td>{{ status }}:</td>
+                                        @if (statusValues[status]?.loader) {
+                                            <td><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
+                                        } @else {
+                                            <td>{{ statusValues[status]?.count }}</td>
+                                        }
 
-                        <div class="option_block">
-                            <div class="interval_block">
-                                <label i18n="@@interval">Interval:</label>
-                                <input type="text" i18n-placeholder="@@placeholder.interval" placeholder="Interval" [(ngModel)]="interval">
-                                <span>s</span>
-                            </div>
-                            <button class="btn-default submit" (click)="toggleAutoRefresh()">
-                                <div class="spinnter_container">
-                                    @if (!timer.started) {
-<span class="glyphicon glyphicon-refresh"></span>
-}
-                                    @if (timer.started) {
-<mat-progress-spinner mode="indeterminate" [diameter]="20" ></mat-progress-spinner>
-}
+                                    </tr>
+                                }
+                            </table>
+
+                            <div class="option_block">
+                                <div class="interval_block">
+                                    <label i18n="@@interval">Interval:</label>
+                                    <input type="text" i18n-placeholder="@@placeholder.interval" placeholder="Interval"
+                                           [(ngModel)]="interval">
+                                    <span>s</span>
                                 </div>
-                                @if (!timer.started) {
-<span>{{timer.startText}}</span>
-}
-                                @if (timer.started) {
-<span>{{timer.stopText}}</span>
-}
-                            </button>
+                                <button class="btn-default submit" (click)="toggleAutoRefresh()">
+                                    <div class="spinnter_container">
+                                        @if (!timer.started) {
+                                            <span class="glyphicon glyphicon-refresh"></span>
+                                        } @else {
+                                            <mat-progress-spinner mode="indeterminate"
+                                                                  [diameter]="20"></mat-progress-spinner>
+                                        }
+                                    </div>
+                                    @if (!timer.started) {
+                                        <span>{{ timer.startText }}</span>
+                                    } @else {
+                                        <span>{{ timer.stopText }}</span>
+                                    }
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-}
+                }
             </div>
         </div>
         <div class="filter_line">
-            <div class="filter single_block" [permission]="{id:'action-monitoring->diff_monitor-all_action',param:'visible'}">
+            <div class="filter single_block"
+                 [permission]="{id:'action-monitoring->diff_monitor-all_action',param:'visible'}">
                 <div class="filter_block">
                     <div class="line">
-                        <div (click)="downloadCsv()" class="w45percent csv_button"><span class="custom_icon csv_icon"></span><span class="text" i18n="@@download_csv">Download CSV</span></div>
-                        <div (click)="uploadCsv()" class="w45percent csv_button"><span class="material-icons">file_upload</span><span class="text" i18n="@@upload_csv">Upload CSV</span></div>
+                        <div (click)="downloadCsv()" class="w45percent csv_button"><span
+                                class="custom_icon csv_icon"></span><span class="text" i18n="@@download_csv">Download CSV</span>
+                        </div>
+                        <div (click)="uploadCsv()" class="w45percent csv_button"><span class="material-icons">file_upload</span><span
+                                class="text" i18n="@@upload_csv">Upload CSV</span></div>
                     </div>
                 </div>
                 <div class="filter_block">
                     <div class="line">
-                        <mat-select [(ngModel)]="allAction" i18n-placeholder="@@placeholder.all_actions" placeholder="All actions" (selectionChange)="allActionChanged($event)" floatPlaceholder="never">
+                        <mat-select [(ngModel)]="allAction" i18n-placeholder="@@placeholder.all_actions"
+                                    placeholder="All actions" (selectionChange)="allActionChanged($event)"
+                                    floatPlaceholder="never">
                             @for (actions of allActionsOptions; track actions.value) {
-<mat-option value="{{actions.value}}">{{actions.label}}</mat-option>
-}
+                                <mat-option value="{{actions.value}}">{{ actions.label }}</mat-option>
+                            }
                         </mat-select>
-<!--                        <div class="checkbox_button pull-left" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="tasks = []" i18n="@@batch_id_grouped">Batch ID grouped</mat-checkbox></div>   -->
-                        <label for="checkbox" class="checkbox_button pull-right"   [ngClass]="{'active':batchGrouped}">
-                            <input id="checkbox" [(ngModel)]="batchGrouped" (ngModelChange)="tasks = []" type="checkbox">
+                        <!--                        <div class="checkbox_button pull-left" [ngClass]="{'active':batchGrouped}"><mat-checkbox [(ngModel)]="batchGrouped" (ngModelChange)="tasks = []" i18n="@@batch_id_grouped">Batch ID grouped</mat-checkbox></div>   -->
+                        <label for="checkbox" class="checkbox_button pull-right" [ngClass]="{'active':batchGrouped}">
+                            <input id="checkbox" [(ngModel)]="batchGrouped" (ngModelChange)="tasks = []"
+                                   type="checkbox">
                             <span i18n="@@batch_id_grouped">Batch ID grouped</span>
                         </label>
                     </div>
@@ -76,17 +84,21 @@
         </div>
         <div>
             @if (tasks && tasks.length && tasks.length > 0) {
-<div class="left_arrow arrow"  [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
-}
-            @if (tasks && tasks.length && tasks.length > 0) {
-<div class="right_arrow arrow" [ngClass]="{'active':moreTasks}" (click)="next()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
-}
+                <div class="left_arrow arrow" [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span
+                        class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+                <div class="right_arrow arrow" [ngClass]="{'active':moreTasks}" (click)="next()"><span
+                        class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+            }
             @if (!batchGrouped && tableConfigNormal && tasks && tasks.length && tasks.length > 0) {
-<table-generator [stringifyDetailAttributes]="true" [config]="tableConfigNormal" [models]="tasks" (tableMouseEnter)="tableMouseEnter()" (tableMouseLeave)="tableMouseLeave()"></table-generator>
-}
+                <table-generator [stringifyDetailAttributes]="true" [config]="tableConfigNormal" [models]="tasks"
+                                 (tableMouseEnter)="tableMouseEnter()"
+                                 (tableMouseLeave)="tableMouseLeave()"></table-generator>
+            }
             @if (batchGrouped && tableConfigGrouped && tasks && tasks.length && tasks.length > 0) {
-<table-generator [stringifyDetailAttributes]="true" [config]="tableConfigGrouped" [models]="tasks" (tableMouseEnter)="tableMouseEnter()" (tableMouseLeave)="tableMouseLeave()"></table-generator>
-}
+                <table-generator [stringifyDetailAttributes]="true" [config]="tableConfigGrouped" [models]="tasks"
+                                 (tableMouseEnter)="tableMouseEnter()"
+                                 (tableMouseLeave)="tableMouseLeave()"></table-generator>
+            }
         </div>
     </div>
 </div>

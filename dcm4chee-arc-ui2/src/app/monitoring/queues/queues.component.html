@@ -4,158 +4,165 @@
         <h2 i18n="Title|Title of the Monitoring queues page@@queues">Queues</h2>
         <div class="filter_line">
             <div class="filter_block">
-                <filter-generator [schema]="filterSchema" filterIdTemplate="monitoring-queues" [model]="filterObject" (submit)="onSubmit($event)" (onChange)="statusChange()" (onFilterLoadFinish)="filterLoadFinished = true" [filterTreeHeight]="3"></filter-generator>
+                <filter-generator [schema]="filterSchema" filterIdTemplate="monitoring-queues" [model]="filterObject"
+                                  (submit)="onSubmit($event)" (onChange)="statusChange()"
+                                  (onFilterLoadFinish)="filterLoadFinished = true"
+                                  [filterTreeHeight]="3"></filter-generator>
                 @if (filterLoadFinished) {
-<div class="filter" (keyup)="filterKeyUp($event)" >
-                    <div class="filter_block auto_reloader" >
-                        <table>
-                            @for (status of Object.keys(statusValues); track status) {
-<tr [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
-                                <td>{{statusValues[status]?.text}}:</td>
-                                @if (!statusValues[status]?.loader) {
-<td>{{statusValues[status]?.count}}</td>
-}
-                                @if (statusValues[status]?.loader) {
-<td><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
-}
-                            </tr>
-}
-                        </table>
-                        <div class="option_block">
-                            <div class="interval_block">
-                                <label i18n="@@interval">Interval:</label>
-                                <input type="text"  i18n-placeholder="@@placeholder.interval" placeholder="Interval" [(ngModel)]="interval">
-                                <span>s</span>
-                            </div>
-                            <button class="btn-default submit" (click)="toggleAutoRefresh()">
-                                <div class="spinnter_container">
-                                    @if (!timer.started) {
-<span class="glyphicon glyphicon-refresh"></span>
-}
-                                    @if (timer.started) {
-<mat-progress-spinner mode="indeterminate" [diameter]="20" ></mat-progress-spinner>
-}
+                    <div class="filter" (keyup)="filterKeyUp($event)">
+                        <div class="filter_block auto_reloader">
+                            <table>
+                                @for (status of Object.keys(statusValues); track status) {
+                                    <tr [ngClass]="{'gray':statusValues[status]?.count == '0','red':statusValues[status]?.count=='!'}">
+                                        <td>{{ statusValues[status]?.text }}:</td>
+                                        @if (!statusValues[status]?.loader) {
+                                            <td>{{ statusValues[status]?.count }}</td>
+                                        }
+                                        @if (statusValues[status]?.loader) {
+                                            <td><i class="fa fa-circle-o-notch fa-spin dashboard_loader"></i></td>
+                                        }
+                                    </tr>
+                                }
+                            </table>
+                            <div class="option_block">
+                                <div class="interval_block">
+                                    <label i18n="@@interval">Interval:</label>
+                                    <input type="text" i18n-placeholder="@@placeholder.interval" placeholder="Interval"
+                                           [(ngModel)]="interval">
+                                    <span>s</span>
                                 </div>
-                                @if (!timer.started) {
-<span class="spinnter_text">{{timer.startText}}</span>
-}
-                                @if (timer.started) {
-<span class="spinnter_text">{{timer.stopText}}</span>
-}
-                            </button>
+                                <button class="btn-default submit" (click)="toggleAutoRefresh()">
+                                    <div class="spinnter_container">
+                                        @if (timer.started) {
+                                            <mat-progress-spinner mode="indeterminate"
+                                                                  [diameter]="20"></mat-progress-spinner>
+                                        } @else {
+                                            <span class="glyphicon glyphicon-refresh"></span>
+                                        }
+                                    </div>
+                                    @if (timer.started) {
+                                        <span class="spinnter_text">{{ timer.stopText }}</span>
+                                    } @else {
+                                        <span class="spinnter_text">{{ timer.startText }}</span>
+                                    }
+
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-}
+                }
             </div>
         </div>
         <div class="filter_line">
             <div class="filter single_block" [permission]="{id:'action-monitoring->queues-all_action',param:'visible'}">
                 <div class="filter_block">
                     <div class="line">
-                        <mat-select [(ngModel)]="allAction" class="w45percent pull-left"  i18n-placeholder="@@placeholder.all_actions" placeholder="All actions" (selectionChange)="allActionChanged($event)">
+                        <mat-select [(ngModel)]="allAction" class="w45percent pull-left"
+                                    i18n-placeholder="@@placeholder.all_actions" placeholder="All actions"
+                                    (selectionChange)="allActionChanged($event)">
                             @for (actions of allActionsOptions; track actions.value) {
-<mat-option value="{{actions.value}}">{{actions.label}}</mat-option>
-}
+                                <mat-option value="{{actions.value}}">{{ actions.label }}</mat-option>
+                            }
                         </mat-select>
                     </div>
                 </div>
             </div>
         </div>
-<!--        <button class="left_arrow arrow no_style"   i18n-title="@@title.preview_page" title="Preview page" *ngIf="_.size(matches) > 0" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
-            <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
-        </button>
-        <button class="right_arrow arrow no_style"  i18n-title="@@title.next_page" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
-            <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
-        </button>-->
+        <!--        <button class="left_arrow arrow no_style"   i18n-title="@@title.preview_page" title="Preview page" *ngIf="_.size(matches) > 0" [disabled]="!hasNewer(matches)" [ngClass]="{'active':hasNewer(matches)}" (click)="search(newerOffset(matches))">
+                    <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+                </button>
+                <button class="right_arrow arrow no_style"  i18n-title="@@title.next_page" title="Next page" *ngIf="_.size(matches) > 0" [disabled]="!hasOlder(matches)" [ngClass]="{'active':hasOlder(matches)}" (click)="search(olderOffset(matches))">
+                    <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+                </button>-->
         @if (matches && matches.length && matches.length > 0) {
-<div class="left_arrow arrow"  [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
-}
-        @if (matches && matches.length && matches.length > 0) {
-<div class="right_arrow arrow" [ngClass]="{'active':moreTasks}" (click)="next()"><span class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
-}
+            <div class="left_arrow arrow" [ngClass]="{'active':filterObject.offset > 0}" (click)="prev()"><span
+                    class="glyphicon glyphicon glyphicon-chevron-left"></span></div>
+            <div class="right_arrow arrow" [ngClass]="{'active':moreTasks}" (click)="next()"><span
+                    class="glyphicon glyphicon glyphicon-chevron-right"></span></div>
+        }
         @if (tableConfig && matches && matches.length && matches.length > 0) {
-<table-generator [stringifyDetailAttributes]="true" [config]="tableConfig" [models]="matches"></table-generator>
-}
-       <!-- <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
-            <thead>
-            <tr>
-                <th>
-                </th>
-                <th  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
-                    <div class="action_block">
-                        <div class="table-small-button shadow">
-                            <input type="checkbox" (change)="checkAll($event)">
-                        </div>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white table-small-button shadow" (click)="$event.preventDefault();executeAll('cancel')" href=""  i18n-title="@@title.cancel_selected" title="Cancel selected">
-                            <span class="glyphicon glyphicon-ban-circle"></span>
-                        </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white table-small-button shadow" (click)="$event.preventDefault();executeAll('reschedule')" href=""  i18n-title="@@title.reschedule_selected" title="Reschedule selected">
-                            <span class="glyphicon glyphicon-repeat"></span>
-                        </a>
-                        <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white table-small-button shadow" (click)="$event.preventDefault();executeAll('delete')" href=""  i18n-title="@@title.delete_selected" title="Delete selected">
-                            <span class="glyphicon glyphicon-remove-circle"></span>
-                        </a>
-                    </div>
-                </th>
-                <th i18n="Table Header|Header of the table in the queues page@@queue">Queue</th>
-                <th i18n="Table Header|Header of the table in the queues page@@study_uid">Study UID</th>
-                <th i18n="Table Header|Header of the table in the queues page@@status">Status</th>
-                <th i18n="Table Header|Header of the table in the queues page@@failures">Failures</th>
-                <th i18n="Table Header|Header of the table in the queues page@@created">Created</th>
-                <th i18n="Table Header|Header of the table in the queues page@@updated">Updated</th>
-                <th i18n="Table Header|Header of the table in the queues page@@scheduled">Scheduled</th>
-                <th i18n="Table Header|Header of the table in the queues page@@started">Started</th>
-                <th i18n="Table Header|Header of the table in the queues page@@finished">Finished</th>
-            </tr>
-            </thead>
-            <tbody>
-            <ng-container *ngFor="let match of matches">
-                <tr>
-                    <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
-                    <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
-                        <div class="table-small-button shadow">
-                            <input [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" type="checkbox" [(ngModel)]="match.checked">
-                        </div>
-                        <a class="table-small-button shadow" (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@show_properties" title="Show Properties">
-                            <span class="glyphicon glyphicon-list"></span>
-                        </a>
-                        <a class="table-small-button shadow" [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))"  (click)="$event.preventDefault();cancel(match)" href=""  i18n-title="@@title.cancel" title="Cancel">
-                            <span class="glyphicon glyphicon-ban-circle"></span>
-                        </a>
-                        <a class="table-small-button shadow" [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href=""  i18n-title="@@title.reschedule" title="Reschedule">
-                            <span class="glyphicon glyphicon-repeat"></span>
-                        </a>
-                        <a class="table-small-button shadow" [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href=""  i18n-title="@@title.delete" title="Delete">
-                            <span class="glyphicon glyphicon-remove-circle"></span>
-                        </a>
-                    </td>
-                    <td [innerHtml]="match.properties.queue"></td>
-                    <td [innerHtml]="match.properties.StudyInstanceUID"></td>
-                    <td [innerHtml]="match.properties.status"  title="{{match.properties.outcomeMessage}}"></td>
-                    <td [innerHtml]="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
-                    <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                    <td [innerHtml]="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                    <td [innerHtml]="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                    <td [innerHtml]="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                    <td [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
-                </tr>
-                <tr *ngIf="match.showProperties">
-                    <td colspan="10">
-                        <table class="table table-bordered table-condensed attribute_list">
-                            <tr *ngFor="let key of Object.keys(match.properties)">
-                                <th [innerHtml]="key"></th>
-                                <td *ngIf="key === 'createdTime' || key === 'updatedTime' || key === 'scheduledTime' || key === 'processingStartTime' || key === 'processingEndTime';else nodate_content" [innerHtml]="match.properties[key]| date:'yyyy-MM-dd HH:mm:ss'"></td>
-                                <ng-template #nodate_content>
-                                    <td [innerHtml]="match.properties[key]"></td>
-                                </ng-template>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr [hidden]="true"></tr>
-            </ng-container>
-            </tbody>
-        </table>-->
+            <table-generator [stringifyDetailAttributes]="true" [config]="tableConfig"
+                             [models]="matches"></table-generator>
+        }
+        <!-- <table class="table table-bordered table-condensed" *ngIf="_.size(matches) > 0">
+             <thead>
+             <tr>
+                 <th>
+                 </th>
+                 <th  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
+                     <div class="action_block">
+                         <div class="table-small-button shadow">
+                             <input type="checkbox" (change)="checkAll($event)">
+                         </div>
+                         <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white table-small-button shadow" (click)="$event.preventDefault();executeAll('cancel')" href=""  i18n-title="@@title.cancel_selected" title="Cancel selected">
+                             <span class="glyphicon glyphicon-ban-circle"></span>
+                         </a>
+                         <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white table-small-button shadow" (click)="$event.preventDefault();executeAll('reschedule')" href=""  i18n-title="@@title.reschedule_selected" title="Reschedule selected">
+                             <span class="glyphicon glyphicon-repeat"></span>
+                         </a>
+                         <a [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" class="text-white table-small-button shadow" (click)="$event.preventDefault();executeAll('delete')" href=""  i18n-title="@@title.delete_selected" title="Delete selected">
+                             <span class="glyphicon glyphicon-remove-circle"></span>
+                         </a>
+                     </div>
+                 </th>
+                 <th i18n="Table Header|Header of the table in the queues page@@queue">Queue</th>
+                 <th i18n="Table Header|Header of the table in the queues page@@study_uid">Study UID</th>
+                 <th i18n="Table Header|Header of the table in the queues page@@status">Status</th>
+                 <th i18n="Table Header|Header of the table in the queues page@@failures">Failures</th>
+                 <th i18n="Table Header|Header of the table in the queues page@@created">Created</th>
+                 <th i18n="Table Header|Header of the table in the queues page@@updated">Updated</th>
+                 <th i18n="Table Header|Header of the table in the queues page@@scheduled">Scheduled</th>
+                 <th i18n="Table Header|Header of the table in the queues page@@started">Started</th>
+                 <th i18n="Table Header|Header of the table in the queues page@@finished">Finished</th>
+             </tr>
+             </thead>
+             <tbody>
+             <ng-container *ngFor="let match of matches">
+                 <tr>
+                     <td [attr.rowspan]="(match.showProperties ? 2 : 1)" [innerHtml]="match.offset+1+'.'"></td>
+                     <td  (mouseenter)="tableMousEnter()" (mouseleave)="tableMousLeave()">
+                         <div class="table-small-button shadow">
+                             <input [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" type="checkbox" [(ngModel)]="match.checked">
+                         </div>
+                         <a class="table-small-button shadow" (click)="$event.preventDefault();match.showProperties = !match.showProperties" href=""  i18n-title="@@show_properties" title="Show Properties">
+                             <span class="glyphicon glyphicon-list"></span>
+                         </a>
+                         <a class="table-small-button shadow" [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" *ngIf="((match.properties.status && match.properties.status === 'SCHEDULED') || (match.properties.status && match.properties.status === 'IN PROCESS'))"  (click)="$event.preventDefault();cancel(match)" href=""  i18n-title="@@title.cancel" title="Cancel">
+                             <span class="glyphicon glyphicon-ban-circle"></span>
+                         </a>
+                         <a class="table-small-button shadow" [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();reschedule(match)" href=""  i18n-title="@@title.reschedule" title="Reschedule">
+                             <span class="glyphicon glyphicon-repeat"></span>
+                         </a>
+                         <a class="table-small-button shadow" [permission]="{id:'action-monitoring->queues-single_action',param:'visible'}" (click)="$event.preventDefault();delete(match)" href=""  i18n-title="@@title.delete" title="Delete">
+                             <span class="glyphicon glyphicon-remove-circle"></span>
+                         </a>
+                     </td>
+                     <td [innerHtml]="match.properties.queue"></td>
+                     <td [innerHtml]="match.properties.StudyInstanceUID"></td>
+                     <td [innerHtml]="match.properties.status"  title="{{match.properties.outcomeMessage}}"></td>
+                     <td [innerHtml]="match.properties.failures" title="{{match.properties.errorMessage}}"></td>
+                     <td [innerHtml]="match.properties.createdTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                     <td [innerHtml]="match.properties.updatedTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                     <td [innerHtml]="match.properties.scheduledTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                     <td [innerHtml]="match.properties.processingStartTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                     <td [innerHtml]="match.properties.processingEndTime | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                 </tr>
+                 <tr *ngIf="match.showProperties">
+                     <td colspan="10">
+                         <table class="table table-bordered table-condensed attribute_list">
+                             <tr *ngFor="let key of Object.keys(match.properties)">
+                                 <th [innerHtml]="key"></th>
+                                 <td *ngIf="key === 'createdTime' || key === 'updatedTime' || key === 'scheduledTime' || key === 'processingStartTime' || key === 'processingEndTime';else nodate_content" [innerHtml]="match.properties[key]| date:'yyyy-MM-dd HH:mm:ss'"></td>
+                                 <ng-template #nodate_content>
+                                     <td [innerHtml]="match.properties[key]"></td>
+                                 </ng-template>
+                             </tr>
+                         </table>
+                     </td>
+                 </tr>
+                 <tr [hidden]="true"></tr>
+             </ng-container>
+             </tbody>
+         </table>-->
     </div>
 </div>
