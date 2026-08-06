@@ -433,13 +433,14 @@ public class PamRS {
         Collection<IDWithIssuer> targetPIDs = ctx.getPatientIDs();
         boolean patientMatch = targetPIDs.containsAll(trustedPriorPatientIDs);
         if (patientMatch && mergePatients)
-            return errResponse(CIRCULAR_MERGE_NOT_ALLOWED, Response.Status.BAD_REQUEST);
+            return errResponse(CIRCULAR_MERGE_NOT_ALLOWED, Response.Status.FORBIDDEN);
 
         RSOperation rsOp = RSOperation.CreatePatient;
         String msgType = CREATE_PATIENT_MSG_TYPE;
+        Patient pat;
         try {
             if (patientMatch) {
-                patientService.updatePatient(ctx);
+                pat = patientService.updatePatient(ctx);
                 if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Update)) {
                     rsOp = updateByPK ? RSOperation.UpdatePatientByPID : RSOperation.UpdatePatient;
                     msgType = UPDATE_PATIENT_MSG_TYPE;
@@ -449,7 +450,7 @@ public class PamRS {
                 if (mergePatients) {
                     msgType = MERGE_PATIENT_MSG_TYPE;
                     rsOp = updateByPK ? RSOperation.MergePatientByPID : RSOperation.MergePatient2;
-                    patientService.mergePatient(ctx);
+                    pat = patientService.mergePatient(ctx);
                 } else {
                     if (isInvalidChangePID(ctx))
                         return errResponse(
@@ -458,10 +459,11 @@ public class PamRS {
 
                     msgType = CHANGE_PATIENT_ID_MSG_TYPE;
                     rsOp = updateByPK ? RSOperation.ChangePatientIDByPID : RSOperation.ChangePatientID2;
-                    patientService.changePatientID(ctx);
+                    pat = patientService.changePatientID(ctx);
                 }
             }
 
+            ctx.setPatient(pat);
             forwardAndNotify(rsOp, ctx, msgType);
             return Response.noContent().build();
         } catch (PatientTrackingNotAllowedException | CircularPatientMergeException e) {
@@ -480,8 +482,10 @@ public class PamRS {
     }
 
     private void forwardAndNotify(RSOperation rsOp, PatientMgtContext ctx, String msgType) {
-        if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read))
+        if (ctx.getEventActionCode().equals(AuditMessages.EventActionCode.Read) || ctx.getPatient() == null) {
+            LOG.info("No patient management operation executed. Abort PAM-RS forwarding.");
             return;
+        }
 
         notifyHL7Receivers(msgType, ctx);
         if (ctx.getPrevPatPk() != 0L)
@@ -605,6 +609,9 @@ public class PamRS {
         ArchiveAEExtension arcAE = getArchiveAE();
         if (arcAE == null)
             return errResponse(MessageFormat.format(INVALID_AE, aet), Response.Status.NOT_FOUND);
+
+        if (priorPatientPk.equals(patientPk))
+            return errResponse(CIRCULAR_MERGE_NOT_ALLOWED, Response.Status.FORBIDDEN);
 
         validateAcceptedUserRoles(arcAE);
         if (aet.equals(arcAE.getApplicationEntity().getAETitle()))

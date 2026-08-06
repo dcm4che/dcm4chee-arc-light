@@ -377,9 +377,6 @@ public class PatientServiceEJB {
         if (pat == null || prev == null)
             return null;
 
-        if (pat.getPatientIDs().stream().anyMatch(prev.getPatientIDs()::contains))
-            throw new CircularPatientMergeException("PriorPatientID same as target PatientID");
-
         ctx.setAttributes(pat.getAttributes());
         ctx.setPreviousAttributes(prev.getAttributes());
         return mergePatient(ctx, pat, prev);
