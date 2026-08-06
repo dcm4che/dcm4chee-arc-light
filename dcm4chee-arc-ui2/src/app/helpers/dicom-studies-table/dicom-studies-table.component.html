@@ -1,63 +1,71 @@
-@if(title){
-    <h3>{{title}}</h3>
+@if (title) {
+    <h3>{{ title }}</h3>
 }
-@if(patients && patients.length > 0){
+@if (patients && patients.length > 0) {
     <div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass" (mouseleave)="active_td = ''">
         <!--Headers 1:-->
         <div class="th {{hover_mode}}" [ngClass]="config?.cssThClass" [ngStyle]="{top:config.headerTop || '186px'}">
-            @for(table of tableSchema[hover_mode]; track table.header){
+            @for (table of tableSchema[hover_mode]; track table.header) {
                 <div class="td"
                      [ngClass]="[config?.cssTdClass || '',(table.type != 'value' && table.type != 'pipe')?'empty_td':'not_empty_td', (table.elementId && active_td === table.elementId) ? 'active':'', table.type || '']"
                      [ngStyle]="{width: table.calculatedWidth}"
                 >
-                    @if(table.type === 'value' || table.type === 'pipe'){
-                        {{table.header}}
+                    @if (table.type === 'value' || table.type === 'pipe') {
+                        {{ table.header }}
                     }
-                    @if(!(table.type === 'value' || table.type === 'pipe')){&nbsp;}
+                    @if (!(table.type === 'value' || table.type === 'pipe')) {
+                        &nbsp;
+                    }
                 </div>
             }
         </div>
         <!--1:END;-->
 
         <!--Patient Table 1:-->
-        @for (patient of patients|searchDicom:searchList; track patient;let i = $index){
+        @for (patient of patients|searchDicom:searchList; track patient; let i = $index) {
             <div class="tr" [ngClass]="config?.cssTrClass">
-                <div class="patient_block table_item" (mouseenter)="hover_mode = 'patient'" [ngClass]="{'selected':patient.selected}" (click)="onBlockClick(patient)">
-                    @for (patient_table of tableSchema.patient; track patient_table){
-                            <div class="td"
-                                 [ngClass]="[config?.cssTdClass || '', patient_table.cssClass || '', patient_table.type || '']"
-                                 [ngStyle]="{width: patient_table.calculatedWidth}"
-                                 (mouseenter)="active_td = patient_table.elementId"
-                                 tooltip="{{getTooltip(patient, patient_table)}}"
-                             >
-                            @switch(patient_table.type){
-                                @case('index'){
-                                    {{patient.offset + 1}}
+                <div class="patient_block table_item" (mouseenter)="hover_mode = 'patient'"
+                     [ngClass]="{'selected':patient.selected}" (click)="onBlockClick(patient)">
+                    @for (patient_table of tableSchema.patient; track patient_table) {
+                        <div class="td"
+                             [ngClass]="[config?.cssTdClass || '', patient_table.cssClass || '', patient_table.type || '']"
+                             [ngStyle]="{width: patient_table.calculatedWidth}"
+                             (mouseenter)="active_td = patient_table.elementId"
+                             tooltip="{{getTooltip(patient, patient_table)}}"
+                        >
+                            @switch (patient_table.type) {
+                                @case ('index') {
+                                    {{ patient.offset + 1 }}
                                 }
-                                @case('actions'){
+                                @case ('actions') {
                                     @for (action of patient_table.actions; track action) {
 
                                         @if ((!action.showIf || action.showIf(patient, config))) {
-<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient,'patient')" title="{{action.title || ''}}">
-                                            @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                                            @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                                            @if(action.icon.svg && action.icon.svg != ''){
-                                                <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
-                                            }
-                                            @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                            }
-                                        </a>
-}
-                                    
-}
+                                            <a class="pointer dicom_table_buttons"
+                                               (click)="$event.preventDefault();action.click(patient,'patient')"
+                                               title="{{action.title || ''}}">
+                                                @if (action.icon.tag === 'span') {
+                                                    <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                                }
+                                                @if (action.icon.tag === 'i') {
+                                                    <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                                }
+                                                @if (action.icon.svg && action.icon.svg != '') {
+                                                    <div [innerHTML]="action.icon.svg"
+                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                }
+                                                @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                    <div svg [svgPath]="action.icon.svgPath"
+                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                }
+                                            </a>
+                                        }
+
+                                    }
                                 }
-                                @case('actions-menu'){
-                                    <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
+                                @case ('actions-menu') {
+                                    <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons"><span
+                                            class="glyphicon glyphicon-option-vertical"></span></a>
                                     <mat-menu #menu="matMenu" class="study_action_buttons patient">
                                         <!--                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="patient.selected = !patient.selected">
                                                                     <span *ngIf="!patient.selected" class="glyphicon glyphicon-unchecked"></span>
@@ -66,313 +74,353 @@
                                         @for (action of patient_table.menu.actions; track action) {
 
                                             @if ((!action.showIf || action.showIf(patient, config))) {
-<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(patient,'patient')" title="{{action.title || ''}}">
-                                                @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-}
-                                                @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-}
-                                                @if(action.icon.svg && action.icon.svg != ''){
-                                                    <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
-                                                }
-                                                @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                    <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                                }
-                                            </a>
-}
-                                        
-}
+                                                <a class="pointer dicom_table_buttons"
+                                                   (click)="$event.preventDefault();action.click(patient,'patient')"
+                                                   title="{{action.title || ''}}">
+                                                    @if (action.icon.tag === 'span') {
+                                                        <span class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</span>
+                                                    }
+                                                    @if (action.icon.tag === 'i') {
+                                                        <i class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</i>
+                                                    }
+                                                    @if (action.icon.svg && action.icon.svg != '') {
+                                                        <div [innerHTML]="action.icon.svg"
+                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                    }
+                                                    @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                        <div svg [svgPath]="action.icon.svgPath"
+                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                    }
+                                                </a>
+                                            }
+
+                                        }
                                     </mat-menu>
                                 }
-                            @case('pipe'){
-                                <span [innerHTML]="getDynamicPipeValue(patient,patient_table)"></span>
-                                <!--                    <span *ngIf="patient_table.pathToValue" [innerHTML]="_.get(patient.attrs,patient_table.pathToValue) | dynamicPipe:patient_table.pipe">
-                                                    </span>
-                                                    <span *ngIf="!patient_table.pathToValue" [innerHTML]="patient.attrs | dynamicPipe:patient_table.pipe">
-                                                    </span>-->
-                           }
-                            @case('value'){
-                                @if(patient_table.hook){
-                                    {{patient_table.hook(_.get(patient.attrs,patient_table.pathToValue) || '&nbsp;')}}
-                                }@else{
-                                    {{_.get(patient.attrs,patient_table.pathToValue) || '&nbsp;'}}
+                                @case ('pipe') {
+                                    <span [innerHTML]="getDynamicPipeValue(patient,patient_table)"></span>
+                                    <!--                    <span *ngIf="patient_table.pathToValue" [innerHTML]="_.get(patient.attrs,patient_table.pathToValue) | dynamicPipe:patient_table.pipe">
+                                                        </span>
+                                                        <span *ngIf="!patient_table.pathToValue" [innerHTML]="patient.attrs | dynamicPipe:patient_table.pipe">
+                                                        </span>-->
+                                }
+                                @case ('value') {
+                                    @if (patient_table.hook) {
+                                        {{ patient_table.hook(_.get(patient.attrs, patient_table.pathToValue) || '&nbsp;') }}
+                                    } @else {
+                                        {{ _.get(patient.attrs, patient_table.pathToValue) || '&nbsp;' }}
+                                    }
                                 }
                             }
-                        }
                         </div>
                     }
-                    @if(patient.showAttributes){
+                    @if (patient.showAttributes) {
                         <attribute-list [attrs]="patient.attrs"></attribute-list>
                     }
-                    @if(patient.showAttributes && patient.xroad){
+                    @if (patient.showAttributes && patient.xroad) {
                         <label class="padding-left" i18n="@@pdw_response:">PDQs Response:</label>
                     }
-                    @if(patient.showAttributes && patient.xroad){
+                    @if (patient.showAttributes && patient.xroad) {
                         <attribute-list [attrs]="patient.xroad"></attribute-list>
                     }
-                    @if(patient && patient.showCustomAttributes){
-                        <custom-attribute-list [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute"  [attributesHook]="config.attributesHook" [attributes]="patient"></custom-attribute-list>
+                    @if (patient && patient.showCustomAttributes) {
+                        <custom-attribute-list [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute"
+                                               [attributesHook]="config.attributesHook"
+                                               [attributes]="patient"></custom-attribute-list>
                     }
 
                 </div>
 
 
                 <!--Studies 2:-->
-                @if(patient.showStudies){
+                @if (patient.showStudies) {
                     <div class="study_main_block">
-                        @for(study of patient.studies; track $index;let i = $index){
+                        @for (study of patient.studies; track $index; let i = $index) {
                             <div class="tr" [ngClass]="config?.cssTrClass">
-                                <div class="study_block table_item" (mouseenter)="hover_mode = 'studies'" [ngClass]="{'selected':study.selected}">
+                                <div class="study_block table_item" (mouseenter)="hover_mode = 'studies'"
+                                     [ngClass]="{'selected':study.selected}">
 
                                     @for (studies_table of tableSchema.studies; track studies_table) {
-<div class="td"
-                                            
+                                        <div class="td"
+
                                              [ngClass]="[config?.cssTdClass || '', studies_table.cssClass || '', studies_table.type || '']"
                                              [ngStyle]="{width: studies_table.calculatedWidth}"
-                                            
+
                                              (mouseenter)="active_td = studies_table.elementId"
                                              tooltip="{{getTooltip(study, studies_table)}}"
                                         >
-@switch (studies_table.type) {
-                                            @case ('index') {
-{{study.offset + 1}}
-}
-                                            @case ('actions') {
+                                            @switch (studies_table.type) {
+                                                @case ('index') {
+                                                    {{ study.offset + 1 }}
+                                                }
+                                                @case ('actions') {
 
-                                                <!--                            <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
-                                                                                <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
-                                                                                <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
-                                                                            </button>-->
-                                                @for (action of studies_table.actions; track action) {
-
-                                                    @if ((!action.showIf || action.showIf(study, config))) {
-<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(study,'study')" title="{{action.title || ''}}">
-                                                        @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                                                        @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                                                        @if(action.icon.svg && action.icon.svg != ''){
-                                                            <div [innerHTML]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
-                                                        }
-                                                        @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                            <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                                        }
-                                                    </a>
-}
-                                                
-}
-                                            
-}
-                                            @case ('actions-menu') {
-
-                                                <!--                            <button (click)="showStudyMenu = !showStudyMenu"><span class="glyphicon glyphicon-option-vertical"></span></button>
-                                                                            <div class="study_action_buttons" *ngIf="showStudyMenu">
-                                                                                <ng-container *ngFor="let action of studies_table.menu.actions">
-                                                                                    <a *ngIf="(!action.showIf || action.showIf(study, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
-                                                                                        <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-                                                                                        <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-                                                                                    </a>
-                                                                                </ng-container>
-                                                                            </div>-->
-                                                <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                                <mat-menu #menu="matMenu" class="study_action_buttons study" (click)="$event.stopPropagation()">
-                                                    <!--                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
-                                                                                        <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
-                                                                                        <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
-                                                                                    </button-->
-                                                    @for (action of studies_table.menu.actions; track action) {
+                                                    <!--                            <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
+                                                                                    <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                                                    <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
+                                                                                </button>-->
+                                                    @for (action of studies_table.actions; track action) {
 
                                                         @if ((!action.showIf || action.showIf(study, config))) {
-<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study,'study')" title="{{action.title || ''}}">
-                                                            @if (action.icon.tag === 'span' ) {
-<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-}
-                                                            @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-}
-                                                            @if(action.icon.svg && action.icon.svg != ''){
-                                                                <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                            <a class="pointer dicom_table_buttons"
+                                                               (click)="$event.preventDefault();action.click(study,'study')"
+                                                               title="{{action.title || ''}}">
+                                                                @if (action.icon.tag === 'span') {
+                                                                    <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                                                }
+                                                                @if (action.icon.tag === 'i') {
+                                                                    <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                                                }
+                                                                @if (action.icon.svg && action.icon.svg != '') {
+                                                                    <div [innerHTML]="action.icon.svg"
+                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                }
+                                                                @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                    <div svg [svgPath]="action.icon.svgPath"
+                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                }
+                                                            </a>
+                                                        }
+
+                                                    }
+
+                                                }
+                                                @case ('actions-menu') {
+
+                                                    <!--                            <button (click)="showStudyMenu = !showStudyMenu"><span class="glyphicon glyphicon-option-vertical"></span></button>
+                                                                                <div class="study_action_buttons" *ngIf="showStudyMenu">
+                                                                                    <ng-container *ngFor="let action of studies_table.menu.actions">
+                                                                                        <a *ngIf="(!action.showIf || action.showIf(study, config))" class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(study)" title="{{action.title || ''}}">
+                                                                                            <span *ngIf="action.icon.tag === 'span' " class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                                                                                            <i *ngIf="action.icon.tag === 'i'" class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                                                        </a>
+                                                                                    </ng-container>
+                                                                                </div>-->
+                                                    <a mat-button [matMenuTriggerFor]="menu"
+                                                       class="pointer dicom_table_buttons"><span
+                                                            class="glyphicon glyphicon-option-vertical"></span></a>
+                                                    <mat-menu #menu="matMenu" class="study_action_buttons study"
+                                                              (click)="$event.stopPropagation()">
+                                                        <!--                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="study.selected = !study.selected">
+                                                                                            <span *ngIf="!study.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                                                            <span *ngIf="study.selected" class="glyphicon glyphicon-check"></span>
+                                                                                        </button-->
+                                                        @for (action of studies_table.menu.actions; track action) {
+
+                                                            @if ((!action.showIf || action.showIf(study, config))) {
+                                                                <a class="pointer dicom_table_buttons"
+                                                                   (click)="$event.preventDefault();action.click(study,'study')"
+                                                                   title="{{action.title || ''}}">
+                                                                    @if (action.icon.tag === 'span') {
+                                                                        <span class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</span>
+                                                                    }
+                                                                    @if (action.icon.tag === 'i') {
+                                                                        <i class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</i>
+                                                                    }
+                                                                    @if (action.icon.svg && action.icon.svg != '') {
+                                                                        <div [svg]="action.icon.svg"
+                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                    }
+                                                                    @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                        <div svg [svgPath]="action.icon.svgPath"
+                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                    }
+                                                                </a>
                                                             }
-                                                            @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                                <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                                            }
-                                                        </a>
-}
 
-                                                    
-}
-                                                </mat-menu>
-                                            
-}
-                                            @case ('pipe') {
 
-                                                <span [innerHTML]="getDynamicPipeValue(study,studies_table)"></span>
-                                                <!--
-                                                                            <ng-container *ngIf="studies_table.pathToValue">
-                                                                                {{_.get(study.attrs,studies_table.pathToValue) | dynamicPipe:studies_table.pipe}}
-                                                                            </ng-container>
-                                                                            <ng-container *ngIf="!studies_table.pathToValue">
-                                                                                {{study.attrs | dynamicPipe:studies_table.pipe}}
-                                                                            </ng-container>-->
-                                            
-}
-                                            @case ('value') {
+                                                        }
+                                                    </mat-menu>
 
-                                                @if (!studies_table.hook) {
+                                                }
+                                                @case ('pipe') {
 
-                                                    {{_.get(study.attrs, studies_table.pathToValue) || '&nbsp;'}}
-                                                
-}
-                                                @if (studies_table.hook) {
+                                                    <span [innerHTML]="getDynamicPipeValue(study,studies_table)"></span>
+                                                    <!--
+                                                                                <ng-container *ngIf="studies_table.pathToValue">
+                                                                                    {{_.get(study.attrs,studies_table.pathToValue) | dynamicPipe:studies_table.pipe}}
+                                                                                </ng-container>
+                                                                                <ng-container *ngIf="!studies_table.pathToValue">
+                                                                                    {{study.attrs | dynamicPipe:studies_table.pipe}}
+                                                                                </ng-container>-->
 
-                                                    {{studies_table.hook(_.get(study.attrs, studies_table.pathToValue), study.attrs,studies_table.pathToValue, study)}}
-                                                
-}
-                                            
-}
-                                        }
-</div>
+                                                }
+                                                @case ('value') {
+
+                                                    @if (!studies_table.hook) {
+
+                                                        {{ _.get(study.attrs, studies_table.pathToValue) || '&nbsp;' }}
+
+                                                    }
+                                                    @if (studies_table.hook) {
+
+                                                        {{ studies_table.hook(_.get(study.attrs, studies_table.pathToValue), study.attrs, studies_table.pathToValue, study) }}
+
+                                                    }
+
+                                                }
+                                            }
+                                        </div>
                                     }
-                                    @if(study.showAttributes){
+                                    @if (study.showAttributes) {
                                         <attribute-list [attrs]="study.attrs"></attribute-list>
                                     }
-                                    @if(study && study.showCustomAttributes){
-                                        <custom-attribute-list [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute" [attributesHook]="config.attributesHook" [attributes]="study"></custom-attribute-list>
+                                    @if (study && study.showCustomAttributes) {
+                                        <custom-attribute-list
+                                                [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute"
+                                                [attributesHook]="config.attributesHook"
+                                                [attributes]="study"></custom-attribute-list>
                                     }
                                 </div>
                                 <!--Series 3:-->
-                                @if(study.showSeries){
+                                @if (study.showSeries) {
                                     <div class="series_main_block">
-                                        @for(serie of study.series; track $index;let i = $index){
+                                        @for (serie of study.series; track $index; let i = $index) {
                                             <div class="tr" [ngClass]="config?.cssTrClass">
-                                                <div class="series_block table_item" (mouseenter)="hover_mode = 'series'" [ngClass]="{'selected':serie.selected}">
-                                                    @for(serie_table of tableSchema.series; track $index){
+                                                <div class="series_block table_item"
+                                                     (mouseenter)="hover_mode = 'series'"
+                                                     [ngClass]="{'selected':serie.selected}">
+                                                    @for (serie_table of tableSchema.series; track $index) {
                                                         <div class="td"
                                                              [ngClass]="[config?.cssTdClass || '', serie_table.cssClass || '', serie_table.type || '']"
                                                              [ngStyle]="{width: serie_table.calculatedWidth}"
-                                                            
+
                                                              (mouseenter)="active_td = serie_table.elementId"
                                                              tooltip="{{getTooltip(serie, serie_table)}}"
                                                         >
-@switch (serie_table.type) {
-                                                            @case ('index') {
-{{serie.offset + 1}}
-}
-                                                            @case ('actions') {
+                                                            @switch (serie_table.type) {
+                                                                @case ('index') {
+                                                                    {{ serie.offset + 1 }}
+                                                                }
+                                                                @case ('actions') {
 
-                                                                <!--                                    <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
-                                                                                                        <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
-                                                                                                        <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
-                                                                                                    </button>-->
-                                                                @for (action of serie_table.actions; track action) {
-
-                                                                    @if ((!action.showIf || action.showIf(serie, config))) {
-<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
-                                                                        @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                                                                        @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                                                                        @if(action.icon.svg && action.icon.svg != ''){
-                                                                            <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
-                                                                        }
-                                                                        @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                                            <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                                                        }
-                                                                    </a>
-}
-                                                                
-}
-                                                            
-}
-                                                            @case ('actions-menu') {
-
-                                                                <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                                                <mat-menu #menu="matMenu" class="study_action_buttons series">
-                                                                    <!--                                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
-                                                                                                                <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
-                                                                                                                <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
-                                                                                                            </button>-->
-                                                                    @for (action of serie_table.menu.actions; track action) {
+                                                                    <!--                                    <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
+                                                                                                            <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                                                                            <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
+                                                                                                        </button>-->
+                                                                    @for (action of serie_table.actions; track action) {
 
                                                                         @if ((!action.showIf || action.showIf(serie, config))) {
-<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
-                                                                            @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-}
-                                                                            @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-}
-                                                                            @if(action.icon.svg && action.icon.svg != ''){
-                                                                                <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                                            <a class="pointer dicom_table_buttons"
+                                                                               (click)="$event.preventDefault();action.click(serie,'series')"
+                                                                               title="{{action.title || ''}}">
+                                                                                @if (action.icon.tag === 'span') {
+                                                                                    <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                                                                }
+                                                                                @if (action.icon.tag === 'i') {
+                                                                                    <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                                                                }
+                                                                                @if (action.icon.svg && action.icon.svg != '') {
+                                                                                    <div [svg]="action.icon.svg"
+                                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                                }
+                                                                                @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                                    <div svg
+                                                                                         [svgPath]="action.icon.svgPath"
+                                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                                }
+                                                                            </a>
+                                                                        }
+
+                                                                    }
+
+                                                                }
+                                                                @case ('actions-menu') {
+
+                                                                    <a mat-button [matMenuTriggerFor]="menu"
+                                                                       class="pointer dicom_table_buttons"><span
+                                                                            class="glyphicon glyphicon-option-vertical"></span></a>
+                                                                    <mat-menu #menu="matMenu"
+                                                                              class="study_action_buttons series">
+                                                                        <!--                                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
+                                                                                                                    <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                                                                                    <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
+                                                                                                                </button>-->
+                                                                        @for (action of serie_table.menu.actions; track action) {
+
+                                                                            @if ((!action.showIf || action.showIf(serie, config))) {
+                                                                                <a class="pointer dicom_table_buttons"
+                                                                                   (click)="$event.preventDefault();action.click(serie,'series')"
+                                                                                   title="{{action.title || ''}}">
+                                                                                    @if (action.icon.tag === 'span') {
+                                                                                        <span class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</span>
+                                                                                    }
+                                                                                    @if (action.icon.tag === 'i') {
+                                                                                        <i class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</i>
+                                                                                    }
+                                                                                    @if (action.icon.svg && action.icon.svg != '') {
+                                                                                        <div [svg]="action.icon.svg"
+                                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                                    }
+                                                                                    @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                                        <div svg
+                                                                                             [svgPath]="action.icon.svgPath"
+                                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                                    }
+                                                                                </a>
                                                                             }
-                                                                            @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                                                <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                                                            }
-                                                                        </a>
-}
-                                                                    
-}
-                                                                </mat-menu>
-                                                            
-}
-                                                            @case ('pipe') {
 
-                                                                <span [innerHTML]="getDynamicPipeValue(serie,serie_table)"></span>
-                                                                <!--
-                                                                                                    <ng-container *ngIf="serie_table.pathToValue">
-                                                                                                        {{_.get(serie.attrs,serie_table.pathToValue) | dynamicPipe:serie_table.pipe}}
-                                                                                                    </ng-container>
-                                                                                                    <ng-container *ngIf="!serie_table.pathToValue">
-                                                                                                        {{serie.attrs | dynamicPipe:serie_table.pipe}}
-                                                                                                    </ng-container>-->
-                                                            
-}
-                                                            @case ('value') {
+                                                                        }
+                                                                    </mat-menu>
 
-                                                                @if (!serie_table.hook) {
+                                                                }
+                                                                @case ('pipe') {
 
-                                                                    {{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}
-                                                                
-}
-                                                                @if (serie_table.hook) {
+                                                                    <span [innerHTML]="getDynamicPipeValue(serie,serie_table)"></span>
+                                                                    <!--
+                                                                                                        <ng-container *ngIf="serie_table.pathToValue">
+                                                                                                            {{_.get(serie.attrs,serie_table.pathToValue) | dynamicPipe:serie_table.pipe}}
+                                                                                                        </ng-container>
+                                                                                                        <ng-container *ngIf="!serie_table.pathToValue">
+                                                                                                            {{serie.attrs | dynamicPipe:serie_table.pipe}}
+                                                                                                        </ng-container>-->
 
-                                                                    {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs,serie_table.pathToValue, serie)}}
-                                                                
-}
-                                                            
-}
-                                                        }
-</div>
+                                                                }
+                                                                @case ('value') {
+
+                                                                    @if (!serie_table.hook) {
+
+                                                                        {{ _.get(serie.attrs, serie_table.pathToValue) || '&nbsp;' }}
+
+                                                                    }
+                                                                    @if (serie_table.hook) {
+
+                                                                        {{ serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs, serie_table.pathToValue, serie) }}
+
+                                                                    }
+
+                                                                }
+                                                            }
+                                                        </div>
                                                     }
-                                                    @if(serie.showAttributes){
+                                                    @if (serie.showAttributes) {
                                                         <attribute-list [attrs]="serie.attrs"></attribute-list>
                                                     }
-                                                    @if(serie && serie.showCustomAttributes){
-                                                        <custom-attribute-list [attributesHook]="config.attributesHook" [attributes]="serie" [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute"></custom-attribute-list>
+                                                    @if (serie && serie.showCustomAttributes) {
+                                                        <custom-attribute-list [attributesHook]="config.attributesHook"
+                                                                               [attributes]="serie"
+                                                                               [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute"></custom-attribute-list>
                                                     }
                                                 </div>
 
                                                 <!--Instance 4:-->
-                                                @if(serie.showInstances){
+                                                @if (serie.showInstances) {
                                                     <div class="instance_main_block">
-                                                        @for (instance of serie.instances; track $index;let i = $index){
+                                                        @for (instance of serie.instances; track $index; let i = $index) {
                                                             <div class="tr" [ngClass]="config?.cssTrClass">
-                                                                <div class="instance_block table_item" (mouseenter)="hover_mode = 'instance'" [ngClass]="{'selected':instance.selected}">
-                                                                    @for (instance_table of tableSchema.instance; track $index){
+                                                                <div class="instance_block table_item"
+                                                                     (mouseenter)="hover_mode = 'instance'"
+                                                                     [ngClass]="{'selected':instance.selected}">
+                                                                    @for (instance_table of tableSchema.instance; track $index) {
                                                                         <div class="td"
                                                                              [ngClass]="[config?.cssTdClass || '', instance_table.cssClass || '', instance_table.type || '']"
                                                                              [ngStyle]="{width: instance_table.calculatedWidth}"
                                                                              (mouseenter)="active_td = instance_table.elementId"
                                                                              tooltip="{{getTooltip(instance, instance_table)}}"
                                                                         >
-                                                                            @switch ( instance_table.type ) {
+                                                                            @switch (instance_table.type) {
                                                                                 @case ('index') {
-                                                                                    {{instance.offset + 1}}
+                                                                                    {{ instance.offset + 1 }}
                                                                                 }
                                                                                 <!--                                        <ng-container *ngSwitchCase="'selected-checkbox'">
                                                                                                                             <a class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
@@ -380,58 +428,72 @@
                                                                                                                                 <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
                                                                                                                             </a>
                                                                                                                         </ng-container>-->
-                                                                               @case('actions'){
-                                                                                    @for (action of instance_table.actions; track action){
-                                                                                        @if((!action.showIf || action.showIf(instance, config))){
-                                                                                            <a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
-                                                                                                @if(action.icon.tag === 'span'){
+                                                                                @case ('actions') {
+                                                                                    @for (action of instance_table.actions; track action) {
+                                                                                        @if ((!action.showIf || action.showIf(instance, config))) {
+                                                                                            <a class="pointer dicom_table_buttons"
+                                                                                               (click)="$event.preventDefault();action.click(instance,'instance')"
+                                                                                               title="{{action.title || ''}}">
+                                                                                                @if (action.icon.tag === 'span') {
                                                                                                     <span class="{{action.icon.cssClass||''}}">
-                                                                                                        {{action.icon.text||''}}
+                                                                                                        {{ action.icon.text || '' }}
                                                                                                     </span>
                                                                                                 }
-                                                                                                @if(action.icon.tag === 'i'){
+                                                                                                @if (action.icon.tag === 'i') {
                                                                                                     <i class="{{action.icon.cssClass||''}}">
-                                                                                                        {{action.icon.text||''}}
+                                                                                                        {{ action.icon.text || '' }}
                                                                                                     </i>
                                                                                                 }
-                                                                                                @if(action.icon.svg && action.icon.svg != ''){
-                                                                                                    <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                                                                @if (action.icon.svg && action.icon.svg != '') {
+                                                                                                    <div [svg]="action.icon.svg"
+                                                                                                         class="{{action.icon.cssClass||''}}"></div>
                                                                                                 }
-                                                                                                @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                                                                    <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                                                                                @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                                                    <div svg
+                                                                                                         [svgPath]="action.icon.svgPath"
+                                                                                                         class="{{action.icon.cssClass||''}}"></div>
                                                                                                 }
                                                                                             </a>
                                                                                         }
                                                                                     }
-                                                                               }
-                                                                                @case ('actions-menu'){
-                                                                                    <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                                                                    <mat-menu #menu="matMenu" class="study_action_buttons instance">
+                                                                                }
+                                                                                @case ('actions-menu') {
+                                                                                    <a mat-button
+                                                                                       [matMenuTriggerFor]="menu"
+                                                                                       class="pointer dicom_table_buttons"><span
+                                                                                            class="glyphicon glyphicon-option-vertical"></span></a>
+                                                                                    <mat-menu #menu="matMenu"
+                                                                                              class="study_action_buttons instance">
                                                                                         <!--                                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
                                                                                                                                             <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
                                                                                                                                             <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
                                                                                                                                         </button>-->
-                                                                                        @for (action of instance_table.menu.actions;track action){
+                                                                                        @for (action of instance_table.menu.actions; track action) {
                                                                                             @if ((!action.showIf || action.showIf(instance, config))) {
-<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
-                                                                                                @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-}
-                                                                                                @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-}
-                                                                                                @if(action.icon.svg && action.icon.svg != ''){
-                                                                                                    <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
-                                                                                                }
-                                                                                                @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                                                                    <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                                                                                }
-                                                                                            </a>
-}
+                                                                                                <a class="pointer dicom_table_buttons"
+                                                                                                   (click)="$event.preventDefault();action.click(instance,'instance')"
+                                                                                                   title="{{action.title || ''}}">
+                                                                                                    @if (action.icon.tag === 'span') {
+                                                                                                        <span class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</span>
+                                                                                                    }
+                                                                                                    @if (action.icon.tag === 'i') {
+                                                                                                        <i class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</i>
+                                                                                                    }
+                                                                                                    @if (action.icon.svg && action.icon.svg != '') {
+                                                                                                        <div [svg]="action.icon.svg"
+                                                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                                                    }
+                                                                                                    @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                                                        <div svg
+                                                                                                             [svgPath]="action.icon.svgPath"
+                                                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                                                    }
+                                                                                                </a>
+                                                                                            }
                                                                                         }
                                                                                     </mat-menu>
                                                                                 }
-                                                                                @case ('pipe'){
+                                                                                @case ('pipe') {
                                                                                     <span [innerHTML]="getDynamicPipeValue(instance,instance_table)"></span>
                                                                                     <!--
                                                                                     <ng-container *ngIf="instance_table.pathToValue">
@@ -441,20 +503,21 @@
                                                                                           {{instance.attrs | dynamicPipe:instance_table.pipe}}
                                                                                       </ng-container>-->
                                                                                 }
-                                                                                @case ('value'){
+                                                                                @case ('value') {
                                                                                     @if (instance_table.hook) {
-                                                                                        {{instance_table.hook(_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;', instance.attrs, instance_table.pathToValue, instance)}}
+                                                                                        {{ instance_table.hook(_.get(instance.attrs, instance_table.pathToValue) || '&nbsp;', instance.attrs, instance_table.pathToValue, instance) }}
                                                                                     } @else {
-                                                                                        {{_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;'}}
+                                                                                        {{ _.get(instance.attrs, instance_table.pathToValue) || '&nbsp;' }}
                                                                                     }
                                                                                 }
                                                                             }
                                                                         </div>
                                                                     }
-                                                                    @if(instance.showAttributes){
-                                                                        <attribute-list [attrs]="instance.attrs"></attribute-list>
+                                                                    @if (instance.showAttributes) {
+                                                                        <attribute-list
+                                                                                [attrs]="instance.attrs"></attribute-list>
                                                                     }
-                                                                    @if(instance.showFileAttributes){
+                                                                    @if (instance.showFileAttributes) {
                                                                         <attribute-list
                                                                                 [studyWebService]="studyWebService"
                                                                                 [studyuid]="instance.wadoQueryParams.studyUID"
@@ -462,13 +525,16 @@
                                                                                 [objectuid]="instance.wadoQueryParams.objectUID">
                                                                         </attribute-list>
                                                                     }
-                                                                    @if(instance && instance.showCustomAttributes){
-                                                                        <custom-attribute-list [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute" [attributesHook]="config.attributesHook" [attributes]="instance"></custom-attribute-list>
+                                                                    @if (instance && instance.showCustomAttributes) {
+                                                                        <custom-attribute-list
+                                                                                [dicomAttributesAsSubAttribute]="config.dicomAttributesAsSubAttribute"
+                                                                                [attributesHook]="config.attributesHook"
+                                                                                [attributes]="instance"></custom-attribute-list>
                                                                     }
                                                                 </div>
                                                             </div>
                                                         }
-                                                        @if(serie.instances && serie.instances.length > 0 && serie.instances[0].showPaginations){
+                                                        @if (serie.instances && serie.instances.length > 0 && serie.instances[0].showPaginations) {
                                                             <div class="tr">
                                                                 <div class="instance_block table_item">
                                                                     <div class="td td_with_centered_child">
@@ -478,13 +544,17 @@
                                                                                     class="transparent_button"
                                                                                     (click)="paginationClick(serie, 'instance', 'prev')"
                                                                                     [disabled]="serie.instances[0].offset === 0"
-                                                                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                                                                            >
+                                                                                <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+                                                                            </button>
                                                                             <button
                                                                                     title="Next page of instances"
                                                                                     class="transparent_button"
                                                                                     (click)="paginationClick(serie, 'instance', 'next')"
                                                                                     [disabled]="!serie.instances[0].hasMore"
-                                                                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                                                                            >
+                                                                                <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+                                                                            </button>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -496,7 +566,7 @@
                                             </div>
                                         }
 
-                                        @if(study.series && study.series.length > 0 && study.series[0].showPaginations){
+                                        @if (study.series && study.series.length > 0 && study.series[0].showPaginations) {
                                             <div class="tr">
                                                 <div class="series_block table_item">
                                                     <div class="td td_with_centered_child">
@@ -506,13 +576,17 @@
                                                                     class="transparent_button"
                                                                     (click)="paginationClick(study, 'series', 'prev')"
                                                                     [disabled]="study.series[0].offset === 0"
-                                                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                                                            >
+                                                                <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+                                                            </button>
                                                             <button
                                                                     title="Next page of series"
                                                                     class="transparent_button"
                                                                     (click)="paginationClick(study, 'series', 'next')"
                                                                     [disabled]="!study.series[0].hasMore"
-                                                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                                                            >
+                                                                <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -523,7 +597,7 @@
                                 <!--3:END;-->
                             </div>
                         }
-                        @if(patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations){
+                        @if (patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations) {
                             <div class="tr">
                                 <div class="instance_block table_item">
                                     <div class="td td_with_centered_child">
@@ -547,413 +621,461 @@
                 }
                 <!--2:END;-->
                 <!--mwl 2:-->
-                @if(patient.showMwls){
+                @if (patient.showMwls) {
                     <div class="study_main_block">
                         @for (mwl of patient.mwls; track mwl; let i = $index) {
-<div class="tr" [ngClass]="config?.cssTrClass">
-                            <div class="mwl_block table_item" (mouseenter)="hover_mode = 'mwl'" [ngClass]="{'selected':mwl.selected}">
-                                @for (mwl_table of tableSchema.mwl; track mwl_table) {
-<div class="td"
-                                    
-                                     [ngClass]="[config?.cssTdClass || '', mwl_table.type || '']"
-                                     [ngStyle]="{width: mwl_table.calculatedWidth}"
-                                    
-                                     (mouseenter)="active_td = mwl_table.elementId"
-                                     tooltip="{{getTooltip(mwl, mwl_table)}}"
-                                >
-@switch (mwl_table.type) {
-                                    @case ('index') {
-{{mwl.offset + 1}}
-}
-                                    @case ('actions') {
+                            <div class="tr" [ngClass]="config?.cssTrClass">
+                                <div class="mwl_block table_item" (mouseenter)="hover_mode = 'mwl'"
+                                     [ngClass]="{'selected':mwl.selected}">
+                                    @for (mwl_table of tableSchema.mwl; track mwl_table) {
+                                        <div class="td"
 
-                                        <!--                            <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="mwl.selected = !mwl.selected">
-                                                                        <span *ngIf="!mwl.selected" class="glyphicon glyphicon-unchecked"></span>
-                                                                        <span *ngIf="mwl.selected" class="glyphicon glyphicon-check"></span>
-                                                                    </button>-->
-                                        @for (action of mwl_table.actions; track action) {
+                                             [ngClass]="[config?.cssTdClass || '', mwl_table.type || '']"
+                                             [ngStyle]="{width: mwl_table.calculatedWidth}"
 
-                                            @if ((!action.showIf || action.showIf(mwl, config))) {
-<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(mwl,'mwl')" title="{{action.title || ''}}">
-                                                @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                                                @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                                                @if(action.icon.svg && action.icon.svg != ''){
-                                                    <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                             (mouseenter)="active_td = mwl_table.elementId"
+                                             tooltip="{{getTooltip(mwl, mwl_table)}}"
+                                        >
+                                            @switch (mwl_table.type) {
+                                                @case ('index') {
+                                                    {{ mwl.offset + 1 }}
                                                 }
-                                                @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                    <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                                @case ('actions') {
+
+                                                    <!--                            <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="mwl.selected = !mwl.selected">
+                                                                                    <span *ngIf="!mwl.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                                                    <span *ngIf="mwl.selected" class="glyphicon glyphicon-check"></span>
+                                                                                </button>-->
+                                                    @for (action of mwl_table.actions; track action) {
+
+                                                        @if ((!action.showIf || action.showIf(mwl, config))) {
+                                                            <a class="pointer dicom_table_buttons"
+                                                               (click)="$event.preventDefault();action.click(mwl,'mwl')"
+                                                               title="{{action.title || ''}}">
+                                                                @if (action.icon.tag === 'span') {
+                                                                    <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                                                }
+                                                                @if (action.icon.tag === 'i') {
+                                                                    <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                                                }
+                                                                @if (action.icon.svg && action.icon.svg != '') {
+                                                                    <div [svg]="action.icon.svg"
+                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                }
+                                                                @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                    <div svg [svgPath]="action.icon.svgPath"
+                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                }
+                                                            </a>
+                                                        }
+
+                                                    }
+
                                                 }
-                                            </a>
-}
-                                        
-}
-                                    
-}
-                                    @case ('actions-menu') {
+                                                @case ('actions-menu') {
 
-                                        <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                        <mat-menu #menu="matMenu" class="mwl_action_buttons" (click)="$event.stopPropagation()">
-                                            @for (action of mwl_table.menu.actions; track action) {
+                                                    <a mat-button [matMenuTriggerFor]="menu"
+                                                       class="pointer dicom_table_buttons"><span
+                                                            class="glyphicon glyphicon-option-vertical"></span></a>
+                                                    <mat-menu #menu="matMenu" class="mwl_action_buttons"
+                                                              (click)="$event.stopPropagation()">
+                                                        @for (action of mwl_table.menu.actions; track action) {
 
-                                                @if ((!action.showIf || action.showIf(mwl, config))) {
-<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(mwl,'mwl')" title="{{action.title || ''}}">
-                                                    @if (action.icon.tag === 'span' ) {
-<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-}
-                                                    @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-}
-                                                    @if(action.icon.svg && action.icon.svg != ''){
-                                                        <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
-                                                    }
-                                                    @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                        <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                                    }
-                                                </a>
-}
-                                            
-}
-                                        </mat-menu>
-                                    
-}
-                                    @case ('pipe') {
+                                                            @if ((!action.showIf || action.showIf(mwl, config))) {
+                                                                <a class="pointer dicom_table_buttons"
+                                                                   (click)="$event.preventDefault();action.click(mwl,'mwl')"
+                                                                   title="{{action.title || ''}}">
+                                                                    @if (action.icon.tag === 'span') {
+                                                                        <span class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</span>
+                                                                    }
+                                                                    @if (action.icon.tag === 'i') {
+                                                                        <i class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</i>
+                                                                    }
+                                                                    @if (action.icon.svg && action.icon.svg != '') {
+                                                                        <div [svg]="action.icon.svg"
+                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                    }
+                                                                    @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                        <div svg [svgPath]="action.icon.svgPath"
+                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                    }
+                                                                </a>
+                                                            }
 
-                                        <span [innerHTML]="getDynamicPipeValue(mwl,mwl_table)"></span>
+                                                        }
+                                                    </mat-menu>
 
-                                        <!--                            <ng-container *ngIf="mwl_table.pathToValue">
-                                                                        {{_.get(mwl.attrs,mwl_table.pathToValue) | dynamicPipe:mwl_table.pipe}}
-                                                                    </ng-container>
-                                                                    <ng-container *ngIf="!mwl_table.pathToValue">
-                                                                        {{mwl.attrs | dynamicPipe:mwl_table.pipe}}
-                                                                    </ng-container>-->
-                                    
-}
-                                    @case ('value') {
-{{_.get(mwl.attrs, mwl_table.pathToValue) || '&nbsp;'}}
-}
-                                }
-</div>
-}
-                                @if (mwl.showAttributes) {
-<attribute-list [attrs]="mwl.attrs"></attribute-list>
-}
+                                                }
+                                                @case ('pipe') {
+
+                                                    <span [innerHTML]="getDynamicPipeValue(mwl,mwl_table)"></span>
+
+                                                    <!--                            <ng-container *ngIf="mwl_table.pathToValue">
+                                                                                    {{_.get(mwl.attrs,mwl_table.pathToValue) | dynamicPipe:mwl_table.pipe}}
+                                                                                </ng-container>
+                                                                                <ng-container *ngIf="!mwl_table.pathToValue">
+                                                                                    {{mwl.attrs | dynamicPipe:mwl_table.pipe}}
+                                                                                </ng-container>-->
+
+                                                }
+                                                @case ('value') {
+                                                    {{ _.get(mwl.attrs, mwl_table.pathToValue) || '&nbsp;' }}
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                    @if (mwl.showAttributes) {
+                                        <attribute-list [attrs]="mwl.attrs"></attribute-list>
+                                    }
+                                </div>
                             </div>
-                        </div>
-}
+                        }
                     </div>
                 }
                 <!--mwl 2:END;-->
                 <!--uwl 2:-->
-                @if(patient.showUwls){
+                @if (patient.showUwls) {
                     <div class="study_main_block">
-                        @for (uwl of patient.uwls; track $index;let i = $index){
-                        <div class="tr" [ngClass]="config?.cssTrClass" >
-                            <div class="mwl_block table_item" (mouseenter)="hover_mode = 'uwl'" [ngClass]="{'selected':uwl.selected}">
-                                @for (uwl_table of tableSchema.uwl; track uwl_table){
-                                    <div class="td"
-                                         [ngClass]="[config?.cssTdClass || '', uwl_table.type || '']"
-                                         [ngStyle]="{width: uwl_table.calculatedWidth}"
-                                        
-                                         (mouseenter)="active_td = uwl_table.elementId"
-                                         tooltip="{{getTooltip(uwl, uwl_table)}}"
-                                    >
-@switch (uwl_table.type) {
-                                            @case ('index') {
-                                                {{uwl.offset + 1}}
-                                            }
-                                            @case ('actions'){
-                                                @for (action of uwl_table.actions; track action){
-                                                    @if ((!action.showIf || action.showIf(uwl, config))) {
-                                                        <a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(uwl,'uwl')" title="{{action.title || ''}}">
-                                                            @if(action.icon.tag === 'span'){
-                                                                <span class="{{action.icon.cssClass||''}}">
-                                                                    {{action.icon.text||''}}
-                                                                </span>
-                                                            }
-                                                            @if(action.icon.tag === 'i'){
-                                                                <i class="{{action.icon.cssClass||''}}">
-                                                                    {{action.icon.text||''}}
-                                                                </i>
-                                                            }
-                                                            @if(action.icon.svg && action.icon.svg != ''){
-                                                                <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
-                                                            }
-                                                            @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                                <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                                            }
-                                                        </a>
-                                                    }
+                        @for (uwl of patient.uwls; track $index; let i = $index) {
+                            <div class="tr" [ngClass]="config?.cssTrClass">
+                                <div class="mwl_block table_item" (mouseenter)="hover_mode = 'uwl'"
+                                     [ngClass]="{'selected':uwl.selected}">
+                                    @for (uwl_table of tableSchema.uwl; track uwl_table) {
+                                        <div class="td"
+                                             [ngClass]="[config?.cssTdClass || '', uwl_table.type || '']"
+                                             [ngStyle]="{width: uwl_table.calculatedWidth}"
+
+                                             (mouseenter)="active_td = uwl_table.elementId"
+                                             tooltip="{{getTooltip(uwl, uwl_table)}}"
+                                        >
+                                            @switch (uwl_table.type) {
+                                                @case ('index') {
+                                                    {{ uwl.offset + 1 }}
                                                 }
-                                            }
-                                            @case ('actions-menu'){
-                                                <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                                <mat-menu #menu="matMenu" class="uwl_action_buttons" (click)="$event.stopPropagation()">
-                                                    @for (action of uwl_table.menu.actions;track action){
+                                                @case ('actions') {
+                                                    @for (action of uwl_table.actions; track action) {
                                                         @if ((!action.showIf || action.showIf(uwl, config))) {
-                                                            <a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(uwl,'uwl')" title="{{action.title || ''}}">
-                                                                @if(action.icon.tag === 'span'){
-                                                                    <span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
+                                                            <a class="pointer dicom_table_buttons"
+                                                               (click)="$event.preventDefault();action.click(uwl,'uwl')"
+                                                               title="{{action.title || ''}}">
+                                                                @if (action.icon.tag === 'span') {
+                                                                    <span class="{{action.icon.cssClass||''}}">
+                                                                    {{ action.icon.text || '' }}
+                                                                </span>
                                                                 }
-                                                                @if(action.icon.tag === 'i'){
-                                                                    <i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
+                                                                @if (action.icon.tag === 'i') {
+                                                                    <i class="{{action.icon.cssClass||''}}">
+                                                                        {{ action.icon.text || '' }}
+                                                                    </i>
                                                                 }
-                                                                @if(action.icon.svg && action.icon.svg != ''){
-                                                                    <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                                @if (action.icon.svg && action.icon.svg != '') {
+                                                                    <div [svg]="action.icon.svg"
+                                                                         class="{{action.icon.cssClass||''}}"></div>
                                                                 }
-                                                                @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                                    <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                                                @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                    <div svg [svgPath]="action.icon.svgPath"
+                                                                         class="{{action.icon.cssClass||''}}"></div>
                                                                 }
                                                             </a>
                                                         }
                                                     }
-                                                </mat-menu>
+                                                }
+                                                @case ('actions-menu') {
+                                                    <a mat-button [matMenuTriggerFor]="menu"
+                                                       class="pointer dicom_table_buttons"><span
+                                                            class="glyphicon glyphicon-option-vertical"></span></a>
+                                                    <mat-menu #menu="matMenu" class="uwl_action_buttons"
+                                                              (click)="$event.stopPropagation()">
+                                                        @for (action of uwl_table.menu.actions; track action) {
+                                                            @if ((!action.showIf || action.showIf(uwl, config))) {
+                                                                <a class="pointer dicom_table_buttons"
+                                                                   (click)="$event.preventDefault();action.click(uwl,'uwl')"
+                                                                   title="{{action.title || ''}}">
+                                                                    @if (action.icon.tag === 'span') {
+                                                                        <span class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</span>
+                                                                    }
+                                                                    @if (action.icon.tag === 'i') {
+                                                                        <i class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</i>
+                                                                    }
+                                                                    @if (action.icon.svg && action.icon.svg != '') {
+                                                                        <div [svg]="action.icon.svg"
+                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                    }
+                                                                    @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                        <div svg [svgPath]="action.icon.svgPath"
+                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                    }
+                                                                </a>
+                                                            }
+                                                        }
+                                                    </mat-menu>
+                                                }
+                                                @case ('pipe') {
+                                                    <span [innerHTML]="getDynamicPipeValue(uwl,uwl_table)"></span>
+                                                }
+                                                @case ('value') {
+                                                    {{ _.get(uwl.attrs, uwl_table.pathToValue) || '&nbsp;' }}
+                                                }
                                             }
-                                            @case ('pipe'){
-                                                <span [innerHTML]="getDynamicPipeValue(uwl,uwl_table)"></span>
-                                            }
-                                            @case ('value'){
-                                                {{_.get(uwl.attrs, uwl_table.pathToValue) || '&nbsp;'}}
-                                            }
+                                        </div>
                                     }
-</div>
-                                }
-                                @if(uwl.showAttributes){
-                                    <attribute-list [attrs]="uwl.attrs"></attribute-list>
-                                }
+                                    @if (uwl.showAttributes) {
+                                        <attribute-list [attrs]="uwl.attrs"></attribute-list>
+                                    }
 
+                                </div>
                             </div>
-                        </div>
                         }
                     </div>
                 }
                 <!--uwl 2:END;-->
                 <!--mpps 2:-->
-                @if(patient.showMpps){
+                @if (patient.showMpps) {
                     <div class="study_main_block">
                         @for (mpps of patient.mpps; track mpps; let i = $index) {
-<div class="tr" [ngClass]="config?.cssTrClass">
-                            <div class="mwl_block table_item" (mouseenter)="hover_mode = 'mpps'" [ngClass]="{'selected':mpps.selected}">
-                                @for (mpps_table of tableSchema.mpps; track mpps_table){
-                                    <div class="td"
-                                         [ngClass]="[config?.cssTdClass || '', mpps_table.type || '']"
-                                         [ngStyle]="{width: mpps_table.calculatedWidth}"
-                                        
-                                         (mouseenter)="active_td = mpps_table.elementId"
-                                         tooltip="{{getTooltip(mpps, mpps_table)}}"
-                                    >
-@switch (mpps_table.type) {
-                                        @case ('index') {
-{{mpps.offset + 1}}
-}
-                                        @case ('actions') {
+                            <div class="tr" [ngClass]="config?.cssTrClass">
+                                <div class="mwl_block table_item" (mouseenter)="hover_mode = 'mpps'"
+                                     [ngClass]="{'selected':mpps.selected}">
+                                    @for (mpps_table of tableSchema.mpps; track mpps_table) {
+                                        <div class="td"
+                                             [ngClass]="[config?.cssTdClass || '', mpps_table.type || '']"
+                                             [ngStyle]="{width: mpps_table.calculatedWidth}"
 
-                                            @for (action of mpps_table.actions; track action) {
+                                             (mouseenter)="active_td = mpps_table.elementId"
+                                             tooltip="{{getTooltip(mpps, mpps_table)}}"
+                                        >
+                                            @switch (mpps_table.type) {
+                                                @case ('index') {
+                                                    {{ mpps.offset + 1 }}
+                                                }
+                                                @case ('actions') {
 
-                                                @if ((!action.showIf || action.showIf(mpps, config))) {
-<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(mpps,'mpps')" title="{{action.title || ''}}">
-                                                    @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                                                    @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                                                    @if(action.icon.svg && action.icon.svg != ''){
-                                                        <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
-                                                    }
-                                                    @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                        <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                                    }
-                                                </a>
-}
-                                            
-}
-                                        
-}
-                                        @case ('actions-menu') {
+                                                    @for (action of mpps_table.actions; track action) {
 
-                                            <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                            <mat-menu #menu="matMenu" class="mpps_action_buttons" (click)="$event.stopPropagation()">
-                                                @for (action of mpps_table.menu.actions; track action) {
-
-                                                    @if ((!action.showIf || action.showIf(mpps, config))) {
-<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(mpps,'mpps')" title="{{action.title || ''}}">
-                                                        @if (action.icon.tag === 'span' ) {
-<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-}
-                                                        @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-}
-                                                        @if(action.icon.svg && action.icon.svg != ''){
-                                                            <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                        @if ((!action.showIf || action.showIf(mpps, config))) {
+                                                            <a class="pointer dicom_table_buttons"
+                                                               (click)="$event.preventDefault();action.click(mpps,'mpps')"
+                                                               title="{{action.title || ''}}">
+                                                                @if (action.icon.tag === 'span') {
+                                                                    <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                                                }
+                                                                @if (action.icon.tag === 'i') {
+                                                                    <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                                                }
+                                                                @if (action.icon.svg && action.icon.svg != '') {
+                                                                    <div [svg]="action.icon.svg"
+                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                }
+                                                                @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                    <div svg [svgPath]="action.icon.svgPath"
+                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                }
+                                                            </a>
                                                         }
-                                                        @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                            <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+
+                                                    }
+
+                                                }
+                                                @case ('actions-menu') {
+
+                                                    <a mat-button [matMenuTriggerFor]="menu"
+                                                       class="pointer dicom_table_buttons"><span
+                                                            class="glyphicon glyphicon-option-vertical"></span></a>
+                                                    <mat-menu #menu="matMenu" class="mpps_action_buttons"
+                                                              (click)="$event.stopPropagation()">
+                                                        @for (action of mpps_table.menu.actions; track action) {
+
+                                                            @if ((!action.showIf || action.showIf(mpps, config))) {
+                                                                <a class="pointer dicom_table_buttons"
+                                                                   (click)="$event.preventDefault();action.click(mpps,'mpps')"
+                                                                   title="{{action.title || ''}}">
+                                                                    @if (action.icon.tag === 'span') {
+                                                                        <span class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</span>
+                                                                    }
+                                                                    @if (action.icon.tag === 'i') {
+                                                                        <i class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</i>
+                                                                    }
+                                                                    @if (action.icon.svg && action.icon.svg != '') {
+                                                                        <div [svg]="action.icon.svg"
+                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                    }
+                                                                    @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                        <div svg [svgPath]="action.icon.svgPath"
+                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                    }
+                                                                </a>
+                                                            }
+
                                                         }
-                                                    </a>
-}
-                                                
-}
-                                            </mat-menu>
-                                        
-}
-                                        @case ('pipe') {
+                                                    </mat-menu>
 
-                                            <span [innerHTML]="getDynamicPipeValue(mpps,mpps_table)"></span>
+                                                }
+                                                @case ('pipe') {
 
-                                            <!--                            <ng-container *ngIf="mpps_table.pathToValue">
-                                                                            {{_.get(mpps.attrs,mpps_table.pathToValue) | dynamicPipe:mpps_table.pipe}}
-                                                                        </ng-container>
-                                                                        <ng-container *ngIf="!mpps_table.pathToValue">
-                                                                            {{mpps.attrs | dynamicPipe:mpps_table.pipe}}
-                                                                        </ng-container>-->
-                                        
-}
-                                        @case ('value') {
-{{_.get(mpps.attrs, mpps_table.pathToValue) || '&nbsp;'}}
-}
+                                                    <span [innerHTML]="getDynamicPipeValue(mpps,mpps_table)"></span>
+
+                                                    <!--                            <ng-container *ngIf="mpps_table.pathToValue">
+                                                                                    {{_.get(mpps.attrs,mpps_table.pathToValue) | dynamicPipe:mpps_table.pipe}}
+                                                                                </ng-container>
+                                                                                <ng-container *ngIf="!mpps_table.pathToValue">
+                                                                                    {{mpps.attrs | dynamicPipe:mpps_table.pipe}}
+                                                                                </ng-container>-->
+
+                                                }
+                                                @case ('value') {
+                                                    {{ _.get(mpps.attrs, mpps_table.pathToValue) || '&nbsp;' }}
+                                                }
+                                            }
+                                        </div>
                                     }
-</div>
-                                }
-                                @if (mpps.showAttributes) {
-<attribute-list [attrs]="mpps.attrs"></attribute-list>
-}
+                                    @if (mpps.showAttributes) {
+                                        <attribute-list [attrs]="mpps.attrs"></attribute-list>
+                                    }
+                                </div>
                             </div>
-                        </div>
-}
+                        }
                     </div>
                 }
                 <!--mpps 2:END;-->
                 <!--diff 2:-->
                 @if (patient.showDiffs) {
-<div class="study_main_block">
-                    @for (diff of patient.diffs; track diff; let i = $index) {
-<div class="tr" [ngClass]="config?.cssTrClass">
-                        <div class="diff_block table_item" (mouseenter)="hover_mode = 'diff'" [ngClass]="{'selected':diff.selected}">
-                            @for (diff_table of tableSchema.diff; track diff_table) {
-<div class="td"
-                                
-                                 [ngClass]="[config?.cssTdClass || '', diff_table.type || '']"
-                                 [ngStyle]="{width: diff_table.calculatedWidth}"
-                                
-                                 (mouseenter)="active_td = diff_table.elementId"
-                                 tooltip="{{getTooltip(diff, diff_table)}}"
-                            >
-@switch (diff_table.type) {
-                                @case ('index') {
-{{diff.offset + 1}}
-}
-                                @case ('actions') {
+                    <div class="study_main_block">
+                        @for (diff of patient.diffs; track diff; let i = $index) {
+                            <div class="tr" [ngClass]="config?.cssTrClass">
+                                <div class="diff_block table_item" (mouseenter)="hover_mode = 'diff'"
+                                     [ngClass]="{'selected':diff.selected}">
+                                    @for (diff_table of tableSchema.diff; track diff_table) {
+                                        <div class="td"
 
-                                    @for (action of diff_table.actions; track action) {
+                                             [ngClass]="[config?.cssTdClass || '', diff_table.type || '']"
+                                             [ngStyle]="{width: diff_table.calculatedWidth}"
 
-                                        @if ((!action.showIf || action.showIf(diff, config))) {
-<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
-                                            @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                                            @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                                            @if(action.icon.svg && action.icon.svg != ''){
-                                                <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
-                                            }
-                                            @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                            }
-                                        </a>
-}
-                                    
-}
-                                
-}
-                                @case ('actions-menu') {
-
-                                    <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                    <mat-menu #menu="matMenu" class="diff_action_buttons" (click)="$event.stopPropagation()">
-                                        @for (action of diff_table.menu.actions; track action) {
-
-                                            @if ((!action.showIf || action.showIf(diff, config))) {
-<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(diff,'diff')" title="{{action.title || ''}}">
-                                                @if (action.icon.tag === 'span' ) {
-<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-}
-                                                @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-}
-                                                @if(action.icon.svg && action.icon.svg != ''){
-                                                    <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                             (mouseenter)="active_td = diff_table.elementId"
+                                             tooltip="{{getTooltip(diff, diff_table)}}"
+                                        >
+                                            @switch (diff_table.type) {
+                                                @case ('index') {
+                                                    {{ diff.offset + 1 }}
                                                 }
-                                                @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                    <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                                @case ('actions') {
+
+                                                    @for (action of diff_table.actions; track action) {
+
+                                                        @if ((!action.showIf || action.showIf(diff, config))) {
+                                                            <a class="pointer dicom_table_buttons"
+                                                               (click)="$event.preventDefault();action.click(diff,'diff')"
+                                                               title="{{action.title || ''}}">
+                                                                @if (action.icon.tag === 'span') {
+                                                                    <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                                                }
+                                                                @if (action.icon.tag === 'i') {
+                                                                    <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                                                }
+                                                                @if (action.icon.svg && action.icon.svg != '') {
+                                                                    <div [svg]="action.icon.svg"
+                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                }
+                                                                @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                    <div svg [svgPath]="action.icon.svgPath"
+                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                }
+                                                            </a>
+                                                        }
+
+                                                    }
+
                                                 }
-                                            </a>
-}
-                                        
-}
-                                    </mat-menu>
-                                
-}
-                                @case ('pipe') {
+                                                @case ('actions-menu') {
 
-                                    <span [innerHTML]="getDynamicPipeValue(diff,diff_table)"></span>
+                                                    <a mat-button [matMenuTriggerFor]="menu"
+                                                       class="pointer dicom_table_buttons"><span
+                                                            class="glyphicon glyphicon-option-vertical"></span></a>
+                                                    <mat-menu #menu="matMenu" class="diff_action_buttons"
+                                                              (click)="$event.stopPropagation()">
+                                                        @for (action of diff_table.menu.actions; track action) {
 
-                                    <!--                            <ng-container *ngIf="diff_table.pathToValue">
-                                                                    {{_.get(diff.attrs,diff_table.pathToValue) | dynamicPipe:diff_table.pipe}}
-                                                                </ng-container>
-                                                                <ng-container *ngIf="!diff_table.pathToValue">
-                                                                    {{diff.attrs | dynamicPipe:diff_table.pipe}}
-                                                                </ng-container>-->
-                                
-}
-                                @case ('value') {
+                                                            @if ((!action.showIf || action.showIf(diff, config))) {
+                                                                <a class="pointer dicom_table_buttons"
+                                                                   (click)="$event.preventDefault();action.click(diff,'diff')"
+                                                                   title="{{action.title || ''}}">
+                                                                    @if (action.icon.tag === 'span') {
+                                                                        <span class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</span>
+                                                                    }
+                                                                    @if (action.icon.tag === 'i') {
+                                                                        <i class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</i>
+                                                                    }
+                                                                    @if (action.icon.svg && action.icon.svg != '') {
+                                                                        <div [svg]="action.icon.svg"
+                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                    }
+                                                                    @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                        <div svg [svgPath]="action.icon.svgPath"
+                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                    }
+                                                                </a>
+                                                            }
 
-                                    @if (_.get(diff.diffHeaders, diff_table.showBorderPath)) {
+                                                        }
+                                                    </mat-menu>
 
-                                        <span class="red_border">{{_.get(diff.diffHeaders, diff_table.pathToValue) || '&nbsp;'}}</span>
-                                    
-}
-                                    @if (!_.get(diff.diffHeaders, diff_table.showBorderPath)) {
+                                                }
+                                                @case ('pipe') {
 
-                                        {{_.get(diff.diffHeaders, diff_table.pathToValue) || '&nbsp;'}}
-                                    
-}
-                                
-}
-                            }
-</div>
-}
-                            @if (diff.showAttributes) {
-<attribute-list [attrs]="diff.attrs"></attribute-list>
-}
-                        </div>
-                    </div>
-}
-                    @if (patient.diffs && patient.diffs.length > 0 && patient.diffs[0].showPaginations) {
-<div class="tr">
-                        <div class="instance_block table_item">
-                            <div class="td td_with_centered_child">
-                                <div class="centered_child">
-                                    <button
-                                            title="Preview page of studies"
-                                            class="transparent_button"
-                                            (click)="paginationClick(patient, 'diff', 'prev')"
-                                    ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
-                                    <button
-                                            title="Next page of studies"
-                                            class="transparent_button"
-                                            (click)="paginationClick(patient, 'diff', 'next')"
-                                    ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                                                    <span [innerHTML]="getDynamicPipeValue(diff,diff_table)"></span>
+
+                                                    <!--                            <ng-container *ngIf="diff_table.pathToValue">
+                                                                                    {{_.get(diff.attrs,diff_table.pathToValue) | dynamicPipe:diff_table.pipe}}
+                                                                                </ng-container>
+                                                                                <ng-container *ngIf="!diff_table.pathToValue">
+                                                                                    {{diff.attrs | dynamicPipe:diff_table.pipe}}
+                                                                                </ng-container>-->
+
+                                                }
+                                                @case ('value') {
+
+                                                    @if (_.get(diff.diffHeaders, diff_table.showBorderPath)) {
+
+                                                        <span class="red_border">{{ _.get(diff.diffHeaders, diff_table.pathToValue) || '&nbsp;' }}</span>
+
+                                                    }
+                                                    @if (!_.get(diff.diffHeaders, diff_table.showBorderPath)) {
+
+                                                        {{ _.get(diff.diffHeaders, diff_table.pathToValue) || '&nbsp;' }}
+
+                                                    }
+
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                    @if (diff.showAttributes) {
+                                        <attribute-list [attrs]="diff.attrs"></attribute-list>
+                                    }
                                 </div>
                             </div>
-                        </div>
+                        }
+                        @if (patient.diffs && patient.diffs.length > 0 && patient.diffs[0].showPaginations) {
+                            <div class="tr">
+                                <div class="instance_block table_item">
+                                    <div class="td td_with_centered_child">
+                                        <div class="centered_child">
+                                            <button
+                                                    title="Preview page of studies"
+                                                    class="transparent_button"
+                                                    (click)="paginationClick(patient, 'diff', 'prev')"
+                                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
+                                            <button
+                                                    title="Next page of studies"
+                                                    class="transparent_button"
+                                                    (click)="paginationClick(patient, 'diff', 'next')"
+                                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
-}
-                </div>
-}
+                }
                 <!--diff 2:END;-->
 
             </div>
@@ -963,348 +1085,387 @@
 }
 
 
-
 @if (patients1 && patients1.length > 0) {
-<div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass" (mouseleave)="active_td = ''">
-    <!--Headers 1:-->
-    <div class="th {{hover_mode}}" [ngClass]="config?.cssThClass" [ngStyle]="{top:config.headerTop || '186px'}">
-        @for (table of tableSchema[hover_mode]; track table) {
-<div class="td"
-            
-             [ngClass]="[config?.cssTdClass || '',(table.type != 'value' && table.type != 'pipe')?'empty_td':'not_empty_td', (table.elementId && active_td === table.elementId) ? 'active':'', table.type || '']"
-             [ngStyle]="{width: table.calculatedWidth}"
-        >
-            @if (table.type === 'value' || table.type === 'pipe') {
-{{table.header}}
-}
-            @if (!(table.type === 'value' || table.type === 'pipe')) {
-&nbsp;
-}
+    <div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass" (mouseleave)="active_td = ''">
+        <!--Headers 1:-->
+        <div class="th {{hover_mode}}" [ngClass]="config?.cssThClass" [ngStyle]="{top:config.headerTop || '186px'}">
+            @for (table of tableSchema[hover_mode]; track table) {
+                <div class="td"
+
+                     [ngClass]="[config?.cssTdClass || '',(table.type != 'value' && table.type != 'pipe')?'empty_td':'not_empty_td', (table.elementId && active_td === table.elementId) ? 'active':'', table.type || '']"
+                     [ngStyle]="{width: table.calculatedWidth}"
+                >
+                    @if (table.type === 'value' || table.type === 'pipe') {
+                        {{ table.header }}
+                    }
+                    @if (!(table.type === 'value' || table.type === 'pipe')) {
+                        &nbsp;
+                    }
+                </div>
+            }
         </div>
-}
-    </div>
-    <!--1:END;-->
+        <!--1:END;-->
 
-    @for (patient of patients1|searchDicom:searchList; track patient; let i = $index) {
-<div class="tr" [ngClass]="config?.cssTrClass">
-        @if (patient.showStudies) {
-<div class="study_main_block">
-            @for (study of patient.studies; track study; let i = $index) {
-<div class="tr" [ngClass]="config?.cssTrClass">
-                <!--Series 3:-->
-                @if (study.showSeries) {
-<div class="series_main_block">
-                    @for (serie of study.series; track serie; let i = $index) {
-<div class="tr" [ngClass]="config?.cssTrClass">
-                        <div class="series_block table_item" (mouseenter)="hover_mode = 'series'" [ngClass]="{'selected':serie.selected}">
-                            @for (serie_table of tableSchema.series; track serie_table) {
-<div class="td"
-                                
-                                 [ngClass]="[config?.cssTdClass || '', serie_table.cssClass || '', serie_table.type || '']"
-                                 [ngStyle]="{width: serie_table.calculatedWidth}"
-                                
-                                 (mouseenter)="active_td = serie_table.elementId"
-                                 tooltip="{{getTooltip(serie, serie_table)}}"
-                            >
-@switch (serie_table.type) {
-                                @case ('index') {
-{{serie.offset + 1}}
-}
-                                @case ('actions') {
+        @for (patient of patients1|searchDicom:searchList; track patient; let i = $index) {
+            <div class="tr" [ngClass]="config?.cssTrClass">
+                @if (patient.showStudies) {
+                    <div class="study_main_block">
+                        @for (study of patient.studies; track study; let i = $index) {
+                            <div class="tr" [ngClass]="config?.cssTrClass">
+                                <!--Series 3:-->
+                                @if (study.showSeries) {
+                                    <div class="series_main_block">
+                                        @for (serie of study.series; track serie; let i = $index) {
+                                            <div class="tr" [ngClass]="config?.cssTrClass">
+                                                <div class="series_block table_item"
+                                                     (mouseenter)="hover_mode = 'series'"
+                                                     [ngClass]="{'selected':serie.selected}">
+                                                    @for (serie_table of tableSchema.series; track serie_table) {
+                                                        <div class="td"
 
-                                    <!--                                    <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
-                                                                            <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
-                                                                            <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
-                                                                        </button>-->
-                                    @for (action of serie_table.actions; track action) {
+                                                             [ngClass]="[config?.cssTdClass || '', serie_table.cssClass || '', serie_table.type || '']"
+                                                             [ngStyle]="{width: serie_table.calculatedWidth}"
 
-                                        @if ((!action.showIf || action.showIf(serie, config))) {
-<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
-                                            @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                                            @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                                            @if(action.icon.svg && action.icon.svg != ''){
-                                                <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
-                                            }
-                                            @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                            }
-                                        </a>
-}
-                                    
-}
-                                
-}
-                                @case ('actions-menu') {
+                                                             (mouseenter)="active_td = serie_table.elementId"
+                                                             tooltip="{{getTooltip(serie, serie_table)}}"
+                                                        >
+                                                            @switch (serie_table.type) {
+                                                                @case ('index') {
+                                                                    {{ serie.offset + 1 }}
+                                                                }
+                                                                @case ('actions') {
 
-                                    <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                    <mat-menu #menu="matMenu" class="study_action_buttons series">
-                                        <!--                                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
-                                                                                    <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
-                                                                                    <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
-                                                                                </button>-->
-                                        @for (action of serie_table.menu.actions; track action) {
+                                                                    <!--                                    <button class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
+                                                                                                            <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                                                                            <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
+                                                                                                        </button>-->
+                                                                    @for (action of serie_table.actions; track action) {
 
-                                            @if ((!action.showIf || action.showIf(serie, config))) {
-<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(serie,'series')" title="{{action.title || ''}}">
-                                                @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-}
-                                                @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-}
-                                                @if(action.icon.svg && action.icon.svg != ''){
-                                                    <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
-                                                }
-                                                @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                    <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
-                                                }
-                                            </a>
-}
-                                        
-}
-                                    </mat-menu>
-                                
-}
-                                @case ('pipe') {
+                                                                        @if ((!action.showIf || action.showIf(serie, config))) {
+                                                                            <a class="pointer dicom_table_buttons"
+                                                                               (click)="$event.preventDefault();action.click(serie,'series')"
+                                                                               title="{{action.title || ''}}">
+                                                                                @if (action.icon.tag === 'span') {
+                                                                                    <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                                                                }
+                                                                                @if (action.icon.tag === 'i') {
+                                                                                    <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                                                                }
+                                                                                @if (action.icon.svg && action.icon.svg != '') {
+                                                                                    <div [svg]="action.icon.svg"
+                                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                                }
+                                                                                @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                                    <div svg
+                                                                                         [svgPath]="action.icon.svgPath"
+                                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                                }
+                                                                            </a>
+                                                                        }
 
-                                    <span [innerHTML]="getDynamicPipeValue(serie,serie_table)"></span>
+                                                                    }
 
-<!--                                    <ng-container *ngIf="serie_table.pathToValue">
-                                        {{_.get(serie.attrs,serie_table.pathToValue) | dynamicPipe:serie_table.pipe}}
-                                    </ng-container>
-                                    <ng-container *ngIf="!serie_table.pathToValue">
-                                        {{serie.attrs | dynamicPipe:serie_table.pipe}}
-                                    </ng-container>-->
-                                
-}
-                                @case ('value') {
+                                                                }
+                                                                @case ('actions-menu') {
 
-                                    @if (!serie_table.hook) {
+                                                                    <a mat-button [matMenuTriggerFor]="menu"
+                                                                       class="pointer dicom_table_buttons"><span
+                                                                            class="glyphicon glyphicon-option-vertical"></span></a>
+                                                                    <mat-menu #menu="matMenu"
+                                                                              class="study_action_buttons series">
+                                                                        <!--                                        <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="serie.selected = !serie.selected">
+                                                                                                                    <span *ngIf="!serie.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                                                                                    <span *ngIf="serie.selected" class="glyphicon glyphicon-check"></span>
+                                                                                                                </button>-->
+                                                                        @for (action of serie_table.menu.actions; track action) {
 
-                                        {{_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;'}}
-                                    
-}
-                                    @if (serie_table.hook) {
+                                                                            @if ((!action.showIf || action.showIf(serie, config))) {
+                                                                                <a class="pointer dicom_table_buttons"
+                                                                                   (click)="$event.preventDefault();action.click(serie,'series')"
+                                                                                   title="{{action.title || ''}}">
+                                                                                    @if (action.icon.tag === 'span') {
+                                                                                        <span class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</span>
+                                                                                    }
+                                                                                    @if (action.icon.tag === 'i') {
+                                                                                        <i class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</i>
+                                                                                    }
+                                                                                    @if (action.icon.svg && action.icon.svg != '') {
+                                                                                        <div [svg]="action.icon.svg"
+                                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                                    }
+                                                                                    @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                                        <div svg
+                                                                                             [svgPath]="action.icon.svgPath"
+                                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                                    }
+                                                                                </a>
+                                                                            }
 
-                                        {{serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs,serie_table.pathToValue, serie)}}
-                                    
-}
-                                
-}
-                            }
-</div>
-}
-                            @if (serie.showAttributes) {
-<attribute-list [attrs]="serie.attrs"></attribute-list>
-}
-                        </div>
+                                                                        }
+                                                                    </mat-menu>
 
-                        <!--Instance 4:-->
-                        @if (serie.showInstances) {
-<div class="instance_main_block">
-                            @for (instance of serie.instances; track instance; let i = $index) {
-<div class="tr" [ngClass]="config?.cssTrClass">
-                                <div class="instance_block table_item" (mouseenter)="hover_mode = 'instance'" [ngClass]="{'selected':instance.selected}">
-                                    @for (instance_table of tableSchema.instance; track instance_table) {
-<div class="td"
-                                        
-                                         [ngClass]="[config?.cssTdClass || '', instance_table.cssClass || '', instance_table.type || '']"
-                                         [ngStyle]="{width: instance_table.calculatedWidth}"
-                                        
-                                         (mouseenter)="active_td = instance_table.elementId"
-                                         tooltip="{{getTooltip(instance, instance_table)}}"
-                                    >
-@switch (instance_table.type) {
-                                        @case ('index') {
-{{instance.offset + 1}}
-}
-                                        <!--                                        <ng-container *ngSwitchCase="'selected-checkbox'">
-                                                                                    <a class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
-                                                                                        <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
-                                                                                        <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
-                                                                                    </a>
-                                                                                </ng-container>-->
-                                        @case ('actions') {
+                                                                }
+                                                                @case ('pipe') {
 
-                                            @for (action of instance_table.actions; track action) {
+                                                                    <span [innerHTML]="getDynamicPipeValue(serie,serie_table)"></span>
 
-                                                @if ((!action.showIf || action.showIf(instance, config))) {
-<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
-                                                    @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                                                    @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                                                    @if(action.icon.svg && action.icon.svg != ''){
-                                                        <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                                    <!--                                    <ng-container *ngIf="serie_table.pathToValue">
+                                                                                                            {{_.get(serie.attrs,serie_table.pathToValue) | dynamicPipe:serie_table.pipe}}
+                                                                                                        </ng-container>
+                                                                                                        <ng-container *ngIf="!serie_table.pathToValue">
+                                                                                                            {{serie.attrs | dynamicPipe:serie_table.pipe}}
+                                                                                                        </ng-container>-->
+
+                                                                }
+                                                                @case ('value') {
+
+                                                                    @if (!serie_table.hook) {
+
+                                                                        {{ _.get(serie.attrs, serie_table.pathToValue) || '&nbsp;' }}
+
+                                                                    }
+                                                                    @if (serie_table.hook) {
+
+                                                                        {{ serie_table.hook(_.get(serie.attrs, serie_table.pathToValue) || '&nbsp;', serie.attrs, serie_table.pathToValue, serie) }}
+
+                                                                    }
+
+                                                                }
+                                                            }
+                                                        </div>
                                                     }
-                                                    @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                        <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                                    @if (serie.showAttributes) {
+                                                        <attribute-list [attrs]="serie.attrs"></attribute-list>
                                                     }
-                                                </a>
-}
-                                            
-}
-                                        
-}
-                                        @case ('actions-menu') {
+                                                </div>
 
-                                            <a mat-button [matMenuTriggerFor]="menu" class="pointer dicom_table_buttons" ><span class="glyphicon glyphicon-option-vertical"></span></a>
-                                            <mat-menu #menu="matMenu" class="study_action_buttons instance">
-                                                <!--                                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
-                                                                                                    <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
-                                                                                                    <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
-                                                                                                </button>-->
-                                                @for (action of instance_table.menu.actions; track action) {
+                                                <!--Instance 4:-->
+                                                @if (serie.showInstances) {
+                                                    <div class="instance_main_block">
+                                                        @for (instance of serie.instances; track instance; let i = $index) {
+                                                            <div class="tr" [ngClass]="config?.cssTrClass">
+                                                                <div class="instance_block table_item"
+                                                                     (mouseenter)="hover_mode = 'instance'"
+                                                                     [ngClass]="{'selected':instance.selected}">
+                                                                    @for (instance_table of tableSchema.instance; track instance_table) {
+                                                                        <div class="td"
 
-                                                    @if ((!action.showIf || action.showIf(instance, config))) {
-<a class="pointer dicom_table_buttons" (click)="$event.preventDefault();action.click(instance,'instance')" title="{{action.title || ''}}">
-                                                        @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</span>
-}
-                                                        @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}} menu_icon">{{action.icon.text||''}}</i>
-}
-                                                        @if(action.icon.svg && action.icon.svg != ''){
-                                                            <div [svg]="action.icon.svg" class="{{action.icon.cssClass||''}}"></div>
+                                                                             [ngClass]="[config?.cssTdClass || '', instance_table.cssClass || '', instance_table.type || '']"
+                                                                             [ngStyle]="{width: instance_table.calculatedWidth}"
+
+                                                                             (mouseenter)="active_td = instance_table.elementId"
+                                                                             tooltip="{{getTooltip(instance, instance_table)}}"
+                                                                        >
+                                                                            @switch (instance_table.type) {
+                                                                                @case ('index') {
+                                                                                    {{ instance.offset + 1 }}
+                                                                                }
+                                                                                <!--                                        <ng-container *ngSwitchCase="'selected-checkbox'">
+                                                                                                                            <a class="pointer dicom_table_buttons" *ngIf="config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
+                                                                                                                                <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                                                                                                <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
+                                                                                                                            </a>
+                                                                                                                        </ng-container>-->
+                                                                                @case ('actions') {
+
+                                                                                    @for (action of instance_table.actions; track action) {
+
+                                                                                        @if ((!action.showIf || action.showIf(instance, config))) {
+                                                                                            <a class="pointer dicom_table_buttons"
+                                                                                               (click)="$event.preventDefault();action.click(instance,'instance')"
+                                                                                               title="{{action.title || ''}}">
+                                                                                                @if (action.icon.tag === 'span') {
+                                                                                                    <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                                                                                }
+                                                                                                @if (action.icon.tag === 'i') {
+                                                                                                    <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                                                                                }
+                                                                                                @if (action.icon.svg && action.icon.svg != '') {
+                                                                                                    <div [svg]="action.icon.svg"
+                                                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                                                }
+                                                                                                @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                                                    <div svg
+                                                                                                         [svgPath]="action.icon.svgPath"
+                                                                                                         class="{{action.icon.cssClass||''}}"></div>
+                                                                                                }
+                                                                                            </a>
+                                                                                        }
+
+                                                                                    }
+
+                                                                                }
+                                                                                @case ('actions-menu') {
+
+                                                                                    <a mat-button
+                                                                                       [matMenuTriggerFor]="menu"
+                                                                                       class="pointer dicom_table_buttons"><span
+                                                                                            class="glyphicon glyphicon-option-vertical"></span></a>
+                                                                                    <mat-menu #menu="matMenu"
+                                                                                              class="study_action_buttons instance">
+                                                                                        <!--                                                <button class="pointer dicom_table_buttons" *ngIf="!config.showCheckboxes" title="Select" (click)="instance.selected = !instance.selected">
+                                                                                                                                            <span *ngIf="!instance.selected" class="glyphicon glyphicon-unchecked"></span>
+                                                                                                                                            <span *ngIf="instance.selected" class="glyphicon glyphicon-check"></span>
+                                                                                                                                        </button>-->
+                                                                                        @for (action of instance_table.menu.actions; track action) {
+
+                                                                                            @if ((!action.showIf || action.showIf(instance, config))) {
+                                                                                                <a class="pointer dicom_table_buttons"
+                                                                                                   (click)="$event.preventDefault();action.click(instance,'instance')"
+                                                                                                   title="{{action.title || ''}}">
+                                                                                                    @if (action.icon.tag === 'span') {
+                                                                                                        <span class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</span>
+                                                                                                    }
+                                                                                                    @if (action.icon.tag === 'i') {
+                                                                                                        <i class="{{action.icon.cssClass||''}} menu_icon">{{ action.icon.text || '' }}</i>
+                                                                                                    }
+                                                                                                    @if (action.icon.svg && action.icon.svg != '') {
+                                                                                                        <div [svg]="action.icon.svg"
+                                                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                                                    }
+                                                                                                    @if (action.icon.svgPath && action.icon.svgPath != '') {
+                                                                                                        <div svg
+                                                                                                             [svgPath]="action.icon.svgPath"
+                                                                                                             class="{{action.icon.cssClass||''}}"></div>
+                                                                                                    }
+                                                                                                </a>
+                                                                                            }
+
+                                                                                        }
+                                                                                    </mat-menu>
+
+                                                                                }
+                                                                                @case ('pipe') {
+
+                                                                                    <span [innerHTML]="getDynamicPipeValue(instance,instance_table)"></span>
+
+                                                                                    <!--                                         <ng-container *ngIf="instance_table.pathToValue">
+                                                                                                                                 {{_.get(instance.attrs,instance_table.pathToValue) | dynamicPipe:instance_table.pipe}}
+                                                                                                                             </ng-container>
+                                                                                                                             <ng-container *ngIf="!instance_table.pathToValue">
+                                                                                                                                 {{instance.attrs | dynamicPipe:instance_table.pipe}}
+                                                                                                                             </ng-container>-->
+
+                                                                                }
+                                                                                @case ('value') {
+
+                                                                                    @if (!instance_table.hook) {
+
+                                                                                        {{ _.get(instance.attrs, instance_table.pathToValue) || '&nbsp;' }}
+
+                                                                                    }
+                                                                                    @if (instance_table.hook) {
+
+                                                                                        {{ instance_table.hook(_.get(instance.attrs, instance_table.pathToValue) || '&nbsp;', instance.attrs, instance_table.pathToValue, instance) }}
+
+                                                                                    }
+
+                                                                                }
+                                                                            }
+                                                                        </div>
+                                                                    }
+                                                                    @if (instance.showAttributes) {
+                                                                        <attribute-list
+                                                                                [attrs]="instance.attrs"></attribute-list>
+                                                                    }
+                                                                    @if (instance.showFileAttributes) {
+                                                                        <attribute-list
+
+                                                                                [studyWebService]="studyWebService"
+                                                                                [studyuid]="instance.wadoQueryParams.studyUID"
+                                                                                [seriesuid]="instance.wadoQueryParams.seriesUID"
+                                                                                [objectuid]="instance.wadoQueryParams.objectUID">
+                                                                        </attribute-list>
+                                                                    }
+                                                                </div>
+                                                            </div>
                                                         }
-                                                        @if(action.icon.svgPath && action.icon.svgPath != ''){
-                                                            <div svg [svgPath]="action.icon.svgPath" class="{{action.icon.cssClass||''}}"></div>
+                                                        @if (serie.instances && serie.instances.length > 0 && serie.instances[0].showPaginations) {
+                                                            <div class="tr">
+                                                                <div class="instance_block table_item">
+                                                                    <div class="td td_with_centered_child">
+                                                                        <div class="centered_child">
+                                                                            <button
+                                                                                    title="Preview page of instances"
+                                                                                    class="transparent_button"
+                                                                                    (click)="paginationClick(serie, 'instance', 'prev')"
+                                                                                    [disabled]="serie.instances[0].offset === 0"
+                                                                            >
+                                                                                <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+                                                                            </button>
+                                                                            <button
+                                                                                    title="Next page of instances"
+                                                                                    class="transparent_button"
+                                                                                    (click)="paginationClick(serie, 'instance', 'next')"
+                                                                                    [disabled]="!serie.instances[0].hasMore"
+                                                                            >
+                                                                                <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         }
-                                                    </a>
-}
-                                                
-}
-                                            </mat-menu>
-                                        
-}
-                                        @case ('pipe') {
-
-                                            <span [innerHTML]="getDynamicPipeValue(instance,instance_table)"></span>
-
-   <!--                                         <ng-container *ngIf="instance_table.pathToValue">
-                                                {{_.get(instance.attrs,instance_table.pathToValue) | dynamicPipe:instance_table.pipe}}
-                                            </ng-container>
-                                            <ng-container *ngIf="!instance_table.pathToValue">
-                                                {{instance.attrs | dynamicPipe:instance_table.pipe}}
-                                            </ng-container>-->
-                                        
-}
-                                        @case ('value') {
-
-                                            @if (!instance_table.hook) {
-
-                                                {{_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;'}}
-                                            
-}
-                                            @if (instance_table.hook) {
-
-                                                {{instance_table.hook(_.get(instance.attrs,instance_table.pathToValue) || '&nbsp;', instance.attrs, instance_table.pathToValue, instance)}}
-                                            
-}
-                                        
-}
-                                    }
-</div>
-}
-                                    @if (instance.showAttributes) {
-<attribute-list [attrs]="instance.attrs"></attribute-list>
-}
-                                    @if (instance.showFileAttributes) {
-<attribute-list
-                                           
-                                            [studyWebService]="studyWebService"
-                                            [studyuid]="instance.wadoQueryParams.studyUID"
-                                            [seriesuid]="instance.wadoQueryParams.seriesUID"
-                                            [objectuid]="instance.wadoQueryParams.objectUID">
-                                    </attribute-list>
-}
-                                </div>
+                                                    </div>
+                                                }
+                                                <!--4:END;-->
+                                            </div>
+                                        }
+                                        @if (study.series && study.series.length > 0 && study.series[0].showPaginations) {
+                                            <div class="tr">
+                                                <div class="series_block table_item">
+                                                    <div class="td td_with_centered_child">
+                                                        <div class="centered_child">
+                                                            <button
+                                                                    title="Preview page of series"
+                                                                    class="transparent_button"
+                                                                    (click)="paginationClick(study, 'series', 'prev')"
+                                                                    [disabled]="study.series[0].offset === 0"
+                                                            >
+                                                                <span class="glyphicon glyphicon glyphicon-chevron-left"></span>
+                                                            </button>
+                                                            <button
+                                                                    title="Next page of series"
+                                                                    class="transparent_button"
+                                                                    (click)="paginationClick(study, 'series', 'next')"
+                                                                    [disabled]="!study.series[0].hasMore"
+                                                            >
+                                                                <span class="glyphicon glyphicon glyphicon-chevron-right"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                <!--3:END;-->
                             </div>
-}
-                            @if (serie.instances && serie.instances.length > 0 && serie.instances[0].showPaginations) {
-<div class="tr">
+                        }
+                        @if (patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations) {
+                            <div class="tr">
                                 <div class="instance_block table_item">
                                     <div class="td td_with_centered_child">
                                         <div class="centered_child">
                                             <button
-                                                    title="Preview page of instances"
+                                                    title="Preview page of studies"
                                                     class="transparent_button"
-                                                    (click)="paginationClick(serie, 'instance', 'prev')"
-                                                    [disabled]="serie.instances[0].offset === 0"
+                                                    (click)="paginationClick(patient, 'study', 'prev')"
                                             ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
                                             <button
-                                                    title="Next page of instances"
+                                                    title="Next page of studies"
                                                     class="transparent_button"
-                                                    (click)="paginationClick(serie, 'instance', 'next')"
-                                                    [disabled]="!serie.instances[0].hasMore"
+                                                    (click)="paginationClick(patient, 'study', 'next')"
                                             ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-}
-                        </div>
-}
-                        <!--4:END;-->
+                        }
                     </div>
-}
-                    @if (study.series && study.series.length > 0 && study.series[0].showPaginations) {
-<div class="tr">
-                        <div class="series_block table_item">
-                            <div class="td td_with_centered_child">
-                                <div class="centered_child">
-                                    <button
-                                            title="Preview page of series"
-                                            class="transparent_button"
-                                            (click)="paginationClick(study, 'series', 'prev')"
-                                            [disabled]="study.series[0].offset === 0"
-                                    ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
-                                    <button
-                                            title="Next page of series"
-                                            class="transparent_button"
-                                            (click)="paginationClick(study, 'series', 'next')"
-                                            [disabled]="!study.series[0].hasMore"
-                                    ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-}
-                </div>
-}
-                <!--3:END;-->
+                }
+                <!--2:END;-->
             </div>
-}
-            @if (patient.studies && patient.studies.length > 0 && patient.studies[0].showPaginations) {
-<div class="tr">
-                <div class="instance_block table_item">
-                    <div class="td td_with_centered_child">
-                        <div class="centered_child">
-                            <button
-                                    title="Preview page of studies"
-                                    class="transparent_button"
-                                    (click)="paginationClick(patient, 'study', 'prev')"
-                            ><span class="glyphicon glyphicon glyphicon-chevron-left"></span></button>
-                            <button
-                                    title="Next page of studies"
-                                    class="transparent_button"
-                                    (click)="paginationClick(patient, 'study', 'next')"
-                            ><span class="glyphicon glyphicon glyphicon-chevron-right"></span></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-}
-        </div>
-}
-        <!--2:END;-->
+        }
     </div>
-}
-</div>
 }

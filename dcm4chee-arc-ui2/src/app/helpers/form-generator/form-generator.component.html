@@ -1,178 +1,178 @@
-
 <!--
 <form #form="ngForm" (ngSubmit)="onSubmit(form)">
 -->
-    @for (element of schema; track element) {
-<div class="form_block" [ngClass]="{'label_mode':showLabels}">
+@for (element of schema; track element) {
+    <div class="form_block" [ngClass]="{'label_mode':showLabels}">
         @if (showLabels) {
 
-            <label>{{element.label || element.placeholder || element.description}}</label>
-        
-}
-        
-@switch (element.type) {
+            <label>{{ element.label || element.placeholder || element.description }}</label>
+
+        }
+
+        @switch (element.type) {
             @case ('multi-checkbox') {
 
                 <!--options:{{line[index]?.options|json}}-->
                 @for (item of element.options; track item) {
-<label>
-                    <input [disabled]="item.disabled" type="checkbox" (ngModelChange)="modelChange(element, $event)" [(ngModel)]="model[item.key]"  title="{{item?.description}}" />
-                    <span [ngStyle]="item?.style" >{{item.text}}</span>
-                </label>
-}
-            
-}
+                    <label>
+                        <input [disabled]="item.disabled" type="checkbox" (ngModelChange)="modelChange(element, $event)"
+                               [(ngModel)]="model[item.key]" title="{{item?.description}}"/>
+                        <span [ngStyle]="item?.style">{{ item.text }}</span>
+                    </label>
+                }
+
+            }
             @case ('input') {
-<input
-                   
-                    [disabled]="element.disabled"
-                    (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
-                    [ngModel]="_.get(model,element.modelPath)"
-                    [ngModelOptions]="{standalone: true}"
-                    (focusout)="focusOut(element, $event);"
-                    [name]="element.modelPath"
-                    type="text"
-                    [ngStyle]="element.style"
-                    title="{{element?.description}}"
-                    placeholder="{{element?.placeholder}}"
-            >
-}
+                <input
+
+                        [disabled]="element.disabled"
+                        (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                        [ngModel]="_.get(model,element.modelPath)"
+                        [ngModelOptions]="{standalone: true}"
+                        (focusout)="focusOut(element, $event);"
+                        [name]="element.modelPath"
+                        type="text"
+                        [ngStyle]="element.style"
+                        title="{{element?.description}}"
+                        placeholder="{{element?.placeholder}}"
+                >
+            }
             @case ('input-number') {
-<input
-                   
-                    [disabled]="element.disabled"
-                    (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
-                    [ngModel]="_.get(model,element.modelPath)"
-                    [ngModelOptions]="{standalone: true}"
-                    (focusout)="focusOut(element, $event);"
-                    type="number"
-                    [ngStyle]="element.style"
-                    title="{{element?.description}}"
-                    placeholder="{{element?.placeholder}}"
-            >
-}
+                <input
+
+                        [disabled]="element.disabled"
+                        (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                        [ngModel]="_.get(model,element.modelPath)"
+                        [ngModelOptions]="{standalone: true}"
+                        (focusout)="focusOut(element, $event);"
+                        type="number"
+                        [ngStyle]="element.style"
+                        title="{{element?.description}}"
+                        placeholder="{{element?.placeholder}}"
+                >
+            }
             @case ('composed-input') {
-<composed-input
-                   
-                   [inputSize]="element.inputSize"
-                    [placeholderElements]="element.placeholderElements"
-                   [joinString]="element.joinString"
-                    [model]="_.get(model,element.modelPath)"
-                   (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
-                   placeholder="{{element?.placeholder || element?.description}}"
-                   title="{{element?.description}}"
-            >
-            </composed-input>
-}
+                <composed-input
+
+                        [inputSize]="element.inputSize"
+                        [placeholderElements]="element.placeholderElements"
+                        [joinString]="element.joinString"
+                        [model]="_.get(model,element.modelPath)"
+                        (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                        placeholder="{{element?.placeholder || element?.description}}"
+                        title="{{element?.description}}"
+                >
+                </composed-input>
+            }
         }
 
-        
-@switch (element.tag) {
+
+        @switch (element.tag) {
             @case ('issuer-selector') {
-<issuer-selector
-                             [title]="element?.description"
-                             [issuers]="element?.issuers"
-                             placeholder="{{element?.placeholder || element?.description}}"
-                             (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
-                             [ngModel]="_.get(model,element.modelPath)"
-            ></issuer-selector>
-}
+                <issuer-selector
+                        [title]="element?.description"
+                        [issuers]="element?.issuers"
+                        placeholder="{{element?.placeholder || element?.description}}"
+                        (ngModelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                        [ngModel]="_.get(model,element.modelPath)"
+                ></issuer-selector>
+            }
             @case ('p-calendar') {
-<range-picker
-                   
-                    [ngStyle]="element.style"
-                    [onlyDate]="element.onlyDate"
-                    [model]="_.get(model,element.modelPath)"
-                    (modelChange)="dateChanged(element, $event)"
-                    [datePickerMode]="true"
-                    placeholder="{{element?.placeholder || element?.description}}"
-                    dateFormat="yyyyMMdd"
-                    title="{{element?.description}}"
-            ></range-picker>
-}
+                <range-picker
+
+                        [ngStyle]="element.style"
+                        [onlyDate]="element.onlyDate"
+                        [model]="_.get(model,element.modelPath)"
+                        (modelChange)="dateChanged(element, $event)"
+                        [datePickerMode]="true"
+                        placeholder="{{element?.placeholder || element?.description}}"
+                        dateFormat="yyyyMMdd"
+                        title="{{element?.description}}"
+                ></range-picker>
+            }
             @case ('editable-select') {
-<dcm-drop-down
-                    [ngStyle]="element.style"
-                   
-                    [placeholder]="element?.placeholder"
-                    [title]="element?.description || ''"
-                    [ngClass]="element.cssClass"
-                    [options]="element.options"
-                    [optionsTree]="element.optionsTree"
-                    [editable]="true"
-                    [showSearchField]="true"
-                    (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
-                    [model]="_.get(model,element.modelPath)"
-                    [multiSelectMode]="false"
-                    [showStar]="element.showStar"
-            ></dcm-drop-down>
-}
+                <dcm-drop-down
+                        [ngStyle]="element.style"
+
+                        [placeholder]="element?.placeholder"
+                        [title]="element?.description || ''"
+                        [ngClass]="element.cssClass"
+                        [options]="element.options"
+                        [optionsTree]="element.optionsTree"
+                        [editable]="true"
+                        [showSearchField]="true"
+                        (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                        [model]="_.get(model,element.modelPath)"
+                        [multiSelectMode]="false"
+                        [showStar]="element.showStar"
+                ></dcm-drop-down>
+            }
             @case ('editable-multi-select') {
-<dcm-drop-down
-                    [ngStyle]="element.style"
-                   
-                    [placeholder]="element?.placeholder || ''"
-                    [title]="element?.description || ''"
-                    [ngClass]="element.cssClass"
-                    [options]="element.options"
-                    [optionsTree]="element.optionsTree"
-                    [editable]="true"
-                    [showSearchField]="true"
-                    (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
-                    [model]="_.get(model,element.modelPath)"
-                    [multiSelectMode]="true"
-                    [showStar]="element.showStar"
-            ></dcm-drop-down>
-}
+                <dcm-drop-down
+                        [ngStyle]="element.style"
+
+                        [placeholder]="element?.placeholder || ''"
+                        [title]="element?.description || ''"
+                        [ngClass]="element.cssClass"
+                        [options]="element.options"
+                        [optionsTree]="element.optionsTree"
+                        [editable]="true"
+                        [showSearchField]="true"
+                        (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                        [model]="_.get(model,element.modelPath)"
+                        [multiSelectMode]="true"
+                        [showStar]="element.showStar"
+                ></dcm-drop-down>
+            }
             @case ('multi-select') {
-<dcm-drop-down
-                    [multiSelectMode]="true"
-                    [ngStyle]="element.style"
-                   
-                    [placeholder]="element?.placeholder"
-                    [title]="element?.description || ''"
-                    [ngClass]="element.cssClass"
-                    [optionsTree]="element.optionsTree"
-                    [options]="element.options"
-                    (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
-                    [model]="_.get(model,element.modelPath)"
-                    [showSearchField]="element.showSearchField"
-                    [showStar]="element.showStar"
-            ></dcm-drop-down>
-}
+                <dcm-drop-down
+                        [multiSelectMode]="true"
+                        [ngStyle]="element.style"
+
+                        [placeholder]="element?.placeholder"
+                        [title]="element?.description || ''"
+                        [ngClass]="element.cssClass"
+                        [optionsTree]="element.optionsTree"
+                        [options]="element.options"
+                        (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                        [model]="_.get(model,element.modelPath)"
+                        [showSearchField]="element.showSearchField"
+                        [showStar]="element.showStar"
+                ></dcm-drop-down>
+            }
             @case ('html-select') {
-<dcm-drop-down
-                    [ngStyle]="element.style"
-                   
-                    [placeholder]="element?.placeholder"
-                    [title]="element?.description || ''"
-                    [ngClass]="element.cssClass"
-                    [options]="element.options"
-                    (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
-                    [model]="_.get(model,element.modelPath)"
-                    [optionsTree]="element.optionsTree"
-                    [showSearchField]="element.showSearchField"
-                    [multiSelectMode]="false"
-                    [showStar]="element.showStar"
-            ></dcm-drop-down>
-}
+                <dcm-drop-down
+                        [ngStyle]="element.style"
+
+                        [placeholder]="element?.placeholder"
+                        [title]="element?.description || ''"
+                        [ngClass]="element.cssClass"
+                        [options]="element.options"
+                        (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                        [model]="_.get(model,element.modelPath)"
+                        [optionsTree]="element.optionsTree"
+                        [showSearchField]="element.showSearchField"
+                        [multiSelectMode]="false"
+                        [showStar]="element.showStar"
+                ></dcm-drop-down>
+            }
             @case ('select') {
-<dcm-drop-down
-                    [ngStyle]="element.style"
-                   
-                    [placeholder]="element?.placeholder"
-                    [title]="element?.description || ''"
-                    [ngClass]="element.cssClass"
-                    [options]="element.options"
-                    (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
-                    [model]="_.get(model,element.modelPath)"
-                    [optionsTree]="element.optionsTree"
-                    [showSearchField]="element.showSearchField"
-                    [showSelectedEmptyValue]="element.showSelectedEmptyValue"
-                    [multiSelectMode]="false"
-                    [showStar]="element.showStar"
-            ></dcm-drop-down>
-}
+                <dcm-drop-down
+                        [ngStyle]="element.style"
+
+                        [placeholder]="element?.placeholder"
+                        [title]="element?.description || ''"
+                        [ngClass]="element.cssClass"
+                        [options]="element.options"
+                        (modelChange)="_.set(model,element.modelPath, $event);modelChange(element, $event)"
+                        [model]="_.get(model,element.modelPath)"
+                        [optionsTree]="element.optionsTree"
+                        [showSearchField]="element.showSearchField"
+                        [showSelectedEmptyValue]="element.showSelectedEmptyValue"
+                        [multiSelectMode]="false"
+                        [showStar]="element.showStar"
+                ></dcm-drop-down>
+            }
         }
 
     </div>

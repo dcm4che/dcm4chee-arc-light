@@ -1,7 +1,7 @@
 <div class="stacked_progress_container">
-  <ul>
-    @for (part of progress; track $index) {
-<li [ngClass]="part.cssClass" [ngStyle]="{'width':part.width+'%'}" title="{{part.title}}"></li>
-}
-  </ul>
+    <ul>
+        @for (part of progress; track $index) {
+            <li [ngClass]="part.cssClass" [ngStyle]="{'width':part.width+'%'}" title="{{part.title}}"></li>
+        }
+    </ul>
 </div>

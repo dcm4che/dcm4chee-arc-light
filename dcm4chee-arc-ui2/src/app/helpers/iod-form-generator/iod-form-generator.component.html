@@ -2,23 +2,24 @@
     <div (click)="removeObject(object)" class="t0 new_block glyphicon glyphicon-remove"></div>
 }
 @for (o of getKeys(object); track trackByFn(i, o); let i = $index) {
-<div class="listblock" [ngClass]="{'firstlevel':!prefix,'sq':object[o].vr === 'SQ'}">
-    @if (o !== 'newBlock') {
-        <div class="form_code">{{prefix}} {{o}}</div>
-        <div class="form_name">{{DCM4CHE.elementName.forTag(o,privateCreator(o))}}</div>
-        @if (object[o].vr === 'SQ' && !prefix && !object.newBlock) {
-<div (click)="removeAttr(o)" class="t1 iod_remove glyphicon glyphicon-remove"></div>
-}
-        @if (object[o].vr != 'SQ') {
-<div class="form_input">
-        @for (v of object[o].Value; let i=$index; track trackByFn) {
-                <div>
-                @if (object[o].vr != 'PN') {
-<div class="ariod" [ngClass]="{'iod-required-missing': isRequiredMissing(object[o], object[o].Value[i])}">
-                    @if (!(object[o].enum && object[o].enum.length > 0) && object[o].vr != 'DA' && object[o].vr != 'DT' && o != '00100040' && o != '00080005' && o != '00102203' && o != '00741202') {
-<input
-                           class="{{o}}"
-                           [placeholderchanger]="{
+    <div class="listblock" [ngClass]="{'firstlevel':!prefix,'sq':object[o].vr === 'SQ'}">
+        @if (o !== 'newBlock') {
+            <div class="form_code">{{ prefix }} {{ o }}</div>
+            <div class="form_name">{{ DCM4CHE.elementName.forTag(o, privateCreator(o)) }}</div>
+            @if (object[o].vr === 'SQ' && !prefix && !object.newBlock) {
+                <div (click)="removeAttr(o)" class="t1 iod_remove glyphicon glyphicon-remove"></div>
+            }
+            @if (object[o].vr != 'SQ') {
+                <div class="form_input">
+                    @for (v of object[o].Value; let i = $index; track trackByFn) {
+                        <div>
+                            @if (object[o].vr != 'PN') {
+                                <div class="ariod"
+                                     [ngClass]="{'iod-required-missing': isRequiredMissing(object[o], object[o].Value[i])}">
+                                    @if (!(object[o].enum && object[o].enum.length > 0) && object[o].vr != 'DA' && object[o].vr != 'DT' && o != '00100040' && o != '00080005' && o != '00102203' && o != '00741202') {
+                                        <input
+                                                class="{{o}}"
+                                                [placeholderchanger]="{
                                 code:o,
                                 name:DCM4CHE.elementName.forTag(o,privateCreator(o)),
                                 mode:mode,
@@ -28,47 +29,47 @@
                                 value:object[o].Value[i],
                                 prefix:prefix
                             }"
-                           [(ngModel)]="object[o].Value[i]"
-                                  (ngModelChange)="onValueModelChange()"
-                    >
-}
-    <!--                <p-calendar
-                            class="{{o}}"
-                            *ngIf="object[o].vr === 'DA' && o != '00100040' && o != '00080005' && o != '00102203'"
-                            dataType="string"
-                            [(ngModel)]="object[o].Value[i]"
-                            dateFormat="yymmdd"
-                            monthNavigator="true"
-                            yearNavigator="true"
-                            yearRange="1800:2100"
-                    ></p-calendar>-->
+                                                [(ngModel)]="object[o].Value[i]"
+                                                (ngModelChange)="onValueModelChange()"
+                                        >
+                                    }
+                                    <!--                <p-calendar
+                                                            class="{{o}}"
+                                                            *ngIf="object[o].vr === 'DA' && o != '00100040' && o != '00080005' && o != '00102203'"
+                                                            dataType="string"
+                                                            [(ngModel)]="object[o].Value[i]"
+                                                            dateFormat="yymmdd"
+                                                            monthNavigator="true"
+                                                            yearNavigator="true"
+                                                            yearRange="1800:2100"
+                                                    ></p-calendar>-->
 
-                    @if ((object[o].vr === 'DA' || object[o].vr === 'DT') && o != '00100040' && o != '00080005' && o != '00102203' && o != '00741202') {
-<range-picker
-                            class="{{o}}"
-                           
-                            [model]="object[o].Value[i]"
-                                (modelChange)="onRangeModelChange(o, i, $event)"
-                            [datePickerMode]="true"
-                            dateFormat="yyyyMMdd"
-                    ></range-picker>
-}
+                                    @if ((object[o].vr === 'DA' || object[o].vr === 'DT') && o != '00100040' && o != '00080005' && o != '00102203' && o != '00741202') {
+                                        <range-picker
+                                                class="{{o}}"
 
-                    @if (o === '00100040' && o != '00102203' && o != '00741202') {
-<select class="selectelement {{o}}"
-                            [ngModel]="object[o].Value[0]"
-                            (ngModelChange)="onChange($event, 'object.00100040.Value[0]')"
-                    >
-                        @for (g of options.genders; track g) {
-<option [ngValue]="g.obj.Value[0]"  >{{g.title}}</option>
-}
-                    </select>
-}
-                    @if (o === '00741202') {
+                                                [model]="object[o].Value[i]"
+                                                (modelChange)="onRangeModelChange(o, i, $event)"
+                                                [datePickerMode]="true"
+                                                dateFormat="yyyyMMdd"
+                                        ></range-picker>
+                                    }
 
-                        @if (!_.get(this.appService.global,'uiConfig.dcmuiMWLWorklistLabel')) {
-<input  class="{{o}}"
-                               [placeholderchanger]="{
+                                    @if (o === '00100040' && o != '00102203' && o != '00741202') {
+                                        <select class="selectelement {{o}}"
+                                                [ngModel]="object[o].Value[0]"
+                                                (ngModelChange)="onChange($event, 'object.00100040.Value[0]')"
+                                        >
+                                            @for (g of options.genders; track g) {
+                                                <option [ngValue]="g.obj.Value[0]">{{ g.title }}</option>
+                                            }
+                                        </select>
+                                    }
+                                    @if (o === '00741202') {
+
+                                        @if (!_.get(this.appService.global, 'uiConfig.dcmuiMWLWorklistLabel')) {
+                                            <input class="{{o}}"
+                                                   [placeholderchanger]="{
                                     code:o,
                                     name:DCM4CHE.elementName.forTag(o,privateCreator(o)),
                                     mode:mode,
@@ -78,76 +79,95 @@
                                     value:object[o].Value[i],
                                     prefix:prefix
                                 }"
-                               [(ngModel)]="object[o].Value[i]"
-                               (ngModelChange)="onValueModelChange()"
-                        >
-}
-                        @if (_.get(this.appService.global,'uiConfig.dcmuiMWLWorklistLabel')) {
-<select [ngModel]="object[o].Value[0]" (ngModelChange)="onChange($event, 'object['+o+'].Value[0]')">
-                            <option value="">*</option>
-                            @for (label of _.get(this.appService.global,'uiConfig.dcmuiMWLWorklistLabel'); track label) {
-<option value="{{label}}">{{label}}</option>
-}
-                        </select>
-}
-                    
-}
-                    @if (object[o].enum && object[o].enum.length > 0) {
-<select [ngModel]="object[o].Value[0]" (ngModelChange)="onChange($event, 'object['+o+'].Value[0]')">
-                        @if (!(object[o].required && object[o].required === 1)) {
-<option value="">*</option>
-}
-                        @for (n of object[o].enum; track n) {
-<option value="{{n}}">{{n}}</option>
-}
-                    </select>
-}
+                                                   [(ngModel)]="object[o].Value[i]"
+                                                   (ngModelChange)="onValueModelChange()"
+                                            >
+                                        }
+                                        @if (_.get(this.appService.global, 'uiConfig.dcmuiMWLWorklistLabel')) {
+                                            <select [ngModel]="object[o].Value[0]"
+                                                    (ngModelChange)="onChange($event, 'object['+o+'].Value[0]')">
+                                                <option value="">*</option>
+                                                @for (label of _.get(this.appService.global, 'uiConfig.dcmuiMWLWorklistLabel'); track label) {
+                                                    <option value="{{label}}">{{ label }}</option>
+                                                }
+                                            </select>
+                                        }
 
-                    @if (o === '00080005') {
-<specific-char-picker [(model)]="object[o].Value[i]" (modelChange)="charChange($event)"></specific-char-picker>
-}
-                    @if (o != '00104000' && !prefix && !object.newBlock) {
-<div [placeholderchanger]="{
+                                    }
+                                    @if (object[o].enum && object[o].enum.length > 0) {
+                                        <select [ngModel]="object[o].Value[0]"
+                                                (ngModelChange)="onChange($event, 'object['+o+'].Value[0]')">
+                                            @if (!(object[o].required && object[o].required === 1)) {
+                                                <option value="">*</option>
+                                            }
+                                            @for (n of object[o].enum; track n) {
+                                                <option value="{{n}}">{{ n }}</option>
+                                            }
+                                        </select>
+                                    }
+
+                                    @if (o === '00080005') {
+                                        <specific-char-picker [(model)]="object[o].Value[i]"
+                                                              (modelChange)="charChange($event)"></specific-char-picker>
+                                    }
+                                    @if (o != '00104000' && !prefix && !object.newBlock) {
+                                        <div [placeholderchanger]="{
                                             code:o,
                                             name:DCM4CHE.elementName.forTag(o,privateCreator(o)),
                                             mode:mode,
                                             delete:true,
                                             iod:iod
                                         }"
-                         (click)="removeAttr(o)"
-                        
-                         class="t2 iod_remove glyphicon glyphicon-remove {{o}}"
-                    ></div>
-}
+                                             (click)="removeAttr(o)"
+
+                                             class="t2 iod_remove glyphicon glyphicon-remove {{o}}"
+                                        ></div>
+                                    }
+                                </div>
+                            }
+                            @if (object[o].vr === 'PN') {
+                                <div class="multi_input"
+                                     [ngClass]="{'iod-required-missing': isRequiredMissing(object[o], object[o].Value[i])}">
+                                    <input i18n-placeholder="@@placeholder.iod-form-generator.alphabetic"
+                                           placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Alphabetic"
+                                           [(ngModel)]="object[o].Value[i]['Alphabetic']"
+                                           (ngModelChange)="onValueModelChange()">
+                                    <input i18n-placeholder="@@placeholder.iod-form-generator.ideographic"
+                                           placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Ideographic"
+                                           [(ngModel)]="object[o].Value[i]['Ideographic']"
+                                           (ngModelChange)="onValueModelChange()">
+                                    <input i18n-placeholder="@@placeholder.iod-form-generator.phonetic"
+                                           placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Phonetic"
+                                           [(ngModel)]="object[o].Value[i]['Phonetic']"
+                                           (ngModelChange)="onValueModelChange()">
+                                    @if (o != '00104000' && o != '00080005' && !prefix && !object.newBlock) {
+                                        <div (click)="removeAttr(o)"
+                                             class="t3 iod_remove glyphicon glyphicon-remove"></div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
-}
-                @if (object[o].vr === 'PN') {
-<div class="multi_input" [ngClass]="{'iod-required-missing': isRequiredMissing(object[o], object[o].Value[i])}">
-                    <input i18n-placeholder="@@placeholder.iod-form-generator.alphabetic" placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Alphabetic" [(ngModel)]="object[o].Value[i]['Alphabetic']" (ngModelChange)="onValueModelChange()">
-                    <input i18n-placeholder="@@placeholder.iod-form-generator.ideographic" placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Ideographic" [(ngModel)]="object[o].Value[i]['Ideographic']" (ngModelChange)="onValueModelChange()">
-                    <input i18n-placeholder="@@placeholder.iod-form-generator.phonetic" placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Phonetic" [(ngModel)]="object[o].Value[i]['Phonetic']" (ngModelChange)="onValueModelChange()">
-                    @if (o != '00104000' && o != '00080005' && !prefix && !object.newBlock) {
-<div (click)="removeAttr(o)" class="t3 iod_remove glyphicon glyphicon-remove"></div>
-}
-                </div>
-}
-            </div>
             }
-    </div>
-}
         }
-    @if (object[o].vr === 'SQ') {
-<div>
-        @for (io of object[o].Value; track trackByFn(i, io); let i = $index) {
-<div class="sqiod" [ngClass]="{'active':activeBlock}">
-            @if ((!prefix || prefix==='')  && object[o]  && object[o].Value && object[o].Value.length > 1 && !object.newBlock && !parentNewBlock) {
-<div (click)="removeAttr(o,i)" class="iod_remove glyphicon glyphicon-remove"></div>
-}
-            <iod-form-generator [parentNewBlock]="object.newBlock" [parentObject]="object" [parentKey]="o" [valueArrayKey]="i"  [object]="_.get(object,'['+o+'].Value['+i+']')" [mode]="mode" [prefix]="'>'+ (prefix || '')" [iod]="_.get(iod, o)" (validityChange)="onChildValidityChange()"></iod-form-generator>
-            <button class="add_multi_button" (mouseover)="activeBlock = true" (mouseleave)="activeBlock = false" (click)="clonePart(object,o, iod, i,io)"><span class="glyphicon glyphicon-plus"></span></button>
-        </div>
-}
+        @if (object[o].vr === 'SQ') {
+            <div>
+                @for (io of object[o].Value; track trackByFn(i, io); let i = $index) {
+                    <div class="sqiod" [ngClass]="{'active':activeBlock}">
+                        @if ((!prefix || prefix === '') && object[o] && object[o].Value && object[o].Value.length > 1 && !object.newBlock && !parentNewBlock) {
+                            <div (click)="removeAttr(o,i)" class="iod_remove glyphicon glyphicon-remove"></div>
+                        }
+                        <iod-form-generator [parentNewBlock]="object.newBlock" [parentObject]="object" [parentKey]="o"
+                                            [valueArrayKey]="i" [object]="_.get(object,'['+o+'].Value['+i+']')"
+                                            [mode]="mode" [prefix]="'>'+ (prefix || '')" [iod]="_.get(iod, o)"
+                                            (validityChange)="onChildValidityChange()"></iod-form-generator>
+                        <button class="add_multi_button" (mouseover)="activeBlock = true"
+                                (mouseleave)="activeBlock = false" (click)="clonePart(object,o, iod, i,io)"><span
+                                class="glyphicon glyphicon-plus"></span></button>
+                    </div>
+                }
+            </div>
+        }
     </div>
-}
-</div>
 }

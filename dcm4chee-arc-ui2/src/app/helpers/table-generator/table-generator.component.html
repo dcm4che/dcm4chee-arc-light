@@ -1,194 +1,208 @@
 @if (models) {
-<div class="dynamic_table ">
-  <div class="table_header">
-    <div class="tr">
-        @for (header of config.table; track header) {
+    <div class="dynamic_table ">
+        <div class="table_header">
+            <div class="tr">
+                @for (header of config.table; track header) {
 
-            @if ((header.type === 'buttons' || header.type === 'actions')) {
+                    @if ((header.type === 'buttons' || header.type === 'actions')) {
 
-                <div class="th" [ngStyle]="{width: header.calculatedWidth}">
-                    @if (header.type === 'actions' && header.headerActions && header.headerActions.length && header.headerActions.length > 0) {
+                        <div class="th" [ngStyle]="{width: header.calculatedWidth}">
+                            @if (header.type === 'actions' && header.headerActions && header.headerActions.length && header.headerActions.length > 0) {
 
-                        @for (action of header.headerActions; track action) {
+                                @for (action of header.headerActions; track action) {
 
-                            @if (!action.showIf || action.showIf(models, config)) {
-<a class="text-white action-button"  (click)="$event.preventDefault();action.click(models, config)" title="{{action.title || ''}}">
-                                @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                                @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                            </a>
-}
-                        
-}
-                    
-}
+                                    @if (!action.showIf || action.showIf(models, config)) {
+                                        <a class="text-white action-button"
+                                           (click)="$event.preventDefault();action.click(models, config)"
+                                           title="{{action.title || ''}}">
+                                            @if (action.icon.tag === 'span') {
+                                                <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                            }
+                                            @if (action.icon.tag === 'i') {
+                                                <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                            }
+                                        </a>
+                                    }
+
+                                }
+
+                            }
+                        </div>
+
+                    }
+                    @if (!(header.type === 'buttons' || header.type === 'actions')) {
+
+                        <div class="th {{header.cssClass||''}}" title="{{header.description}}"
+                             [ngStyle]="{width: header.calculatedWidth}">{{ header.title }}
+                        </div>
+
+                    }
+
+                }
+            </div>
+        </div>
+        <div class="table_body">
+            @for (model of models|search:config.search; track model; let i = $index) {
+
+                <div class="tr" [ngClass]="{'selected':(model && model.selected)}">
+                    @for (table_element of config.table; track table_element; let k = $index) {
+                        <div class="td {{table_element.cssClass||''}}"
+                             [ngStyle]="{width: table_element.calculatedWidth}">
+                            @if (table_element.type === 'index') {
+                                <span>{{ i + (config.filter.offset || 0) + 1 }}.</span>
+                            }
+                            @if (table_element.type === 'progress' && _.hasIn(table_element, 'key')) {
+                                <span [ngClass]="{'pointer':table_element.onClick}">
+                    <stacked-progress [model]="_.get(model,table_element.key)" [diffModel]="table_element.diffMode"
+                                      (click)="onProgressClicked(table_element, model)"></stacked-progress>
+                </span>
+                            }
+                            @if (table_element.type === 'progress' && _.hasIn(table_element, 'pathToValue')) {
+                                <span [ngClass]="{'pointer':table_element.onClick}">
+                    <stacked-progress [model]="_.get(model,table_element.pathToValue)"
+                                      [diffModel]="table_element.diffMode"
+                                      (click)="onProgressClicked(table_element, model)"></stacked-progress>
+                </span>
+                            }
+                            @if (table_element.type === 'value') {
+
+                                @if (table_element.hook) {
+
+                                    @if (!table_element.hoverHook) {
+
+                                        @if (_.hasIn(model, table_element.pathToValue) || (model && !table_element.pathToValue)) {
+                                            <span class="text_content {{table_element.cssClass || ''}}"
+                                                  tooltip="{{_.get(model,table_element.pathToValue)}}">
+                                {{ table_element.hook(_.get(model, table_element.pathToValue) || table_element.pathToValue || model, model) }}
+                            </span>
+                                        }
+
+                                    }
+                                    @if (table_element.hoverHook) {
+
+                                        @if (_.hasIn(model, table_element.pathToValue) || (model && !table_element.pathToValue)) {
+                                            <span class="text_content {{table_element.cssClass || ''}}"
+                                                  tooltip="{{table_element.hoverHook(model)}}">
+                                {{ table_element.hook(_.get(model, table_element.pathToValue) || table_element.pathToValue || model, model) }}
+                            </span>
+                                        }
+
+                                    }
+
+                                }
+                                @if (!table_element.hook) {
+
+                                    @if (!table_element.hoverHook) {
+
+                                        @if (_.hasIn(model, table_element.pathToValue)) {
+                                            <span class="text_content {{table_element.cssClass || ''}}"
+                                                  tooltip="{{_.get(model,table_element.pathToValue)}}">
+                                {{ _.get(model, table_element.pathToValue) }}
+                            </span>
+                                        }
+
+                                    }
+                                    @if (table_element.hoverHook) {
+
+                                        @if (_.hasIn(model, table_element.pathToValue)) {
+                                            <span class="text_content {{table_element.cssClass || ''}}"
+                                                  tooltip="{{table_element.hoverHook(model)}}">
+                                {{ _.get(model, table_element.pathToValue) }}
+                            </span>
+                                        }
+
+                                    }
+
+                                }
+
+                            }
+                            @if (table_element.type === 'actions') {
+
+                                @for (action of table_element.actions; track action) {
+
+                                    @if ((!action.showIf || action.showIf(model, config))) {
+                                        <a class="pointer action-button {{table_element.cssClass || ''}}"
+                                           (click)="$event.preventDefault();action.click(model)" [title]="action.title">
+                                            @if (action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(model))) {
+                                                <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                            }
+                                            @if (action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(model))) {
+                                                <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                            }
+                                        </a>
+                                    }
+
+                                }
+
+                            }
+                            @if (table_element.type === 'buttons') {
+
+                                @for (action of table_element.buttons; track action) {
+
+                                    @if ((!action.showIf || action.showIf(model, config))) {
+                                        <a class="pointer action-button {{table_element.cssClass || ''}}"
+                                           (click)="$event.preventDefault();action.click(model)">
+                                            @if (action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(model))) {
+                                                <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                            }
+                                            @if (action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(model))) {
+                                                <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                            }
+                                        </a>
+                                    }
+
+                                }
+
+                            }
+                        </div>
+                    }
                 </div>
-            
-}
-            @if (!(header.type === 'buttons' || header.type === 'actions')) {
+                @if (model && model.showAttributes) {
+                    <div class="tr">
+                        <div class="td" style="width:100%">
+                            <table class="table table-bordered table-condensed attribute_list">
+                                @if (stringifyDetailAttributes) {
 
-                <div class="th {{header.cssClass||''}}" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">{{header.title}}</div>
-            
-}
-        
-}
+                                    @for (key of Object.keys(model.tableGeneratorDetailAttributes); track key) {
+                                        <tr>
+                                            <th [innerHtml]="key"></th>
+                                            <td [innerHtml]="model.tableGeneratorDetailAttributes[key]"></td>
+                                        </tr>
+                                    }
+
+                                }
+                                @if (!stringifyDetailAttributes) {
+
+                                    @for (key of Object.keys(model); track key) {
+                                        <tr>
+                                            <th [innerHtml]="key"></th>
+                                            @if (key === 'createdTime' || key === 'updatedTime' || key === 'scheduledTime' || key === 'processingStartTime' || key === 'processingEndTime') {
+                                                <td [innerHtml]="model[key] | date:'yyyy-MM-dd HH:mm:ss'"></td>
+                                            } @else {
+
+                                                <td [innerHtml]="model[key]"></td>
+
+                                            }
+
+                                        </tr>
+                                    }
+
+                                }
+                            </table>
+                        </div>
+                    </div>
+                }
+                @if (model && model.showDicomAttributes) {
+                    <div class="tr">
+                        <div class="td" style="width:100%">
+                            @if (model) {
+                                <attribute-list [attrs]="model"></attribute-list>
+                            }
+                        </div>
+                    </div>
+                }
+
+            }
+        </div>
     </div>
-  </div>
-  <div class="table_body">
-      @for (model of models|search:config.search; track model; let i = $index) {
-
-        <div class="tr" [ngClass]="{'selected':(model && model.selected)}">
-            @for (table_element of config.table; track table_element; let k = $index) {
-<div class="td {{table_element.cssClass||''}}" [ngStyle]="{width: table_element.calculatedWidth}">
-                @if (table_element.type === 'index') {
-<span>{{i+(config.filter.offset || 0)+1}}.</span>
-}
-                @if (table_element.type === 'progress' && _.hasIn(table_element,'key')) {
-<span [ngClass]="{'pointer':table_element.onClick}">
-                    <stacked-progress [model]="_.get(model,table_element.key)" [diffModel]="table_element.diffMode" (click)="onProgressClicked(table_element, model)"></stacked-progress>
-                </span>
-}
-                @if (table_element.type === 'progress' && _.hasIn(table_element,'pathToValue')) {
-<span [ngClass]="{'pointer':table_element.onClick}">
-                    <stacked-progress [model]="_.get(model,table_element.pathToValue)" [diffModel]="table_element.diffMode" (click)="onProgressClicked(table_element, model)"></stacked-progress>
-                </span>
-}
-                @if (table_element.type === 'value') {
-
-                    @if (table_element.hook) {
-
-                        @if (!table_element.hoverHook) {
-
-                            @if (_.hasIn(model,table_element.pathToValue) || (model && !table_element.pathToValue)) {
-<span class="text_content {{table_element.cssClass || ''}}" tooltip="{{_.get(model,table_element.pathToValue)}}">
-                                {{table_element.hook(_.get(model,table_element.pathToValue) || table_element.pathToValue || model,model)}}
-                            </span>
-}
-                        
-}
-                        @if (table_element.hoverHook) {
-
-                            @if (_.hasIn(model,table_element.pathToValue) || (model && !table_element.pathToValue)) {
-<span class="text_content {{table_element.cssClass || ''}}" tooltip="{{table_element.hoverHook(model)}}">
-                                {{table_element.hook(_.get(model,table_element.pathToValue) || table_element.pathToValue || model,model)}}
-                            </span>
-}
-                        
-}
-                    
-}
-                    @if (!table_element.hook) {
-
-                        @if (!table_element.hoverHook) {
-
-                            @if (_.hasIn(model,table_element.pathToValue)) {
-<span class="text_content {{table_element.cssClass || ''}}" tooltip="{{_.get(model,table_element.pathToValue)}}">
-                                {{_.get(model,table_element.pathToValue)}}
-                            </span>
-}
-                        
-}
-                        @if (table_element.hoverHook) {
-
-                            @if (_.hasIn(model,table_element.pathToValue)) {
-<span class="text_content {{table_element.cssClass || ''}}" tooltip="{{table_element.hoverHook(model)}}">
-                                {{_.get(model,table_element.pathToValue)}}
-                            </span>
-}
-                        
-}
-                    
-}
-                
-}
-                @if (table_element.type === 'actions') {
-
-                    @for (action of table_element.actions; track action) {
-
-                        @if ((!action.showIf || action.showIf(model, config))) {
-<a class="pointer action-button {{table_element.cssClass || ''}}" (click)="$event.preventDefault();action.click(model)" [title]="action.title">
-                            @if (action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(model))) {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                            @if (action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(model))) {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                        </a>
-}
-                    
-}
-                
-}
-                @if (table_element.type === 'buttons') {
-
-                    @for (action of table_element.buttons; track action) {
-
-                        @if ((!action.showIf || action.showIf(model, config))) {
-<a class="pointer action-button {{table_element.cssClass || ''}}" (click)="$event.preventDefault();action.click(model)">
-                            @if (action.icon.tag === 'span' && (!action.icon.showIf || action.icon.showIf(model))) {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                            @if (action.icon.tag === 'i' && (!action.icon.showIf || action.icon.showIf(model))) {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                        </a>
-}
-                    
-}
-                
-}
-            </div>
-}
-        </div>
-        @if (model && model.showAttributes) {
-<div class="tr" >
-            <div class="td" style="width:100%">
-              <table class="table table-bordered table-condensed attribute_list">
-                  @if (stringifyDetailAttributes) {
-
-                      @for (key of Object.keys(model.tableGeneratorDetailAttributes); track key) {
-<tr>
-                          <th [innerHtml]="key"></th>
-                          <td [innerHtml]="model.tableGeneratorDetailAttributes[key]"></td>
-                      </tr>
-}
-                  
-}
-                  @if (!stringifyDetailAttributes) {
-
-                      @for (key of Object.keys(model); track key) {
-<tr>
-                          <th [innerHtml]="key"></th>
-                          @if (key === 'createdTime' || key === 'updatedTime' || key === 'scheduledTime' || key === 'processingStartTime' || key === 'processingEndTime') {
-<td [innerHtml]="model[key] | date:'yyyy-MM-dd HH:mm:ss'"></td>
-} @else {
-
-                              <td [innerHtml]="model[key]"></td>
-                          
-}
-                          
-                      </tr>
-}
-                  
-}
-              </table>
-            </div>
-        </div>
-}
-          @if (model && model.showDicomAttributes) {
-<div class="tr" >
-              <div class="td" style="width:100%">
-                  @if (model) {
-<attribute-list [attrs]="model"></attribute-list>
-}
-              </div>
-          </div>
-}
-      
-}
-  </div>
-</div>
 }
