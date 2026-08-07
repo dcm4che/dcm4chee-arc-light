@@ -77,6 +77,7 @@ public class UPSOnStore {
     private AttributesFormat accessionNumber;
     private AttributesFormat requestedProcedureID;
     private AttributesFormat requestedProcedureDescription;
+    private AttributesFormat requestedProcedureCode;
     private AttributesFormat requestingPhysician;
     private AttributesFormat requestingService;
     private AttributesFormat issuerOfAdmissionID;
@@ -298,6 +299,18 @@ public class UPSOnStore {
         return format(requestedProcedureDescription, attrs);
     }
 
+    public String getRequestedProcedureCode() {
+        return Objects.toString(requestedProcedureCode, null);
+    }
+
+    public void setRequestedProcedureCode(String requestedProcedureCode) {
+        this.requestedProcedureCode = AttributesFormat.valueOf(requestedProcedureCode);
+    }
+
+    public Code getRequestedProcedureCode(Attributes attrs) {
+        return formatCode(requestedProcedureCode, attrs);
+    }
+
     public String getRequestingPhysician() {
         return Objects.toString(requestingPhysician, null);
     }
@@ -442,6 +455,14 @@ public class UPSOnStore {
             return null;
 
         return new Issuer(issuerStr);
+    }
+
+    private static Code formatCode(AttributesFormat format, Attributes attrs) {
+        String codeStr;
+        if (format == null || (codeStr = format.format(attrs)).contains("null"))
+            return null;
+
+        return new Code(codeStr);
     }
 
 }

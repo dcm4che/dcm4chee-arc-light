@@ -846,7 +846,7 @@ public class UPSServiceEJB {
         setNotNull(item, Tag.RequestingService, VR.LO, rule.getRequestingService(storeCtx.getAttributes()));
         item.setString(Tag.RequestedProcedureDescription, VR.LO,
                 rule.getRequestedProcedureDescription(storeCtx.getAttributes()));
-        item.setNull(Tag.RequestedProcedureCodeSequence, VR.SQ);
+        UPSUtils.setCode(item, Tag.RequestedProcedureCodeSequence, rule.getRequestedProcedureCode(storeCtx.getAttributes()));
         item.setString(Tag.RequestedProcedureID, VR.SH, rule.getRequestedProcedureID(storeCtx.getAttributes()));
         return item;
     }
