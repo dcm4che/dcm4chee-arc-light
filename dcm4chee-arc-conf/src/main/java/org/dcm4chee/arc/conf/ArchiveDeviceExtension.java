@@ -51,6 +51,9 @@ import org.dcm4che3.soundex.FuzzyStr;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4che3.util.StringUtils;
 
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Period;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -921,6 +924,22 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     }
 
     public void setUnzipVendorDataToURI(String unzipVendorDataToURI) {
+        if (unzipVendorDataToURI != null) {
+            Path basePath = Paths.get(URI.create(StringUtils.replaceSystemProperties(unzipVendorDataToURI))).normalize();
+            if (!basePath.startsWith(System.getProperty("jboss.server.tmp.dir"))) {
+                Path wildflyHomePath = Paths.get(System.getProperty("jboss.home.dir"));
+                if (basePath.startsWith(wildflyHomePath)) {
+                    throw new IllegalArgumentException(
+                            "Unzip Vendor Data To URI refers directory inside Wildfly home directory: "
+                                    + unzipVendorDataToURI);
+                }
+                if (wildflyHomePath.startsWith(basePath)) {
+                    throw new IllegalArgumentException(
+                            "Unzip Vendor Data To URI refers parent directory of Wildfly home directory: "
+                                    + unzipVendorDataToURI);
+                }
+            }
+        }
         this.unzipVendorDataToURI = unzipVendorDataToURI;
     }
 
