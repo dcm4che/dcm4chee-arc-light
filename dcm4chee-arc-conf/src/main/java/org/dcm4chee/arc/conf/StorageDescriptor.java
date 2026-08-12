@@ -126,7 +126,26 @@ public final class StorageDescriptor {
     }
 
     public void setStorageURIStr(String str) {
-        this.storageURI = URI.create(StringUtils.replaceSystemProperties(str));
+        URI uri = URI.create(StringUtils.replaceSystemProperties(str));
+        String scheme = uri.getScheme();
+        if (scheme == null) {
+            throw new IllegalArgumentException("Storage URI scheme cannot be null");
+        }
+        if (scheme.equalsIgnoreCase("file")) {
+            Path rootPath = Paths.get(uri).normalize();
+            if (!rootPath.startsWith(System.getProperty("jboss.server.storage.dir"))) {
+                Path wildflyHomePath = Paths.get(System.getProperty("jboss.home.dir"));
+                if (rootPath.startsWith(wildflyHomePath)) {
+                    throw new IllegalArgumentException(
+                            "Storage root path inside Wildfly home directory: " + rootPath);
+                }
+                if (wildflyHomePath.startsWith(rootPath)) {
+                    throw new IllegalArgumentException(
+                            "Storage root path is parent directory of Wildfly home directory: " + rootPath);
+                }
+            }
+        }
+        this.storageURI = uri;
         this.storageURIStr = str;
     }
 
