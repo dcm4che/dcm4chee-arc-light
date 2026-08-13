@@ -1,29 +1,33 @@
 @if (title) {
-<h4>{{title}}</h4>
+    <h4>{{ title }}</h4>
 }
 <div class="content">
     @if (contentType && contentType.indexOf('image') > -1) {
-<img src="{{url}}" />
-}
+        <img src="{{url}}"/>
+    }
     @if (contentType && contentType.indexOf('video') > -1) {
-<video (mouseenter)="onVideoMouseEnter($event)" (mouseleave)="onVideoMouseLeave($event)" autoplay>
-        <source src="{{url}}" type="{{contentType}}">
-        <ng-container i18n="@@your_browser_dose_not_support_video">Your browser does not support the video element.</ng-container>
-    </video>
-}
+        <video (mouseenter)="onVideoMouseEnter($event)" (mouseleave)="onVideoMouseLeave($event)" autoplay>
+            <source src="{{url}}" type="{{contentType}}">
+            <ng-container i18n="@@your_browser_dose_not_support_video">Your browser does not support the video
+                element.
+            </ng-container>
+        </video>
+    }
     @if (contentType && contentType.indexOf('pdf') > -1 && pdfUrl) {
-<object [data]="pdfUrl" type="application/pdf" style="width:100%;height:80vh;"></object>
-}
+        <object [data]="pdfUrl" type="application/pdf" style="width:100%;height:80vh;"></object>
+    }
     @if (contentType && contentType.indexOf('audio') > -1) {
-<audio controls>
-        <source src="{{url}}" type="{{contentType}}">
-        <ng-container i18n="@@your_browser_dose_not_support_audio">Your browser does not support the audio element.</ng-container>
-    </audio>
-}
+        <audio controls>
+            <source src="{{url}}" type="{{contentType}}">
+            <ng-container i18n="@@your_browser_dose_not_support_audio">Your browser does not support the audio
+                element.
+            </ng-container>
+        </audio>
+    }
     @if (contentType && contentType.indexOf('xml') > -1) {
-<a  (click)="printIframe()" class="btn btn-default print_button">
-        <i class="glyphicon glyphicon-print"></i>
-    </a>
-}
-    <div [hidden]="contentType.indexOf('xml') === -1" id="container"  style="width:100%;height:80vh;"></div>
+        <a (click)="printIframe()" class="btn btn-default print_button">
+            <i class="glyphicon glyphicon-print"></i>
+        </a>
+    }
+    <div [hidden]="contentType.indexOf('xml') === -1" id="container" style="width:100%;height:80vh;"></div>
 </div>

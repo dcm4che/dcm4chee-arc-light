@@ -1,58 +1,62 @@
 <!--<dicom-list *ngIf="dicomObject[levels] && dicomObject[levels].length > 0" [dicomObject]="dicomObject[levels]"></dicom-list>-->
-<h5>{{dicomLevel|uppercase}}</h5>
+<h5>{{ dicomLevel|uppercase }}</h5>
 <div class="dynamic_table">
     <div class="table_header">
         <div class="tr">
             @for (header of tableSchema; track header) {
-<div class="th {{header.cssClass}}" title="{{header.headerDescription}}" [ngStyle]="{width: header.calculatedWidth}">{{header.header}}</div>
-}
+                <div class="th {{header.cssClass}}" title="{{header.headerDescription}}"
+                     [ngStyle]="{width: header.calculatedWidth}">{{ header.header }}
+                </div>
+            }
         </div>
     </div>
     <div class="table_body">
         @for (id of Object.keys(selectionsDicomObjects); track id) {
-<div class="tr load_more_start">
-            @for (table_element of tableSchema; track table_element) {
-<div class="td {{table_element.cssClass}}" [ngStyle]="{width: table_element.calculatedWidth}">
-@switch (table_element.type) {
-                @case ('actions') {
+            <div class="tr load_more_start">
+                @for (table_element of tableSchema; track table_element) {
+                    <div class="td {{table_element.cssClass}}" [ngStyle]="{width: table_element.calculatedWidth}">
+                        @switch (table_element.type) {
+                            @case ('actions') {
 
-                    @for (action of table_element.actions; track action) {
+                                @for (action of table_element.actions; track action) {
 
-                        @if ((!action.showIf || action.showIf(selectionsDicomObjects[id], config))) {
-<a class="pointer dicom_table_buttons"  (click)="$event.preventDefault();action.click(selectionsDicomObjects[id])" title="{{action.title || ''}}">
-                            @if (action.icon.tag === 'span') {
-<span class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</span>
-}
-                            @if (action.icon.tag === 'i') {
-<i class="{{action.icon.cssClass||''}}">{{action.icon.text||''}}</i>
-}
-                        </a>
-}
-                    
-}
-                
-}
-                @case ('value') {
-<span>{{_.get(selectionsDicomObjects[id].object.attrs,table_element.pathToValue) || '&nbsp;'}}</span>
-}
-                @case ('pipe') {
+                                    @if ((!action.showIf || action.showIf(selectionsDicomObjects[id], config))) {
+                                        <a class="pointer dicom_table_buttons"
+                                           (click)="$event.preventDefault();action.click(selectionsDicomObjects[id])"
+                                           title="{{action.title || ''}}">
+                                            @if (action.icon.tag === 'span') {
+                                                <span class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</span>
+                                            }
+                                            @if (action.icon.tag === 'i') {
+                                                <i class="{{action.icon.cssClass||''}}">{{ action.icon.text || '' }}</i>
+                                            }
+                                        </a>
+                                    }
 
-                    @if (table_element.pathToValue) {
+                                }
 
-                        <span [innerHTML]="getDynamicPipeValue(_.get(selectionsDicomObjects[id].object.attrs,table_element.pathToValue),table_element)"></span>
-                    
-}
-                    @if (!table_element.pathToValue) {
+                            }
+                            @case ('value') {
+                                <span>{{ _.get(selectionsDicomObjects[id].object.attrs, table_element.pathToValue) || '&nbsp;' }}</span>
+                            }
+                            @case ('pipe') {
 
-                        <span [innerHTML]="getDynamicPipeValue(selectionsDicomObjects[id].object.attrs,table_element)"></span>
-                    
-}
-                
-}
-            }
-</div>
-}
-        </div>
-}
+                                @if (table_element.pathToValue) {
+
+                                    <span [innerHTML]="getDynamicPipeValue(_.get(selectionsDicomObjects[id].object.attrs,table_element.pathToValue),table_element)"></span>
+
+                                }
+                                @if (!table_element.pathToValue) {
+
+                                    <span [innerHTML]="getDynamicPipeValue(selectionsDicomObjects[id].object.attrs,table_element)"></span>
+
+                                }
+
+                            }
+                        }
+                    </div>
+                }
+            </div>
+        }
     </div>
 </div>

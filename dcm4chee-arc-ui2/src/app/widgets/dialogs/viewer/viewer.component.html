@@ -1,30 +1,30 @@
 <div class="viewer">
     @if (views.length > 1) {
-<span class="pull-right">{{view}} / {{views.length}}</span>
-}
+        <span class="pull-right">{{ view }} / {{ views.length }}</span>
+    }
     @if (views.length > 1) {
-<div class="arrow left" (click)="changeImage('prev')">
-        <span class="glyphicon glyphicon-chevron-left"></span>
-    </div>
-}
+        <div class="arrow left" (click)="changeImage('prev')">
+            <span class="glyphicon glyphicon-chevron-left"></span>
+        </div>
+    }
     <div class="content">
         @if (contentType === 'image/jpeg') {
-<img src="{{renderedUrl}}" />
-}
+            <img src="{{renderedUrl}}" alt="Image"/>
+        }
         @if (contentType === 'video/mpeg') {
-<video  autoplay>
-            <source src="{{renderedUrl}}" type="video/mpeg">
-        </video>
-}
+            <video autoplay>
+                <source src="{{renderedUrl}}" type="video/mpeg">
+            </video>
+        }
     </div>
     @if (views.length > 1) {
-<div class="arrow right" (click)="changeImage('next')">
-        <span class="glyphicon glyphicon-chevron-right"></span>
-    </div>
-}
+        <div class="arrow right" (click)="changeImage('next')">
+            <span class="glyphicon glyphicon-chevron-right"></span>
+        </div>
+    }
     @if (showLoader) {
-<div class="spinner-icon">
-        <mat-progress-spinner mode="indeterminate" ></mat-progress-spinner>
-    </div>
-}
+        <div class="spinner-icon">
+            <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+        </div>
+    }
 </div>

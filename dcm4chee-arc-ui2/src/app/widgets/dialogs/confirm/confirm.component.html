@@ -1,112 +1,124 @@
-<div class="vex vex-theme-os confirm" [ngClass]="parameters.cssClass" xmlns="http://www.w3.org/1999/html" (keydown)="dialogKeyHandler($event,dialogRef)">
+<div class="vex vex-theme-os confirm" [ngClass]="parameters.cssClass" xmlns="http://www.w3.org/1999/html"
+     (keydown)="dialogKeyHandler($event,dialogRef)">
     <div class="vex-dialog-form">
         @if (parameters.title) {
-<h5>{{ parameters.title }}</h5>
-}
+            <h5>{{ parameters.title }}</h5>
+        }
         <div class="content">
             <h3 [innerHtml]="parameters.content">
             </h3>
             @if (parameters.pCalendar) {
-<div class="inputpart">
-                @for (calendar of parameters.pCalendar; track calendar; let index = $index) {
+                <div class="inputpart">
+                    @for (calendar of parameters.pCalendar; track calendar; let index = $index) {
 
-<!--                    <p-calendar
-                            [(ngModel)]="parameters.result.pCalendar[index]"
-                            dateFormat="{{calendar.dateFormat}}"
-                            monthNavigator="{{calendar.monthNavigator}}"
-                            yearNavigator="{{calendar.yearNavigator}}"
-                            yearRange="{{calendar.yearRange}}"
-                            placeholder="{{calendar.placeholder}}"
-                    ></p-calendar>-->
-                    <range-picker
-                            [model]="parameters.result.pCalendar[index]"
-                            (modelChange)="parameters.result.pCalendar[index] = $event"
-                            [datePickerMode]="true"
-                            [placeholder]="calendar.placeholder"
-                            dateFormat="yyyyMMdd"
-                    ></range-picker>
-                
-}
-            </div>
-}
+                        <!--                    <p-calendar
+                                                    [(ngModel)]="parameters.result.pCalendar[index]"
+                                                    dateFormat="{{calendar.dateFormat}}"
+                                                    monthNavigator="{{calendar.monthNavigator}}"
+                                                    yearNavigator="{{calendar.yearNavigator}}"
+                                                    yearRange="{{calendar.yearRange}}"
+                                                    placeholder="{{calendar.placeholder}}"
+                                            ></p-calendar>-->
+                        <range-picker
+                                [model]="parameters.result.pCalendar[index]"
+                                (modelChange)="parameters.result.pCalendar[index] = $event"
+                                [datePickerMode]="true"
+                                [placeholder]="calendar.placeholder"
+                                dateFormat="yyyyMMdd"
+                        ></range-picker>
+
+                    }
+                </div>
+            }
             @if (parameters.select) {
-<div class="dropdownpart">
-                <select id="reject" name="reject" class="col-md-12" (change)="parameters.result.select = $event.target['value']">
-                    @for (s of parameters.select; track s) {
-<option title="{{s.title}}" value="{{ s.value }}">{{ s.label }}</option>
-}
-                </select>
-            </div>
-}
+                <div class="dropdownpart">
+                    <select id="reject" name="reject" class="col-md-12"
+                            (change)="parameters.result.select = $event.target['value']">
+                        @for (s of parameters.select; track s) {
+                            <option title="{{s.title}}" value="{{ s.value }}">{{ s.label }}</option>
+                        }
+                    </select>
+                </div>
+            }
             @if (parameters.input) {
-<div class="inputpart">
-                <p [innerHtml]="parameters.input.label"></p>
-                @if (!(parameters.input && parameters.input.type && parameters.input.type == 'checkbox')) {
-<input [(ngModel)]="parameters.result.input" name="{{parameters.input.name}}" type="{{parameters.input.type}}">
-}
-                @if ((parameters.input && parameters.input.type && parameters.input.type == 'checkbox')) {
-<input [checked]="parameters.result.input" (change)="parameters.result.input = !parameters.result.input" name="{{parameters.input.name}}" type="{{parameters.input.type}}">
-}
-                @if (parameters.input && parameters.input.type && parameters.input.type == 'checkbox' && parameters.input.checkboxtext) {
-<span [innerHtml]="parameters.input.checkboxtext">{{parameters.input.checkboxtext}}</span>
-}
-            </div>
-}
+                <div class="inputpart">
+                    <p [innerHtml]="parameters.input.label"></p>
+                    @if (!(parameters.input && parameters.input.type && parameters.input.type == 'checkbox')) {
+                        <input [(ngModel)]="parameters.result.input" name="{{parameters.input.name}}"
+                               type="{{parameters.input.type}}">
+                    }
+                    @if ((parameters.input && parameters.input.type && parameters.input.type == 'checkbox')) {
+                        <input [checked]="parameters.result.input"
+                               (change)="parameters.result.input = !parameters.result.input"
+                               name="{{parameters.input.name}}" type="{{parameters.input.type}}">
+                    }
+                    @if (parameters.input && parameters.input.type && parameters.input.type == 'checkbox' && parameters.input.checkboxtext) {
+                        <span [innerHtml]="parameters.input.checkboxtext">{{ parameters.input.checkboxtext }}</span>
+                    }
+                </div>
+            }
             @if (parameters.bodytext) {
-<p class="bodytext"  [innerHtml]="parameters.bodytext"></p>
-}
+                <p class="bodytext" [innerHtml]="parameters.bodytext"></p>
+            }
             @if (parameters.checkboxes) {
 
                 @for (checkbox of parameters.checkboxes; track checkbox) {
-<div>
-                    <label title="{{ checkbox.title }}">
-                        <input type="checkbox" name="checkbox.name" [(ngModel)]="parameters.result['checkboxes'][checkbox.name]"> {{ checkbox.label }}
-                    </label>
-                </div>
-}
-            
-}
+                    <div>
+                        <label title="{{ checkbox.title }}">
+                            <input type="checkbox" name="checkbox.name"
+                                   [(ngModel)]="parameters.result['checkboxes'][checkbox.name]"> {{ checkbox.label }}
+                        </label>
+                    </div>
+                }
+
+            }
             @if (parameters.date) {
-<div class="datepicker">
-<!--                <p-calendar
-                        dataType="string"
-                        [(ngModel)]="parameters.result.date"
-                        dateFormat="{{ parameters.date.format }}"
-                        monthNavigator="true"
-                        yearNavigator="true"
-                        yearRange="1800:2100"
-                        placeholder="{{parameters.date.placeholder}}"
-                ></p-calendar>-->
-                <range-picker
-                        [model]="parameters.result.date"
-                        (modelChange)="parameters.result.date = $event"
-                        [datePickerMode]="true"
-                        [placeholder]="parameters.date.placeholder"
-                        dateFormat="yyyyMMdd"
-                ></range-picker>
-            </div>
-}
+                <div class="datepicker">
+                    <!--                <p-calendar
+                                            dataType="string"
+                                            [(ngModel)]="parameters.result.date"
+                                            dateFormat="{{ parameters.date.format }}"
+                                            monthNavigator="true"
+                                            yearNavigator="true"
+                                            yearRange="1800:2100"
+                                            placeholder="{{parameters.date.placeholder}}"
+                                    ></p-calendar>-->
+                    <range-picker
+                            [model]="parameters.result.date"
+                            (modelChange)="parameters.result.date = $event"
+                            [datePickerMode]="true"
+                            [placeholder]="parameters.date.placeholder"
+                            dateFormat="yyyyMMdd"
+                    ></range-picker>
+                </div>
+            }
             @if (parameters.warningOn && parameters.warningOn.message) {
-<div>
-                @if ((_.hasIn(parameters,parameters.warningOn.conditions[0]) && _.get(parameters,parameters.warningOn.conditions[0]) === true) || _.hasIn(parameters,parameters.warningOn.conditions[1]) && _.get(parameters,parameters.warningOn.conditions[1]) === true) {
-<span class="text-danger">{{ parameters.warningOn.message }}</span>
-}
-            </div>
-}
+                <div>
+                    @if ((_.hasIn(parameters, parameters.warningOn.conditions[0]) && _.get(parameters, parameters.warningOn.conditions[0]) === true) || _.hasIn(parameters, parameters.warningOn.conditions[1]) && _.get(parameters, parameters.warningOn.conditions[1]) === true) {
+                        <span class="text-danger">{{ parameters.warningOn.message }}</span>
+                    }
+                </div>
+            }
             @if (parameters.form_schema) {
-<div>
-                <filter-generator [schema]="parameters.form_schema" [filterTreeHeight]="1" [model]="parameters.result.schema_model" [hideClearButtons]="true" [filterID]="parameters.form_id" [doNotSave]="parameters.doNotSave||true" [onFilterChangeHook]="parameters.onFilterChangeHook"></filter-generator>
-            </div>
-}
+                <div>
+                    <filter-generator [schema]="parameters.form_schema" [filterTreeHeight]="1"
+                                      [model]="parameters.result.schema_model" [hideClearButtons]="true"
+                                      [filterID]="parameters.form_id" [doNotSave]="parameters.doNotSave||true"
+                                      [onFilterChangeHook]="parameters.onFilterChangeHook"></filter-generator>
+                </div>
+            }
         </div>
         <div class="dialogbuttons">
             @if (!parameters.saveButton) {
-<button  class="save" type="button" (click)="dialogRef.close('ok')" i18n="@@OK">OK</button>
-}
+                <button class="save" type="button" (click)="dialogRef.close('ok')" i18n="@@OK">OK</button>
+            }
             @if (parameters.saveButton) {
-<button [disabled]="((parameters.result && parameters.result.input && parameters.result.input === '') || (parameters.result && parameters.result.select && parameters.result.select === ''))" class="save {{parameters.saveButtonClass}}" type="button" (click)="dialogRef.close(parameters.result)">{{ parameters.saveButton }}</button>
-}
-            <button class="cancle" type="button" (click)="dialogRef.close(null)">{{parameters.cancelButton}}</button>
+                <button [disabled]="((parameters.result && parameters.result.input && parameters.result.input === '') || (parameters.result && parameters.result.select && parameters.result.select === ''))"
+                        class="save {{parameters.saveButtonClass}}" type="button"
+                        (click)="dialogRef.close(parameters.result)">{{ parameters.saveButton }}
+                </button>
+            }
+            <button class="cancle" type="button" (click)="dialogRef.close(null)">{{ parameters.cancelButton }}</button>
         </div>
     </div>
 </div>

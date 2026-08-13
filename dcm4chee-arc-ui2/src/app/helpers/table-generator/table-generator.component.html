@@ -4,7 +4,7 @@
             <div class="tr">
                 @for (header of config.table; track header) {
 
-                    @if ((header.type === 'buttons' || header.type === 'actions')) {
+                    @if (header.type === 'buttons' || header.type === 'actions') {
 
                         <div class="th" [ngStyle]="{width: header.calculatedWidth}">
                             @if (header.type === 'actions' && header.headerActions && header.headerActions.length && header.headerActions.length > 0) {
@@ -46,6 +46,7 @@
 
                 <div class="tr" [ngClass]="{'selected':(model && model.selected)}">
                     @for (table_element of config.table; track table_element; let k = $index) {
+
                         <div class="td {{table_element.cssClass||''}}"
                              [ngStyle]="{width: table_element.calculatedWidth}">
                             @if (table_element.type === 'index') {
@@ -83,8 +84,8 @@
                                         @if (_.hasIn(model, table_element.pathToValue) || (model && !table_element.pathToValue)) {
                                             <span class="text_content {{table_element.cssClass || ''}}"
                                                   tooltip="{{table_element.hoverHook(model)}}">
-                                {{ table_element.hook(_.get(model, table_element.pathToValue) || table_element.pathToValue || model, model) }}
-                            </span>
+                                                {{ table_element.hook(_.get(model, table_element.pathToValue) || table_element.pathToValue || model, model) }}
+                                            </span>
                                         }
 
                                     }
@@ -97,8 +98,8 @@
                                         @if (_.hasIn(model, table_element.pathToValue)) {
                                             <span class="text_content {{table_element.cssClass || ''}}"
                                                   tooltip="{{_.get(model,table_element.pathToValue)}}">
-                                {{ _.get(model, table_element.pathToValue) }}
-                            </span>
+                                                {{ _.get(model, table_element.pathToValue) }}
+                                            </span>
                                         }
 
                                     }

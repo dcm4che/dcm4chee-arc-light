@@ -1,48 +1,56 @@
 @if (loader) {
-<p i18n="@@loading">
-  loading...
-</p>
+    <p i18n="@@loading">
+        loading...
+    </p>
 }
 @if (!loader && elements) {
-<div>
-  @if (type === 'array') {
-<div class="checkbox_parent" [ngClass]="{'long_mode':longMode}" #checkboxes>
-      @if (longMode) {
-<input type="text" [(ngModel)]="search" i18n-placeholder="@@search_list" placeholder="Search list...">
-}
-      @for (element of elements|search:search; track element) {
-<div><input type="checkbox" [(ngModel)]="model[element[key]]" (change)="valueChanged()"> {{element[key]}}<br/></div>
-}
-      @if (warning) {
-<span class="glyphicon glyphicon-exclamation-sign raw_warning_button" (click)="showRawValues()"></span>
-}
-      @if (showRaw) {
-<div class="raw_array_edit">
-          <p i18n="@@daemon_value_found">Daemon value found, you can remove it manually from the value array:</p>
-          <div class="array_body">
-            @for (c of Object.keys(model); track c) {
+    <div>
+        @if (type === 'array') {
+            <div class="checkbox_parent" [ngClass]="{'long_mode':longMode}" #checkboxes>
+                @if (longMode) {
+                    <input type="text" [(ngModel)]="search" i18n-placeholder="@@search_list"
+                           placeholder="Search list...">
+                }
+                @for (element of elements|search:search; track element) {
+                    <div><input type="checkbox" [(ngModel)]="model[element[key]]"
+                                (change)="valueChanged()"> {{ element[key] }}<br/></div>
+                }
+                @if (warning) {
+                    <span class="glyphicon glyphicon-exclamation-sign raw_warning_button"
+                          (click)="showRawValues()"></span>
+                }
+                @if (showRaw) {
+                    <div class="raw_array_edit">
+                        <p i18n="@@daemon_value_found">Daemon value found, you can remove it manually from the value
+                            array:</p>
+                        <div class="array_body">
+                            @for (c of Object.keys(model); track c) {
 
-                <div class="array_element">"{{c}}",</div><div class="button"><div class="button_content"><a class="delete button" (click)="deleteElement(c)"><i class="glyphicon glyphicon-remove"></i></a></div></div><br>
-            
-}
-          </div>
-      </div>
-}
-  </div>
-}
-  @if (type === 'string') {
-<div class="dropdown_parent">
-    <select (change)="valueChanged()" class="dropdown" [(ngModel)]="model">
-      <option value="">-</option>
-      @for (element of elements; track element) {
-<option value="{{element[key]}}">{{element[key]}}</option>
-}
-    </select>
-<!--      <mat-select  (change)="valueChanged()" class="dropdown" [(ngModel)]="model">
-          <mat-option value="">-</mat-option>
-          <mat-option *ngFor="let element of elements" [value]="element[key]">{{element[key]}}</mat-option>
-      </mat-select>-->
-  </div>
-}
-</div>
+                                <div class="array_element">"{{ c }}",</div>
+                                <div class="button">
+                                    <div class="button_content"><a class="delete button" (click)="deleteElement(c)"><i
+                                            class="glyphicon glyphicon-remove"></i></a></div>
+                                </div><br>
+
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        @if (type === 'string') {
+            <div class="dropdown_parent">
+                <select (change)="valueChanged()" class="dropdown" [(ngModel)]="model">
+                    <option value="">-</option>
+                    @for (element of elements; track element) {
+                        <option value="{{element[key]}}">{{ element[key] }}</option>
+                    }
+                </select>
+                <!--      <mat-select  (change)="valueChanged()" class="dropdown" [(ngModel)]="model">
+                          <mat-option value="">-</mat-option>
+                          <mat-option *ngFor="let element of elements" [value]="element[key]">{{element[key]}}</mat-option>
+                      </mat-select>-->
+            </div>
+        }
+    </div>
 }

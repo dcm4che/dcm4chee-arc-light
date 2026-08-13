@@ -41,11 +41,11 @@ export class TableGeneratorComponent implements OnInit {
     ) {
     }
     ngOnInit() {
-        if (!this._config || !_.hasIn(this._config, 'search')) {
+        if(!this._config || !_.hasIn(this._config,'search')){
             this._config = this._config || {};
             this._config.search = '';
         }
-        if (!_.hasIn(this._config, 'calculate') || this._config.calculate) {
+        if(!_.hasIn(this._config,'calculate') || this._config.calculate){
             this._config.table = j4care.calculateWidthOfTable(this._config.table);
         }
         this._config.table = this.checkSchemaPermission(this._config.table);
@@ -103,7 +103,7 @@ export class TableGeneratorComponent implements OnInit {
                             });
                             _.set(element, key, result);
                         }
-                        if (_.hasIn(element, 'headerActions')) {
+                        if(_.hasIn(element,'headerActions') && element.headerActions){
                             key = 'headerActions';
                             let result = (<any[]>_.get(element, key)).filter((menu: TableAction) => {
                                 if (menu.permission) {
@@ -124,31 +124,35 @@ export class TableGeneratorComponent implements OnInit {
     }
 
 
-    get config() {
+    get config(): {
+        filter: any;
+        search: string;
+        table: TableSchemaElement[];
+    } {
         return this._config;
     }
 
     @Input()
     set config(value) {
-        console.log('in set config', value);
-        if (_.hasIn(value, 'table')) {
-            value.table.forEach(t => {
-                console.log('t', t);
-                if (t.modifyData && (!t.hook || t.hook === '')) {
+        console.log('in set config',value);
+        if(_.hasIn(value,'table')){
+            value.table.forEach(t=>{
+                console.log('t',t);
+                if(t.modifyData && !t.hook){
                     t['hook'] = t.modifyData;
                 }
-                if (t.header && (!t.title || t.title === '')) {
+                if(t.header && (!t.title || t.title === '')){
                     t['title'] = t.header;
                 }
-                if (t.type && t.type === 'model') {
+                if(t.type && t.type === 'model'){
                     t.type = 'value';
                 }
-                if (t.key && (!t.pathToValue || t.pathToValue === '')) {
+                if(t.key && (!t.pathToValue || t.pathToValue === '')){
                     t.pathToValue = t.key;
                 }
             })
         }
-        console.log('in set config', value);
+        console.log('in set config',value);
         this._config = value;
     }
 }

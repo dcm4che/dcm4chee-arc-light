@@ -1,33 +1,35 @@
 @if (cohereMode) {
-<div class="input_block"><input type="text" [ngClass]="{'ng-invalid':(!validString)}"  [(ngModel)]="model" placeholder="{{placeholder}}" (ngModelChange)="change($event)"/><span (click)="toggle()" class="glyphicon glyphicon-time"></span></div>
+    <div class="input_block"><input type="text" [ngClass]="{'ng-invalid':(!validString)}" [(ngModel)]="model"
+                                    placeholder="{{placeholder}}" (ngModelChange)="change($event)"/><span
+            (click)="toggle()" class="glyphicon glyphicon-time"></span></div>
 }
 @if (timepickerOpen) {
-<div class="timepicker" [ngClass]="{'cohere':cohereMode}">
-    <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-    <h6 i18n="@@time-picker.title">Select time (hh:mm:ss)</h6>
-    <div class="timers_block">
-        <select [(ngModel)]="hh">
-            @for (h of hhArray; track h) {
-<option value="{{h}}">{{h}}</option>
-}
-        </select>
-        <span>:</span>
-        <select [(ngModel)]="mm">
-            @for (m of mmArray; track m) {
-<option value="{{m}}">{{m}}</option>
-}
-        </select>
-        <span>:</span>
-        <select [(ngModel)]="ss">
-            @for (s of ssArray; track s) {
-<option value="{{s}}">{{s}}</option>
-}
-        </select>
+    <div class="timepicker" [ngClass]="{'cohere':cohereMode}">
+        <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
+        <h6 i18n="@@time-picker.title">Select time (hh:mm:ss)</h6>
+        <div class="timers_block">
+            <select [(ngModel)]="hh">
+                @for (h of hhArray; track h) {
+                    <option value="{{h}}">{{ h }}</option>
+                }
+            </select>
+            <span>:</span>
+            <select [(ngModel)]="mm">
+                @for (m of mmArray; track m) {
+                    <option value="{{m}}">{{ m }}</option>
+                }
+            </select>
+            <span>:</span>
+            <select [(ngModel)]="ss">
+                @for (s of ssArray; track s) {
+                    <option value="{{s}}">{{ s }}</option>
+                }
+            </select>
+        </div>
+        <div class="btn_content">
+            <button class="btn set_time" (click)="addTime()" i18n="@@set_time">Set time</button>
+            <button class="btn" (click)="setTo00()">00:00</button>
+            <button class="btn" (click)="setToNow()" i18n="@@time-picker.now">Now</button>
+        </div>
     </div>
-    <div class="btn_content">
-        <button class="btn set_time" (click)="addTime()" i18n="@@set_time">Set time</button>
-        <button class="btn" (click)="setTo00()">00:00</button>
-        <button class="btn" (click)="setToNow()" i18n="@@time-picker.now">Now</button>
-    </div>
-</div>
 }

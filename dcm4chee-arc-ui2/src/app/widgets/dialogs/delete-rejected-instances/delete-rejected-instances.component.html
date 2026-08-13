@@ -1,25 +1,29 @@
 <div class="vex vex-theme-os confirm" xmlns="http://www.w3.org/1999/html">
     <div class="vex-dialog-form">
         <div class="form-group">
-            <label i18n="@@delete-rejected.delete_instances_with_rejected_type">Delete rejected instances with rejection note type</label>
+            <label i18n="@@delete-rejected.delete_instances_with_rejected_type">Delete rejected instances with rejection
+                note type</label>
             <select id="reject" [(ngModel)]="results.reject" name="reject" class="form-control">
                 @for (rjn of rjnotes; track rjn) {
-<option title="{{rjn.codeMeaning}}" value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{rjn.label}}</option>
-}
-                </select>
-            </div>
+                    <option title="{{rjn.codeMeaning}}"
+                            value="{{rjn.codeValue}}^{{rjn.codingSchemeDesignator}}">{{ rjn.label }}
+                    </option>
+                }
+            </select>
+        </div>
         <div class="form-group">
-        <label i18n="@@delete-rejected.maximum_reject_date_of_instances_to_delete">Maximum date of rejected instances to delete</label>
+            <label i18n="@@delete-rejected.maximum_reject_date_of_instances_to_delete">Maximum date of rejected
+                instances to delete</label>
             <!--<input [(ngModel)]="rejectedBefore.date" autocomplete="off" class="form-control" (click)="rejectedBeforeOpen()" placeholder="Delete all instances before this date" is-open="rejectedBefore.opened" id="rejectedBefore" title="Delete all instances before this date" type="text" uib-datepicker-popup="{{format2}}" close-text="Close"/>-->
-<!--            <p-calendar
-                    dataType="string"
-                    [(ngModel)]="results.rejectedBefore"
-                    dateFormat="yy-mm-dd"
-                    monthNavigator="true"
-                    yearNavigator="true"
-                    yearRange="1800:2100"
-                    placeholder=" Delete all instances before this date"
-            ></p-calendar>-->
+            <!--            <p-calendar
+                                dataType="string"
+                                [(ngModel)]="results.rejectedBefore"
+                                dateFormat="yy-mm-dd"
+                                monthNavigator="true"
+                                yearNavigator="true"
+                                yearRange="1800:2100"
+                                placeholder=" Delete all instances before this date"
+                        ></p-calendar>-->
             <range-picker
                     [model]="results.rejectedBefore"
                     (modelChange)="results.rejectedBefore = $event"
@@ -30,14 +34,16 @@
             ></range-picker>
         </div>
         <div class="checkbox">
-        <label i18n="@@delete-rejected.if_checked_keep_rejection_note_instance">
-            if checked, keep rejection note instances - only delete rejected instances
-            <input type="checkbox" name="keepRejectionNote" [(ngModel)]="results.keepRejectionNote" />
-            <!--<ng-container i18n="@@delete-rejected.if_checked_keep_rejection_note_instance">if checked, keep rejection note instances - only delete rejected instances</ng-container>-->
-        </label>
+            <label i18n="@@delete-rejected.if_checked_keep_rejection_note_instance">
+                if checked, keep rejection note instances - only delete rejected instances
+                <input type="checkbox" name="keepRejectionNote" [(ngModel)]="results.keepRejectionNote"/>
+                <!--<ng-container i18n="@@delete-rejected.if_checked_keep_rejection_note_instance">if checked, keep rejection note instances - only delete rejected instances</ng-container>-->
+            </label>
         </div>
         <div class="dialogbuttons">
-            <button type="submit" class="btn-danger btn vex-dialog-button vex-first" (click)="dialogRef.close(results)" [disabled]="!results.reject">Delete all</button>
+            <button type="submit" class="btn-danger btn vex-dialog-button vex-first" (click)="dialogRef.close(results)"
+                    [disabled]="!results.reject">Delete all
+            </button>
             <button class="cancle" type="button" (click)="dialogRef.close(null)" i18n="@@CANCEL">CANCEL</button>
         </div>
     </div>

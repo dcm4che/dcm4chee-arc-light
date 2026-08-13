@@ -1,59 +1,62 @@
 <div class="patient_name_picker" [ngClass]="{'open':selectorOpen}">
     <div class="input_field">
         <div class="input_block">
-            <input class="model_input" type="text" [(ngModel)]="model" placeholder="{{placeholder}}" title="{{title}}" (ngModelChange)="filterChanged()">
+            <input class="model_input" type="text" [(ngModel)]="model" placeholder="{{placeholder}}" title="{{title}}"
+                   (ngModelChange)="filterChanged()">
             @if (model) {
-<span class="glyphicon glyphicon-remove" (click)="hardClear()"></span>
-}
+                <span class="glyphicon glyphicon-remove" (click)="hardClear()"></span>
+            }
         </div>
         <i class="material-icons filter_button" (click)="togglePicker()">
             subdirectory_arrow_right
         </i>
     </div>
     @if (selectorOpen) {
-<div class="overlay" (click)="selectorOpen = false"></div>
-}
+        <div class="overlay" (click)="selectorOpen = false"></div>
+    }
     <div class="dialog" [hidden]="!selectorOpen">
         <div class="dialog_block">
             @if (selectorOpen) {
 
                 <div class="content_block">
                     @if (title) {
-<h5 class="title">{{title}}</h5>
-}
+                        <h5 class="title">{{ title }}</h5>
+                    }
                     @if (issuers && issuers.length <= viewLimit) {
 
                         <div class="table widget_table">
                             <div class="tr">
                                 @for (issuer of issuers; track issuer) {
-<div class="th">{{issuer.label}}</div>
-}
+                                    <div class="th">{{ issuer.label }}</div>
+                                }
                             </div>
                             <div class="tr">
                                 @for (issuer of issuers; track trackById($index, issuer)) {
-<div class="td">
-                                    <input type="text" class="issuer_model" [placeholder]="issuer.label" [(ngModel)]="filterModel[issuer.key]" (ngModelChange)="set()">
-                                </div>
-}
+                                    <div class="td">
+                                        <input type="text" class="issuer_model" [placeholder]="issuer.label"
+                                               [(ngModel)]="filterModel[issuer.key]" (ngModelChange)="set()">
+                                    </div>
+                                }
                             </div>
                         </div>
-                    
-}
+
+                    }
                     @if (issuers && issuers.length > viewLimit) {
 
                         @for (issuer of issuers; track issuer) {
-<div class="issuers">
-                            <div class="issuer" title="{{issuer.key}}">
-                                <label class="issuer_label">{{issuer.label}}</label>
-                                <input type="text" class="issuer_model" [(ngModel)]="filterModel[issuer.key]" (ngModelChange)="set()">
+                            <div class="issuers">
+                                <div class="issuer" title="{{issuer.key}}">
+                                    <label class="issuer_label">{{ issuer.label }}</label>
+                                    <input type="text" class="issuer_model" [(ngModel)]="filterModel[issuer.key]"
+                                           (ngModelChange)="set()">
+                                </div>
                             </div>
-                        </div>
-}
-                    
-}
+                        }
+
+                    }
                 </div>
-            
-}
+
+            }
         </div>
     </div>
 </div>

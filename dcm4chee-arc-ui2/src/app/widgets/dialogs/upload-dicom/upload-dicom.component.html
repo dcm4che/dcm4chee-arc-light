@@ -7,47 +7,51 @@
                 <label i18n="@@upload-dicom.select_the_ae_title">Select the ae title:</label>
                 <mat-select [ngModel]="selectedAe" (ngModelChange)="selectedAe = $event">
                     @for (ae of aes; track ae) {
-<mat-option [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}</mat-option>
-}
+                        <mat-option [value]="ae.dicomAETitle" title="{{ae.dicomDescription}}">{{ ae.dicomAETitle }}
+                        </mat-option>
+                    }
                 </mat-select>
-            
-}
+
+            }
             @if (selectedWebApp) {
 
                 <label i18n="@@select_the_stow_rs_server">Select the STOW-RS server:</label>
                 <mat-select [ngModel]="selectedWebApp" (ngModelChange)="selectedWebApp = $event">
                     @for (webApp of webApps; track webApp) {
-<mat-option [value]="webApp" title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}</mat-option>
-}
+                        <mat-option [value]="webApp"
+                                    title="{{webApp.dcmWebAppName }}({{webApp.dicomAETitle }},{{webApp.dicomDeviceName}})">{{ webApp.dcmWebAppName }}
+                        </mat-option>
+                    }
                 </mat-select>
-            
-}
+
+            }
             <!--<input type="file" ng2FileSelect [uploader]="vendorUpload" />-->
             <label i18n="@@upload-dicom.choose_dicom_files_to_upload">Choose DICOM Files to upload:</label>
             <input type="file" [(ngModel)]="file" (change)="fileChange($event)"
                    i18n-title="upload-dicom.choose_dicom_files_to_upload_title"
                    title="Choose DICOM files to upload"
-                   i18n-placeholder="@@upload_file" placeholder="Upload file"  multiple>
+                   i18n-placeholder="@@upload_file" placeholder="Upload file" multiple>
             <div mat-dialog-content>
                 @for (file of fileList; track file) {
-<div class="upload_state">
-                    {{file.name}}
-                    @if (percentComplete[file.name] && percentComplete[file.name].status) {
-<span class="text-danger">Error {{percentComplete[file.name].status}}</span>
-}
-                    @if (percentComplete[file.name] && percentComplete[file.name].showLoader && !percentComplete[file.name].showTicker) {
-<span class="upload_ticker"><i class="fa fa-circle-o-notch fa-spin"></i></span>
-}
-                    @if (percentComplete[file.name] && percentComplete[file.name].showTicker) {
-<span class="upload_ticker"><i class="material-icons">check</i></span>
-}
-                    @if (percentComplete && percentComplete[file.name] && percentComplete[file.name].value) {
-<div>
-                        <mat-progress-bar color="primary" mode="determinate" [value]="percentComplete[file.name].value"></mat-progress-bar>
+                    <div class="upload_state">
+                        {{ file.name }}
+                        @if (percentComplete[file.name] && percentComplete[file.name].status) {
+                            <span class="text-danger">Error {{ percentComplete[file.name].status }}</span>
+                        }
+                        @if (percentComplete[file.name] && percentComplete[file.name].showLoader && !percentComplete[file.name].showTicker) {
+                            <span class="upload_ticker"><i class="fa fa-circle-o-notch fa-spin"></i></span>
+                        }
+                        @if (percentComplete[file.name] && percentComplete[file.name].showTicker) {
+                            <span class="upload_ticker"><i class="material-icons">check</i></span>
+                        }
+                        @if (percentComplete && percentComplete[file.name] && percentComplete[file.name].value) {
+                            <div>
+                                <mat-progress-bar color="primary" mode="determinate"
+                                                  [value]="percentComplete[file.name].value"></mat-progress-bar>
+                            </div>
+                        }
                     </div>
-}
-                </div>
-}
+                }
             </div>
         </div>
         <div class="dialogbuttons">

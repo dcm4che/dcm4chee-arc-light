@@ -1,22 +1,24 @@
 <div class="widghet_content" (keydown)="keyDown($event)">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-    <input class="dictionary_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.dictionary-picker.__search" placeholder="  Search.." (keyup)="onSearch()">
+    <input class="dictionary_widget_search" [(ngModel)]="filter"
+           i18n-placeholder="@@placeholder.dictionary-picker.__search" placeholder="  Search.." (keyup)="onSearch()">
     <div class="dictionary_widget" (scroll)="onScroll($event)">
         <ul class="list">
             @for (dictionary of dcmTagsFiltered|slice:0:sliceTo; track dictionary) {
-<li (click)="addSelectedElement(dictionary)" title="{{dictionary.description}}"><span [innerHTML]="dictionary.key"></span> @if (!hideDots) {
-<span>:</span>
-} <span [innerHTML]="dictionary.text"></span></li>
-}
-            @if (sliceTo <= dcmTags.length && (!filter || filter==='')) {
-<button class="load_more" (click)="loadMore()">
-                <!--<i *ngIf="moreHl7.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>-->
-                <ng-container i18n="@@more">More</ng-container>
-            </button>
-}
+                <li (click)="addSelectedElement(dictionary)" title="{{dictionary.description}}"><span
+                        [innerHTML]="dictionary.key"></span> @if (!hideDots) {
+                    <span>:</span>
+                } <span [innerHTML]="dictionary.text"></span></li>
+            }
+            @if (sliceTo <= dcmTags.length && (!filter || filter === '')) {
+                <button class="load_more" (click)="loadMore()">
+                    <!--<i *ngIf="moreHl7.loaderActive" class="fa fa-spinner fa-spin fa-3x fa-fw"></i>-->
+                    <ng-container i18n="@@more">More</ng-container>
+                </button>
+            }
         </ul>
         @if ((dcmTags|search:filter).length === 0) {
-<div class="no_result" i18n="@@searched_element_not_found">Searched element not found!</div>
-}
+            <div class="no_result" i18n="@@searched_element_not_found">Searched element not found!</div>
+        }
     </div>
 </div>

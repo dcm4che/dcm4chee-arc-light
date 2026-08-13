@@ -1,43 +1,47 @@
-    <!--selectedDropdown:{{selectedDropdown|json}}-->
-<div class="j4care_dropdown" (clickOutside)="showDropdown = false" [clickOutsideExceptionClass]="['option', 'dropdown_input', 'input_part', 'selected_value', 'glyphicon-triangle-bottom', 'select']">
+<!--selectedDropdown:{{selectedDropdown|json}}-->
+<div class="j4care_dropdown" (clickOutside)="showDropdown = false"
+     [clickOutsideExceptionClass]="['option', 'dropdown_input', 'input_part', 'selected_value', 'glyphicon-triangle-bottom', 'select']">
     <div class="dropdown_input" (click)="toggleDropdown()">
         <div class="input_part">
             @if (multiSelectMode) {
 
                 @if (multiSelectValue && multiSelectValue.length > 0 && multiSelectValue.length <= maxSelectedValueShown) {
-<div class="selected_value">{{multiSelectValue}}</div>
-}
+                    <div class="selected_value">{{ multiSelectValue }}</div>
+                }
                 @if (multiSelectValue && multiSelectValue.length > maxSelectedValueShown) {
-<div class="selected_value">( {{multiSelectValue.length}} ) <ng-container i18n="@@selected">selected</ng-container></div>
-}
+                    <div class="selected_value">( {{ multiSelectValue.length }} )
+                        <ng-container i18n="@@selected">selected</ng-container>
+                    </div>
+                }
                 @if (!multiSelectValue || multiSelectValue.length === 0) {
-<div class="selected_value">{{placeholder}}</div>
-}
-            
-}
+                    <div class="selected_value">{{ placeholder }}</div>
+                }
+
+            }
             @if (!multiSelectMode && (selectedValue && selectedDropdown)) {
 
                 @if (!(selectedDropdown && selectedDropdown.htmlLabel)) {
-<div class="selected_value">{{selectedDropdown.label || selectedDropdown.text || selectedDropdown.value}}</div>
-}
+                    <div class="selected_value">{{ selectedDropdown.label || selectedDropdown.text || selectedDropdown.value }}</div>
+                }
                 @if (selectedDropdown && selectedDropdown.htmlLabel) {
-<div class="selected_value" [innerHTML]="selectedDropdown.htmlLabel"></div>
-}
-            
-}
+                    <div class="selected_value" [innerHTML]="selectedDropdown.htmlLabel"></div>
+                }
+
+            }
             @if (!(selectedValue && selectedDropdown) && !multiSelectMode) {
-<div class="selected_value empty_field">{{placeholder}}</div>
-}
+                <div class="selected_value empty_field">{{ placeholder }}</div>
+            }
         </div>
         <span class="glyphicon glyphicon-triangle-bottom"></span>
     </div>
-    <div class="select" [@showHide]="showDropdown ? 'show':'hide'" >
+    <div class="select" [@showHide]="showDropdown ? 'show':'hide'">
         @if (showSearchField) {
-<div action="" class="search_block">
-            <input type="checkbox" [(ngModel)]="isAllCheck"(change)="allChecked($event)">
-            <input type="text" i18n-placeholder="@@search" placeholder="Search" [(ngModel)]="search" (keyup)="searchEvent()">
-        </div>
-}
+            <div action="" class="search_block">
+                <input type="checkbox" [(ngModel)]="isAllCheck" (change)="allChecked($event)">
+                <input type="text" i18n-placeholder="@@search" placeholder="Search" [(ngModel)]="search"
+                       (keyup)="searchEvent()">
+            </div>
+        }
         <ng-content></ng-content>
     </div>
 </div>

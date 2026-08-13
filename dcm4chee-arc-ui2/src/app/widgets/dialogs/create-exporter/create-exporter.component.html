@@ -3,11 +3,12 @@
     <div class="dialog_content">
         <div mat-dialog-content>
             @if (formObj) {
-<dynamic-form [formelements]="formObj" [dontShowSearch]="true" [model]="archive" [dontGroup]="true" (submitFunction)="submitFunction($event)"></dynamic-form>
-}
+                <dynamic-form [formelements]="formObj" [dontShowSearch]="true" [model]="archive" [dontGroup]="true"
+                              (submitFunction)="submitFunction($event)"></dynamic-form>
+            }
             @if (!formObj) {
-<i class="fa fa-circle-o-notch fa-spin"></i>
-}
+                <i class="fa fa-circle-o-notch fa-spin"></i>
+            }
         </div>
     </div>
 </div>

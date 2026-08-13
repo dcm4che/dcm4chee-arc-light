@@ -1,67 +1,80 @@
-<h3>{{title}}</h3>
+<h3>{{ title }}</h3>
 @if (selectedElements.action === 'move' || selectedElements.action === 'link') {
-<div>
-    <div class="line_block">
-        <span class="line_element"><ng-container i18n="@@select_rejection_note_type">Select Rejection Note type</ng-container>:</span>
-        <select class="line_element" id="reject" [(ngModel)]="reject" name="reject">
-            @for (rjn of rjnotes; track rjn) {
-<option title="{{rjn.title}}" value="{{rjn.value}}">{{rjn.text}}</option>
-}
-        </select>
+    <div>
+        <div class="line_block">
+            <span class="line_element"><ng-container
+                    i18n="@@select_rejection_note_type">Select Rejection Note type</ng-container>:</span>
+            <select class="line_element" id="reject" [(ngModel)]="reject" name="reject">
+                @for (rjn of rjnotes; track rjn) {
+                    <option title="{{rjn.title}}" value="{{rjn.value}}">{{ rjn.text }}</option>
+                }
+            </select>
+        </div>
     </div>
-</div>
 }
 @switch (target.dicomLevel) {
     @case ('patient') {
         <div>
-        <h3 i18n="@@selected_target_patient">Selected target patient</h3>
-        @if (target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic) {
-        <span>
-            <b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b> with the Patient ID
+            <h3 i18n="@@selected_target_patient">Selected target patient</h3>
+            @if (target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic) {
+                <span>
+            <b>{{ target.object.attrs['00100010'].Value[0].Alphabetic }}</b> with the Patient ID
             <b>
                 <span [innerHTML]="(target.object.attrs|patientIssuer)?.html"></span>
             </b>
         </span><br>
-        } @else {
-        <span>Patient ID <b><span [innerHTML]="(target.object.attrs|patientIssuer)?.html"></span></b></span><br>
-        }
-        @if (selectedElements.action != 'merge') {
-        <div>
-            ( <ng-container i18n="@@study-transferring_overview.an_empty_study_will_be_automatically_created">An empty study will be automatically created, so it can be used as target study!</ng-container> )
+            } @else {
+                <span>Patient ID <b><span [innerHTML]="(target.object.attrs|patientIssuer)?.html"></span></b></span><br>
+            }
+            @if (selectedElements.action != 'merge') {
+                <div>
+                    (
+                    <ng-container i18n="@@study-transferring_overview.an_empty_study_will_be_automatically_created">An
+                        empty study will be automatically created, so it can be used as target study!
+                    </ng-container>
+                    )
+                </div>
+            }
         </div>
-        }
-    </div>
     }
     @case ('mwl') {
-    <div class="targetobject">
-        <h3 i18n="@@selected_target_mwl">Selected target MWL</h3>
-        @if (target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic) {
-        <span>Patient Name:<b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b></span><br>
-        } @else {
-        <span>Patient ID: <b><span [innerHTML]="(target.object.attrs|patientIssuer)?.html"></span></b></span><br>
-        }
-        @if (target && target.object.attrs && target.object.attrs['00400100'] && target.object.attrs['00400100'].Value && target.object.attrs['00400100'].Value[0] && target.object.attrs['00400100'].Value[0]['00400001'] && target.object.attrs['00400100'].Value[0]['00400001'].Value && target.object.attrs['00400100'].Value[0]['00400001'].Value[0]) {
-        <span><ng-container i18n="@@scheduled_station_ae_title">Scheduled Station AE Title</ng-container>: {{target.object.attrs['00400100'].Value[0]['00400001'].Value[0]}}</span>
-        }
-        <br>
-    </div>
+        <div class="targetobject">
+            <h3 i18n="@@selected_target_mwl">Selected target MWL</h3>
+            @if (target && target.object.attrs && target.object.attrs['00100010'] && target.object.attrs['00100010'].Value && target.object.attrs['00100010'].Value[0].Alphabetic) {
+                <span>Patient Name:<b>{{ target.object.attrs['00100010'].Value[0].Alphabetic }}</b></span><br>
+            } @else {
+                <span>Patient ID: <b><span [innerHTML]="(target.object.attrs|patientIssuer)?.html"></span></b></span>
+                <br>
+            }
+            @if (target && target.object.attrs && target.object.attrs['00400100'] && target.object.attrs['00400100'].Value && target.object.attrs['00400100'].Value[0] && target.object.attrs['00400100'].Value[0]['00400001'] && target.object.attrs['00400100'].Value[0]['00400001'].Value && target.object.attrs['00400100'].Value[0]['00400001'].Value[0]) {
+                <span><ng-container
+                        i18n="@@scheduled_station_ae_title">Scheduled Station AE Title</ng-container>: {{ target.object.attrs['00400100'].Value[0]['00400001'].Value[0] }}</span>
+            }
+            <br>
+        </div>
     }
     @default {
-    <div>
-        <h3 i18n="@@selected_target_study">Selected target study</h3>
-        <ng-container i18n="@@study_instance_uid">Study Instance UID</ng-container>: <b>{{target.object.attrs['0020000D'].Value[0]}}</b><br>
-        <ng-container i18n="@@patient_name">Patient Name</ng-container>: <b>{{target.object.attrs['00100010'].Value[0].Alphabetic}}</b><br>
-        <ng-container i18n="@@patient_identifiers">Patient Identifiers</ng-container>: <b><span [innerHTML]="(target.object.attrs|patientIssuer)?.html"></span></b><br>
-    </div>
+        <div>
+            <h3 i18n="@@selected_target_study">Selected target study</h3>
+            <ng-container i18n="@@study_instance_uid">Study Instance UID</ng-container>
+            : <b>{{ target.object.attrs['0020000D'].Value[0] }}</b><br>
+            <ng-container i18n="@@patient_name">Patient Name</ng-container>
+            : <b>{{ target.object.attrs['00100010'].Value[0].Alphabetic }}</b><br>
+            <ng-container i18n="@@patient_identifiers">Patient Identifiers</ng-container>
+            : <b><span [innerHTML]="(target.object.attrs|patientIssuer)?.html"></span></b><br>
+        </div>
     }
 }
 
-@for (level of ['patient','study','series','instance','mwl']; track level) {
-  @if (selectedElements.preActionElements[level] && Object.keys(selectedElements.preActionElements[level]) && Object.keys(selectedElements.preActionElements[level]).length > 0) {
-  <selections-dicom-view [selectionsDicomObjects]="selectedElements.preActionElements[level]" [dicomLevel]="level" (onRemoveFromSelection)="onRemoveFromSelection($event)"></selections-dicom-view>
-  }
+@for (level of ['patient', 'study', 'series', 'instance', 'mwl']; track level) {
+    @if (selectedElements.preActionElements[level] && Object.keys(selectedElements.preActionElements[level]) && Object.keys(selectedElements.preActionElements[level]).length > 0) {
+        <selections-dicom-view [selectionsDicomObjects]="selectedElements.preActionElements[level]" [dicomLevel]="level"
+                               (onRemoveFromSelection)="onRemoveFromSelection($event)"></selections-dicom-view>
+    }
 }
 <div class="dialogbuttons">
-  <button class="save" type="button" (click)="dialogRef.close({selectedElements:selectedElements,reject:reject})" [disabled]="(selectedElements.action === 'move' || selectedElements.action === 'link') && !reject">{{selectedElements.action|uppercase}}</button>
-  <button class="cancle" type="button" (click)="dialogRef.close(null)" i18n="@@CANCEL">CANCEL</button>
+    <button class="save" type="button" (click)="dialogRef.close({selectedElements:selectedElements,reject:reject})"
+            [disabled]="(selectedElements.action === 'move' || selectedElements.action === 'link') && !reject">{{ selectedElements.action|uppercase }}
+    </button>
+    <button class="cancle" type="button" (click)="dialogRef.close(null)" i18n="@@CANCEL">CANCEL</button>
 </div>

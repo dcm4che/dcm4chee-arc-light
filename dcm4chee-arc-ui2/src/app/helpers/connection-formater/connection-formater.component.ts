@@ -6,19 +6,19 @@ import * as _ from 'lodash-es';
     selector: 'connection-formater',
     template: `
         @for (connblock of dicomNetworkConnection; track connblock) {
-<div>
+            <div>
             <span>
-                {{connblock.dicomHostname}}
-                    @if (connblock.dicomPort) {
-:
-}
-                {{connblock.dicomPort}}
+                {{ connblock.dicomHostname }}
+                @if (connblock.dicomPort) {
+                    :
+                }
+                {{ connblock.dicomPort }}
             </span>
-            @if (connblock.dicomTLSCipherSuite) {
-<i title="{{connblock.dicomTLSCipherSuite}}" class="material-icons connection_tls" i18n="@@vpn_key">vpn_key</i>
-}
-        </div>
-}
+                @if (connblock.dicomTLSCipherSuite) {
+                    <i title="{{connblock.dicomTLSCipherSuite}}" class="material-icons connection_tls" i18n="@@vpn_key">vpn_key</i>
+                }
+            </div>
+        }
     `,
     standalone: true
 })

@@ -1,30 +1,34 @@
 <div class="dynamic_table ">
-  <div class="table_header">
-    <div class="tr">
-      @for (header of table; track header) {
-<div class="th {{header.cssClass}}" title="{{header.description}}" [ngStyle]="{width: header.calculatedWidth}">{{header.title}}</div>
-}
+    <div class="table_header">
+        <div class="tr">
+            @for (header of table; track header) {
+                <div class="th {{header.cssClass}}" title="{{header.description}}"
+                     [ngStyle]="{width: header.calculatedWidth}">{{ header.title }}
+                </div>
+            }
+        </div>
     </div>
-  </div>
-  <div class="table_body">
-    @for (study of dicomObject | slice:moreStudies.start:moreStudies.limit; track study; let index = $index) {
-<div class="tr load_more_start">
-      @for (table_element of table; track table_element) {
-<div class="td {{table_element.cssClass}}" [ngStyle]="{width: table_element.calculatedWidth}">
-        @if (_.hasIn(study[table_element.code],'Value[0].Alphabetic')) {
-<span>{{study[table_element.code]?.Value[0].Alphabetic || ''}}</span>
-}
-        @if (!_.hasIn(study[table_element.code],'Value[0].Alphabetic') && _.hasIn(study[table_element.code],'Value[0]')) {
-<span>{{study[table_element.code]?.Value[0] || ''}}</span>
-}
-      </div>
-}
+    <div class="table_body">
+        @for (study of dicomObject | slice:moreStudies.start:moreStudies.limit; track study; let index = $index) {
+            <div class="tr load_more_start">
+                @for (table_element of table; track table_element) {
+                    <div class="td {{table_element.cssClass}}" [ngStyle]="{width: table_element.calculatedWidth}">
+                        @if (_.hasIn(study[table_element.code], 'Value[0].Alphabetic')) {
+                            <span>{{ study[table_element.code]?.Value[0].Alphabetic || '' }}</span>
+                        }
+                        @if (!_.hasIn(study[table_element.code], 'Value[0].Alphabetic') && _.hasIn(study[table_element.code], 'Value[0]')) {
+                            <span>{{ study[table_element.code]?.Value[0] || '' }}</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        @if (dicomObject && moreStudies.limit <= dicomObject.length) {
+            <button class="load_more" (click)="loadMoreStudiesOnScroll()">@if (moreStudies.loaderActive) {
+                <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+            }
+                <ng-container i18n="@@more">More</ng-container>
+            </button>
+        }
     </div>
-}
-    @if (dicomObject && moreStudies.limit <= dicomObject.length) {
-<button class="load_more" (click)="loadMoreStudiesOnScroll()">@if (moreStudies.loaderActive) {
-<i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
-}<ng-container i18n="@@more">More</ng-container></button>
-}
-  </div>
 </div>

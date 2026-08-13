@@ -1,13 +1,10 @@
-<!--<span *ngIf="schema"> SCHEMA </span>
-<span *ngIf="filterTreeHeight"> HEIGHT </span>
-<span *ngIf="filterID"> ID </span>-->
 <div [hidden]="schema && schema.length > 0 && filterTreeHeight" class="filter filter_loader">
     <div class="filter_block {{cssBlockClass}} height_{{filterTreeHeight || 2}}">
-        <mat-progress-spinner mode="indeterminate" [diameter]="40"></mat-progress-spinner>
+        <mat-progress-spinner mode="indeterminate" [diameter]="40" ></mat-progress-spinner>
     </div>
 </div>
 @if (schema && schema.length > 0 && filterTreeHeight) {
-    <div class="filter" (mouseleave)="mouseLeaveFilter()" (mouseenter)="mouseEnterFilter()" (keyup)="onKeyUp($event)">
+    <div class="filter" (mouseleave)="mouseLeaveFilter()" (mouseenter)="mouseEnterFilter()"  (keyup)="onKeyUp($event)">
         <div class="filter_template_function">
             @if (showFilterButtons && !hideClearButtons) {
                 <span class="clearform_button">

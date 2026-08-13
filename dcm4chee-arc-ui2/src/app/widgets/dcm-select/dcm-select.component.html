@@ -1,20 +1,22 @@
-<div class="option" >
-    <input class="toggle_button" [(ngModel)]="selectedElement" (click)="selectOpen = !selectOpen" placeholder="{{placeholder}}"/>
+<div class="option">
+    <input class="toggle_button" [(ngModel)]="selectedElement" (click)="selectOpen = !selectOpen"
+           placeholder="{{placeholder}}"/>
     @if (selectOpen) {
-<div class="toggle_block" (clickOutside)='selectOpen = !selectOpen' [clickOutsideExceptionClass]="['toggle_button', 'option']">
-        <!--<span class="selected_element">{{selectedElement}}</span>-->
-        @if (options && options.length > 6) {
-<input type="text" [(ngModel)]="search" i18n-placeholder="@@search_dot" placeholder="Search...">
-}
-        <ul>
-            @for (select of options|search:search; track select) {
-<li>
-                <ng-template [ngTemplateOutlet]="templ" [ngTemplateOutletContext]="{select: select}">
-                    <span (click)="selectedElement=select.value">{{select.title}}</span>
-                </ng-template>
-            </li>
-}
-        </ul>
-    </div>
-}
+        <div class="toggle_block" (clickOutside)='selectOpen = !selectOpen'
+             [clickOutsideExceptionClass]="['toggle_button', 'option']">
+            <!--<span class="selected_element">{{selectedElement}}</span>-->
+            @if (options && options.length > 6) {
+                <input type="text" [(ngModel)]="search" i18n-placeholder="@@search_dot" placeholder="Search...">
+            }
+            <ul>
+                @for (select of options|search:search; track select) {
+                    <li>
+                        <ng-template [ngTemplateOutlet]="templ" [ngTemplateOutletContext]="{select: select}">
+                            <span (click)="selectedElement=select.value">{{ select.title }}</span>
+                        </ng-template>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
 </div>

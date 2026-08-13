@@ -1,57 +1,60 @@
 <div class="modal_form">
-  <h5 i18n="@@csv-upload.upload_csv_title">Upload csv file with Study Instance UIDs</h5>
-  <div class="content">
-    <form [formGroup]="form" >
-    @for (form of params.formSchema; track form) {
-<div class="form_control">
-      <label>{{form.description}}</label>
-      
-@switch (form.tag) {
-        @case ('select') {
-<mat-select formControlName="{{form.filterKey}}" placeholder="{{form.placeholder}}" class="form-control" >
-          @if (form.showStar) {
-<mat-option value="*">*</mat-option>
-}
-          @for (ae of form.options; track ae) {
-<mat-option value="{{ae.value}}">{{ae.text}}</mat-option>
-}
-        </mat-select>
-}
-        @case ('input') {
-<input formControlName="{{form.filterKey}}" type="{{form.type}}" placeholder="{{form.placeholder}}" class="form-control" (change)="inputChanged(form,$event)" >
-}
-        @case ('range-picker-time') {
-<range-picker
-                class="form-control"
-                [ngStyle]="form.style"
-               
-                [onlyDate]="form.onlyDate"
-                [model]="model[form.filterKey]"
-                (modelChange)="dateChanged(form.filterKey, $event)"
-                placeholder="{{form.description || form.placeholder}}"
-                dateFormat="yyyyMMdd"
-                [onlySingleMode]="true"
-                defaultTime="00:00:00"
-                mode="single"
-                title="{{form.description}}"
-        ></range-picker>
-}
-      }
+    <h5 i18n="@@csv-upload.upload_csv_title">Upload csv file with Study Instance UIDs</h5>
+    <div class="content">
+        <form [formGroup]="form">
+            @for (form of params.formSchema; track form) {
+                <div class="form_control">
+                    <label>{{ form.description }}</label>
 
+                    @switch (form.tag) {
+                        @case ('select') {
+                            <mat-select formControlName="{{form.filterKey}}" placeholder="{{form.placeholder}}"
+                                        class="form-control">
+                                @if (form.showStar) {
+                                    <mat-option value="*">*</mat-option>
+                                }
+                                @for (ae of form.options; track ae) {
+                                    <mat-option value="{{ae.value}}">{{ ae.text }}</mat-option>
+                                }
+                            </mat-select>
+                        }
+                        @case ('input') {
+                            <input formControlName="{{form.filterKey}}" type="{{form.type}}"
+                                   placeholder="{{form.placeholder}}" class="form-control"
+                                   (change)="inputChanged(form,$event)">
+                        }
+                        @case ('range-picker-time') {
+                            <range-picker
+                                    class="form-control"
+                                    [ngStyle]="form.style"
+
+                                    [onlyDate]="form.onlyDate"
+                                    [model]="model[form.filterKey]"
+                                    (modelChange)="dateChanged(form.filterKey, $event)"
+                                    placeholder="{{form.description || form.placeholder}}"
+                                    dateFormat="yyyyMMdd"
+                                    [onlySingleMode]="true"
+                                    defaultTime="00:00:00"
+                                    mode="single"
+                                    title="{{form.description}}"
+                            ></range-picker>
+                        }
+                    }
+
+                </div>
+            }
+            <div class="form_control">
+                <label i18n="@@csv-upload.select_csv_file">Select CSV-File:</label>
+                <input type="file" (change)="onFileChange($event)" class="form-control">
+            </div>
+            <div class="dialogbuttons">
+                <button class="save" (click)="submit()" [disabled]="!form.valid || !csvFile">
+                    @if (showLoader) {
+                        <span class="fa fa-circle-o-notch fa-spin csv_upload_loader"></span>
+                    }
+                    <ng-container i18n="@@upload">Upload</ng-container>
+                </button>
+            </div>
+        </form>
     </div>
-}
-      <div class="form_control">
-        <label i18n="@@csv-upload.select_csv_file">Select CSV-File:</label>
-        <input type="file" (change)="onFileChange($event)" class="form-control">
-      </div>
-      <div class="dialogbuttons">
-        <button class="save" (click)="submit()" [disabled]="!form.valid || !csvFile">
-          @if (showLoader) {
-<span class="fa fa-circle-o-notch fa-spin csv_upload_loader"></span>
-}
-          <ng-container i18n="@@upload">Upload</ng-container>
-        </button>
-      </div>
-    </form>
-  </div>
 </div>

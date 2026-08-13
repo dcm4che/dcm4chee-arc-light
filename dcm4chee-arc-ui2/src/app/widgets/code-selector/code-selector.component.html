@@ -1,9 +1,10 @@
 <div class="code_selector">
     <div class="main_input_block" title="{{title}}">
-        <input class="main_input" [ngClass]="{'ng-invalid':(!maiInputValid)}" type="text" [(ngModel)]="model" placeholder="{{placeholder}}"  (ngModelChange)="filterChanged()" (click)="selectorOpen = true">
+        <input class="main_input" [ngClass]="{'ng-invalid':(!maiInputValid)}" type="text" [(ngModel)]="model"
+               placeholder="{{placeholder}}" (ngModelChange)="filterChanged()" (click)="selectorOpen = true">
         @if (model) {
-<span class="glyphicon glyphicon-remove clear_picker" (click)="hardClear()"></span>
-}
+            <span class="glyphicon glyphicon-remove clear_picker" (click)="hardClear()"></span>
+        }
         <i class="material-icons filter_button" (click)="togglePicker()">
             subdirectory_arrow_right
         </i>
@@ -13,19 +14,19 @@
             </div>
             <div class="content_block">
                 @if (title) {
-<h5 class="title">{{title}}</h5>
-}
+                    <h5 class="title">{{ title }}</h5>
+                }
                 @for (code of codes; track code) {
-<div class="codes">
-                    <div class="code" title="{{code['key']}}">
-                        <label class="code_label">{{code['label']}}</label>
-                        <input type="text" class="code_model" [(ngModel)]="filterModel[code['key']]">
+                    <div class="codes">
+                        <div class="code" title="{{code['key']}}">
+                            <label class="code_label">{{ code['label'] }}</label>
+                            <input type="text" class="code_model" [(ngModel)]="filterModel[code['key']]">
+                        </div>
                     </div>
-                </div>
-}
+                }
                 <button class="set_button" (click)="set()" i18n="@@SET">SET</button>
             </div>
-        
-}
+
+        }
     </div>
 </div>

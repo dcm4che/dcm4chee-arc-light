@@ -7,17 +7,22 @@ import {
 
 
 export class TableSchemaElement {
-    private _type:TableSchemaElementType;
-    private _header?:string;
-    private _headerDescription?:string;
-    description?:string;
-    title?:string;
-    private _pathToValue?:string;/*Path or key of the value how you can find it on the data model*/
-    widthWeight?:number;/*width weight of this table element in compare to the others*/
-    cssClass?:string;
-    hook?:Function; /*Use this to modify the data*/
-    hoverHook?:Function; /*Use this to modify the data*/
-    actions?:TableAction[];
+    private _type?: TableSchemaElementType;
+    private _header?: string;
+    private _headerDescription?: string;
+    description?: string;
+    title?: string;
+    onClick?:Function;
+    private _pathToValue?: string;/*Path or key of the value how you can find it on the data model*/
+    private _key?: string;  /*key of the value how you can find it on the data model*/
+    widthWeight?: number;/*width weight of this table element in compare to the others*/
+    cssClass?: string;
+    hook?: Function; /*Use this to modify the data*/
+    attributesHook?: Function;
+    modifyData?: Function;
+    hoverHook?: Function; /*Use this to modify the data*/
+    actions?: TableAction[];
+    buttons?: any[];
     headerActions?:TableAction[];
     calculatedWidth?:string;
     pipe?:DynamicPipe;
@@ -27,34 +32,43 @@ export class TableSchemaElement {
     private _elementId:string;
     showBorder?:boolean;
     showBorderPath?:string;
+    diffMode?: boolean;
     saveTheOriginalValueOnTooltip?:boolean;
     hideTooltip?: boolean;
-
+    search?:string
     constructor(
-        options:{
-            type?:TableSchemaElementType,
-            header?:string,
-            headerDescription?:string,
-            pathToValue?:string,
-            widthWeight?:number,
-            cssClass?:string,
-            hook?:Function,
-            hoverHook?:Function,
-            actions?:TableAction[],
-            headerActions?:TableAction[],
-            calculatedWidth?:string,
-            pxWidth?:number
-            pipe?:DynamicPipe,
+        options: {
+            type?: TableSchemaElementType,
+            header?: string,
+            headerDescription?: string,
+            pathToValue?: string,
+            key?: string,
+            widthWeight?: number,
+            cssClass?: string,
+            hook?: Function,
+            onClick?: Function,
+            buttons?: any[],
+            attributesHook?: Function,
+            modifyData?: Function,
+            hoverHook?: Function,
+            actions?: TableAction[],
+            headerActions?: TableAction[],
+            calculatedWidth?: string,
+            pxWidth?: number
+            pipe?: DynamicPipe,
             title?:string,
-            menu?:ActionsMenu,
-            description?:string,
-            showIf?:Function,
-            showBorder?:boolean,
-            showBorderPath?:string,
-            hideTooltip?:boolean,
-            saveTheOriginalValueOnTooltip?:boolean
+            menu?: ActionsMenu,
+            search?:string,
+            description?: string,
+            showIf?: Function,
+            showBorder?: boolean,
+            showBorderPath?: string,
+            diffMode?: boolean,
+            hideTooltip?: boolean,
+            saveTheOriginalValueOnTooltip?: boolean
         } = {}
     ){
+        this._key = options.key || options.pathToValue;
         this._type = options.type;
         this._header = options.header;
         this._headerDescription = options.headerDescription;
@@ -64,6 +78,8 @@ export class TableSchemaElement {
         this.hook = options.hook;
         this.hoverHook = options.hoverHook;
         this.actions = options.actions;
+        this.buttons = options.buttons;
+        this.onClick = options.onClick;
         this.headerActions = options.headerActions;
         this.calculatedWidth = options.calculatedWidth;
         this.pipe = options.pipe;
@@ -75,6 +91,8 @@ export class TableSchemaElement {
         this.showBorder = options.showBorder;
         this.hideTooltip = options.hideTooltip;
         this.showBorderPath = options.showBorderPath;
+        this.diffMode = options.diffMode || false;
+        this.search = options.search;
         this.saveTheOriginalValueOnTooltip = options.saveTheOriginalValueOnTooltip;
 
         this.calculateElementID();
@@ -129,10 +147,20 @@ export class TableSchemaElement {
 
     set pathToValue(value: string) {
         this._pathToValue = value;
+        this._key = value;
         this.calculateElementID();
     }
 
     get pathToValue(): string {
         return this._pathToValue;
+    }
+
+    get key(): string {
+        return this._key;
+    }
+
+    set key(value: string) {
+        this._key = value;
+        this._pathToValue = value;
     }
 }

@@ -1,14 +1,15 @@
 <div class="widghet_content" (keydown)="keyDown($event)">
     <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-    <input class="language_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.dictionary-picker.__search" placeholder="  Search..">
-    <div class="language_widget" >
+    <input class="language_widget_search" [(ngModel)]="filter"
+           i18n-placeholder="@@placeholder.dictionary-picker.__search" placeholder="  Search..">
+    <div class="language_widget">
         <ul class="list">
             @for (dictionary of dcmTags|search:filter; track dictionary) {
-<li (click)="addSelectedElement(dictionary)"><span [innerHTML]="dictionary.text"></span></li>
-}
+                <li (click)="addSelectedElement(dictionary)"><span [innerHTML]="dictionary.text"></span></li>
+            }
         </ul>
         @if ((dcmTags|search:filter).length === 0) {
-<div class="no_result" i18n="@@searched_element_not_found">Searched element not found!</div>
-}
+            <div class="no_result" i18n="@@searched_element_not_found">Searched element not found!</div>
+        }
     </div>
 </div>

@@ -1,30 +1,34 @@
 @if (!mode) {
-<mat-select [ngModel]="localModel" (ngModelChange)="modelChanged($event)" ngDefaultControl>
-    @for (chargroup of specificChar; track chargroup) {
+    <mat-select [ngModel]="localModel" (ngModelChange)="modelChanged($event)" ngDefaultControl>
+        @for (chargroup of specificChar; track chargroup) {
 
-        <span title="{{chargroup.groupName}}" class="groupName">{{chargroup.groupName}}</span>
-        @for (char of chargroup.groupValues; track char) {
-<mat-option title="{{ char.title }} ({{char.value}})" value="{{char.value}}">{{ char.title }}</mat-option>
-}
-    
-}
-</mat-select>
+            <span title="{{chargroup.groupName}}" class="groupName">{{ chargroup.groupName }}</span>
+            @for (char of chargroup.groupValues; track char) {
+                <mat-option title="{{ char.title }} ({{char.value}})" value="{{char.value}}">{{ char.title }}
+                </mat-option>
+            }
+
+        }
+    </mat-select>
 }
 @if (mode && mode === 'configurator') {
-<div  class="widghet_content" (keydown)="keyDown($event)">
-    <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
-    <input class="dictionary_widget_search" [(ngModel)]="filter" i18n-placeholder="@@placeholder.specific-char-picker.__search" placeholder="  Search..">
-    <div class="char_widget" >
-        <div class="list">
-            @for (chargroup of specificChar|search:filter; track chargroup) {
-<div >
-                <span title="{{chargroup.groupName}}" class="groupName">{{chargroup.groupName}}</span>
-                @for (char of chargroup.groupValues|search:filter; track char) {
-<div class="list_element" title="{{ char.title }} ({{char.value}})" (click)="addSelectedElement(char.value)">{{ char.title }}</div>
-}
+    <div class="widghet_content" (keydown)="keyDown($event)">
+        <div class="close" (click)="close()"><span class="glyphicon glyphicon-remove"></span></div>
+        <input class="dictionary_widget_search" [(ngModel)]="filter"
+               i18n-placeholder="@@placeholder.specific-char-picker.__search" placeholder="  Search..">
+        <div class="char_widget">
+            <div class="list">
+                @for (chargroup of specificChar|search:filter; track chargroup) {
+                    <div>
+                        <span title="{{chargroup.groupName}}" class="groupName">{{ chargroup.groupName }}</span>
+                        @for (char of chargroup.groupValues|search:filter; track char) {
+                            <div class="list_element" title="{{ char.title }} ({{char.value}})"
+                                 (click)="addSelectedElement(char.value)">{{ char.title }}
+                            </div>
+                        }
+                    </div>
+                }
             </div>
-}
         </div>
     </div>
-</div>
 }

@@ -1,129 +1,135 @@
 @if (showDropdown) {
-<div class="overlay" (click)="showDropdown = false"></div>
+    <div class="overlay" (click)="showDropdown = false"></div>
 }
 <div class="dcm_dropdown" [ngClass]="{'single_mode':!multiSelectMode}">
-  <div class="dropdown_input"  [ngClass]="{'editable':editable&&showDropdown}">
-    <div class="input_part" (click)="!showDropdown && (showDropdown = true)">
-        <!--<pre style="position:fixed;right:10px;width:70%;top:40px;z-index: 9999999;height: 200px;">{{selectedDropdown|json}}</pre>-->
-        @if (multiSelectMode) {
+    <div class="dropdown_input" [ngClass]="{'editable':editable&&showDropdown}">
+        <div class="input_part" (click)="!showDropdown && (showDropdown = true)">
+            <!--<pre style="position:fixed;right:10px;width:70%;top:40px;z-index: 9999999;height: 200px;">{{selectedDropdown|json}}</pre>-->
+            @if (multiSelectMode) {
 
-            @if (multiSelectValue.length > 0 && multiSelectValue.length <= maxSelectedValueShown) {
-<div class="selected_value">{{multiSelectValue | arrayToString:', '}}</div>
-}
-            @if (multiSelectValue.length > maxSelectedValueShown) {
-<div class="selected_value">( {{multiSelectValue.length}} ) selected</div>
-}
-            @if (multiSelectValue.length === 0) {
-<div class="selected_value">{{placeholder}}</div>
-}
-        
-}
-        @if (!multiSelectMode && ((selectedValue || showSelectedEmptyValue) && selectedDropdown)) {
+                @if (multiSelectValue.length > 0 && multiSelectValue.length <= maxSelectedValueShown) {
+                    <div class="selected_value">{{ multiSelectValue | arrayToString:', ' }}</div>
+                }
+                @if (multiSelectValue.length > maxSelectedValueShown) {
+                    <div class="selected_value">( {{ multiSelectValue.length }} ) selected</div>
+                }
+                @if (multiSelectValue.length === 0) {
+                    <div class="selected_value">{{ placeholder }}</div>
+                }
 
-            @if (!(selectedDropdown && selectedDropdown.htmlLabel) && !editable) {
-<div class="selected_value">
-                {{selectedDropdown.label || selectedDropdown.text || selectedDropdown.value}}
+            }
+            @if (!multiSelectMode && ((selectedValue || showSelectedEmptyValue) && selectedDropdown)) {
+
+                @if (!(selectedDropdown && selectedDropdown.htmlLabel) && !editable) {
+                    <div class="selected_value">
+                        {{ selectedDropdown.label || selectedDropdown.text || selectedDropdown.value }}
+                    </div>
+                }
+                @if (selectedDropdown && selectedDropdown.htmlLabel) {
+                    <div class="selected_value" [innerHTML]="selectedDropdown.htmlLabel"></div>
+                }
+
+            }
+            @if (!(selectedDropdown && selectedDropdown.htmlLabel) && editable && !multiSelectMode) {
+                <input class="edited_input_value" title="{{placeholder}}" placeholder="{{placeholder}}" min="{{min}}"
+                       max="{{max}}" [(ngModel)]="selectedValue" (keyup)="inputChangedManually($event)">
+            }
+            @if (!((selectedValue || showSelectedEmptyValue) && selectedDropdown) && !multiSelectMode && !editable) {
+                <div class="selected_value empty_field">{{ placeholder }}</div>
+            }
+        </div>
+        <span class="glyphicon glyphicon-triangle-bottom" (click)="toggleDropdown()"></span>
+    </div>
+    <div class="select" [@showHide]="showDropdown ? 'show':'hide'">
+        @if (showSearchField) {
+            <div action="" class="search_block">
+                @if (multiSelectMode) {
+                    <input type="checkbox" class="dcm_input_checkbox" [(ngModel)]="isAllCheck"
+                           (change)="allChecked($event)">
+                }
+                <input type="text" [ngClass]="{'single_input':!multiSelectMode}" i18n-placeholder="@@search"
+                       placeholder="Search" [(ngModel)]="search">
             </div>
-}
-            @if (selectedDropdown && selectedDropdown.htmlLabel) {
-<div class="selected_value" [innerHTML]="selectedDropdown.htmlLabel"></div>
-}
-        
-}
-        @if (!(selectedDropdown && selectedDropdown.htmlLabel) && editable && !multiSelectMode) {
-<input class="edited_input_value" title="{{placeholder}}" placeholder="{{placeholder}}" min="{{min}}" max="{{max}}" [(ngModel)]="selectedValue" (keyup)="inputChangedManually($event)">
-}
-      @if (!((selectedValue || showSelectedEmptyValue) && selectedDropdown) && !multiSelectMode && !editable) {
-<div class="selected_value empty_field">{{placeholder}}</div>
-}
+        }
+        @if (editable && optionsTree) {
+            <div class="add_block">
+                <input class="edited_input_value" title="{{addFieldPlaceholder}}" placeholder="{{addFieldPlaceholder}}"
+                       [(ngModel)]="customTreeElement">
+                <span (click)="addCustomElement($event)" class="glyphicon glyphicon-plus"></span>
+            </div>
+        }
+        @if (!mixedMode) {
+            <ul class="option_block">
+                @if (showStar) {
+                    <li class="option" (click)="select('')">&nbsp;</li>
+                }
+                @if (options && !optionsTree) {
+
+                    @for (option of options|search:search; track option.value) {
+                        <li class="option" (click)="select(option)" [ngClass]="{'active':option.selected}"
+                            title="{{option.title || ''}}">
+                            @if (option.value && option.value != '' && multiSelectMode) {
+                                <input type="checkbox" class="dcm_input_checkbox" [(ngModel)]="option.selected">
+                            }
+                            @if (option.htmlLabel) {
+                                <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}"
+                                     [innerHTML]="option.htmlLabel"></div>
+                            }
+                            @if (!option.htmlLabel) {
+                                <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}">
+                                    {{ option.label || option.text || option.value }}
+                                </div>
+                            }
+                        </li>
+                    }
+                    @if (!options || options.length === 0) {
+                        <li class="option" (click)="select('')">
+                            <div class="dcm_input_value" i18n="@@no_elements_found">
+                                No Elements found
+                            </div>
+                        </li>
+                    }
+
+                } @else {
+
+                    <div class="tree_block">
+                        @for (group of optionsTree; track $index) {
+                            @if (group.label && group.label != '') {
+                                <label class="tree_label">{{ group.label }}</label>
+                            }
+                            @for (option of group.options|search:search; track option.label) {
+                                <li class="option" (click)="select(option)"
+                                    [ngClass]="{'active':option.selected,'tree':(group.label && group.label != '')}"
+                                    title="{{option.title || ''}}">
+                                    @if (option.value && option.value != '' && multiSelectMode) {
+                                        <input type="checkbox" class="dcm_input_checkbox"
+                                               [(ngModel)]="option.selected">
+                                    }
+                                    @if (option.htmlLabel) {
+                                        <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}"
+                                             [innerHTML]="option.htmlLabel"></div>
+                                    }
+                                    @if (!option.htmlLabel) {
+                                        <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}">
+                                            {{ option.label || option.text || option.value }}
+                                        </div>
+                                    }
+                                </li>
+                            }
+                            @if (!group || optionsTree?.length === 0) {
+                                <li class="option" (click)="select('')">
+                                    <div class="dcm_input_value" i18n="@@no_elements_found">
+                                        No Elements found
+                                    </div>
+                                </li>
+                            }
+                        }
+                    </div>
+
+
+                }
+
+            </ul>
+        }
     </div>
-    <span class="glyphicon glyphicon-triangle-bottom" (click)="toggleDropdown()"></span>
-  </div>
-  <div class="select" [@showHide]="showDropdown ? 'show':'hide'" >
-    @if (showSearchField) {
-<div action="" class="search_block">
-      @if (multiSelectMode) {
-<input type="checkbox"  class="dcm_input_checkbox" [(ngModel)]="isAllCheck" (change)="allChecked($event)">
-}
-      <input type="text" [ngClass]="{'single_input':!multiSelectMode}" i18n-placeholder="@@search" placeholder="Search" [(ngModel)]="search">
-    </div>
-}
-      @if (editable && optionsTree) {
-<div class="add_block">
-          <input class="edited_input_value"  title="{{addFieldPlaceholder}}" placeholder="{{addFieldPlaceholder}}" [(ngModel)]="customTreeElement">
-          <span (click)="addCustomElement($event)" class="glyphicon glyphicon-plus"></span>
-      </div>
-}
-      @if (!mixedMode) {
-<ul class="option_block">
-          @if (showStar) {
-<li class="option" (click)="select('')">&nbsp;</li>
-}
-          @if (options && !optionsTree) {
-
-              @for (option of options|search:search; track option.value) {
-<li class="option" (click)="select(option)" [ngClass]="{'active':option.selected}" title="{{option.title || ''}}">
-                  @if (option.value && option.value != '' && multiSelectMode) {
-<input type="checkbox" class="dcm_input_checkbox" [(ngModel)]="option.selected">
-}
-                  @if (option.htmlLabel) {
-<div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}" [innerHTML]="option.htmlLabel"></div>
-}
-                  @if (!option.htmlLabel) {
-<div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}">
-                      {{option.label || option.text || option.value}}
-                  </div>
-}
-              </li>
-}
-              @if (!options || options.length === 0) {
-<li class="option" (click)="select('')">
-                 <div class="dcm_input_value" i18n="@@no_elements_found">
-                  No Elements found
-                 </div>
-              </li>
-}
-          
-} @else {
-
-              <div class="tree_block">
-                  @for (group of optionsTree; track $index) {
-                      @if (group.label && group.label != '') {
-                          <label class="tree_label">{{ group.label }}</label>
-                      }
-                      @for (option of group.options|search:search; track option.label) {
-                          <li class="option" (click)="select(option)"
-                              [ngClass]="{'active':option.selected,'tree':(group.label && group.label != '')}"
-                              title="{{option.title || ''}}">
-                              @if (option.value && option.value != '' && multiSelectMode) {
-                                  <input type="checkbox" class="dcm_input_checkbox"
-                                         [(ngModel)]="option.selected">
-                              }
-                              @if (option.htmlLabel) {
-                                  <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}"
-                                       [innerHTML]="option.htmlLabel"></div>
-                              }
-                              @if (!option.htmlLabel) {
-                                  <div class="dcm_input_value" [ngClass]="{'with_checkbox':multiSelectMode}">
-                                      {{ option.label || option.text || option.value }}
-                                  </div>
-                              }
-                          </li>
-                      }
-                      @if (!group || optionsTree?.length === 0) {
-                          <li class="option" (click)="select('')">
-                              <div class="dcm_input_value" i18n="@@no_elements_found">
-                                  No Elements found
-                              </div>
-                          </li>
-                      }
-                  }
-              </div>
-
-          
-}
-          
-      </ul>
-}
-  </div>
 </div>

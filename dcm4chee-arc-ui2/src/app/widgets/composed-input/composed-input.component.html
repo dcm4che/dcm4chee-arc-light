@@ -2,14 +2,16 @@
     @for (el of Array(inputSize); track el; let i = $index) {
 
         @if (placeholderElements) {
-<input  [ngStyle]="{width: 'calc( 100% /' + inputSize +')'}" type="text" [(ngModel)]="modelArray[i]" [placeholder]="placeholderElements[i]" (ngModelChange)="onchange($event)">
-}
+            <input [ngStyle]="{width: 'calc( 100% /' + inputSize +')'}" type="text" [(ngModel)]="modelArray[i]"
+                   [placeholder]="placeholderElements[i]" (ngModelChange)="onchange($event)">
+        }
         @if (!placeholderElements) {
-<input  [ngStyle]="{width: 'calc( 100% /' + inputSize +')'}" type="text" [(ngModel)]="modelArray[i]"  (ngModelChange)="onchange($event)">
-}
-        @if (i+1 < inputSize && (joins[i] || joins)) {
-<span class="join_string">{{joins[i] || joins}}</span>
-}
-    
-}
+            <input [ngStyle]="{width: 'calc( 100% /' + inputSize +')'}" type="text" [(ngModel)]="modelArray[i]"
+                   (ngModelChange)="onchange($event)">
+        }
+        @if (i + 1 < inputSize && (joins[i] || joins)) {
+            <span class="join_string">{{ joins[i] || joins }}</span>
+        }
+
+    }
 </div>
