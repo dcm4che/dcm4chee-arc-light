@@ -2542,12 +2542,15 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['showRefreshIcon']], false);
             _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['showDynamicLoader']], false);
             _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['text']], `( ${this.largeIntFormat.transform(value)} ) ${quantityText}`);
+            this._filter.filterSchemaMain.schema = [...this._filter.filterSchemaMain.schema];
+            this.changeDetector.detectChanges();
         },err=>{
             j4care.log('Something went wrong on search', err);
             _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['showRefreshIcon']], true);
             _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['showDynamicLoader']], false);
             _.set(this._filter.filterSchemaMain.schema,[...this.filterButtonPath[quantity],...['text']], quantityText);
             this.httpErrorHandler.handleError(err);
+            this.changeDetector.detectChanges();
         })
     }
     getService(filterModel, quantity){
