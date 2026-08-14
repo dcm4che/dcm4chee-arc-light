@@ -926,7 +926,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     public void setUnzipVendorDataToURI(String unzipVendorDataToURI) {
         if (unzipVendorDataToURI != null) {
             Path basePath = Paths.get(URI.create(StringUtils.replaceSystemProperties(unzipVendorDataToURI))).normalize();
-            if (!basePath.startsWith(System.getProperty("jboss.server.tmp.dir"))) {
+            if (!basePath.startsWith(System.getProperty("jboss.server.temp.dir"))) {
                 Path wildflyHomePath = Paths.get(System.getProperty("jboss.home.dir"));
                 if (basePath.startsWith(wildflyHomePath)) {
                     throw new IllegalArgumentException(
