@@ -5446,7 +5446,7 @@ export class StudyService {
                             Institutions:state
                         });
                     }
-                    return of();
+                    return of({});
                 }))
             //return this.$http.get(`${j4care.addLastSlash(this.appService.baseUrl)}institutions?entity=${entity}`);
         }
