@@ -21,7 +21,7 @@ export class SearchDicomPipe implements PipeTransform {
                         studies += JSON.stringify(study.attrs).toLowerCase();
                     })
                 }else{
-                    if(_.hasIn(obj,"attrs[0]")){
+                    if(_.hasIn(obj,"attrs[0]") || (_.hasIn(obj,"attrs")  && _.size(obj.attrs) > 0)){
                         studies = JSON.stringify(obj.attrs).toLowerCase();
                     }
                 }
