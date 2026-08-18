@@ -389,7 +389,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                         seriesAttributes.attrs);
                 adjustLocationsFromDB(ctx);
             } else {
-                if (grantAccessPrevStudiesOfPatient(cb, ctx))
+                if (metadataUpdate == null && grantAccessPrevStudiesOfPatient(cb, ctx))
                     ctx.setIgnoreAEAccessControlIDs(true);
                 new LocationQuery(em, cb, ctx, codeCache).execute(studyInfoMap);
                 if (metadataUpdate == null && ctx.isRetrieveMetadata() || ctx.isConsiderPurgedInstances())
