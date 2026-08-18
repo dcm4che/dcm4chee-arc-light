@@ -4382,7 +4382,7 @@ export class StudyService {
                             }
                             xmlHttpRequest.setRequestHeader("Content-Type","application/dicom+json");
                             xmlHttpRequest.setRequestHeader("Accept","application/dicom+json");
-                            xmlHttpRequest.send(JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi"])));
+                            xmlHttpRequest.send(JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi", "newBlock"])));
                             let status = xmlHttpRequest.status;
                             if (status === 200) {
                                 this.appService.showMsg(msg);
@@ -4399,7 +4399,7 @@ export class StudyService {
                             }
                             xmlHttpRequest.setRequestHeader("Content-Type","application/dicom+json");
                             xmlHttpRequest.setRequestHeader("Accept","application/dicom+json");
-                            xmlHttpRequest.send(JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi"])));
+                            xmlHttpRequest.send(JSON.stringify(j4care.removeKeyFromObject(object, ["required","enum", "multi", "newBlock"])));
                             let status = xmlHttpRequest.status;
                             if (status === 201) {
                                 this.appService.showMsg(msg + xmlHttpRequest.getResponseHeader('Location'));

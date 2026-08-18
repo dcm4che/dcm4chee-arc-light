@@ -372,7 +372,7 @@ export class EditStudyComponent{
         }
     };
     onSaveClick(study){
-        j4care.removeKeyFromObject(study, "newBlock");
+        j4care.removeKeyFromObject(study, ['required','enum', 'multi','newBlock']);
         this.dialogRef.close(study)
     }
 }

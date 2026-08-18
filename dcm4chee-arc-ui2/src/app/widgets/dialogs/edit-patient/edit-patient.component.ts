@@ -349,7 +349,7 @@ export class EditPatientComponent {
         return undefined;
     }
     onSaveClick(patient){
-        j4care.removeKeyFromObject(patient, "newBlock");
+        j4care.removeKeyFromObject(patient,  ['required','enum', 'multi','newBlock']);
         this.dialogRef.close(patient)
     }
 

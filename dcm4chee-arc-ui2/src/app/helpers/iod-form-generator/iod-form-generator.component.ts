@@ -110,6 +110,8 @@ export class IodFormGeneratorComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: SimpleChanges) {
+        console.log("onchange",this.object);
+        console.log("changes",changes);
         if (changes['object']) {
             this.emitValidationState();
         }

@@ -317,7 +317,7 @@ export class EditMwlComponent {
     };
 
     onSaveClick(mwl){
-        j4care.removeKeyFromObject(mwl, "newBlock");
+        j4care.removeKeyFromObject(mwl,  ['required','enum', 'multi','newBlock']);
         this.dialogRef.close(mwl)
     }
 }

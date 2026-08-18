@@ -325,7 +325,7 @@ export class EditSeriesComponent{
         }
     };
     onSaveClick(series){
-        j4care.removeKeyFromObject(series, "newBlock");
+        j4care.removeKeyFromObject(series,  ["newBlock","enum"]);
         this.dialogRef.close(series)
     }
     get isFormValid(): boolean {
