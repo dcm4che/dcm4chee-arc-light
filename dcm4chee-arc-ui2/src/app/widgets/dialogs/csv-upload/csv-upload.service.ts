@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Injectable} from '@angular/core';
+import { Injectable} from '@angular/core';
 import {J4careHttpService} from "../../../helpers/j4care-http.service";
 import {AppService} from "../../../app.service";
 import {j4care} from "../../../helpers/j4care.service";
@@ -10,8 +10,7 @@ export class CsvUploadService {
   constructor(
       private $http:J4careHttpService,
       public mainservice:AppService,
-      private _keycloakService: KeycloakService,
-      private changeDetector:ChangeDetectorRef
+      private _keycloakService: KeycloakService
   ) { }
 
   uploadCSV(url, file, semicolon, onloadend, onerror){
@@ -23,18 +22,17 @@ export class CsvUploadService {
         if(!this.mainservice.global.notSecure){
             token = response.token;
         }
-        let contentTyp = "text/csv";
+        let contentTyp = 'text/csv';
         if(semicolon){
             contentTyp += ';delimiter=semicolon';
         }
-        xmlHttpRequest.setRequestHeader("Content-Type",contentTyp);
+        xmlHttpRequest.setRequestHeader('Content-Type',contentTyp);
         if(!this.mainservice.global.notSecure) {
             xmlHttpRequest.setRequestHeader('Authorization', `Bearer ${token}`);
         }
         xmlHttpRequest.onreadystatechange = function() {
             if (xmlHttpRequest.readyState == XMLHttpRequest.DONE) {
                 onloadend.call(this, xmlHttpRequest);
-                $this.changeDetector.detectChanges();
             }
         };
         xmlHttpRequest.onerror = (e)=>{

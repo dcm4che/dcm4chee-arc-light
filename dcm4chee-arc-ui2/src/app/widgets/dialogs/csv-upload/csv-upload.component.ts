@@ -1,5 +1,5 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {FormControl, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators} from '@angular/forms';
 //import { MatLegacyDialogRef as MatDialogRef } from "@angular/material/legacy-dialog";
 import {CsvUploadService} from "./csv-upload.service";
 import {AppService} from "../../../app.service";
@@ -39,7 +39,8 @@ export class CsvUploadComponent implements OnInit {
         public dialogRef: MatDialogRef<CsvUploadComponent>,
         private _fb: UntypedFormBuilder,
         private service:CsvUploadService,
-        private appService:AppService
+        private appService:AppService,
+        private changeDetector: ChangeDetectorRef
     ){}
     inputChanged(form, e){
         console.log("form",form)
@@ -49,12 +50,13 @@ export class CsvUploadComponent implements OnInit {
         if(form.type === "checkbox"){
             this.form.controls[form.filterKey].setValue(e.target.checked);
         }
+
     }
     ngOnInit() {
-        console.log("formSchema",this.params);
+        console.log('formSchema',this.params);
         let formContent = {};
         this.params.formSchema.forEach(form=>{
-            if(form.type === "checkbox"){
+            if(form.type === 'checkbox'){
                 formContent[form.filterKey] =  [null];
             }else{
                 formContent[form.filterKey] =[j4care.getValue(form.filterKey, this.params, form.defaultValue), form.validation]
@@ -69,20 +71,20 @@ export class CsvUploadComponent implements OnInit {
         if(_.hasIn(this.form.value,"semicolon") && this.form.value["semicolon"]){
             semicolon = true;
         }
-        this.service.uploadCSV(url, this.csvFile, semicolon, (end)=>{
+        this.service.uploadCSV(url, this.csvFile, semicolon,(end)=>{
             this.showLoader = false;
             if(end.status >= 199 && end.status < 300){
                 let msgObject = {
-                    msg:"",
-                    status:"info"
+                    msg:'',
+                    status:'info'
                 }
                 try{
                     if(end.response){
                         let countObject = JSON.parse(end.response);
                         msgObject.msg = $localize `:@@tasks_created:${countObject.count}:count: tasks created successfully!`
                     }else{
-                        const warning = end.getResponseHeader("warning");
-                        msgObject.status = "warning";
+                        const warning = end.getResponseHeader('warning');
+                        msgObject.status = 'warning';
                         if(warning){
                             msgObject.msg = warning;
                         }else{
@@ -96,16 +98,16 @@ export class CsvUploadComponent implements OnInit {
                     msgObject.msg = $localize `:@@task_created:Tasks created successfully!`
                 }
                 this.appService.setMessage({
-                    "text":msgObject.msg,
-                    "status":msgObject.status
+                    'text':msgObject.msg,
+                    'status':msgObject.status
                 });
                 this.dialogRef.close(this.form.value);
             }else{
                 let msgObject = {
-                    msg:"",
-                    status:"error"
+                    msg:'',
+                    status:'error'
                 }
-                const warning = end.getResponseHeader("warning");
+                const warning = end.getResponseHeader('warning');
                 if(warning){
                         msgObject.msg = warning;
                     }else{
@@ -123,9 +125,10 @@ export class CsvUploadComponent implements OnInit {
                     msgObject.msg = $localize `:@@upload_failed_please_try_again_later:Upload failed, please try again later!`
                 }
                 this.appService.setMessage({
-                    "text":msgObject.msg,
-                    "status":"error"
+                    'text':msgObject.msg,
+                    'status':'error'
                 });
+                this.changeDetector.detectChanges();
                 this.dialogRef.close(null);
             }
         },(err)=>{
