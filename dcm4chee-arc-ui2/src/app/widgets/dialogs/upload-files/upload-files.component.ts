@@ -907,6 +907,7 @@ export class UploadFilesComponent implements OnInit {
             let studyObject = _.pickBy(this._dicomObject.attrs, (o, i) => {
                 return (i.toString().indexOf('777') === -1);
             });
+            studyObject = j4care.correctTypesOfDicomObjectBasedOnVR(studyObject);
             if(fileTypeOrExt === 'application/dicom'){
                 console.log('mode',this._mode);
                 let queryParameters:any = {

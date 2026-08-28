@@ -5,7 +5,7 @@
     <div class="j4care_dynamic_table" [ngClass]="config?.cssTableClass" (mouseleave)="active_td = ''">
         <!--Headers 1:-->
         <div class="th {{hover_mode}}" [ngClass]="config?.cssThClass" [ngStyle]="{top:config.headerTop || '186px'}">
-            @for (table of tableSchema[hover_mode]; track table.header) {
+            @for (table of tableSchema[hover_mode]; track $index) {
                 <div class="td"
                      [ngClass]="[config?.cssTdClass || '',(table.type != 'value' && table.type != 'pipe')?'empty_td':'not_empty_td', (table.elementId && active_td === table.elementId) ? 'active':'', table.type || '']"
                      [ngStyle]="{width: table.calculatedWidth}"

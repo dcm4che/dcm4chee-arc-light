@@ -2163,4 +2163,29 @@ export class j4care {
             return {};
         }
     }
+
+    static correctTypesOfDicomObjectBasedOnVR(dicomObject:any){
+        try{
+            const VR_OF_TYPE_NUMBER = [
+                "AT", "DS", "FD", "FL", "IS", "SL", "SS", "UL", "US", "SV", "UV"
+            ];
+            const workingStack = [dicomObject]
+            const checked = new Set();
+
+            while (workingStack.length) {
+                const tempObject = workingStack.pop();
+                if (tempObject && typeof tempObject === "object" && !checked.has(tempObject)) {
+                    console.log('tempObject',tempObject);
+                    if(tempObject.vr && VR_OF_TYPE_NUMBER.indexOf(tempObject.vr) > -1 && tempObject.Value && tempObject.Value.length > 0 && typeof tempObject.Value[0] === 'string'){
+                        tempObject.Value[0] = parseFloat(tempObject.Value[0]);
+                    }
+                    checked.add(tempObject);
+                    workingStack.push(...Object.values(tempObject));
+                }
+            }
+            return dicomObject;
+        }catch (e) {
+            return dicomObject;
+        }
+    }
 }

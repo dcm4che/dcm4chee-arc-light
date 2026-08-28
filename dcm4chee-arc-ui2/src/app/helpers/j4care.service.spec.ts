@@ -1378,4 +1378,98 @@ describe('j4care', () => {
            roles:'role1, role2'
        });
     });
+
+    it('Should correct the type of the values of the IOD object based on vr value', ()=>{
+        const iod = [
+            {
+                "00100010": {
+                    "vr": "PN",
+                    "Value": [
+                        {
+                            "Alphabetic": "ﾔﾏﾀﾞ^ﾀﾛｳ",
+                            "Ideographic": "山田^太郎",
+                            "Phonetic": "やまだ^たろう"
+                        }
+                    ]
+                },
+                "00080018": {
+                    "vr": "UI",
+                    "Value": [
+                        "2.25.186535444020253459095011265883934385975"
+                    ]
+                },
+                "00080020": {
+                    "vr": "DA",
+                    "Value": [
+                        ""
+                    ]
+                },
+                "7FE00010": {
+                    "vr": "OB",
+                    "BulkDataURI": "file/gebetswaschung.png"
+                },
+                "00080008": {
+                    "vr": "CS",
+                    "Value": [
+                        "ORIGINAL",
+                        "PRIMARY"
+                    ]
+                },
+                "00280010": {
+                    "vr": "US",
+                    "Value": [
+                        "12"
+                    ]
+                }
+            }
+        ];
+        expect(j4care.correctTypesOfDicomObjectBasedOnVR(iod)).toEqual([
+            {
+                "00100010": {
+                    "vr": "PN",
+                    "Value": [
+                        {
+                            "Alphabetic": "ﾔﾏﾀﾞ^ﾀﾛｳ",
+                            "Ideographic": "山田^太郎",
+                            "Phonetic": "やまだ^たろう"
+                        }
+                    ]
+                },
+                "00080018": {
+                    "vr": "UI",
+                    "Value": [
+                        "2.25.186535444020253459095011265883934385975"
+                    ]
+                },
+                "00080020": {
+                    "vr": "DA",
+                    "Value": [
+                        ""
+                    ]
+                },
+                "7FE00010": {
+                    "vr": "OB",
+                    "BulkDataURI": "file/gebetswaschung.png"
+                },
+                "00080008": {
+                    "vr": "CS",
+                    "Value": [
+                        "ORIGINAL",
+                        "PRIMARY"
+                    ]
+                },
+                "00280010": {
+                    "vr": "US",
+                    "Value": [
+                        12
+                    ]
+                }
+            }
+        ]);
+        expect(j4care.correctTypesOfDicomObjectBasedOnVR([])).toEqual([]);
+        expect(j4care.correctTypesOfDicomObjectBasedOnVR(undefined)).toEqual(undefined);
+        expect(j4care.correctTypesOfDicomObjectBasedOnVR([
+            ""
+        ])).toEqual(['']);
+    });
 });

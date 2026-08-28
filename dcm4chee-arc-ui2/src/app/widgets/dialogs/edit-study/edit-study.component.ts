@@ -373,6 +373,7 @@ export class EditStudyComponent{
     };
     onSaveClick(study){
         j4care.removeKeyFromObject(study, ['required','enum', 'multi','newBlock']);
+        study = j4care.correctTypesOfDicomObjectBasedOnVR(study);
         this.dialogRef.close(study)
     }
 }

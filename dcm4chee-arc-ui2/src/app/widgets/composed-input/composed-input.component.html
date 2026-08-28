@@ -1,5 +1,5 @@
 <div class="composed_input_content">
-    @for (el of Array(inputSize); track el; let i = $index) {
+    @for (el of Array(inputSize); track $index; let i = $index) {
 
         @if (placeholderElements) {
             <input [ngStyle]="{width: 'calc( 100% /' + inputSize +')'}" type="text" [(ngModel)]="modelArray[i]"

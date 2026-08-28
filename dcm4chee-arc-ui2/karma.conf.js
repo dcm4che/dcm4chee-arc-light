@@ -1,6 +1,8 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/0.13/config/configuration-file.html
 
+process.env.CHROME_BIN = process.env.CHROME_BIN || require('path').join(__dirname, 'etc', 'flatpak-chrome.sh');
+
 module.exports = function (config) {
     config.set({
         basePath: '',
@@ -365,7 +367,15 @@ module.exports = function (config) {
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: true,
-        browsers: ['Chrome'],
+        customLaunchers: {
+            ChromeCustom: {
+                base: 'Chrome',
+                flags: ['--no-sandbox'],
+                // flatpak Chrome is sandboxed and can't write to /tmp, use its own writable data dir
+                chromeDataDir: require('path').join(require('os').homedir(), '.var/app/com.google.Chrome/cache/karma')
+            }
+        },
+        browsers: ['ChromeCustom'],
         singleRun: false
     });
 };

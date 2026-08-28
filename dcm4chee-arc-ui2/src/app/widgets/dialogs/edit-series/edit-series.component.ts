@@ -326,6 +326,7 @@ export class EditSeriesComponent{
     };
     onSaveClick(series){
         j4care.removeKeyFromObject(series,  ["newBlock","enum"]);
+        series = j4care.correctTypesOfDicomObjectBasedOnVR(series);
         this.dialogRef.close(series)
     }
     get isFormValid(): boolean {

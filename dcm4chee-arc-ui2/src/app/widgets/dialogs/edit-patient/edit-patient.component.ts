@@ -350,6 +350,7 @@ export class EditPatientComponent {
     }
     onSaveClick(patient){
         j4care.removeKeyFromObject(patient,  ['required','enum', 'multi','newBlock']);
+        patient = j4care.correctTypesOfDicomObjectBasedOnVR(patient);
         this.dialogRef.close(patient)
     }
 

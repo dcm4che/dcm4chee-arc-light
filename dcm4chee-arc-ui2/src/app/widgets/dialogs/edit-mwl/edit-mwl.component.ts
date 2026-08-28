@@ -318,6 +318,7 @@ export class EditMwlComponent {
 
     onSaveClick(mwl){
         j4care.removeKeyFromObject(mwl,  ['required','enum', 'multi','newBlock']);
+        mwl = j4care.correctTypesOfDicomObjectBasedOnVR(mwl);
         this.dialogRef.close(mwl)
     }
 }

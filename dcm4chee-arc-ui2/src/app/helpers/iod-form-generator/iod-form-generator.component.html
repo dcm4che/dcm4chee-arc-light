@@ -11,7 +11,7 @@
             }
             @if (object[o].vr != 'SQ') {
                 <div class="form_input">
-                    @for (v of object[o].Value; let i = $index; track trackByFn) {
+                    @for (v of object[o].Value; let i = $index; track $index) {
                         <div>
                             @if (object[o].vr != 'PN') {
                                 <div class="ariod"
