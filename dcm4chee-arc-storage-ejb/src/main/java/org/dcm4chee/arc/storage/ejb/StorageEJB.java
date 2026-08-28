@@ -64,7 +64,10 @@ public class StorageEJB {
                 .getResultList();
     }
     public long updateStatus(String storageID, LocationStatus from, LocationStatus to) {
-        return em.createNamedQuery(Location.UPDATE_STATUS_BY_STORAGE_ID_FROM)
+        return em.createNamedQuery(
+                to == LocationStatus.FAILED_TO_DELETE || to == LocationStatus.ORPHANED
+                        ? Location.UPDATE_STATUS_BY_STORAGE_ID_FROM_ORPHANED
+                        : Location.UPDATE_STATUS_BY_STORAGE_ID_FROM)
                 .setParameter(1, storageID)
                 .setParameter(2, from)
                 .setParameter(3, to)
