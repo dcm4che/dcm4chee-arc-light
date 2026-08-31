@@ -55,6 +55,7 @@ import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.hl7.service.DefaultHL7Service;
 import org.dcm4che3.net.hl7.service.HL7Service;
 import org.dcm4che3.util.ReverseDNS;
+import org.dcm4che3.util.StringUtils;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.conf.HL7Fields;
@@ -192,8 +193,7 @@ public class ProcedureUpdateService extends DefaultHL7Service {
         Attributes attrs = ctx.getAttributes();
         UnparsedHL7Message msg = ctx.getUnparsedHL7Message();
         ArchiveHL7ApplicationExtension arcHL7App = hl7App.getHL7AppExtensionNotNull(ArchiveHL7ApplicationExtension.class);
-        if (arcHL7App.getMWLWorklistLabel() != null)
-            attrs.setString(Tag.WorklistLabel, VR.LO, arcHL7App.getMWLWorklistLabel());
+        attrs.setString(Tag.WorklistLabel, VR.LO, StringUtils.maskNull(arcHL7App.getMWLWorklistLabel(), "*"));
         HL7Segment msh = msg.msh();
         boolean uidsGenerated = adjustIdentifiers(attrs, arcHL7App, msh);
 
