@@ -84,16 +84,6 @@ public class RSForward {
                 });
     }
 
-    public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs, String pids, HttpServletRequest request) {
-        byte[] content = toContent(attrs, arcAE);
-        arcAE.rsForwardRules()
-                .filter(rule -> rule.containsRSOperations(rsOp) && rule.matchesRequest(request))
-                .forEach(rule -> {
-                    LOG.info(MessageFormat.format(LOG_APPLY_RS_FWD_RULE, rule, rsOp));
-                    rsClient.scheduleRequest(rsOp, request, rule.getWebAppName(), pids, content);
-                });
-    }
-
     public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs, HttpServletRequest request) {
         byte[] content = toContent(attrs, arcAE);
         String pids = pidInURL(rsOp, attrs);
