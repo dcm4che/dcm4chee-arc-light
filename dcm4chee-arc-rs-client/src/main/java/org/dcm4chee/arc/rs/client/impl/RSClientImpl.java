@@ -46,6 +46,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.Invocation;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.dcm4che3.conf.api.IWebApplicationCache;
 import org.dcm4che3.net.Device;
@@ -140,10 +141,10 @@ public class RSClientImpl implements RSClient {
 
             try (Response response = method.equals("POST")
                     ? content != null
-                    ? request.post(Entity.entity(content, contentType))
+                    ? request.post(Entity.entity(content, contentType == null ? MediaType.APPLICATION_JSON : contentType))
                     : request.post(Entity.json(""))
                     : method.equals("PUT")
-                    ? request.put(Entity.entity(content, contentType))
+                    ? request.put(Entity.entity(content, contentType == null ? MediaType.APPLICATION_JSON : contentType))
                     : request.delete()) {
                 return buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
             }
