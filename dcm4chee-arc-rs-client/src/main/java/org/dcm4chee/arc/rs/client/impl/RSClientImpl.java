@@ -93,6 +93,7 @@ public class RSClientImpl implements RSClient {
         task.setType(Task.Type.REST);
         task.setScheduledTime(new Date());
         task.setRSOperation(rsOp.name());
+        task.setContentType(request.getContentType());
         task.setRequestURI(request.getRequestURI());
         task.setQueryString(request.getQueryString());
         task.setWebApplicationName(webAppName);
@@ -104,7 +105,7 @@ public class RSClientImpl implements RSClient {
 
     @Override
     public Outcome request(
-            String rsOp, String requestURI, String requestQueryString, String webAppName, String patientID, byte[] content)
+            String rsOp, String contentType, String requestURI, String requestQueryString, String webAppName, String patientID, byte[] content)
             throws Exception {
         RSOperation rsOperation = RSOperation.valueOf(rsOp);
         WebApplication webApplication;
@@ -131,16 +132,18 @@ public class RSClientImpl implements RSClient {
             String authorization = accessTokenFromWebApp(webApplication);
             if (authorization != null)
                 request.header("Authorization", authorization);
+            if (contentType != null)
+                request.header("Content-type", contentType);
 
             String method = getMethod(rsOperation);
-            LOG.info("Restful Service Forward : {} {}", method, targetURL);
+            LOG.info("Restful Service Forward : [Content-type={}] {} {}", contentType, method, targetURL);
 
             try (Response response = method.equals("POST")
                     ? content != null
-                    ? request.post(Entity.json(content))
+                    ? request.post(Entity.entity(content, contentType))
                     : request.post(Entity.json(""))
                     : method.equals("PUT")
-                    ? request.put(Entity.json(content))
+                    ? request.put(Entity.entity(content, contentType))
                     : request.delete()) {
                 return buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
             }
@@ -225,6 +228,7 @@ public class RSClientImpl implements RSClient {
             case UpdateStudyRequest:
             case UpdateSeries:
             case UpdateSeriesRequest:
+            case ChangeUPSState:
                 method = "PUT";
                 break;
             case ChangePatientID:
@@ -242,6 +246,8 @@ public class RSClientImpl implements RSClient {
             case UpdateMWLStatus:
             case ApplyRetentionPolicy:
             case MoveStudyToPatient:
+            case CreateUPS:
+            case UpdateUPS:
                 method = "POST";
                 break;
             case DeletePatient:

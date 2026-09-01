@@ -64,6 +64,7 @@ public class RSClientTaskProcessor implements TaskProcessor {
     public Outcome process(Task task) throws Exception {
         return rsClient.request(
                 task.getRSOperation(),
+                task.getContentType(),
                 task.getRequestURI(),
                 task.getQueryString(),
                 task.getWebApplicationName(),

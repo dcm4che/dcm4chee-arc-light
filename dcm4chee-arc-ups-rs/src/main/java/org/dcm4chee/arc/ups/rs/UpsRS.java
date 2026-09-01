@@ -59,9 +59,11 @@ import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.UIDUtils;
 import org.dcm4che3.ws.rs.MediaTypes;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
+import org.dcm4chee.arc.conf.RSOperation;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
 import org.dcm4chee.arc.keycloak.KeycloakContext;
 import org.dcm4chee.arc.query.util.QueryAttributes;
+import org.dcm4chee.arc.rs.client.RSForward;
 import org.dcm4chee.arc.rs.util.MediaTypeUtils;
 import org.dcm4chee.arc.ups.UPSContext;
 import org.dcm4chee.arc.ups.UPSService;
@@ -131,6 +133,9 @@ public class UpsRS {
     @Inject
     private UPSService service;
 
+    @Inject
+    private RSForward rsForward;
+
     private Attributes matchKeys;
 
     @POST
@@ -147,12 +152,12 @@ public class UpsRS {
         if (inputType == null)
             return unsupportedMediaType();
 
-        return createUPS(iuid, Boolean.parseBoolean(template), inputType.parse(in));
+        return createUPS(iuid, Boolean.parseBoolean(template), inputType.parse(in), RSOperation.CreateUPS);
     }
 
     @POST
     @Path("/workitems/{workitem}")
-    public Response updateUPS2(
+    public Response updateUPS(
             @PathParam("workitem") String iuid,
             @QueryParam("Transaction-uid") String transactionUID,
             InputStream in) {
@@ -164,7 +169,18 @@ public class UpsRS {
         if (inputType == null)
             return unsupportedMediaType();
 
-        return updateUPS(iuid, inputType.parse(in), transactionUID);
+        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
+        ctx.setUPSInstanceUID(iuid);
+        ctx.setAttributes(inputType.parse(in));
+        if (transactionUID != null)
+            ctx.getAttributes().setString(Tag.TransactionUID, VR.UI, transactionUID);
+        try {
+            service.updateUPS(ctx);
+            rsForward.forward(RSOperation.UpdateUPS, arcAE, ctx.getAttributes(), request);
+        } catch (DicomServiceException e) {
+            return errResponse(UpsRS::updateFailed, e);
+        }
+        return Response.ok().build();
     }
 
     @PUT
@@ -347,7 +363,7 @@ public class UpsRS {
         ctx.setUPSInstanceUID(iuid);
         try {
             service.findUPS(ctx);
-            return createUPS(newIUID, false, replacement(ctx.getAttributes(), upsScheduledTime));
+            return createUPS(newIUID, false, replacement(ctx.getAttributes(), upsScheduledTime), null);
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::retrieveFailed, e);
         }
@@ -418,7 +434,7 @@ public class UpsRS {
                         Response.Status.NOT_FOUND));
     }
 
-    private Response createUPS(String iuid, boolean template, Attributes attrs) {
+    private Response createUPS(String iuid, boolean template, Attributes attrs, RSOperation rsOp) {
         if (template && attrs.containsValue(Tag.ScheduledProcedureStepStartDateTime))
             return Response.status(Response.Status.BAD_REQUEST)
                     .header("Warning",
@@ -431,24 +447,12 @@ public class UpsRS {
         ctx.setTemplate(template);
         try {
             service.createUPS(ctx);
+            if (rsOp != null)
+                rsForward.forward(RSOperation.CreateUPS, ctx.getArchiveAEExtension(), ctx.getAttributes(), request);
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::createFailed, e);
         }
         return Response.created(locationOf(ctx)).build();
-    }
-
-    private Response updateUPS(String iuid, Attributes attrs, String transactionUID) {
-        UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setUPSInstanceUID(iuid);
-        ctx.setAttributes(attrs);
-        if (transactionUID != null)
-            ctx.getAttributes().setString(Tag.TransactionUID, VR.UI, transactionUID);
-        try {
-            service.updateUPS(ctx);
-        } catch (DicomServiceException e) {
-            return errResponse(UpsRS::updateFailed, e);
-        }
-        return Response.ok().build();
     }
 
     private Response changeUPSState(String iuid, String requester, Attributes attrs) {
@@ -458,6 +462,7 @@ public class UpsRS {
         ctx.setAttributes(attrs);
         try {
             service.changeUPSState(ctx);
+            rsForward.forward(RSOperation.ChangeUPSState, ctx.getArchiveAEExtension(), ctx.getAttributes(), request);
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::changeStateFailed, e);
         }

@@ -799,6 +799,14 @@ public class Task {
         this.queryString = queryString;
     }
 
+    public String getContentType() {
+        return remoteAET;
+    }
+
+    public void setContentType(String contentType) {
+        this.remoteAET = contentType;
+    }
+
     public Code getCode() {
         return new Code(queryString);
     }

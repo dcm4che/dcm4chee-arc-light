@@ -81,5 +81,8 @@ public enum RSOperation {
     CreateMWL,
     UpdateMWL,
     UpdateMWLStatus,
-    DeleteMWL
+    DeleteMWL,
+    CreateUPS,
+    UpdateUPS,
+    ChangeUPSState
 }
