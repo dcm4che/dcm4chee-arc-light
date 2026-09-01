@@ -137,14 +137,15 @@ public class RSClientImpl implements RSClient {
                 request.header("Content-type", contentType);
 
             String method = getMethod(rsOperation);
-            LOG.info("Restful Service Forward : [Content-type={}] {} {}", contentType, method, targetURL);
+            String entityMediaType = contentType == null ? MediaType.APPLICATION_JSON : contentType;
+            LOG.info("Restful Service Forward : [Content-type={}] {} {}", entityMediaType, method, targetURL);
 
             try (Response response = method.equals("POST")
                     ? content != null
-                    ? request.post(Entity.entity(content, contentType == null ? MediaType.APPLICATION_JSON : contentType))
+                    ? request.post(Entity.entity(content, entityMediaType))
                     : request.post(Entity.json(""))
                     : method.equals("PUT")
-                    ? request.put(Entity.entity(content, contentType == null ? MediaType.APPLICATION_JSON : contentType))
+                    ? request.put(Entity.entity(content, entityMediaType))
                     : request.delete()) {
                 return buildOutcome(Response.Status.fromStatusCode(response.getStatus()), response.getStatusInfo());
             }
