@@ -775,6 +775,9 @@ public class UPSServiceEJB {
 
     private Attributes createOnStore(StoreContext storeCtx, Calendar now, UPSOnStore rule) {
         Attributes attrs = applyXSLT(rule, storeCtx);
+        String charSet = storeCtx.getAttributes().getString(Tag.SpecificCharacterSet);
+        if (charSet != null)
+            attrs.setString(Tag.SpecificCharacterSet, VR.CS, charSet);
         if (rule.isIncludeStudyInstanceUID() && !attrs.contains(Tag.StudyInstanceUID)) {
             attrs.setString(Tag.StudyInstanceUID, VR.UI, storeCtx.getStudyInstanceUID());
         }
