@@ -362,7 +362,7 @@ public class PatientServiceEJB {
 
     public Patient mergePatient(PatientMgtContext ctx)
             throws NonUniquePatientException, PatientMergedException {
-        if (ctx.getPatPk() != 0L && ctx.getPrevPatPk() != 0L)
+        if (ctx.getPatPk() != 0L && ctx.getPrevPatPk() != 0L && ctx.getPatPk() != ctx.getPrevPatPk())
             return mergePatientWithPk(ctx);
 
         Patient pat = findPatient(ctx.getPatientIDs());
