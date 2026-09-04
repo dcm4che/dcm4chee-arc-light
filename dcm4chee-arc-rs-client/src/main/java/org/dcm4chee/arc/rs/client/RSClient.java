@@ -52,6 +52,10 @@ import org.dcm4chee.arc.qmgt.Outcome;
 public interface RSClient {
     String QUEUE_NAME = "RSClient";
 
+    void scheduleRequest(RSOperation rsOp, HttpServletRequest request, String webAppName);
+
+    void scheduleRequest(RSOperation rsOp, HttpServletRequest request, String webAppName, byte[] content);
+
     void scheduleRequest(RSOperation rsOp, HttpServletRequest request, String webAppName, String patientID, byte[] content);
 
     Outcome request(

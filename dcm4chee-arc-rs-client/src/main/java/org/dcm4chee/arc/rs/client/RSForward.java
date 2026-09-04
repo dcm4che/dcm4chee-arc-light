@@ -46,7 +46,6 @@ import jakarta.json.Json;
 import jakarta.json.stream.JsonGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import org.dcm4che3.data.Attributes;
-import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.json.JSONWriter;
 import org.dcm4che3.util.ByteUtils;
 import org.dcm4chee.arc.conf.ArchiveAEExtension;
@@ -55,11 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Vrinda Nayak <vrinda.nayak@j4care.com>
@@ -80,49 +75,28 @@ public class RSForward {
                 .filter(rule -> rule.containsRSOperations(rsOp) && rule.matchesRequest(request))
                 .forEach(rule -> {
                     LOG.info(MessageFormat.format(LOG_APPLY_RS_FWD_RULE, rule, rsOp));
-                    rsClient.scheduleRequest(rsOp, request, rule.getWebAppName(), null, ByteUtils.EMPTY_BYTES);
+                    rsClient.scheduleRequest(rsOp, request, rule.getWebAppName());
                 });
     }
 
     public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs, HttpServletRequest request) {
         byte[] content = toContent(attrs, arcAE);
-        String pids = pidInURL(rsOp, attrs);
         arcAE.rsForwardRules()
                 .filter(rule -> rule.containsRSOperations(rsOp) && rule.matchesRequest(request))
                 .forEach(rule -> {
                     LOG.info(MessageFormat.format(LOG_APPLY_RS_FWD_RULE, rule, rsOp));
-                    rsClient.scheduleRequest(rsOp, request, rule.getWebAppName(), pids, content);
+                    rsClient.scheduleRequest(rsOp, request, rule.getWebAppName(), content);
                 });
     }
 
-    public void forward(
-            RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs, Attributes prev, HttpServletRequest request) {
+    public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, Attributes attrs, String pids, HttpServletRequest request) {
         byte[] content = toContent(attrs, arcAE);
-        String pids = pidInURL(rsOp, prev);
         arcAE.rsForwardRules()
                 .filter(rule -> rule.containsRSOperations(rsOp) && rule.matchesRequest(request))
                 .forEach(rule -> {
                     LOG.info(MessageFormat.format(LOG_APPLY_RS_FWD_RULE, rule, rsOp));
                     rsClient.scheduleRequest(rsOp, request, rule.getWebAppName(), pids, content);
                 });
-    }
-
-    private String pidInURL(RSOperation rsOp, Attributes attrs) {
-        switch (rsOp) {
-            case CreatePatient:
-                return IDWithIssuer.pidOf(attrs).toString();
-            case UpdatePatientByPID:
-            case DeletePatientByPID:
-            case ChangePatientIDByPID:
-            case MergePatientByPID:
-            case UnmergePatientByPID:
-                Set<IDWithIssuer> pids = IDWithIssuer.pidsOf(attrs);
-                return URLEncoder.encode(
-                        pids.stream().map(IDWithIssuer::toString).collect(Collectors.joining("~")),
-                        StandardCharsets.UTF_8);
-            default:
-                return null;
-        }
     }
 
     public void forward(RSOperation rsOp, ArchiveAEExtension arcAE, HttpServletRequest request, byte[] content) {

@@ -87,7 +87,28 @@ public class RSClientImpl implements RSClient {
 
     @Override
     public void scheduleRequest(
+            RSOperation rsOp, HttpServletRequest request, String webAppName) {
+        taskManager.scheduleTask(createTask(rsOp, request, webAppName));
+    }
+
+    @Override
+    public void scheduleRequest(
+            RSOperation rsOp, HttpServletRequest request, String webAppName, byte[] content) {
+        Task task = createTask(rsOp, request, webAppName);
+        task.setPayload(content);
+        taskManager.scheduleTask(task);
+    }
+
+    @Override
+    public void scheduleRequest(
             RSOperation rsOp, HttpServletRequest request, String webAppName, String patientID, byte[] content) {
+        Task task = createTask(rsOp, request, webAppName);
+        task.setPatientID(patientID);
+        task.setPayload(content);
+        taskManager.scheduleTask(task);
+    }
+
+    private Task createTask(RSOperation rsOp, HttpServletRequest request, String webAppName) {
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(QUEUE_NAME);
@@ -98,10 +119,8 @@ public class RSClientImpl implements RSClient {
         task.setRequestURI(request.getRequestURI());
         task.setQueryString(request.getQueryString());
         task.setWebApplicationName(webAppName);
-        task.setPatientID(patientID);
-        task.setPayload(content);
         task.setStatus(Task.Status.SCHEDULED);
-        taskManager.scheduleTask(task);
+        return task;
     }
 
     @Override

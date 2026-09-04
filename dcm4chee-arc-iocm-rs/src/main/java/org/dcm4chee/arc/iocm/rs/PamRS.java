@@ -98,6 +98,7 @@ import org.xml.sax.SAXException;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.*;
 import java.net.ConnectException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.*;
@@ -270,7 +271,9 @@ public class PamRS {
             deletionService.deletePatient(ctx, arcAE);
             if (isPk) {
                 LOG.info(LOG_FWD_BY_PID);
-                rsForward.forward(RSOperation.DeletePatientByPID, arcAE, patient.getAttributes(), request);
+                RSOperation rsOp = RSOperation.DeletePatientByPID;
+                String pids = pidInURL(rsOp, ctx.getAttributes());
+                rsForward.forward(rsOp, arcAE, patient.getAttributes(), pids, request);
             }
             else
                 rsForward.forward(RSOperation.DeletePatient, arcAE, request);
@@ -326,7 +329,9 @@ public class PamRS {
                         Response.Status.BAD_REQUEST);
 
             patientService.updatePatient(ctx);
-            rsForward.forward(RSOperation.CreatePatient, arcAE, ctx.getAttributes(), request);
+            RSOperation rsOp = RSOperation.CreatePatient;
+            String pids = pidInURL(rsOp, ctx.getAttributes());
+            rsForward.forward(rsOp, arcAE, ctx.getAttributes(), pids, request);
             notifyHL7Receivers("ADT^A28^ADT_A05", ctx);
             return Response.ok("{\"PatientIdentifiers\": \""
                                         + IDWithIssuer.pidsOf(ctx.getAttributes())
@@ -492,11 +497,13 @@ public class PamRS {
             LOG.info(LOG_FWD_BY_PID);
 
         if (rsOp == RSOperation.MergePatientByPID || rsOp == RSOperation.ChangePatientIDByPID) {
-            rsForward.forward(rsOp, ctx.getArchiveAEExtension(), ctx.getAttributes(), ctx.getPreviousAttributes(), request);
+            String pidInURL = pidInURL(rsOp, ctx.getPreviousAttributes());
+            rsForward.forward(rsOp, ctx.getArchiveAEExtension(), ctx.getAttributes(), pidInURL, request);
             return;
         }
 
-        rsForward.forward(rsOp, ctx.getArchiveAEExtension(), ctx.getAttributes(), request);
+        String pids = pidInURL(rsOp, ctx.getAttributes());
+        rsForward.forward(rsOp, ctx.getArchiveAEExtension(), ctx.getAttributes(), pids, request);
     }
 
     @POST
@@ -629,7 +636,9 @@ public class PamRS {
                         Response.Status.NOT_FOUND);
 
             LOG.info(LOG_FWD_BY_PID);
-            rsForward.forward(RSOperation.MergePatientByPID, arcAE, ctx.getAttributes(), ctx.getPreviousAttributes(), request);
+            RSOperation rsOp = RSOperation.MergePatientByPID;
+            String pidInURL = pidInURL(rsOp, ctx.getPreviousAttributes());
+            rsForward.forward(rsOp, arcAE, ctx.getAttributes(), pidInURL, request);
             notifyHL7Receivers(MERGE_PATIENT_MSG_TYPE, ctx);
             return Response.noContent().build();
         } catch (CircularPatientMergeException e) {
@@ -696,7 +705,10 @@ public class PamRS {
                         Response.Status.NOT_FOUND);
 
             LOG.info(LOG_FWD_BY_PID);
-            rsForward.forward(RSOperation.UnmergePatientByPID, arcAE, patMgtCtx.getAttributes(), request);
+
+            RSOperation rsOp = RSOperation.UnmergePatientByPID;
+            String pids = pidInURL(rsOp, patMgtCtx.getAttributes());
+            rsForward.forward(rsOp, arcAE, patMgtCtx.getAttributes(), pids, request);
             return Response.noContent().build();
         } catch (PatientUnmergedException e) {
             return errResponse(e.getMessage(), Response.Status.CONFLICT);
@@ -1246,5 +1258,23 @@ public class PamRS {
                 .orElseThrow(() -> new WebApplicationException(errResponse(
                         "No Web Application with DCM4CHEE_ARC_AET service class found for Application Entity: " + aet,
                         Response.Status.NOT_FOUND)));
+    }
+
+    private String pidInURL(RSOperation rsOp, Attributes attrs) {
+        switch (rsOp) {
+            case CreatePatient:
+                return IDWithIssuer.pidOf(attrs).toString();
+            case UpdatePatientByPID:
+            case DeletePatientByPID:
+            case ChangePatientIDByPID:
+            case MergePatientByPID:
+            case UnmergePatientByPID:
+                Set<IDWithIssuer> pids = IDWithIssuer.pidsOf(attrs);
+                return URLEncoder.encode(
+                        pids.stream().map(IDWithIssuer::toString).collect(Collectors.joining("~")),
+                        StandardCharsets.UTF_8);
+            default:
+                return null;
+        }
     }
 }
