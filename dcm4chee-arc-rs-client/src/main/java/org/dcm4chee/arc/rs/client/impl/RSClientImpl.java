@@ -88,13 +88,25 @@ public class RSClientImpl implements RSClient {
     @Override
     public void scheduleRequest(
             RSOperation rsOp, HttpServletRequest request, String webAppName) {
-        taskManager.scheduleTask(createTask(rsOp, request, webAppName));
+        Task task = createTask(rsOp, request, webAppName);
+        task.setQueryString(request.getQueryString());
+        taskManager.scheduleTask(task);
     }
 
     @Override
     public void scheduleRequest(
             RSOperation rsOp, HttpServletRequest request, String webAppName, byte[] content) {
         Task task = createTask(rsOp, request, webAppName);
+        task.setPayload(content);
+        task.setQueryString(request.getQueryString());
+        taskManager.scheduleTask(task);
+    }
+
+    @Override
+    public void scheduleRequest(
+            RSOperation rsOp, String queryStr, HttpServletRequest request, String webAppName, byte[] content) {
+        Task task = createTask(rsOp, request, webAppName);
+        task.setQueryString(queryStr);
         task.setPayload(content);
         taskManager.scheduleTask(task);
     }
@@ -105,6 +117,7 @@ public class RSClientImpl implements RSClient {
         Task task = createTask(rsOp, request, webAppName);
         task.setPatientID(patientID);
         task.setPayload(content);
+        task.setQueryString(request.getQueryString());
         taskManager.scheduleTask(task);
     }
 
@@ -117,7 +130,6 @@ public class RSClientImpl implements RSClient {
         task.setRSOperation(rsOp.name());
         task.setContentType(request.getContentType());
         task.setRequestURI(request.getRequestURI());
-        task.setQueryString(request.getQueryString());
         task.setWebApplicationName(webAppName);
         task.setStatus(Task.Status.SCHEDULED);
         return task;

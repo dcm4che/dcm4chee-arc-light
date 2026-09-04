@@ -56,6 +56,8 @@ public interface RSClient {
 
     void scheduleRequest(RSOperation rsOp, HttpServletRequest request, String webAppName, byte[] content);
 
+    void scheduleRequest(RSOperation rsOp, String queryStr, HttpServletRequest request, String webAppName, byte[] content);
+
     void scheduleRequest(RSOperation rsOp, HttpServletRequest request, String webAppName, String patientID, byte[] content);
 
     Outcome request(

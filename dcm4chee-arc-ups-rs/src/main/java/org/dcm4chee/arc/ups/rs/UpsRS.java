@@ -152,7 +152,26 @@ public class UpsRS {
         if (inputType == null)
             return unsupportedMediaType();
 
-        return createUPS(iuid, Boolean.parseBoolean(template), inputType.parse(in), RSOperation.CreateUPS);
+        String workItemUID = workItemUID(iuid);
+        Attributes attrs = inputType.parse(in);
+        Response response = createUPS(workItemUID, Boolean.parseBoolean(template), attrs);
+        if (response.getStatus() == Response.Status.CREATED.getStatusCode()) {
+            if (iuid != null)
+                rsForward.forward(RSOperation.CreateUPS, arcAE, attrs, request);
+            else
+                rsForward.forward(RSOperation.CreateUPS, arcAE, attrs, request, queryStr(workItemUID));
+        }
+        return response;
+    }
+
+    private String workItemUID(String uid) {
+        return uid == null ? UIDUtils.createUID() : uid;
+    }
+
+    private String queryStr(String workItemUID) {
+        String queryString = request.getQueryString();
+        String workItem = "workitem=" + workItemUID;
+        return queryString == null ? workItem : queryString + '&' + workItem;
     }
 
     @POST
@@ -363,7 +382,7 @@ public class UpsRS {
         ctx.setUPSInstanceUID(iuid);
         try {
             service.findUPS(ctx);
-            return createUPS(newIUID, false, replacement(ctx.getAttributes(), upsScheduledTime), null);
+            return createUPS(workItemUID(newIUID), false, replacement(ctx.getAttributes(), upsScheduledTime));
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::retrieveFailed, e);
         }
@@ -434,7 +453,7 @@ public class UpsRS {
                         Response.Status.NOT_FOUND));
     }
 
-    private Response createUPS(String iuid, boolean template, Attributes attrs, RSOperation rsOp) {
+    private Response createUPS(String iuid, boolean template, Attributes attrs) {
         if (template && attrs.containsValue(Tag.ScheduledProcedureStepStartDateTime))
             return Response.status(Response.Status.BAD_REQUEST)
                     .header("Warning",
@@ -442,13 +461,11 @@ public class UpsRS {
                     .build();
 
         UPSContext ctx = service.newUPSContext(HttpServletRequestInfo.valueOf(request), getArchiveAE());
-        ctx.setUPSInstanceUID(iuid == null ? UIDUtils.createUID() : iuid);
+        ctx.setUPSInstanceUID(iuid);
         ctx.setAttributes(attrs);
         ctx.setTemplate(template);
         try {
             service.createUPS(ctx);
-            if (rsOp != null)
-                rsForward.forward(RSOperation.CreateUPS, ctx.getArchiveAEExtension(), ctx.getAttributes(), request);
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::createFailed, e);
         }
