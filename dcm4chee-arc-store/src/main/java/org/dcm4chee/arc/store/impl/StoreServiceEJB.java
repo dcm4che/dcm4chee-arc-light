@@ -733,9 +733,12 @@ public class StoreServiceEJB {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void removeOrMarkLocationAs(Location location, LocationStatus status) {
         location = em.merge(location);
-        if (countLocationsByMultiRef(location.getMultiReference()) > 1)
+        if (countLocationsByMultiRef(location.getMultiReference()) > 1) {
+            LOG.info("Remove {}", location);
             em.remove(location);
+        }
         else {
+            LOG.info("Mark {} as {}", location, status);
             location.setMultiReference(null);
             location.setUidMap(null);
             location.setInstance(null);
@@ -764,6 +767,7 @@ public class StoreServiceEJB {
         Study study = series.getStudy();
         series.resetSize();
         study.resetSize();
+        LOG.info("{}: Remove {}", ctx.getStoreSession(), instance);
         em.remove(instance);
         em.createNamedQuery(RejectedInstance.DELETE_BY_UIDS)
                 .setParameter(1, study.getStudyInstanceUID())
