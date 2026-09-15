@@ -94,7 +94,7 @@ public class AttributesBlob {
 
     public void setAttributes(Attributes attrs) {
         cachedAttributes = new Attributes(attrs);
-        cachedAttributes.removeAllBulkData(true);
+        cachedAttributes.removeAllBulkData();
         encodedAttributes = AttributesBlob.encodeAttributes(cachedAttributes);
     }
 
