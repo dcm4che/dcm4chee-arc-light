@@ -64,7 +64,7 @@ export class DurationPickerComponent implements OnInit {
 
     extractDurationFromValue(){
         let match;
-        let ptrn = /(\d)(\w)/g;
+        let ptrn = /([\d]+)(\w)/g;
         try {
             while ((match = ptrn.exec(this.value)) != null) {
                 if(this.mode === 'dcmDuration'){

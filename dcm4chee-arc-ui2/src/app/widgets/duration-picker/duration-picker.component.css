@@ -1,6 +1,6 @@
 .durationpicker{
-    max-height: 350px;
-    overflow: auto;
+    max-height: 400px;
+    overflow: visible;
     position: absolute;
     z-index: 98;
     background: white;
