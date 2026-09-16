@@ -23,12 +23,6 @@ declare var DCM4CHE: any;
         CommonModule
     ],
     styles:[`
-
-        .iod-required-missing input,
-        .iod-required-missing select {
-            border-color: #d9534f;
-        }
-
         .active.sqiod:hover {
             background: rgba(0, 0, 0, 0.6);
             color: white;

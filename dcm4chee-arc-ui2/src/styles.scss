@@ -4981,3 +4981,7 @@ code{
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.iod-required-missing input,
+.iod-required-missing select {
+  border-color: #d9534f;
+}
