@@ -631,11 +631,8 @@ public class RetrieveServiceImpl implements RetrieveService {
                                 metadata.getNestedDataset(PrivateTag.PrivateCreator, PrivateTag.RejectionCodeSequence))
                             && !qrView.hideRejectionNote(metadata)) {
                         Attributes.unifyCharacterSets(seriesAttrs, metadata);
-                        metadata.addAll(seriesAttrs);
-                        ctx.getMatches().add(instanceLocationsFromMetadata(ctx, metadata,
-                                skipBulkDataURI
-                                        ? ctx.getArchiveDeviceExtension().getAttributeFilter(Entity.Instance).getSelection()
-                                        : null));
+                        metadata.addAll(seriesAttrs, true, false);
+                        ctx.getMatches().add(instanceLocationsFromMetadata(ctx, metadata, null));
                     }
                 }
                 zip.closeEntry();
@@ -935,7 +932,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                     if (modified != null) {
                         attrs.update(Attributes.UpdatePolicy.OVERWRITE, inst.getAttributes(), modified);
                     } else {
-                        attrs.addAll(inst.getAttributes());
+                        attrs.addAll(inst.getAttributes(), true, false);
                     }
                 }
                 for (ArchiveAttributeCoercion2 coercion : coercions) {

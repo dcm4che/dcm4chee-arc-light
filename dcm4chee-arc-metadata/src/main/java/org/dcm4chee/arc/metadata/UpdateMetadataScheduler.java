@@ -336,7 +336,7 @@ public class UpdateMetadataScheduler extends Scheduler {
             UIDUtils.remapUIDs(attrs, uidMap.getUIDMap());
         }
         Attributes.unifyCharacterSets(attrs, inst.getAttributes());
-        attrs.addAll(inst.getAttributes());
+        attrs.addAll(inst.getAttributes(), true, false);
         attrs.setString(Tag.RetrieveAETitle, VR.AE, inst.getRetrieveAETs());
         attrs.setString(Tag.InstanceAvailability, VR.CS, inst.getAvailability().toString());
 
