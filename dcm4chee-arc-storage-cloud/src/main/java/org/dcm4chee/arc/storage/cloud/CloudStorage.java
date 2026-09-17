@@ -174,7 +174,7 @@ public class CloudStorage extends AbstractStorage {
             task.get();
         } catch (InterruptedException e) {
             throw new InterruptedIOException();
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             Throwable c = e.getCause();
             if (c instanceof IOException)
                 throw (IOException) c;
