@@ -128,8 +128,7 @@ public class FHIRRS {
                                     .build())
                     .build();
         }
-        try {
-            Long.parseUnsignedLong(id);
+        if (isUnsignedLong(id)) {
             QueryContext ctx = newQueryContext("fhirReadPatient", id, arcAE);
             try (Query query = service.createPatientQuery(ctx)) {
                 LOG.debug("Query for Patient/" + id);
@@ -145,12 +144,20 @@ public class FHIRRS {
             } catch (Exception e) {
                 return errResponseAsTextPlain(exceptionAsString(e), Response.Status.INTERNAL_SERVER_ERROR);
             }
-        } catch (NumberFormatException e) {
         }
         return Response.status(Response.Status.NOT_FOUND)
                 .entity("Resource Patient/" + id + " not found")
                 .type(MediaType.TEXT_PLAIN_TYPE)
                 .build();
+    }
+
+    private static boolean isUnsignedLong(String id) {
+        try {
+            Long.parseUnsignedLong(id);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     @GET
