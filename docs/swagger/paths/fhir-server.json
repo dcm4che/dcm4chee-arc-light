@@ -1,0 +1,86 @@
+{
+  "patients": {
+    "get": {
+      "tags": [
+        "FHIR-SERVER-RS"
+      ],
+      "summary": "Search Patients by GET",
+      "operationId": "searchPatientsByGET",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsFHIR"
+        },
+        "404": {
+          "description": "No such Archive AE Title"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "patientsByPOST": {
+    "post": {
+      "tags": [
+        "FHIR-SERVER-RS"
+      ],
+      "summary": "Search Patients by POST",
+      "operationId": "searchPatientsByPOST",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsFHIR"
+        },
+        "404": {
+          "description": "No such Archive AE Title"
+        },
+        "406": {
+          "description": "Not acceptable media type in search params"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  },
+  "patientRead": {
+    "get": {
+      "tags": [
+        "FHIR-SERVER-RS"
+      ],
+      "summary": "Read Patient Resource",
+      "operationId": "readPatientResource",
+      "parameters": [
+        {
+          "$ref": "../parameters.json#/archiveAETPathParam"
+        },
+        {
+          "$ref": "../parameters.json#/patientPkPathParam"
+        }
+      ],
+      "responses": {
+        "200": {
+          "$ref": "../responses.json#/searchResultsFHIR"
+        },
+        "404": {
+          "description": "No such Archive AE Title or No such patient or Non numeric ID passed in request URL"
+        },
+        "406": {
+          "description": "Not acceptable media type in search params"
+        },
+        "500": {
+          "description": "Internal Server Error."
+        }
+      }
+    }
+  }
+}

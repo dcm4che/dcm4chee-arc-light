@@ -111,6 +111,10 @@
       "description": "Invoke external FHIR Server"
     },
     {
+      "name": "FHIR-SERVER-RS",
+      "description": "Archive as FHIR Server"
+    },
+    {
       "name": "IOCM-RS",
       "description": "Imaging Object Change Management"
     },
@@ -265,6 +269,15 @@
     },
     "/aets/{aet}/rs/studies/{study}/fhir/{webAppName}": {
       "$ref": "paths/fhir-client.json#/study"
+    },
+    "/aets/{aet}/rs/Patient": {
+      "$ref": "paths/fhir-server.json#/patients"
+    },
+    "/aets/{aet}/rs/Patient/_search": {
+      "$ref": "paths/fhir-server.json#/patientsByPOST"
+    },
+    "/aets/{aet}/rs/Patient/{id}": {
+      "$ref": "paths/fhir-server.json#/patientRead"
     },
     "/aets/{aet}/rs/studies/{study}/stgcmt/dicom:{stgCmtSCP}": {
       "$ref": "paths/stgcmt.json#/study"

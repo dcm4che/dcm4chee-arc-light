@@ -50,6 +50,23 @@
       }
     }
   },
+  "searchResultsFHIR": {
+    "description": "The search completed successfully, and the results are contained in the payload",
+    "content": {
+      "application/fhir+xml": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      },
+      "application/fhir+json": {
+        "schema": {
+          "type": "string",
+          "format": "binary"
+        }
+      }
+    }
+  },
   "countResults": {
     "description": "Count of corresponding operation",
     "content": {
