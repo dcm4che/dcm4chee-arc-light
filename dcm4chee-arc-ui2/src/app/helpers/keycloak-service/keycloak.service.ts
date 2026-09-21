@@ -19,7 +19,7 @@
 
 import {Observable, from} from "rxjs";
 
-declare var Keycloak: any;
+import Keycloak from 'keycloak-js';
 import {EventEmitter, Injectable} from '@angular/core';
 import {DcmWebApp} from "../../models/dcm-web-app";
 import {AppService} from "../../app.service";

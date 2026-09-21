@@ -66,6 +66,7 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
 
 
     private _schema;
+    private saveDataHandle;
     @Input() model;
     private _filterTreeHeight = 2;
     @Input() filterID;
@@ -160,14 +161,18 @@ export class FilterGeneratorComponent implements OnInit, OnDestroy, AfterContent
     }
 
     saveDataInMemory() {
-        try {
-            if (j4care.isSet(this._schema) && this.filterID) {
-                localStorage.setItem('schema_' + this.filterID, JSON.stringify(this._schema));
-            }
-            if (j4care.isSet(this._filterTreeHeight) && this.filterID) {
-                localStorage.setItem('tree_height_' + this.filterID, JSON.stringify(this._filterTreeHeight));
-            }
-        } catch (e) {}
+        // localStorage writes are synchronous, so coalesce them off the interaction path.
+        clearTimeout(this.saveDataHandle);
+        this.saveDataHandle = setTimeout(() => {
+            try {
+                if (j4care.isSet(this._schema) && this.filterID) {
+                    localStorage.setItem('schema_' + this.filterID, JSON.stringify(this._schema));
+                }
+                if (j4care.isSet(this._filterTreeHeight) && this.filterID) {
+                    localStorage.setItem('tree_height_' + this.filterID, JSON.stringify(this._filterTreeHeight));
+                }
+            } catch (e) {}
+        });
     }
     get filterTreeHeight() {
         return this._filterTreeHeight;

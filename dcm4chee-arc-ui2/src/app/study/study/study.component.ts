@@ -372,9 +372,8 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.internal = !this.internal;
             this.service.clearFilterObject(params.tab, this.filter);
             this.studyConfig.tab = undefined;
-            console.log('this.studyWebService',this.studyWebService);
-            setTimeout(()=>{
-                try{
+            this.changeDetector.detectChanges();
+            try{
 
 
                 this.internal = !this.internal;
@@ -415,65 +414,61 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
                     this._filter.filterModel['webApp'] = this.studyWebService.selectedWebService.dcmWebAppName;
                 };
                 this.studyConfig.title = this.tabToTitleMap(params.tab);
-                this.initWebApps();
-                if(this.studyConfig.tab === 'diff'){
-                    this.getDiffAttributeSet(this, ()=>{
-                        this.route.queryParams.subscribe(queryParams=>{
-                           if(_.hasIn(queryParams,'taskID') || _.hasIn(queryParams,'batchID')){
-                               if(queryParams.batchID){
-                                   this.filter.filterModel['batchID'] = queryParams.batchID;
+            }catch(e){
+                console.error('in error',e);
+            }
+            // Data loading and table schema are deferred so the tab switch paints immediately.
+            setTimeout(()=>{
+                try{
+                    this.initWebApps();
+                    if(this.studyConfig.tab === 'diff'){
+                        this.getDiffAttributeSet(this, ()=>{
+                            this.route.queryParams.subscribe(queryParams=>{
+                               if(_.hasIn(queryParams,'taskID') || _.hasIn(queryParams,'batchID')){
+                                   if(queryParams.batchID){
+                                       this.filter.filterModel['batchID'] = queryParams.batchID;
+                                   }
+                                   if(queryParams.different){
+                                       this.filter.filterModel['different'] = queryParams.different;
+                                   }
+                                   if(queryParams.comparefield){
+                                       this.filter.filterModel['comparefield'] = queryParams.comparefield;
+                                   }
+                                   if(queryParams.missing){
+                                       this.filter.filterModel['missing'] = queryParams.missing;
+                                   }
+                                   if(queryParams.taskID){
+                                       this.filter.filterModel['taskID'] = queryParams.taskID;
+                                   }
+                                   this.getDiff(_.cloneDeep(this.filter.filterModel));
                                }
-                               if(queryParams.different){
-                                   this.filter.filterModel['different'] = queryParams.different;
-                               }
-                               if(queryParams.comparefield){
-                                   this.filter.filterModel['comparefield'] = queryParams.comparefield;
-                               }
-                               if(queryParams.missing){
-                                   this.filter.filterModel['missing'] = queryParams.missing;
-                               }
-                               if(queryParams.taskID){
-                                   this.filter.filterModel['taskID'] = queryParams.taskID;
-                               }
-                               this.getDiff(_.cloneDeep(this.filter.filterModel));
-                           }
-                        });
-                        this.initWebApps();
-                    });
-                }
-                if (this.studyConfig.tab === 'study' || this.studyConfig.tab === 'series' || this.studyConfig.tab === 'diff') {
-                    this.getInstitutions(this, 'Series', () => {
-                        this.getStorages(this, () => {
+                            });
                             this.initWebApps();
                         });
-                    });
-                }
-                if (this.studyConfig.tab === 'mwl') {
-                    this.getInstitutions(this, 'MWL',() => {
+                    }
+                    if (this.studyConfig.tab === 'study' || this.studyConfig.tab === 'series' || this.studyConfig.tab === 'diff') {
+                        this.getInstitutions(this, 'Series', () => {
+                            this.getStorages(this, () => {
+                                this.initWebApps();
+                            });
+                        });
+                    }
+                    if (this.studyConfig.tab === 'mwl') {
+                        this.getInstitutions(this, 'MWL',() => {
+                            this.initWebApps();
+                        });
+                    }
+                    this.more = false;
+                    this._filter.filterModel.offset = 0;
+                    this.setTableSchema();
+                    if(this.studyConfig.tab != 'study' && this.studyConfig.tab != 'series' && this.studyConfig.tab != 'diff'){
                         this.initWebApps();
-                    });
-                }
-                this.more = false;
-                this._filter.filterModel.offset = 0;
-                this.setTableSchema();
-                if(this.studyConfig.tab != 'study' && this.studyConfig.tab != 'series' && this.studyConfig.tab != 'diff'){
-                    this.initWebApps();
-                }
-                /*                    if(!this.studyWebService){
-                                    }else{
-                                        this.setSchema();
-                                        this.initExporters(2);
-                                        this.initRjNotes(2);
-                                        this.getQueueNames();
-                                    }*/
-                // }
+                    }
                 }catch(e){
                     console.error('in error',e);
                 }
-                console.log('timeoutend1')
-            },1);
-
-            this.changeDetector.detectChanges();});
+            });
+        });
         this.moreFunctionConfig.options.filter(option=>{
             if(option.value === 'retrieve_multiple' || option.value === 'import_matching_sps_to_archive'){
                 return !this.internal;
@@ -6374,7 +6369,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
     }
 
     setMainSchema(){
-        const showCount:boolean = (this.studyConfig.tab == "mwl" || this.studyConfig.tab == "mpps" || this.studyConfig.tab == "uwl") ? !!this.studyWebService.selectedWebService : _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1;
+        const showCount:boolean = (this.studyConfig.tab == "mwl" || this.studyConfig.tab == "mpps" || this.studyConfig.tab == "uwl") && _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") ? !!this.studyWebService.selectedWebService : _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("QIDO_COUNT") > -1;
         const showSize:boolean = _.hasIn(this.studyWebService,"selectedWebService.dcmWebServiceClass") && this.studyWebService.selectedWebService.dcmWebServiceClass.indexOf("DCM4CHEE_ARC_AET") > -1;
         this._filter.filterSchemaMain  = this.service.getFilterSchema(
             this.studyConfig.tab,
