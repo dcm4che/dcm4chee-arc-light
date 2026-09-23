@@ -531,15 +531,19 @@ public class ProcedureServiceEJB {
             Attributes prevMWLAttrs = new Attributes(mwlItem.getAttributes(), mwlTags);
             if (!prevMWLAttrs.equals(new Attributes(attrs, mwlTags))) {
                 if (!simulate) {
+                    patientService.updatePatient(patMgtCtx);
                     updateMWL(ctx, mwlItem);
+                    updateStudySeriesAttributesFromMWL(ctx);
                 }
             }
         } else {
             if (!simulate) {
-                if (ctx.getPatient() == null) {
+                if (ctx.getPatient() == null)
                     ctx.setPatient(patientService.createPatient(patMgtCtx));
-                }
+                else
+                    patientService.updatePatient(patMgtCtx);
                 createMWL(ctx);
+                updateStudySeriesAttributesFromMWL(ctx);
             }
         }
     }
