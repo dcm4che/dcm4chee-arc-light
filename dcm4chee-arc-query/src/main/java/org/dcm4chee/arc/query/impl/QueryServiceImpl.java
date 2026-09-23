@@ -1033,7 +1033,6 @@ class QueryServiceImpl implements QueryService {
         CriteriaQuery<Tuple> q = cb.createTupleQuery();
         Root<MWLItem> mwlItem = q.from(MWLItem.class);
         Join<MWLItem, Patient> patient = mwlItem.join(MWLItem_.patient);
-        Join<Patient, PatientID> patientID = patient.join(Patient_.patientIDs);
         List<Predicate> predicates = new ArrayList<>();
         if (queryParam.localMwlWorklistLabels.length > 0)
             predicates.add(cb.or(
@@ -1042,6 +1041,7 @@ class QueryServiceImpl implements QueryService {
         if (queryParam.localMwlStatus.length > 0)
             predicates.add(mwlItem.get(MWLItem_.status).in(queryParam.localMwlStatus));
         if (queryParam.patientIDWithIssuer != null) {
+            Join<Patient, PatientID> patientID = patient.join(Patient_.patientIDs);
             List<Predicate> idPredicate = new ArrayList<>(3);
             idPredicate.add(cb.equal(patientID.get(PatientID_.id), queryParam.patientIDWithIssuer.getID()));
             if (queryParam.patientIDWithIssuer.getIssuer() != null) {
@@ -1066,6 +1066,7 @@ class QueryServiceImpl implements QueryService {
             predicates.add(cb.equal(mwlItem.get(MWLItem_.scheduledProcedureStepID), queryParam.spsID));
         if (!predicates.isEmpty())
             q.where(predicates.toArray(new Predicate[0]));
+        q.distinct(true);
         q.multiselect(
                 mwlItem.get(MWLItem_.attributesBlob).get(AttributesBlob_.encodedAttributes),
                 patient.get(Patient_.attributesBlob).get(AttributesBlob_.encodedAttributes));
