@@ -41,6 +41,7 @@
 package org.dcm4chee.arc.storage.cloud;
 
 import org.dcm4chee.arc.storage.CacheInputStream;
+import org.dcm4chee.arc.storage.WriteContext;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
 import org.jclouds.blobstore.domain.Blob;
@@ -48,6 +49,8 @@ import org.jclouds.io.Payload;
 import org.jclouds.io.payloads.InputStreamPayload;
 import org.jclouds.s3.S3Client;
 import org.jclouds.s3.domain.ObjectMetadataBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,19 +62,22 @@ import java.util.Map;
  * @since Oct 2015
  */
 class S3Uploader extends CacheInputStream implements Uploader {
+    private static final Logger LOG = LoggerFactory.getLogger(S3Uploader.class);
 
     @Override
     public void upload(BlobStoreContext context, InputStream in, long length, BlobStore blobStore,
-                       String container, String storagePath) throws IOException {
+                       String container, WriteContext ctx) throws IOException {
         if (fillBuffers(in))
-            uploadMultipleParts(context, in, container, storagePath);
+            uploadMultipleParts(context, in, container, ctx);
         else
-            uploadSinglePart(blobStore, container, storagePath);
+            uploadSinglePart(blobStore, container, ctx);
     }
 
-    private void uploadSinglePart(BlobStore blobStore, String container, String storagePath) {
-        Blob blob = blobStore.blobBuilder(storagePath).payload(createPayload()).build();
+    private void uploadSinglePart(BlobStore blobStore, String container, WriteContext ctx) {
+        LOG.debug("Start uploading Object[{}] to {} as Single Part", ctx.getStoragePath(), ctx.getStorage());
+        Blob blob = blobStore.blobBuilder(ctx.getStoragePath()).payload(createPayload()).build();
         blobStore.putBlob(container, blob);
+        LOG.debug("Finished uploading Object[{}] to {} as Single Part", ctx.getStoragePath(), ctx.getStorage());
     }
 
     private Payload createPayload() {
@@ -80,20 +86,22 @@ class S3Uploader extends CacheInputStream implements Uploader {
         return payload;
     }
 
-    private void uploadMultipleParts(BlobStoreContext context, InputStream in, String container, String storagePath)
+    private void uploadMultipleParts(BlobStoreContext context, InputStream in, String container, WriteContext ctx)
             throws IOException {
+        LOG.debug("Start uploading Object[{}] to {} as Single Part", ctx.getStoragePath(), ctx.getStorage());
         S3Client client = context.unwrapApi(S3Client.class);
         String uploadId = client.initiateMultipartUpload(container,
-                ObjectMetadataBuilder.create().key(storagePath).build());
+                ObjectMetadataBuilder.create().key(ctx.getStoragePath()).build());
         Map<Integer, String> parts = new HashMap<>();
         int partNumber = 1;
         do {
-            parts.put(partNumber, client.uploadPart(container, storagePath, partNumber, uploadId, createPayload()));
+            parts.put(partNumber, client.uploadPart(container, ctx.getStoragePath(), partNumber, uploadId, createPayload()));
             partNumber++;
         } while (fillBuffers(in));
         if (available() > 0)
-            parts.put(partNumber, client.uploadPart(container, storagePath, partNumber, uploadId, createPayload()));
-        client.completeMultipartUpload(container, storagePath, uploadId, parts);
+            parts.put(partNumber, client.uploadPart(container, ctx.getStoragePath(), partNumber, uploadId, createPayload()));
+        client.completeMultipartUpload(container, ctx.getStoragePath(), uploadId, parts);
+        LOG.debug("Finished uploading Object[{}] to {} as Single Part", ctx.getStoragePath(), ctx.getStorage());
     }
 
 }

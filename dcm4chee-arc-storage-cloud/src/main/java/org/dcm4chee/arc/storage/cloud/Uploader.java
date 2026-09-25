@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.storage.cloud;
 
+import org.dcm4chee.arc.storage.WriteContext;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;
 
@@ -52,6 +53,6 @@ import java.io.InputStream;
  */
 interface Uploader {
     void upload(BlobStoreContext context, InputStream in, long length,
-                BlobStore blobStore, String container, String storagePath)
+                BlobStore blobStore, String container, WriteContext ctx)
             throws IOException;
 }

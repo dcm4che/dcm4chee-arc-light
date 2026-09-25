@@ -181,7 +181,11 @@ public class AWSS3Storage extends AbstractStorage {
     protected void afterOutputStreamClosed(WriteContext ctx) throws IOException {
         FutureTask<Void> task = ((UploadTaskWriteContext) ctx).getUploadTask();
         try {
+            LOG.debug("Waiting for finishing upload of Object[{}] to {} to complete",
+                    ctx.getStoragePath(), ctx.getStorage());
             task.get();
+            LOG.debug("Upload of Object[{}] to {} completed successfully",
+                    ctx.getStoragePath(), ctx.getStorage());
         } catch (InterruptedException e) {
             throw new InterruptedIOException();
         } catch (Exception e) {
@@ -246,6 +250,7 @@ public class AWSS3Storage extends AbstractStorage {
 
     private void upload(WriteContext ctx, InputStream in) throws IOException {
         try {
+            LOG.debug("Start uploading Object[{}] to {}", ctx.getStoragePath(), ctx.getStorage());
             byte[] bb = new byte[initBufferSize];
             int off = 0;
             int read;
@@ -260,6 +265,7 @@ public class AWSS3Storage extends AbstractStorage {
             s3.putObject(
                     builder -> builder.bucket(bucket).key(ctx.getStoragePath()),
                     RequestBody.fromByteBuffer(ByteBuffer.wrap(bb, 0, off + read)));
+            LOG.debug("Finished uploading Object[{}] to {}", ctx.getStoragePath(), ctx.getStorage());
         } catch (S3Exception e) {
             throw failedToUpload(ctx.getStoragePath(), e);
         }

@@ -81,12 +81,14 @@ public class CloudStorage extends AbstractStorage {
     private static final Uploader STREAMING_UPLOADER = new Uploader() {
         @Override
         public void upload(BlobStoreContext context, InputStream in, long length,
-                           BlobStore blobStore, String container, String storagePath) {
+                           BlobStore blobStore, String container, WriteContext ctx) {
+            LOG.debug("Start uploading Object[{}] to {} using streaming uploader", ctx.getStoragePath(), ctx.getStorage());
             Payload payload = new InputStreamPayload(in);
             if (length >= 0)
                 payload.getContentMetadata().setContentLength(length);
-            Blob blob = blobStore.blobBuilder(storagePath).payload(payload).build();
+            Blob blob = blobStore.blobBuilder(ctx.getStoragePath()).payload(payload).build();
             blobStore.putBlob(container, blob);
+            LOG.debug("Finished uploading Object[{}] to {} using streaming uploader", ctx.getStoragePath(), ctx.getStorage());
         }
     };
     private final Device device;
@@ -171,7 +173,11 @@ public class CloudStorage extends AbstractStorage {
     protected void afterOutputStreamClosed(WriteContext ctx) throws IOException {
         FutureTask<Void> task = ((UploadTaskWriteContext) ctx).getUploadTask();
         try {
+            LOG.debug("Waiting for finishing upload of Object[{}] to {} to complete",
+                    ctx.getStoragePath(), ctx.getStorage());
             task.get();
+            LOG.debug("Upload of Object[{}] to {} completed successfully",
+                    ctx.getStoragePath(), ctx.getStorage());
         } catch (InterruptedException e) {
             throw new InterruptedIOException();
         } catch (Exception e) {
@@ -223,7 +229,7 @@ public class CloudStorage extends AbstractStorage {
         long length = ctx.getContentLength();
         Uploader uploader = streamingUpload || length >= 0 && length <= maxPartSize
                 ? STREAMING_UPLOADER : new S3Uploader();
-        uploader.upload(context, in, length, context.getBlobStore(), container, ctx.getStoragePath());
+        uploader.upload(context, in, length, context.getBlobStore(), container, ctx);
     }
 
     private boolean isSynchronizeUpload() {
