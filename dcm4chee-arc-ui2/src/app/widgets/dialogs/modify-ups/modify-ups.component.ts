@@ -46,6 +46,7 @@ export class ModifyUpsComponent {
     private _ups: any;
     private _upskey: any;
     private _externalInternalAetMode;
+    ignoreRequiredValidationDICOMTag:string[];
     iod: any;
     templateParameter:string = 'no_template';
 
@@ -123,7 +124,13 @@ export class ModifyUpsComponent {
     set externalInternalAetMode(value) {
         this._externalInternalAetMode = value;
     }
-
+    templateCheckbox(){
+        if(this.templateParameter === 'only_template'){
+            this.ignoreRequiredValidationDICOMTag = ['00404005'];
+        }else{
+            this.ignoreRequiredValidationDICOMTag = undefined;
+        }
+    }
     dialogKeyHandler(e, dialogRef){
         let code = (e.keyCode ? e.keyCode : e.which);
         console.log('in dialogkeyhandler', code);

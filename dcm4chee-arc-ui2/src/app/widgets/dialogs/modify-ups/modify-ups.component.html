@@ -22,21 +22,26 @@
             <div mat-dialog-content>
                 <iod-form-generator [externalInternalAetMode]="externalInternalAetMode" [object]="ups.attrs" [prefix]=""
                                     [mode]="mode" [iod]="iod" (validityChange)="iodFormValid = $event"
-                                    (keydown)="dialogKeyHandler($event,dialogRef)"></iod-form-generator>
+                                    (keydown)="dialogKeyHandler($event,dialogRef)"
+                                    [ignoreRequiredValidationDICOMTag]="ignoreRequiredValidationDICOMTag"
+                ></iod-form-generator>
             </div>
         }
         @if (mode === 'create' || mode === 'clone') {
             <div class="template_checkboxes">
                 <label for="no_template">
                     <input id="no_template" type="radio" name="template_radio" [(ngModel)]="templateParameter"
+                           (ngModelChange)="templateCheckbox()"
                            value="no_template"> Don't create template
                 </label>
                 <label for="template_too">
                     <input id="template_too" type="radio" name="template_radio" [(ngModel)]="templateParameter"
+                           (ngModelChange)="templateCheckbox()"
                            value="template_too"> Create template too
                 </label>
                 <label for="only_template">
                     <input id="only_template" type="radio" name="template_radio" [(ngModel)]="templateParameter"
+                           (ngModelChange)="templateCheckbox()"
                            value="only_template"> Create only template
                 </label>
             </div>

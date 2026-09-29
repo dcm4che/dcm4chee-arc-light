@@ -15,7 +15,7 @@
                         <div>
                             @if (object[o].vr != 'PN') {
                                 <div class="ariod"
-                                     [ngClass]="{'iod-required-missing': isRequiredMissing(object[o], object[o].Value[i])}">
+                                     [ngClass]="{'iod-required-missing': isRequiredMissing(object[o], object[o].Value[i], o)}">
                                     @if (!(object[o].enum && object[o].enum.length > 0) && object[o].vr != 'DA' && object[o].vr != 'DT' && o != '00100040' && o != '00080005' && o != '00102203' && o != '00741202') {
                                         <input
                                                 class="{{o}}"
@@ -127,7 +127,7 @@
                             }
                             @if (object[o].vr === 'PN') {
                                 <div class="multi_input"
-                                     [ngClass]="{'iod-required-missing': isRequiredMissing(object[o], object[o].Value[i])}">
+                                     [ngClass]="{'iod-required-missing': isRequiredMissing(object[o], object[o].Value[i], o)}">
                                     <input i18n-placeholder="@@placeholder.iod-form-generator.alphabetic"
                                            placeholder="{{DCM4CHE.elementName.forTag(o,privateCreator(o))}} Alphabetic"
                                            [(ngModel)]="object[o].Value[i]['Alphabetic']"

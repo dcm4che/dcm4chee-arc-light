@@ -68,6 +68,7 @@ export class IodFormGeneratorComponent implements OnInit, OnChanges {
     @Input() valueArrayKey:number;
     @Input() parentNewBlock:number;
     @Input() externalInternalAetMode;
+    @Input() ignoreRequiredValidationDICOMTag:string[];
     @Output() validityChange = new EventEmitter<boolean>();
     objectIsArray;
     hasValue;
@@ -144,7 +145,10 @@ export class IodFormGeneratorComponent implements OnInit, OnChanges {
     onChildValidityChange() {
         this.emitValidationState();
     }
-    isRequiredMissing(field, value?) {
+    isRequiredMissing(field, value?, key?) {
+        if(key && this.ignoreRequiredValidationDICOMTag && this.ignoreRequiredValidationDICOMTag.indexOf(key) > -1){
+            return false;
+        }
         if (!field || !field.required || field.required != "1") {
             return false;
         }
@@ -181,7 +185,7 @@ export class IodFormGeneratorComponent implements OnInit, OnChanges {
             if (!this.isFieldObject(field)) {
                 continue;
             }
-            if (this.isRequiredMissing(field)) {
+            if (this.isRequiredMissing(field, undefined, key)) {
                 return false;
             }
             if (field.vr === 'SQ' && _.isArray(field.Value)) {
