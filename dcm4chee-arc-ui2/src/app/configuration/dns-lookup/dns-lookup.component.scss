@@ -1,0 +1,22 @@
+.info_content_block{
+  background: var(--backgroundColorWhite);
+  float: left;
+  width: 100%;
+  padding:1rem;
+  box-shadow: 5px 3px 13px 0px rgba(68, 68, 68, 0.93);
+  h5{
+    font-size: 1.2rem;
+    color: var(--textColorBlack);
+    text-transform: uppercase;
+  }
+  .dns_overall_info{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid #ccc;
+    padding-top: 1rem;
+    h5{
+        font-size: 1rem;
+        color: var(--textColorBlack);
+    }
+  }
+}

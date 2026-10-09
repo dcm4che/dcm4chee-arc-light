@@ -235,6 +235,11 @@ import { MatFormFieldModule} from '@angular/material/form-field';
                 canActivate: [AuthGuard]
             },
             {
+                path: 'device/dns-lookup',
+                loadComponent: () => import('./configuration/dns-lookup/dns-lookup.component').then(m => m.DnsLookupComponent),
+                canActivate: [AuthGuard]
+            },
+            {
                 path: 'device/hl7applications',
                 loadComponent: () => import('./configuration/hl7-applications/hl7-applications.component')
                     .then(m => m.Hl7ApplicationsComponent),

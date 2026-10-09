@@ -1,0 +1,55 @@
+<div class="main_content ctrl white_design">
+    <config-tab></config-tab>
+    <div class="tab-content">
+        <h2 i18n="@@dns_lookup">DNS Lookup</h2>
+        <div class="filter_line more_function_block">
+            <div class="filter single_block">
+                <div class="filter_block">
+                    <div class="line">
+                        <input autocomplete="off" class="devicefilter" (keyup.enter)="dnsLookup()" [(ngModel)]="searchField" i18n-placeholder="@@hostname_or_ip" placeholder="Hostname or IP"/>
+                        <button class="btn-default submit ng-star-inserted" (click)="dnsLookup()" i18n="@@SUBMIT">SUBMIT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if(lookupResults(); as results){
+            <div class="info_content_block">
+                <h5>DNS Lookup Results</h5>
+                <div class="dns_overall_info">
+                    <div class="time_block">
+                        <h6 i18n="@@dns_lookup_time">DNS lookup time</h6>
+                        <span>{{results.dnsLookupTime}} ms</span>
+                    </div>
+                    <div class="hosts_block">
+                        <h6 i18n="@@resolved_hosts">Resolved Hosts</h6>
+                        <span>{{results.hosts.length || 0}} ms</span>
+                    </div>
+                </div>
+            </div>
+            <table class="j4care-table">
+                <thead>
+                <tr>
+                    <th i18n="@@host_name">Hostname</th>
+                    <th i18n="@@host_address">Host Address</th>
+                    <th i18n="@@reverse_dns_lookup_time">Reverse DNS Time</th>
+                </tr>
+                </thead>
+                <tbody>
+                    @for (lookupResult of results.hosts; track $index){
+                        <tr>
+                            <td>
+                                {{lookupResult.hostName}}
+                            </td>
+                            <td>
+                                {{lookupResult.hostAddress}}
+                            </td>
+                            <td>
+                                {{lookupResult.rdnsLookupTime}}
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
