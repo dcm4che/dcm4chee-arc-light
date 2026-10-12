@@ -23,7 +23,7 @@ import {RouterLink, RouterLinkActive} from '@angular/router';
                                                                                                                                routerLinkActive="active"
                                                                                                                                i18n="@@control">Control</a>
             </li>            
-            <li [permission]="{id:'tab-monitoring->dns_lookup',param:'visible'}" role="presentation" routerLinkActive="active">
+            <li [permission]="{id:'tab-configuration->dns_lookup',param:'visible'}" role="presentation" routerLinkActive="active">
                 <a role="tab" routerLink="/device/dns-lookup" routerLinkActive="active" i18n="@@dns-lookup">DNS Lookup</a>
             </li>
         </ul>

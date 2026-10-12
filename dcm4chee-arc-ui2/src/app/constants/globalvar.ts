@@ -3352,6 +3352,10 @@ export class Globalvar {
             },
             "/configuration/permission":{
                 permissionsAction:"tab-configuration->permission",
+                nextCheck:"/device/dns-lookup"
+            },
+            "/device/dns-lookup":{
+                permissionsAction:"tab-configuration->dns_lookup",
                 nextCheck:"/monitoring/control"
             },
             "/monitoring/control":{
@@ -3822,7 +3826,15 @@ export class Globalvar {
                 title:"Tab - Configuration Permission",
                 params:{
                     "visible":undefined,
-                "accessible":undefined
+                    "accessible":undefined
+                }
+            },
+            "tab-configuration->dns_lookup":{
+                type:"tab",
+                title:"Tab - Configuration DNS Lookup",
+                params:{
+                    "visible":undefined,
+                    "accessible":undefined
                 }
             },
             "tab-configuration->web_apps_list":{
