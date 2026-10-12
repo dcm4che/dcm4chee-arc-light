@@ -352,6 +352,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRemapRetrieveURL", ext.getRemapRetrieveURL(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmValidateCallingAEHostname",
                 ext.isValidateCallingAEHostname(), false);
+        LdapUtils.storeNotDef(ldapObj, attrs, "hl7ValidateSendingApplicationHostname",
+                ext.isValidateSendingApplicationHostname(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUSendingApplication",
                 ext.getHL7PSUSendingApplication(), null);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "hl7PSUReceivingApplication", ext.getHL7PSUReceivingApplications());
@@ -809,6 +811,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setXDSiFallbackCMoveSCPDestination(LdapUtils.stringValue(attrs.get("dcmXDSiFallbackCMoveSCPDestination"), null));
         ext.setRemapRetrieveURL(LdapUtils.stringValue(attrs.get("dcmRemapRetrieveURL"), null));
         ext.setValidateCallingAEHostname(LdapUtils.booleanValue(attrs.get("dcmValidateCallingAEHostname"), false));
+        ext.setValidateSendingApplicationHostname(LdapUtils.booleanValue(attrs.get("hl7ValidateSendingApplicationHostname"), false));
         ext.setHL7PSUSendingApplication(LdapUtils.stringValue(attrs.get("hl7PSUSendingApplication"), null));
         ext.setHL7PSUReceivingApplications(LdapUtils.stringArray(attrs.get("hl7PSUReceivingApplication")));
         ext.setHL7PSUAction(LdapUtils.enumArray(HL7PSUAction.class, attrs.get("hl7PSUAction")));
@@ -1386,6 +1389,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getRemapRetrieveURL(), bb.getRemapRetrieveURL(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmValidateCallingAEHostname",
                 aa.isValidateCallingAEHostname(), bb.isValidateCallingAEHostname(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "hl7ValidateSendingApplicationHostname",
+                aa.isValidateSendingApplicationHostname(), bb.isValidateSendingApplicationHostname(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "hl7PSUSendingApplication",
                 aa.getHL7PSUSendingApplication(), bb.getHL7PSUSendingApplication(), null);
         LdapUtils.storeDiff(ldapObj, mods, "hl7PSUReceivingApplication",

@@ -44,6 +44,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
 import org.dcm4che3.conf.api.ConfigurationException;
+import org.dcm4che3.conf.api.hl7.IHL7ApplicationCache;
 import org.dcm4che3.data.*;
 import org.dcm4che3.hl7.ERRSegment;
 import org.dcm4che3.hl7.HL7Exception;
@@ -98,6 +99,9 @@ class ImportReportService extends DefaultHL7Service {
     @Inject
     private CFindSCU cfindscu;
 
+    @Inject
+    private IHL7ApplicationCache hl7AppCache;
+
     public ImportReportService() {
         super("ORU^R01");
     }
@@ -105,6 +109,7 @@ class ImportReportService extends DefaultHL7Service {
     @Override
     public UnparsedHL7Message onMessage(HL7Application hl7App, Connection conn, Socket s, UnparsedHL7Message msg)
             throws HL7Exception {
+        MessageValidator.validate(hl7App, conn, s, msg, hl7AppCache, LOG);
         ArchiveHL7Message archiveHL7Message = new ArchiveHL7Message(
                 HL7Message.makeACK(msg.msh(), HL7Exception.AA, null).getBytes(null));
 

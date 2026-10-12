@@ -116,6 +116,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile ShowPatientInfo showPatientInfoInAuditLog = ShowPatientInfo.PLAIN_TEXT;
     private volatile String bulkDataSpoolDirectory = JBOSS_SERVER_TEMP_DIR;
     private volatile boolean validateCallingAEHostname = false;
+    private volatile boolean validateSendingApplicationHostname = false;
     private volatile boolean sendPendingCGet = false;
     private volatile Duration sendPendingCMoveInterval;
     private volatile boolean personNameComponentOrderInsensitiveMatching = false;
@@ -761,6 +762,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
 
     public void setValidateCallingAEHostname(boolean validateCallingAEHostname) {
         this.validateCallingAEHostname = validateCallingAEHostname;
+    }
+
+    public boolean isValidateSendingApplicationHostname() {
+        return validateSendingApplicationHostname;
+    }
+
+    public void setValidateSendingApplicationHostname(boolean validateSendingApplicationHostname) {
+        this.validateSendingApplicationHostname = validateSendingApplicationHostname;
     }
 
     public boolean isSendPendingCGet() {
@@ -3999,6 +4008,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         bulkDataSpoolDirectory = arcdev.bulkDataSpoolDirectory;
         personNameComponentOrderInsensitiveMatching = arcdev.personNameComponentOrderInsensitiveMatching;
         validateCallingAEHostname = arcdev.validateCallingAEHostname;
+        validateSendingApplicationHostname = arcdev.validateSendingApplicationHostname;
         sendPendingCGet = arcdev.sendPendingCGet;
         sendPendingCMoveInterval = arcdev.sendPendingCMoveInterval;
         encodeAsJSONNumber.clear();

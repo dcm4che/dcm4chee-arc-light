@@ -65,6 +65,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
     private String hl7OutgoingErrorLogFilePattern;
     private ScheduledProtocolCodeInOrder hl7ScheduledProtocolCodeInOrder;
     private ScheduledStationAETInOrder hl7ScheduledStationAETInOrder;
+    private Boolean validateSendingApplicationHostname;
     private Boolean hl7UseNullValue;
     private Issuer hl7PrimaryAssigningAuthorityOfPatientID;
     private HL7OtherPatientIDs hl7OtherPatientIDs;
@@ -120,6 +121,7 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         hl7OutgoingErrorLogFilePattern = arcapp.hl7OutgoingErrorLogFilePattern;
         hl7ScheduledProtocolCodeInOrder = arcapp.hl7ScheduledProtocolCodeInOrder;
         hl7ScheduledStationAETInOrder = arcapp.hl7ScheduledStationAETInOrder;
+        validateSendingApplicationHostname = arcapp.validateSendingApplicationHostname;
         hl7UseNullValue = arcapp.hl7UseNullValue;
         hl7PrimaryAssigningAuthorityOfPatientID = arcapp.hl7PrimaryAssigningAuthorityOfPatientID;
         hl7OtherPatientIDs = arcapp.hl7OtherPatientIDs;
@@ -305,6 +307,20 @@ public class ArchiveHL7ApplicationExtension extends HL7ApplicationExtension{
         return hl7NoPatientUpdateMessageTypes.isEmpty()
                 ? getArchiveDeviceExtension().isHL7NoPatientUpdateMessageType(messageType)
                 : hl7NoPatientUpdateMessageTypes.contains(messageType);
+    }
+
+    public Boolean getValidateSendingApplicationHostname() {
+        return validateSendingApplicationHostname;
+    }
+
+    public void setValidateSendingApplicationHostname(Boolean validateSendingApplicationHostname) {
+        this.validateSendingApplicationHostname = validateSendingApplicationHostname;
+    }
+
+    public boolean isValidateSendingApplicationHostname() {
+        return validateSendingApplicationHostname != null
+                ? validateSendingApplicationHostname
+                : getArchiveDeviceExtension().isValidateSendingApplicationHostname();
     }
 
     public Boolean getHL7UseNullValue() {

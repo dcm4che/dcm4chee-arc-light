@@ -77,6 +77,7 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
         writer.writeNotNullOrDef("hl7ScheduledStationAETInOrder", ext.getHL7ScheduledStationAETInOrder(), null);
         writer.writeNotEmpty("hl7NoPatientCreateMessageType", ext.getHL7NoPatientCreateMessageTypes());
         writer.writeNotEmpty("hl7NoPatientUpdateMessageType", ext.getHL7NoPatientUpdateMessageTypes());
+        writer.writeNotNull("hl7ValidateSendingApplicationHostname", ext.getValidateSendingApplicationHostname());
         writer.writeNotNull("hl7UseNullValue", ext.getHL7UseNullValue());
         writer.writeNotNullOrDef("hl7PrimaryAssigningAuthorityOfPatientID",
                 ext.getHL7PrimaryAssigningAuthorityOfPatientID(), null);
@@ -174,6 +175,9 @@ public class JsonArchiveHL7Configuration implements JsonHL7ConfigurationExtensio
                     break;
                 case "hl7NoPatientUpdateMessageType":
                     ext.setHL7NoPatientUpdateMessageTypes(reader.stringArray());
+                    break;
+                case "hl7ValidateSendingApplicationHostname":
+                    ext.setValidateSendingApplicationHostname(reader.booleanValue());
                     break;
                 case "hl7UseNullValue":
                     ext.setHL7UseNullValue(reader.booleanValue());

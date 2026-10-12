@@ -275,6 +275,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcDev.getXDSiFallbackCMoveSCPDestination(), null);
         writer.writeNotNullOrDef("dcmRemapRetrieveURL", arcDev.getRemapRetrieveURL(), null);
         writer.writeNotDef("dcmValidateCallingAEHostname", arcDev.isValidateCallingAEHostname(), false);
+        writer.writeNotDef("hl7ValidateSendingApplicationHostname", arcDev.isValidateSendingApplicationHostname(), false);
         writer.writeNotNullOrDef("hl7PSUSendingApplication", arcDev.getHL7PSUSendingApplication(), null);
         writer.writeNotEmpty("hl7PSUReceivingApplication", arcDev.getHL7PSUReceivingApplications());
         writer.writeNotEmpty("hl7PSUAction", arcDev.getHL7PSUAction());
@@ -1982,6 +1983,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmValidateCallingAEHostname":
                     arcDev.setValidateCallingAEHostname(reader.booleanValue());
+                    break;
+                case "hl7ValidateSendingApplicationHostname":
+                    arcDev.setValidateSendingApplicationHostname(reader.booleanValue());
                     break;
                 case "hl7PSUSendingApplication":
                     arcDev.setHL7PSUSendingApplication(reader.stringValue());
