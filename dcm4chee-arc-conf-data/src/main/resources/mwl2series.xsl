@@ -96,6 +96,8 @@
           <xsl:copy-of select="DicomAttribute[@tag='00321060']"/>
           <!-- RequestedProcedureCodeSequence -->
           <xsl:copy-of select="DicomAttribute[@tag='00321064']"/>
+          <!-- Requested Procedure Comments -->
+          <xsl:copy-of select="DicomAttribute[@tag='00401400']"/>
           <!-- Scheduled Procedure Step Description -->
           <xsl:copy-of select="DicomAttribute[@tag='00400100']/Item/DicomAttribute[@tag='00400007']"/>
           <!-- Scheduled Protocol Code Sequence -->
