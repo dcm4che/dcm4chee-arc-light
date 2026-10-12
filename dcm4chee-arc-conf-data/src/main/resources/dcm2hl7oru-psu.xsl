@@ -529,7 +529,7 @@
         <xsl:for-each select="DicomAttribute[@tag='0040A730']/Item">
             <!-- Root Content Item -->
             <xsl:if test="DicomAttribute[@tag='0040A010']/Value = 'CONTAINS'
-                            and DicomAttribute[@tag='0040A040']/Value = 'CONTAINER'">
+                            and (DicomAttribute[@tag='0040A040']/Value = 'CONTAINER' or DicomAttribute[@tag='0040A040']/Value = 'TEXT')">
                 <!-- OBX-3 : Concept Name Code Sequence -->
                 <xsl:variable name="conceptCode"
                               select="DicomAttribute[@tag='0040A043']/Item/DicomAttribute[@tag='00080100']/Value"/>
@@ -542,23 +542,16 @@
 
                 <xsl:if test="string-length($conceptCode) = 0
                                 or (string-length($conceptCode) > 0 and $conceptCode != '113014' and $conceptMeaning != 'DICOM Study')">
-                    <!-- Nested Content Sequence -->
-                    <xsl:for-each select="DicomAttribute[@tag='0040A730']/Item[DicomAttribute[@tag='0040A040']/Value='TEXT'
-                                                                            or DicomAttribute[@tag='0040A040']/Value='CODE']">
-                        <xsl:variable name="valueType" select="DicomAttribute[@tag='0040A040']/Value"/>
-                        <xsl:if test="$valueType = 'TEXT'
-                                        or ($valueType = 'CODE'
-                                                and string-length(DicomAttribute[@tag='0040A168']/Item/DicomAttribute[@tag='00080100']/Value) > 0)">
+                    <xsl:variable name="textValue" select="DicomAttribute[@tag='0040A160']/Value"/>
+                    <xsl:choose>
+                        <!-- Text Value -->
+                        <xsl:when test="string-length($textValue) > 0">
                             <OBX>
                                 <field>
-                                    <xsl:number level="any" count="Item[DicomAttribute[@tag='0040A040']/Value='TEXT'
-                                                                                        or DicomAttribute[@tag='0040A040']/Value='CODE']"/>
+                                    <xsl:value-of select="'2'"/>
                                 </field>
                                 <field>
-                                    <xsl:choose>
-                                        <xsl:when test="$valueType='TEXT'">TX</xsl:when>
-                                        <xsl:when test="$valueType='CODE'">CE</xsl:when>
-                                    </xsl:choose>
+                                    <xsl:value-of select="'TX'"/>
                                 </field>
                                 <field>
                                     <xsl:if test="string-length($conceptCode) > 0
@@ -575,25 +568,66 @@
                                 </field>
                                 <field/>
                                 <field>
-                                    <xsl:choose>
-                                        <xsl:when test="$valueType='TEXT'">
-                                            <xsl:value-of select="normalize-space(DicomAttribute[@tag='0040A160']/Value)" />
-                                        </xsl:when>
-                                        <xsl:when test="$valueType='CODE'">
-                                            <xsl:value-of select="DicomAttribute[@tag='0040A168']/Item/DicomAttribute[@tag='00080100']/Value"/>
-                                            <component>
-                                                <xsl:value-of select="DicomAttribute[@tag='0040A168']/Item/DicomAttribute[@tag='00080104']/Value"/>
-                                            </component>
-                                            <component>
-                                                <xsl:value-of select="DicomAttribute[@tag='0040A168']/Item/DicomAttribute[@tag='00080102']/Value"/>
-                                            </component>
-                                        </xsl:when>
-                                    </xsl:choose>
+                                    <xsl:value-of select="$textValue"/>
                                 </field>
                                 <field/>
                             </OBX>
-                        </xsl:if>
-                    </xsl:for-each>
+                        </xsl:when>
+                        <!-- Nested Content Sequence -->
+                        <xsl:otherwise>
+                            <xsl:for-each select="DicomAttribute[@tag='0040A730']/Item[DicomAttribute[@tag='0040A040']/Value='TEXT'
+                                                                            or DicomAttribute[@tag='0040A040']/Value='CODE']">
+                                <xsl:variable name="valueType" select="DicomAttribute[@tag='0040A040']/Value"/>
+                                <xsl:if test="$valueType = 'TEXT'
+                                        or ($valueType = 'CODE'
+                                                and string-length(DicomAttribute[@tag='0040A168']/Item/DicomAttribute[@tag='00080100']/Value) > 0)">
+                                    <OBX>
+                                        <field>
+                                            <xsl:number level="any" count="Item[DicomAttribute[@tag='0040A040']/Value='TEXT'
+                                                                                        or DicomAttribute[@tag='0040A040']/Value='CODE']"/>
+                                        </field>
+                                        <field>
+                                            <xsl:choose>
+                                                <xsl:when test="$valueType='TEXT'">TX</xsl:when>
+                                                <xsl:when test="$valueType='CODE'">CE</xsl:when>
+                                            </xsl:choose>
+                                        </field>
+                                        <field>
+                                            <xsl:if test="string-length($conceptCode) > 0
+                                                and string-length($conceptMeaning) > 0
+                                                and string-length($conceptScheme) > 0">
+                                                <xsl:value-of select="$conceptCode"/>
+                                                <component>
+                                                    <xsl:value-of select="$conceptMeaning"/>
+                                                </component>
+                                                <component>
+                                                    <xsl:value-of select="$conceptScheme"/>
+                                                </component>
+                                            </xsl:if>
+                                        </field>
+                                        <field/>
+                                        <field>
+                                            <xsl:choose>
+                                                <xsl:when test="$valueType='TEXT'">
+                                                    <xsl:value-of select="normalize-space(DicomAttribute[@tag='0040A160']/Value)" />
+                                                </xsl:when>
+                                                <xsl:when test="$valueType='CODE'">
+                                                    <xsl:value-of select="DicomAttribute[@tag='0040A168']/Item/DicomAttribute[@tag='00080100']/Value"/>
+                                                    <component>
+                                                        <xsl:value-of select="DicomAttribute[@tag='0040A168']/Item/DicomAttribute[@tag='00080104']/Value"/>
+                                                    </component>
+                                                    <component>
+                                                        <xsl:value-of select="DicomAttribute[@tag='0040A168']/Item/DicomAttribute[@tag='00080102']/Value"/>
+                                                    </component>
+                                                </xsl:when>
+                                            </xsl:choose>
+                                        </field>
+                                        <field/>
+                                    </OBX>
+                                </xsl:if>
+                            </xsl:for-each>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:if>
             </xsl:if>
         </xsl:for-each>
