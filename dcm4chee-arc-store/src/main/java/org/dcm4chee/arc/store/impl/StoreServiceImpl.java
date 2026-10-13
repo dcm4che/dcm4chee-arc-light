@@ -83,10 +83,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -249,7 +246,10 @@ class StoreServiceImpl implements StoreService {
             transcoder.setIncludeFileMetaInformation(true);
             transcoder.setIncludeImplementationVersionName(arcDev.isStoreImplementationVersionName());
             transcoder.setDeleteBulkDataFiles(true);
-            transcoder.transcode(new TranscoderHandler(ctx));
+            transcoder.setCloseOutputStream(false);
+            try (TranscoderHandler handler = new TranscoderHandler(ctx)) {
+                transcoder.transcode(handler);
+            }
             long encapsulatedPixelDataValueTotalLength = transcoder.getEncapsulatedPixelDataValueTotalLength();
             if (encapsulatedPixelDataValueTotalLength > 0) {
                 ctx.getAttributes().setLong(Tag.EncapsulatedPixelDataValueTotalLength, VR.UV,
@@ -727,8 +727,9 @@ class StoreServiceImpl implements StoreService {
         return matches;
     }
 
-    private final class TranscoderHandler implements Transcoder.Handler {
+    private final class TranscoderHandler implements Transcoder.Handler, Closeable {
         private final StoreContext storeContext;
+        private volatile OutputStream outputStream;
 
         private TranscoderHandler(StoreContext storeContext) {
             this.storeContext = storeContext;
@@ -746,7 +747,14 @@ class StoreServiceImpl implements StoreService {
                 transcoder.setCompressParams(compressionRule.getImageWriteParams());
                 storeContext.setStoreTranferSyntax(compressionRule.getTransferSyntax());
             }
-            return openOutputStream(storeContext, Location.ObjectType.DICOM_FILE);
+            return outputStream = openOutputStream(storeContext, Location.ObjectType.DICOM_FILE);
+        }
+
+        @Override
+        public void close() throws IOException {
+            if (outputStream != null) {
+                outputStream.close();
+            }
         }
     }
 
