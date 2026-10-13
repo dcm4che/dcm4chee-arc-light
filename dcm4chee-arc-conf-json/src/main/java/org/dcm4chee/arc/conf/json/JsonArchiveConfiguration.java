@@ -591,6 +591,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
             writer.writeNotNullOrDef("dcmLocationStatus", st.getLocationStatus(), LocationStatus.OK);
             writer.writeNotDef("dcmCountLocationsByStatus", st.isCountLocationsByStatus(), false);
             writer.writeNotNullOrDef("dcmDigestAlgorithm", st.getDigestAlgorithm(), null);
+            writer.writeNotNullOrDef("dcmStorageVerificationPolicy", st.getStorageVerificationPolicy(), null);
             writer.writeNotNullOrDef("dcmInstanceAvailability",
                     st.getInstanceAvailability(), Availability.ONLINE);
             writer.writeNotNullOrDef("dcmStorageDuration", st.getStorageDuration(), StorageDuration.PERMANENT);
@@ -2671,6 +2672,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmDigestAlgorithm":
                         st.setDigestAlgorithm(reader.stringValue());
+                        break;
+                    case "dcmStorageVerificationPolicy":
+                        arcDev.setStorageVerificationPolicy(StorageVerificationPolicy.valueOf(reader.stringValue()));
                         break;
                     case "dcmInstanceAvailability":
                         st.setInstanceAvailability(Availability.valueOf(reader.stringValue()));

@@ -80,6 +80,7 @@ public final class StorageDescriptor {
     private boolean countLocationsByStatus;
     private LocationStatus locationStatus = LocationStatus.OK;
     private String digestAlgorithm;
+    private StorageVerificationPolicy storageVerificationPolicy;
     private int maxRetries;
     private Duration retryDelay;
     private Availability instanceAvailability = Availability.ONLINE;
@@ -284,6 +285,14 @@ public final class StorageDescriptor {
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalArgumentException("No such algorithm: " + algorithm);
         }
+    }
+
+    public StorageVerificationPolicy getStorageVerificationPolicy() {
+        return storageVerificationPolicy;
+    }
+
+    public void setStorageVerificationPolicy(StorageVerificationPolicy storageVerificationPolicy) {
+        this.storageVerificationPolicy = storageVerificationPolicy;
     }
 
     public int getMaxRetries() {

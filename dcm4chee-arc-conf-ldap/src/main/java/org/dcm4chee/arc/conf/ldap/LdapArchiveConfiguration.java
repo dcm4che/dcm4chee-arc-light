@@ -3037,6 +3037,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 descriptor.isCountLocationsByStatus(), false);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmDigestAlgorithm",
                 descriptor.getDigestAlgorithm(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageVerificationPolicy",
+                descriptor.getStorageVerificationPolicy(), StorageVerificationPolicy.OBJECT_CHECKSUM);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInstanceAvailability",
                 descriptor.getInstanceAvailability(), Availability.ONLINE);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmStorageDuration",
@@ -3116,6 +3118,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.enumValue(LocationStatus.class, attrs.get("dcmLocationStatus"), LocationStatus.OK));
                 desc.setCountLocationsByStatus(LdapUtils.booleanValue(attrs.get("dcmCountLocationsByStatus"), false));
                 desc.setDigestAlgorithm(LdapUtils.stringValue(attrs.get("dcmDigestAlgorithm"), null));
+                desc.setStorageVerificationPolicy(
+                        LdapUtils.enumValue(StorageVerificationPolicy.class, attrs.get("dcmStorageVerificationPolicy"), StorageVerificationPolicy.OBJECT_CHECKSUM));
                 desc.setInstanceAvailability(
                         LdapUtils.enumValue(Availability.class, attrs.get("dcmInstanceAvailability"), Availability.ONLINE));
                 desc.setStorageDuration(
@@ -3215,6 +3219,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getStorageURIStr(), desc.getStorageURIStr(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmDigestAlgorithm",
                 prev.getDigestAlgorithm(), desc.getDigestAlgorithm(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmStorageVerificationPolicy",
+                prev.getStorageVerificationPolicy(), desc.getStorageVerificationPolicy(), StorageVerificationPolicy.OBJECT_CHECKSUM);
         LdapUtils.storeDiff(ldapObj, mods, "dcmArchiveSeriesAsTAR",
                 prev.isArchiveSeriesAsTAR(), desc.isArchiveSeriesAsTAR(), false);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoragePathFormat",

@@ -46,6 +46,7 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.util.StreamUtils;
 import org.dcm4chee.arc.conf.Duration;
 import org.dcm4chee.arc.conf.StorageDescriptor;
+import org.dcm4chee.arc.conf.StorageVerificationPolicy;
 import org.dcm4chee.arc.metrics.MetricsService;
 import org.slf4j.Logger;
 
@@ -53,6 +54,8 @@ import java.io.*;
 import java.nio.file.NoSuchFileException;
 import java.security.DigestInputStream;
 import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.util.Arrays;
 
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
@@ -205,8 +208,41 @@ public abstract class AbstractStorage implements Storage {
                         afterOutputStreamClosed(ctx);
                     }
                 }
+                StorageVerificationPolicy policy = descriptor.getStorageVerificationPolicy();
+                if (descriptor.getStorageVerificationPolicy() != null) {
+                    try {
+                        if (switch (policy) {
+                            case OBJECT_EXISTS -> exists(ctx);
+                            case OBJECT_SIZE -> getContentLength(ctx) == ctx.getContentLength();
+                            case OBJECT_FETCH -> fetchObject(ctx);
+                            case OBJECT_CHECKSUM -> verifyCheckSum(ctx);
+                            default -> throw new IllegalStateException("Unexpected value: " + policy);
+                        }) return;
+                    } catch (Exception e) {
+                        throw new IOException("Failed to verify storage using policy: " + policy, e);
+                    }
+                    throw new IOException("Failed to verify storage using policy: " + policy);
+                }
             }
         };
+    }
+
+    private boolean fetchObject(WriteContext ctx) throws IOException {
+        try (InputStream stream = ctx.getStorage().openInputStream(ctx)) {
+            StreamUtils.copy(stream, null);
+        }
+        return true;
+    }
+
+    private boolean verifyCheckSum(WriteContext ctx) throws IOException {
+        MessageDigest messageDigest = descriptor.getMessageDigest();
+        if (messageDigest == null) {
+            return false;
+        }
+        ctx.setMessageDigest(messageDigest);
+        byte[] digest = ctx.getDigest();
+        fetchObject(ctx);
+        return Arrays.equals(ctx.getDigest(), digest);
     }
 
     @Override
