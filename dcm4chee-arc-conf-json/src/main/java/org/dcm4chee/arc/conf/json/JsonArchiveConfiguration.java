@@ -2674,7 +2674,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         st.setDigestAlgorithm(reader.stringValue());
                         break;
                     case "dcmStorageVerificationPolicy":
-                        arcDev.setStorageVerificationPolicy(StorageVerificationPolicy.valueOf(reader.stringValue()));
+                        st.setStorageVerificationPolicy(StorageVerificationPolicy.valueOf(reader.stringValue()));
                         break;
                     case "dcmInstanceAvailability":
                         st.setInstanceAvailability(Availability.valueOf(reader.stringValue()));

@@ -209,7 +209,7 @@ public abstract class AbstractStorage implements Storage {
                     }
                 }
                 StorageVerificationPolicy policy = descriptor.getStorageVerificationPolicy();
-                if (descriptor.getStorageVerificationPolicy() != null) {
+                if (policy != null) {
                     try {
                         if (switch (policy) {
                             case OBJECT_EXISTS -> exists(ctx);
