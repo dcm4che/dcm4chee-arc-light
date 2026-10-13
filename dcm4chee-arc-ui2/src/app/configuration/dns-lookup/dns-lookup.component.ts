@@ -3,15 +3,12 @@ import {ConfigTabComponent} from "../config-tab.component";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {DnsLookupService} from "./dns-lookup.service";
 import {HttpErrorHandler} from "../../helpers/http-error-handler";
-import {JsonPipe, SlicePipe} from "@angular/common";
-
 @Component({
   selector: 'app-dns-lookup',
   imports: [
     ConfigTabComponent,
     ReactiveFormsModule,
-    FormsModule,
-    JsonPipe
+    FormsModule
   ],
   templateUrl: './dns-lookup.component.html',
   styleUrl: './dns-lookup.component.scss',

@@ -1,9 +1,9 @@
-import { Service } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {AppService} from "../../app.service";
 
-@Service()
+@Injectable()
 export class DnsLookupService {
     constructor(
         private $http:J4careHttpService,
