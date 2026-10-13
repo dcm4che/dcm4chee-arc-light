@@ -3838,6 +3838,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnStore.getRequestedProcedureDescription(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestedProcedureCode",
                 upsOnStore.getRequestedProcedureCode(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestedProcedureComments",
+                upsOnStore.getRequestedProcedureComments(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestingPhysician",
                 upsOnStore.getRequestingPhysician(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestingService",
@@ -4206,6 +4208,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnStore.setRequestedProcedureDescription(
                         LdapUtils.stringValue(attrs.get("dcmRequestedProcedureDescription"), null));
                 upsOnStore.setRequestedProcedureCode(LdapUtils.stringValue(attrs.get("dcmRequestedProcedureCode"), null));
+                upsOnStore.setRequestedProcedureComments(
+                        LdapUtils.stringValue(attrs.get("dcmRequestedProcedureComments"), null));
                 upsOnStore.setRequestingPhysician(LdapUtils.stringValue(attrs.get("dcmRequestingPhysician"), null));
                 upsOnStore.setRequestingService(LdapUtils.stringValue(attrs.get("dcmRequestingService"), null));
                 upsOnStore.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
@@ -5021,6 +5025,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getRequestedProcedureDescription(), upsOnStore.getRequestedProcedureDescription(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestedProcedureCode",
                 prev.getRequestedProcedureCode(), upsOnStore.getRequestedProcedureCode(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestedProcedureComments",
+                prev.getRequestedProcedureComments(), upsOnStore.getRequestedProcedureComments(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestingPhysician",
                 prev.getRequestingPhysician(), upsOnStore.getRequestingPhysician(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestingService",

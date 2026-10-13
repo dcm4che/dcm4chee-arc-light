@@ -1114,6 +1114,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     upsOnStore.getRequestedProcedureDescription(), null);
             writer.writeNotNullOrDef("dcmRequestedProcedureCode",
                     upsOnStore.getRequestedProcedureCode(), null);
+            writer.writeNotNullOrDef("dcmRequestedProcedureComments",
+                    upsOnStore.getRequestedProcedureComments(), null);
             writer.writeNotNullOrDef("dcmRequestingPhysician", upsOnStore.getRequestingPhysician(), null);
             writer.writeNotNullOrDef("dcmRequestingService", upsOnStore.getRequestingService(), null);
             writer.writeNotNullOrDef("dcmURI", upsOnStore.getXSLTStylesheetURI(), null);
@@ -3907,6 +3909,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmRequestedProcedureCode":
                         upsOnStore.setRequestedProcedureCode(reader.stringValue());
+                        break;
+                    case "dcmRequestedProcedureComments":
+                        upsOnStore.setRequestedProcedureComments(reader.stringValue());
                         break;
                     case "dcmRequestingPhysician":
                         upsOnStore.setRequestingPhysician(reader.stringValue());

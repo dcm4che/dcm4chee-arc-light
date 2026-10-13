@@ -78,6 +78,7 @@ public class UPSOnStore {
     private AttributesFormat requestedProcedureID;
     private AttributesFormat requestedProcedureDescription;
     private AttributesFormat requestedProcedureCode;
+    private AttributesFormat requestedProcedureComments;
     private AttributesFormat requestingPhysician;
     private AttributesFormat requestingService;
     private AttributesFormat issuerOfAdmissionID;
@@ -309,6 +310,18 @@ public class UPSOnStore {
 
     public Code getRequestedProcedureCode(Attributes attrs) {
         return formatCode(requestedProcedureCode, attrs);
+    }
+
+    public String getRequestedProcedureComments() {
+        return Objects.toString(requestedProcedureComments, null);
+    }
+
+    public void setRequestedProcedureComments(String requestedProcedureComments) {
+        this.requestedProcedureComments = AttributesFormat.valueOf(requestedProcedureComments);
+    }
+
+    public String getRequestedProcedureComments(Attributes attrs) {
+        return format(requestedProcedureComments, attrs);
     }
 
     public String getRequestingPhysician() {

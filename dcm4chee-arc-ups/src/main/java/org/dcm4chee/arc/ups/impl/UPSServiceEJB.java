@@ -850,6 +850,8 @@ public class UPSServiceEJB {
         item.setString(Tag.RequestedProcedureDescription, VR.LO,
                 rule.getRequestedProcedureDescription(storeCtx.getAttributes()));
         UPSUtils.setCode(item, Tag.RequestedProcedureCodeSequence, rule.getRequestedProcedureCode(storeCtx.getAttributes()));
+        item.setString(Tag.RequestedProcedureComments, VR.LT,
+                rule.getRequestedProcedureComments(storeCtx.getAttributes()));
         item.setString(Tag.RequestedProcedureID, VR.SH, rule.getRequestedProcedureID(storeCtx.getAttributes()));
         return item;
     }
