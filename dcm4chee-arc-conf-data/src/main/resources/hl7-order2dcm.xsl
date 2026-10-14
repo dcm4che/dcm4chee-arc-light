@@ -61,7 +61,7 @@
         <xsl:with-param name="obr" select="OBR[1]"/>
       </xsl:apply-templates>
       <xsl:apply-templates select="OBX"/>
-      <xsl:apply-templates select="NTE"/>
+      <xsl:call-template name="requestedProcedureComments"/>
       <!-- Admission ID, Issuer -->
       <xsl:call-template name="admissionID">
         <xsl:with-param name="visitNumber" select="PV1/field[19]"/>
@@ -543,12 +543,20 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template match="NTE">
-    <!-- Requested Procedure Comments -->
+  <xsl:template name="requestedProcedureComments">
+    <xsl:variable name="comments">
+      <xsl:for-each select="NTE/field[3]">
+        <xsl:if test="position() > 1">
+          <xsl:text> </xsl:text>
+        </xsl:if>
+        <xsl:value-of select="."/>
+      </xsl:for-each>
+    </xsl:variable>
+
     <xsl:call-template name="attr">
       <xsl:with-param name="tag" select="'00401400'"/>
       <xsl:with-param name="vr" select="'LT'"/>
-      <xsl:with-param name="val" select="field[3]" />
+      <xsl:with-param name="val" select="string($comments)"/>
     </xsl:call-template>
   </xsl:template>
 
