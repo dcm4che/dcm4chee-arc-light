@@ -56,6 +56,7 @@ export class KeycloakService {
     init(options?: any) {
         if(KeycloakService.keycloakConfig){
             // this.mainservice.updateGlobal("notSecure",false);
+            this.updateKeycloakJsonIfNeeded();
             KeycloakService.keycloakAuth = new Keycloak(KeycloakService.keycloakConfig);
             return j4care.promiseToObservable(new Promise((resolve, reject) => {
                 // @ts-ignore
@@ -121,18 +122,26 @@ export class KeycloakService {
         }else{
             return this.mainservice.getKeycloakJson().pipe(flatMap((keycloakJson:any)=>{
                 if(!_.isEmpty(keycloakJson)){
-                    localStorage.setItem(this.keycloakConfigName,JSON.stringify(keycloakJson));
-                    KeycloakService.keycloakAuth = new Keycloak(keycloakJson);
-                    return j4care.promiseToObservable(new Promise((resolve, reject) => {
-                        KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
-                            .then(() => {
-                                this.setTokenSource.next(KeycloakService.keycloakAuth.token);
-                                resolve(null);
-                            })
-                            .catch((errorData: any) => {
-                                reject(errorData);
-                            });
-                    }))
+                    const locallySavedKeycloakConfig = JSON.parse(localStorage.getItem(this.keycloakConfigName))
+                    if(locallySavedKeycloakConfig && !_.isEqual(keycloakJson,locallySavedKeycloakConfig)){
+                        localStorage.setItem(this.keycloakConfigName,JSON.stringify(keycloakJson));
+                        location.reload();
+                    }else{
+                        if(!locallySavedKeycloakConfig){
+                            localStorage.setItem(this.keycloakConfigName,JSON.stringify(keycloakJson));
+                        }
+                        KeycloakService.keycloakAuth = new Keycloak(keycloakJson);
+                        return j4care.promiseToObservable(new Promise((resolve, reject) => {
+                            KeycloakService.keycloakAuth.init(Globalvar.KEYCLOAK_OPTIONS())
+                                .then(() => {
+                                    this.setTokenSource.next(KeycloakService.keycloakAuth.token);
+                                    resolve(null);
+                                })
+                                .catch((errorData: any) => {
+                                    reject(errorData);
+                                });
+                        }))
+                    }
                 }else{
                     this.setUserInfo(undefined);
                     this.setTokenSource.next("");
@@ -141,6 +150,15 @@ export class KeycloakService {
                 }
             }))
         }
+    }
+    updateKeycloakJsonIfNeeded(){
+        const locallySavedKeycloakConfig = JSON.parse(localStorage.getItem(this.keycloakConfigName))
+        this.mainservice.getKeycloakJson().subscribe(keycloakJson=>{
+            if(locallySavedKeycloakConfig && !_.isEqual(keycloakJson,locallySavedKeycloakConfig)){
+                localStorage.setItem(this.keycloakConfigName,JSON.stringify(keycloakJson));
+                location.reload();
+            }
+        });
     }
 
     setUserInfo(user){
