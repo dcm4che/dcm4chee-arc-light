@@ -51,7 +51,6 @@ import org.dcm4chee.arc.query.util.QueryBuilder;
 import org.dcm4chee.arc.query.util.QueryParam;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Gunter Zeilinger <gunterze@protonmail.com>
@@ -112,13 +111,13 @@ public class UpdateServiceEJB {
                 .sum();
     }
 
-    private int updateAccessControlID(Study series, String accessControlID) {
+    private int updateAccessControlID(Study study, String accessControlID) {
         if (accessControlID.equals("*")) {
-            if (series.getAccessControlIDs().isEmpty()) return 0;
-            series.setAccessControlIDs();
+            if (study.getAccessControlIDs().isEmpty()) return 0;
+            study.setAccessControlIDs();
         } else {
-            if (series.containsAccessControlID(accessControlID)) return 0;
-            series.setAccessControlIDs(accessControlID);
+            if (study.containsAccessControlID(accessControlID)) return 0;
+            study.setAccessControlIDs(accessControlID);
         }
         return 1;
     }
