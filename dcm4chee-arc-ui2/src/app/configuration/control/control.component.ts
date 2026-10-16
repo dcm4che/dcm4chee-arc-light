@@ -78,11 +78,13 @@ export class ControlComponent implements OnInit {
     init() {
         this.getDevices();
         this.tableSchema = j4care.calculateWidthOfTable(this.service.getTableSchema());
+        this.changeDetector.detectChanges();
     }
     fetchStatuses(d?) {
         Object.keys(this.devices).forEach((device) => {
             this.fetchStatus(this.devices[device]);
         });
+        this.changeDetector.detectChanges();
     };
     fetchStatus(object) {
         this.service.fetchStatus(object.dcmuiDeviceURL).subscribe(res => {

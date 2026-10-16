@@ -3,7 +3,9 @@ import {J4careHttpService} from "../../helpers/j4care-http.service";
 import {j4care} from "../../helpers/j4care.service";
 import {AppService} from "../../app.service";
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class DnsLookupService {
     constructor(
         private $http:J4careHttpService,
