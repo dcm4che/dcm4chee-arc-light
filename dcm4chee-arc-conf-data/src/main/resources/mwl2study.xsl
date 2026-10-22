@@ -8,6 +8,14 @@
       <xsl:copy-of select="DicomAttribute[@tag='00080051']"/>
       <!-- Institution Name -->
       <xsl:copy-of select="DicomAttribute[@tag='00080080']"/>
+      <!-- Institution Address -->
+      <xsl:copy-of select="DicomAttribute[@tag='00080081']"/>
+      <!-- Institution Code Sequence -->
+      <xsl:copy-of select="DicomAttribute[@tag='00080082']"/>
+      <!-- Institutional Department Name -->
+      <xsl:copy-of select="DicomAttribute[@tag='00081040']"/>
+      <!-- Institutional Department Type Code Sequence -->
+      <xsl:copy-of select="DicomAttribute[@tag='00081041']"/>
       <!-- Referring Physician's Name -->
       <xsl:copy-of select="DicomAttribute[@tag='00080090']"/>
       <!-- Referring Physician's Identification Sequence -->
