@@ -242,7 +242,10 @@ public class UpdateMatchingRS {
 
     private Attributes toAttributes(InputStream in) {
         try {
-            return new JSONReader(Json.createParser(new InputStreamReader(in, StandardCharsets.UTF_8)))
+            String json = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            LOG.info("Received JSON request payload:\n{}", json);
+            return new JSONReader(
+                    Json.createParser(new StringReader(json)))
                     .readDataset(null);
         } catch (JsonParsingException e) {
             throw new WebApplicationException(
