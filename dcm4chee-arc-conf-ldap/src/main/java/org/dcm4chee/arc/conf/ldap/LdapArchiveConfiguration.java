@@ -3844,6 +3844,16 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 upsOnStore.getRequestingPhysician(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmRequestingService",
                 upsOnStore.getRequestingService(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomInstitutionName",
+                upsOnStore.getInstitutionName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomInstitutionCode",
+                upsOnStore.getInstitutionCode(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomInstitutionDepartmentName",
+                upsOnStore.getInstitutionalDepartmentName(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmInstitutionDepartmentCode",
+                upsOnStore.getInstitutionalDepartmentCode(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dicomInstitutionAddress",
+                upsOnStore.getInstitutionAddress(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmURI", upsOnStore.getXSLTStylesheetURI(), null);
         LdapUtils.storeNotDef(ldapObj, attrs, "dcmNoKeywords", upsOnStore.isNoKeywords(), false);
         LdapUtils.storeNotEmpty(ldapObj, attrs, "dcmProperty", upsOnStore.getConditions().getMap());
@@ -4212,6 +4222,16 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                         LdapUtils.stringValue(attrs.get("dcmRequestedProcedureComments"), null));
                 upsOnStore.setRequestingPhysician(LdapUtils.stringValue(attrs.get("dcmRequestingPhysician"), null));
                 upsOnStore.setRequestingService(LdapUtils.stringValue(attrs.get("dcmRequestingService"), null));
+                upsOnStore.setInstitutionName(
+                        LdapUtils.stringValue(attrs.get("dicomInstitutionName"), null));
+                upsOnStore.setInstitutionCode(
+                        LdapUtils.stringValue(attrs.get("dicomInstitutionCode"), null));
+                upsOnStore.setInstitutionalDepartmentName(
+                        LdapUtils.stringValue(attrs.get("dicomInstitutionDepartmentName"), null));
+                upsOnStore.setInstitutionalDepartmentCode(
+                        LdapUtils.stringValue(attrs.get("dcmInstitutionDepartmentCode"), null));
+                upsOnStore.setInstitutionAddress(
+                        LdapUtils.stringValue(attrs.get("dicomInstitutionAddress"), null));
                 upsOnStore.setXSLTStylesheetURI(LdapUtils.stringValue(attrs.get("dcmURI"), null));
                 upsOnStore.setNoKeywords(LdapUtils.booleanValue(attrs.get("dcmNoKeywords"), false));
                 upsOnStore.setConditions(new Conditions(LdapUtils.stringArray(attrs.get("dcmProperty"))));
@@ -5031,6 +5051,16 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 prev.getRequestingPhysician(), upsOnStore.getRequestingPhysician(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmRequestingService",
                 prev.getRequestingService(), upsOnStore.getRequestingService(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomInstitutionName",
+                prev.getInstitutionName(), upsOnStore.getInstitutionName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomInstitutionCode",
+                prev.getInstitutionCode(), upsOnStore.getInstitutionCode(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomInstitutionDepartmentName",
+                prev.getInstitutionalDepartmentName(), upsOnStore.getInstitutionalDepartmentName(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmInstitutionDepartmentCode",
+                prev.getInstitutionalDepartmentCode(), upsOnStore.getInstitutionalDepartmentCode(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dicomInstitutionAddress",
+                prev.getInstitutionAddress(), upsOnStore.getInstitutionAddress(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmURI",
                 prev.getXSLTStylesheetURI(), upsOnStore.getXSLTStylesheetURI(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmNoKeywords",

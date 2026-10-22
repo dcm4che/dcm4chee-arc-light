@@ -1118,6 +1118,16 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     upsOnStore.getRequestedProcedureComments(), null);
             writer.writeNotNullOrDef("dcmRequestingPhysician", upsOnStore.getRequestingPhysician(), null);
             writer.writeNotNullOrDef("dcmRequestingService", upsOnStore.getRequestingService(), null);
+            writer.writeNotNullOrDef("dicomInstitutionName",
+                    upsOnStore.getInstitutionName(), null);
+            writer.writeNotNullOrDef("dicomInstitutionCode",
+                    upsOnStore.getInstitutionCode(), null);
+            writer.writeNotNullOrDef("dicomInstitutionDepartmentName",
+                    upsOnStore.getInstitutionalDepartmentName(), null);
+            writer.writeNotNullOrDef("dcmInstitutionDepartmentCode",
+                    upsOnStore.getInstitutionalDepartmentCode(), null);
+            writer.writeNotNullOrDef("dicomInstitutionAddress",
+                    upsOnStore.getInstitutionAddress(), null);
             writer.writeNotNullOrDef("dcmURI", upsOnStore.getXSLTStylesheetURI(), null);
             writer.writeNotDef("dcmNoKeywords", upsOnStore.isNoKeywords(), false);
             writer.writeNotEmpty("dcmProperty", upsOnStore.getConditions().getMap());
@@ -3918,6 +3928,21 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                         break;
                     case "dcmRequestingService":
                         upsOnStore.setRequestingService(reader.stringValue());
+                        break;
+                    case "dicomInstitutionName":
+                        upsOnStore.setInstitutionName(reader.stringValue());
+                        break;
+                    case "dicomInstitutionCode":
+                        upsOnStore.setInstitutionCode(reader.stringValue());
+                        break;
+                    case "dicomInstitutionDepartmentName":
+                        upsOnStore.setInstitutionalDepartmentName(reader.stringValue());
+                        break;
+                    case "dcmInstitutionDepartmentCode":
+                        upsOnStore.setInstitutionalDepartmentCode(reader.stringValue());
+                        break;
+                    case "dicomInstitutionAddress":
+                        upsOnStore.setInstitutionAddress(reader.stringValue());
                         break;
                     case "dcmURI":
                         upsOnStore.setXSLTStylesheetURI(reader.stringValue());

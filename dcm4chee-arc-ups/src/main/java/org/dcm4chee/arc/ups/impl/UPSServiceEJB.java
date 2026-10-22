@@ -837,6 +837,11 @@ public class UPSServiceEJB {
             updateIncludeInputInformation(attrs.newSequence(Tag.InputInformationSequence, 1), storeCtx);
         }
         UPSUtils.addScheduledProcessingParameter(attrs, ScopeOfAccumulation.CODE, rule.getScopeOfAccumulation());
+        attrs.setString(Tag.InstitutionName, VR.LO, rule.getInstitutionName(storeCtx.getAttributes()));
+        UPSUtils.setCode(attrs, Tag.InstitutionCodeSequence, rule.getInstitutionCode(storeCtx.getAttributes()));
+        attrs.setString(Tag.InstitutionalDepartmentName, VR.LO, rule.getInstitutionalDepartmentName(storeCtx.getAttributes()));
+        UPSUtils.setCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence, rule.getInstitutionalDepartmentCode(storeCtx.getAttributes()));
+        attrs.setString(Tag.InstitutionAddress, VR.ST, rule.getInstitutionAddress(storeCtx.getAttributes()));
         return attrs;
     }
 

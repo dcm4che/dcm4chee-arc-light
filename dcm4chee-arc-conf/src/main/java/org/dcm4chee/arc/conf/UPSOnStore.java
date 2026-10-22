@@ -83,6 +83,11 @@ public class UPSOnStore {
     private AttributesFormat requestingService;
     private AttributesFormat issuerOfAdmissionID;
     private AttributesFormat issuerOfAccessionNumber;
+    private AttributesFormat institutionName;
+    private AttributesFormat institutionCode;
+    private AttributesFormat institutionalDepartmentName;
+    private AttributesFormat institutionalDepartmentCode;
+    private AttributesFormat institutionAddress;
     private Code scheduledWorkitemCode;
     private Code[] scheduledStationNames = {};
     private Code[] scheduledStationClasses = {};
@@ -410,6 +415,66 @@ public class UPSOnStore {
 
     public void setScheduledHumanPerformers(Code[] scheduledHumanPerformers) {
         this.scheduledHumanPerformers = scheduledHumanPerformers;
+    }
+
+    public AttributesFormat getInstitutionName() {
+        return institutionName;
+    }
+
+    public void setInstitutionName(String institutionName) {
+        this.institutionName = AttributesFormat.valueOf(institutionName);
+    }
+
+    public String getInstitutionName(Attributes attrs) {
+        return format(institutionName, attrs);
+    }
+
+    public AttributesFormat getInstitutionCode() {
+        return institutionCode;
+    }
+
+    public void setInstitutionCode(String institutionCode) {
+        this.institutionCode = AttributesFormat.valueOf(institutionCode);
+    }
+
+    public Code getInstitutionCode(Attributes attrs) {
+        return formatCode(institutionCode, attrs);
+    }
+
+    public AttributesFormat getInstitutionalDepartmentName() {
+        return institutionalDepartmentName;
+    }
+
+    public void setInstitutionalDepartmentName(String institutionalDepartmentName) {
+        this.institutionalDepartmentName = AttributesFormat.valueOf(institutionalDepartmentName);
+    }
+
+    public String getInstitutionalDepartmentName(Attributes attrs) {
+        return format(institutionalDepartmentName, attrs);
+    }
+
+    public AttributesFormat getInstitutionalDepartmentCode() {
+        return institutionalDepartmentCode;
+    }
+
+    public void setInstitutionalDepartmentCode(String institutionalDepartmentCode) {
+        this.institutionalDepartmentCode = AttributesFormat.valueOf(institutionalDepartmentCode);
+    }
+
+    public Code getInstitutionalDepartmentCode(Attributes attrs) {
+        return formatCode(institutionalDepartmentCode, attrs);
+    }
+
+    public AttributesFormat getInstitutionAddress() {
+        return institutionAddress;
+    }
+
+    public void setInstitutionAddress(String institutionAddress) {
+        this.institutionAddress = AttributesFormat.valueOf(institutionAddress);
+    }
+
+    public String getInstitutionAddress(Attributes attrs) {
+        return format(institutionAddress, attrs);
     }
 
     public String getDestinationAE() {
