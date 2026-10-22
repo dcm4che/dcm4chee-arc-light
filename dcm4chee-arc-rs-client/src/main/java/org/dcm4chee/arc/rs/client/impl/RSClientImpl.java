@@ -253,6 +253,7 @@ public class RSClientImpl implements RSClient {
             case UpdateStudyExpirationDate:
             case UpdateSeriesExpirationDate:
             case UpdateStudyAccessControlID:
+            case UpdateSeriesAccessControlID:
             case ChangePatientID2:
             case ChangePatientIDByPID:
             case MergePatient2:
