@@ -403,6 +403,7 @@ public class UpdateMatchingRS {
                     if (match.update(updatePolicy, attrs, null)) {
                         try {
                             studyMgtCtx.setAttributes(match);
+                            studyMgtCtx.setPatient(null);
                             if (qrLevel == QueryRetrieveLevel2.STUDY) {
                                 studyService.updateStudy(studyMgtCtx);
                             } else {

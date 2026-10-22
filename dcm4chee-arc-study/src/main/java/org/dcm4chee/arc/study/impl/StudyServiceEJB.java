@@ -98,13 +98,13 @@ public class StudyServiceEJB {
 
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         ctx.setStudy(study);
-        if (ctx.getPatient() == null)
-            ctx.setPatient(study.getPatient());
-        else if (study.getPatient().getPk() != ctx.getPatient().getPk())
+        if (ctx.getPatient() != null
+                && study.getPatient().getPk() != ctx.getPatient().getPk())
             throw new PatientMismatchException(ctx.getPatient()
                     + " found using patient identifiers sent in request payload does not match with "
                     + study.getPatient() + " of " + study);
 
+        ctx.setPatient(study.getPatient());
         Attributes.unifyCharacterSets(newAttrs, attrs);
         newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
         attrs = newAttrs;
@@ -137,13 +137,13 @@ public class StudyServiceEJB {
 
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         ctx.setStudy(series.getStudy());
-        if (ctx.getPatient() == null)
-            ctx.setPatient(series.getStudy().getPatient());
-        else if (series.getStudy().getPatient().getPk() != ctx.getPatient().getPk())
+        if (ctx.getPatient() != null
+                && series.getStudy().getPatient().getPk() != ctx.getPatient().getPk())
             throw new PatientMismatchException(ctx.getPatient()
                     + " found using patient identifiers sent in request payload does not match with "
                     + series.getStudy().getPatient() + " of " + series);
 
+        ctx.setPatient(series.getStudy().getPatient());
         Sequence origRequestAttributes = attrs.getSequence(Tag.RequestAttributesSequence);
         Sequence newRequestAttributes = newAttrs.getSequence(Tag.RequestAttributesSequence);
         if (!Objects.equals(origRequestAttributes, newRequestAttributes)) {
@@ -189,13 +189,14 @@ public class StudyServiceEJB {
 
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
         ctx.setStudy(instance.getSeries().getStudy());
-        if (ctx.getPatient() == null)
-            ctx.setPatient(instance.getSeries().getStudy().getPatient());
-        else if (instance.getSeries().getStudy().getPatient().getPk() != ctx.getPatient().getPk())
+
+        if (ctx.getPatient() != null
+                && instance.getSeries().getStudy().getPatient().getPk() != ctx.getPatient().getPk())
             throw new PatientMismatchException(ctx.getPatient()
                     + " found using patient identifiers sent in request payload does not match with "
                     + instance.getSeries().getStudy().getPatient() + " of " + instance);
 
+        ctx.setPatient(instance.getSeries().getStudy().getPatient());
         Attributes.unifyCharacterSets(newAttrs, attrs);
         newAttrs.addSelected(attrs, null, Tag.OriginalAttributesSequence);
         attrs = newAttrs;
