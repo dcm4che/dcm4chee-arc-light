@@ -386,6 +386,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "hl7PSUStudyTemplateURI", ext.getHl7PSUStudyTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptNonUniquePatientIDs",
+                ext.getAcceptNonUniquePatientIDs(), AcceptNonUniquePatientIDs.NEVER);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmProxyUpstreamURL",
                 ext.getProxyUpstreamURL(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs,"dcmAudit2JsonFhirTemplateURI",
@@ -838,6 +840,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class,
                         attrs.get("dcmAcceptConflictingPatientID"), AcceptConflictingPatientID.MERGED));
+        ext.setAcceptNonUniquePatientIDs(
+                LdapUtils.enumValue(AcceptNonUniquePatientIDs.class,
+                        attrs.get("dcmAcceptNonUniquePatientIDs"), AcceptNonUniquePatientIDs.NEVER));
         ext.setProxyUpstreamURL(LdapUtils.stringValue(attrs.get("dcmProxyUpstreamURL"), null));
         ext.setAudit2JsonFhirTemplateURI(LdapUtils.stringValue(attrs.get("dcmAudit2JsonFhirTemplateURI"), null));
         ext.setAudit2XmlFhirTemplateURI(LdapUtils.stringValue(attrs.get("dcmAudit2XmlFhirTemplateURI"), null));
@@ -1429,6 +1434,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(),
                 AcceptConflictingPatientID.MERGED);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptNonUniquePatientIDs",
+                aa.getAcceptNonUniquePatientIDs(), bb.getAcceptNonUniquePatientIDs(),
+                AcceptNonUniquePatientIDs.NEVER);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmProxyUpstreamURL",
                 aa.getProxyUpstreamURL(), bb.getProxyUpstreamURL(), null);
         LdapUtils.storeDiffObject(ldapObj, mods,"dcmAudit2JsonFhirTemplateURI",
@@ -2106,6 +2114,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 ext.getHl7PSUStudyTemplateURI(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptConflictingPatientID",
                 ext.getAcceptConflictingPatientID(), null);
+        LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmAcceptNonUniquePatientIDs",
+                ext.getAcceptNonUniquePatientIDs(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmCopyMoveUpdatePolicy",
                 ext.getCopyMoveUpdatePolicy(), null);
         LdapUtils.storeNotNullOrDef(ldapObj, attrs, "dcmLinkMWLEntryUpdatePolicy",
@@ -2297,6 +2307,9 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         ext.setAcceptConflictingPatientID(
                 LdapUtils.enumValue(AcceptConflictingPatientID.class,
                         attrs.get("dcmAcceptConflictingPatientID"), null));
+        ext.setAcceptNonUniquePatientIDs(
+                LdapUtils.enumValue(AcceptNonUniquePatientIDs.class,
+                        attrs.get("dcmAcceptNonUniquePatientIDs"), null));
         ext.setCopyMoveUpdatePolicy(
                 LdapUtils.enumValue(org.dcm4che3.data.Attributes.UpdatePolicy.class,
                         attrs.get("dcmCopyMoveUpdatePolicy"), null));
@@ -2580,6 +2593,8 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
                 aa.getHl7PSUStudyTemplateURI(), bb.getHl7PSUStudyTemplateURI(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptConflictingPatientID",
                 aa.getAcceptConflictingPatientID(), bb.getAcceptConflictingPatientID(), null);
+        LdapUtils.storeDiffObject(ldapObj, mods, "dcmAcceptNonUniquePatientIDs",
+                aa.getAcceptNonUniquePatientIDs(), bb.getAcceptNonUniquePatientIDs(),null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmCopyMoveUpdatePolicy",
                 aa.getCopyMoveUpdatePolicy(), bb.getCopyMoveUpdatePolicy(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmLinkMWLEntryUpdatePolicy",

@@ -141,6 +141,7 @@ public class ArchiveAEExtension extends AEExtension {
     private AllowDeletePatient allowDeletePatient;
     private AllowDeleteStudyPermanently allowDeleteStudyPermanently;
     private AcceptConflictingPatientID acceptConflictingPatientID;
+    private AcceptNonUniquePatientIDs acceptNonUniquePatientIDs;
     private UserIdentityNegotiation userIdentityNegotiation;
     private String userIdentityNegotiationRole;
     private String userIdentityNegotiationKeycloakClientID;
@@ -1804,6 +1805,20 @@ public class ArchiveAEExtension extends AEExtension {
                 : getArchiveDeviceExtension().getAcceptConflictingPatientID();
     }
 
+    public AcceptNonUniquePatientIDs getAcceptNonUniquePatientIDs() {
+        return acceptNonUniquePatientIDs;
+    }
+
+    public void setAcceptNonUniquePatientIDs(AcceptNonUniquePatientIDs acceptNonUniquePatientIDs) {
+        this.acceptNonUniquePatientIDs = acceptNonUniquePatientIDs;
+    }
+
+    public AcceptNonUniquePatientIDs acceptNonUniquePatientIDs() {
+        return acceptNonUniquePatientIDs != null
+                ? acceptNonUniquePatientIDs
+                : getArchiveDeviceExtension().getAcceptNonUniquePatientIDs();
+    }
+
     public UserIdentityNegotiation getUserIdentityNegotiation() {
         return userIdentityNegotiation;
     }
@@ -2239,6 +2254,7 @@ public class ArchiveAEExtension extends AEExtension {
         allowDeleteStudyPermanently = aeExt.allowDeleteStudyPermanently;
         allowDeletePatient = aeExt.allowDeletePatient;
         acceptConflictingPatientID = aeExt.acceptConflictingPatientID;
+        acceptNonUniquePatientIDs = aeExt.acceptNonUniquePatientIDs;
         userIdentityNegotiation = aeExt.userIdentityNegotiation;
         userIdentityNegotiationRole = aeExt.userIdentityNegotiationRole;
         userIdentityNegotiationKeycloakClientID = aeExt.userIdentityNegotiationKeycloakClientID;

@@ -2560,6 +2560,11 @@ attributeTypes: ( 1.2.40.0.13.1.15.110.3.525 NAME 'dcmInstitutionDepartmentCode'
   EQUALITY caseExactMatch
   SUBSTR caseExactSubstringsMatch
   SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+attributeTypes: ( 1.2.40.0.13.1.15.110.3.526 NAME 'dcmAcceptNonUniquePatientIDs'
+  DESC 'Indicates if objects with multiple Patient IDs in in the root dataset and in items of the Other Patient ID sequence matching Patient IDs of different existing Patients in the archive will be accepted. Enumerated values: NEVER (Reject such objects), UNIQUE_PATIENT_ATTRS (Only accept such objects if all attributes of one of the existing Patients matches), CREATE_NEW_PATIENT (Accept such objects, creating a new Patient record). If absent, NEVER will be applied.'
+  EQUALITY caseExactIA5Match
+  SYNTAX 1.3.6.1.4.1.1466.115.121.1.26
+  SINGLE-VALUE )
 objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
   DESC 'DICOM Archive Device related information'
   SUP top AUXILIARY
@@ -2619,6 +2624,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.4 NAME 'dcmArchiveDevice'
     dcmRelationalMismatchPolicy $
     dcmAcceptMissingPatientID $
     dcmAcceptConflictingPatientID $
+    dcmAcceptNonUniquePatientIDs $
     dcmRejectConflictingPatientAttribute $
     dcmTrustedIssuerOfPatientID $
     dcmTrustedIssuerOfPatientIDPattern $
@@ -2914,6 +2920,7 @@ objectClasses: ( 1.2.40.0.13.1.15.110.4.5 NAME 'dcmArchiveNetworkAE'
     dcmRelationalMismatchPolicy $
     dcmAcceptMissingPatientID $
     dcmAcceptConflictingPatientID $
+    dcmAcceptNonUniquePatientIDs $
     dcmRejectConflictingPatientAttribute $
     dcmQueryRetrieveViewID $
     dcmBulkDataSpoolDirectory $

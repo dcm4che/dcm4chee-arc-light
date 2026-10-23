@@ -300,6 +300,8 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PSUStudyTemplateURI", arcDev.getHl7PSUStudyTemplateURI(), null);
         writer.writeNotNullOrDef("dcmAcceptConflictingPatientID",
                 arcDev.getAcceptConflictingPatientID(), AcceptConflictingPatientID.MERGED);
+        writer.writeNotNullOrDef("dcmAcceptNonUniquePatientIDs",
+                arcDev.getAcceptNonUniquePatientIDs(), AcceptNonUniquePatientIDs.NEVER);
         writer.writeNotNullOrDef("dcmProxyUpstreamURL", arcDev.getProxyUpstreamURL(), null);
         writer.writeNotNullOrDef("dcmAudit2JsonFhirTemplateURI", arcDev.getAudit2JsonFhirTemplateURI(), null);
         writer.writeNotNullOrDef("dcmAudit2XmlFhirTemplateURI", arcDev.getAudit2XmlFhirTemplateURI(), null);
@@ -1484,6 +1486,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
         writer.writeNotNullOrDef("hl7PSUPlacerOrderNumber", arcAE.getHl7PSUPlacerOrderNumber(), null);
         writer.writeNotEmpty("hl7PSUTemplateParam", arcAE.getHL7PSUTemplateParams());
         writer.writeNotNullOrDef("dcmAcceptConflictingPatientID", arcAE.getAcceptConflictingPatientID(), null);
+        writer.writeNotNullOrDef("dcmAcceptNonUniquePatientIDs", arcAE.getAcceptNonUniquePatientIDs(), null);
         writer.writeNotNullOrDef("hl7PSUMessageType", arcAE.getHl7PSUMessageType(), null);
         writer.writeNotEmpty("hl7PSUCondition", arcAE.getHl7PSUConditions().getMap());
         writer.writeNotNullOrDef("hl7PSUMppsTemplateURI", arcAE.getHl7PSUMppsTemplateURI(), null);
@@ -2065,6 +2068,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAcceptConflictingPatientID":
                     arcDev.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));
+                    break;
+                case "dcmAcceptNonUniquePatientIDs":
+                    arcDev.setAcceptNonUniquePatientIDs(AcceptNonUniquePatientIDs.valueOf(reader.stringValue()));
                     break;
                 case "dcmProxyUpstreamURL":
                     arcDev.setProxyUpstreamURL(reader.stringValue());
@@ -4764,6 +4770,9 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                     break;
                 case "dcmAcceptConflictingPatientID":
                     arcAE.setAcceptConflictingPatientID(AcceptConflictingPatientID.valueOf(reader.stringValue()));
+                    break;
+                case "dcmAcceptNonUniquePatientIDs":
+                    arcAE.setAcceptNonUniquePatientIDs(AcceptNonUniquePatientIDs.valueOf(reader.stringValue()));
                     break;
                 case "dcmCopyMoveUpdatePolicy":
                     arcAE.setCopyMoveUpdatePolicy(Attributes.UpdatePolicy.valueOf(reader.stringValue()));

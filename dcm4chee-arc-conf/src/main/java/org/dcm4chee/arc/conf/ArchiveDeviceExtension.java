@@ -236,6 +236,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
     private volatile AllowDeletePatient allowDeletePatient = AllowDeletePatient.WITHOUT_STUDIES;
     private volatile AllowDeleteStudyPermanently allowDeleteStudyPermanently = AllowDeleteStudyPermanently.REJECTED;
     private volatile AcceptConflictingPatientID acceptConflictingPatientID = AcceptConflictingPatientID.MERGED;
+    private volatile AcceptNonUniquePatientIDs acceptNonUniquePatientIDs = AcceptNonUniquePatientIDs.NEVER;
     private volatile UserIdentityNegotiation userIdentityNegotiation = UserIdentityNegotiation.SUPPORTS;
     private volatile String userIdentityNegotiationRole;
     private volatile String userIdentityNegotiationKeycloakClientID;
@@ -2778,6 +2779,14 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         this.acceptConflictingPatientID = acceptConflictingPatientID;
     }
 
+    public AcceptNonUniquePatientIDs getAcceptNonUniquePatientIDs() {
+        return acceptNonUniquePatientIDs;
+    }
+
+    public void setAcceptNonUniquePatientIDs(AcceptNonUniquePatientIDs acceptNonUniquePatientIDs) {
+        this.acceptNonUniquePatientIDs = acceptNonUniquePatientIDs;
+    }
+
     public UserIdentityNegotiation getUserIdentityNegotiation() {
         return userIdentityNegotiation;
     }
@@ -4153,6 +4162,7 @@ public class ArchiveDeviceExtension extends DeviceExtension {
         hl7PSUMppsTemplateURI = arcdev.hl7PSUMppsTemplateURI;
         hl7PSUStudyTemplateURI = arcdev.hl7PSUStudyTemplateURI;
         acceptConflictingPatientID = arcdev.acceptConflictingPatientID;
+        acceptNonUniquePatientIDs = arcdev.acceptNonUniquePatientIDs;
         userIdentityNegotiation = arcdev.userIdentityNegotiation;
         userIdentityNegotiationRole = arcdev.userIdentityNegotiationRole;
         userIdentityNegotiationKeycloakClientID = arcdev.userIdentityNegotiationKeycloakClientID;

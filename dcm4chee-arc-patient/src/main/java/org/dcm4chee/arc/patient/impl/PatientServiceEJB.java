@@ -53,10 +53,7 @@ import org.dcm4che3.audit.AuditMessages;
 import org.dcm4che3.data.*;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.util.AttributesFormat;
-import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
-import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
-import org.dcm4chee.arc.conf.AttributeFilter;
-import org.dcm4chee.arc.conf.HL7ReferredMergedPatientPolicy;
+import org.dcm4chee.arc.conf.*;
 import org.dcm4chee.arc.entity.*;
 import org.dcm4chee.arc.patient.*;
 import org.hibernate.jpa.AvailableHints;
@@ -510,9 +507,16 @@ public class PatientServiceEJB {
 
         if (list.size() > 1) {
             LOG.info("{}: Found {} Patients with IDs: {}", ctx, list.size(), patientIDs);
+            AcceptNonUniquePatientIDs acceptNonUniquePatientIDs =
+                    ctx.getArchiveAEExtension().getAcceptNonUniquePatientIDs();
+            if (acceptNonUniquePatientIDs == AcceptNonUniquePatientIDs.NEVER)
+                throw new NonUniquePatientException("Multiple Patients with ID " + patientIDs);
             removeNonMatching(ctx, list);
-            if (list.size() != 1)
+            if (list.size() != 1) {
+                if (acceptNonUniquePatientIDs == AcceptNonUniquePatientIDs.UNIQUE_PATIENT_ATTRS)
+                    throw new NonUniquePatientException("Multiple Patients with ID " + patientIDs);
                 return null;
+            }
             LOG.info("{}: Select {} with matching attributes", ctx, list.iterator().next());
         }
 
