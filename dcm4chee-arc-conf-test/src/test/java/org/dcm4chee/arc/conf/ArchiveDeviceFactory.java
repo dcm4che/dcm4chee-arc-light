@@ -442,6 +442,7 @@ class ArchiveDeviceFactory {
             Tag.ConceptNameCodeSequence,
             Tag.VerifyingObserverSequence,
             Tag.ReferencedRequestSequence,
+            Tag.PreliminaryFlag,
             Tag.CompletionFlag,
             Tag.VerificationFlag,
             Tag.ContentTemplateSequence,
