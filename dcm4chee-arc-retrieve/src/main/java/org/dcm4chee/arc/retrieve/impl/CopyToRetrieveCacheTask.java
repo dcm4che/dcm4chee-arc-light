@@ -65,6 +65,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -115,29 +116,35 @@ public class CopyToRetrieveCacheTask implements Runnable {
 
     @Override
     public void run() {
-        if (matchesByTar != null) {
-            for (Map.Entry<String, Map<String, Map<String, InstanceLocations>>> entry : matchesByTar.entrySet()) {
-                String key = entry.getKey();
-                Map<String, Map<String, InstanceLocations>> value = entry.getValue();
-                Storage storage = ctx.getRetrieveService().getStorage(key, ctx);
-                for (Map.Entry<String, Map<String, InstanceLocations>> e : value.entrySet()) {
-                    String tarPath = e.getKey();
-                    Map<String, InstanceLocations> matchByTarEntry = e.getValue();
-                    untarFiles(storage, tarPath, matchByTarEntry);
+        try {
+            if (matchesByTar != null) {
+                for (Map.Entry<String, Map<String, Map<String, InstanceLocations>>> entry : matchesByTar.entrySet()) {
+                    String key = entry.getKey();
+                    Map<String, Map<String, InstanceLocations>> value = entry.getValue();
+                    Storage storage = ctx.getRetrieveService().getStorage(key, ctx);
+                    for (Map.Entry<String, Map<String, InstanceLocations>> e : value.entrySet()) {
+                        String tarPath = e.getKey();
+                        Map<String, InstanceLocations> matchByTarEntry = e.getValue();
+                        untarFiles(storage, tarPath, matchByTarEntry);
+                    }
+                }
+            } else {
+                copyFiles();
+            }
+            StoreService storeService = ctx.getRetrieveService().getStoreService();
+            for (Map.Entry<String, Set<String>> entry : uidMap.entrySet()) {
+                String studyIUID = entry.getKey();
+                storeService.addStorageID(studyIUID, storageID);
+                for (String seriesIUID : entry.getValue()) {
+                    storeService.scheduleMetadataUpdate(studyIUID, seriesIUID);
                 }
             }
-        } else {
-            copyFiles();
+        } catch (RuntimeException e) {
+            LOG.warn("Failed to copy instances to retrieve cache:\n", e);
+        } finally {
+            // always signal end-of-stream, otherwise copiedToRetrieveCache() blocks forever (#5050)
+            completed.offer(new WrappedInstanceLocations(null));
         }
-        StoreService storeService = ctx.getRetrieveService().getStoreService();
-        for (Map.Entry<String, Set<String>> entry : uidMap.entrySet()) {
-            String studyIUID = entry.getKey();
-            storeService.addStorageID(studyIUID, storageID);
-            for (String seriesIUID : entry.getValue()) {
-                storeService.scheduleMetadataUpdate(studyIUID, seriesIUID);
-            }
-        }
-        completed.offer(new WrappedInstanceLocations(null));
         ctx.getRetrieveService().updateLocations(ctx);
         LOG.debug("Leave run()");
     }
@@ -229,7 +236,20 @@ public class CopyToRetrieveCacheTask implements Runnable {
             while ((instanceLocations = scheduled.take().instanceLocations) != null) {
                 final InstanceLocations inst = instanceLocations;
                 semaphore.acquire();
-                arcdev.getDevice().execute(() -> {
+                try {
+                    arcdev.getDevice().execute(() -> {
+                        try {
+                            if (copy(inst)) {
+                                completed(inst);
+                            }
+                        } finally {
+                            semaphore.release();
+                        }
+                    });
+                } catch (RejectedExecutionException e) {
+                    // executor exhausted (max-threads reached, queue-length=0): copy in this thread
+                    // instead of silently dropping the instance and leaking the semaphore permit (#5050)
+                    LOG.warn("Copying {} to retrieve cache rejected by executor - copy in current thread", inst);
                     try {
                         if (copy(inst)) {
                             completed(inst);
@@ -237,7 +257,7 @@ public class CopyToRetrieveCacheTask implements Runnable {
                     } finally {
                         semaphore.release();
                     }
-                });
+                }
             }
             LOG.debug("Wait for finishing copying {} instances to retrieve cache",
                     maxParallel - semaphore.availablePermits());

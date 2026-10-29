@@ -63,6 +63,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -126,6 +127,7 @@ class RetrieveContextImpl implements RetrieveContext {
     private boolean withoutPrivateAttributes;
     private HttpServletRequestInfo httpServletRequestInfo;
     private CopyToRetrieveCacheTask copyToRetrieveCacheTask;
+    private boolean copyToRetrieveCacheRejected;
     private final List<UpdateLocation> updateLocations = new ArrayList<>();
     private volatile Availability updateInstanceAvailability;
     private final AtomicInteger failuresOnCopyToRetrieveCache = new AtomicInteger();
@@ -770,11 +772,20 @@ class RetrieveContextImpl implements RetrieveContext {
         if (match == null) {
             if (copyToRetrieveCacheTask != null)
                 if (copyToRetrieveCacheTask.isTarArchiver())
+                    try {
                         retrieveService.getDevice().execute(copyToRetrieveCacheTask);
-                    else
-                        copyToRetrieveCacheTask.schedule(null);
+                    } catch (RejectedExecutionException e) {
+                        // executor exhausted: untar in this thread rather than leaving the retrieve
+                        // waiting forever for the end-of-stream signal (#5050)
+                        LOG.warn("{}: Copying to retrieve cache rejected by executor - copy in current thread",
+                                this);
+                        copyToRetrieveCacheTask.run();
+                    }
+                else
+                    copyToRetrieveCacheTask.schedule(null);
             return false;
         }
+        if (copyToRetrieveCacheRejected) return false;
         if (retrieveMetadata && match.isContainsMetadata()) return false;
         StorageDescriptor storageDescriptor = null;
         ArchiveDeviceExtension arcdev = retrieveService.getArchiveDeviceExtension();
@@ -794,7 +805,8 @@ class RetrieveContextImpl implements RetrieveContext {
                 return false;
             }
         }
-        return copyToRetrieveCacheTask(storageDescriptor).schedule(match);
+        CopyToRetrieveCacheTask task = copyToRetrieveCacheTask(storageDescriptor);
+        return task != null && task.schedule(match);
     }
 
     private Series.InstancePurgeState getInstancePurgeState(InstanceLocations match) {
@@ -826,8 +838,20 @@ class RetrieveContextImpl implements RetrieveContext {
     private CopyToRetrieveCacheTask copyToRetrieveCacheTask(StorageDescriptor storageDescriptor) {
         CopyToRetrieveCacheTask task = copyToRetrieveCacheTask;
         if (task == null) {
-            copyToRetrieveCacheTask = task = new CopyToRetrieveCacheTask(this, storageDescriptor);
-            if (!storageDescriptor.isArchiveSeriesAsTAR()) retrieveService.getDevice().execute(task);
+            task = new CopyToRetrieveCacheTask(this, storageDescriptor);
+            if (!storageDescriptor.isArchiveSeriesAsTAR()) {
+                try {
+                    retrieveService.getDevice().execute(task);
+                } catch (RejectedExecutionException e) {
+                    // executor exhausted: retrieve directly from the source storage without caching,
+                    // instead of waiting forever for a task that never runs (#5050)
+                    LOG.warn("{}: Copying to retrieve cache rejected by executor - retrieve without retrieve cache",
+                            this);
+                    copyToRetrieveCacheRejected = true;
+                    return null;
+                }
+            }
+            copyToRetrieveCacheTask = task;
         }
         return task;
     }
