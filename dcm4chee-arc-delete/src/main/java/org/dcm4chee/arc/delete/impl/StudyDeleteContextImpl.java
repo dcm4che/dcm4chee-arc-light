@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.delete.impl;
 
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.delete.StudyDeleteContext;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Study;
@@ -61,6 +62,7 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     private HttpServletRequestInfo httpServletRequestInfo;
     private Study study;
     private boolean patientDeletionTriggered;
+    private ArchiveAEExtension arcAE;
 
     public StudyDeleteContextImpl(Long studyPk) {
         this.studyPk = studyPk;
@@ -120,4 +122,15 @@ public class StudyDeleteContextImpl implements StudyDeleteContext {
     public void setPatientDeletionTriggered(boolean patientDeletionTriggered) {
         this.patientDeletionTriggered = patientDeletionTriggered;
     }
+
+    @Override
+    public ArchiveAEExtension getArchiveAEExtension() {
+        return arcAE;
+    }
+
+    @Override
+    public void setArchiveAEExtension(ArchiveAEExtension arcAE) {
+        this.arcAE = arcAE;
+    }
+
 }

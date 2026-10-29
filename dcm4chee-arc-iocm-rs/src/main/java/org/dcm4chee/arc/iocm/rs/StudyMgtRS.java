@@ -517,7 +517,7 @@ public class StudyMgtRS {
 
         Collection<IDWithIssuer> pids = IDWithIssuer.pidsOf(queryKeys);
         try {
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request), arcAE);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             ctx.setPatientIDs(pids);
             ctx.setArchiveAEExtension(arcAE);

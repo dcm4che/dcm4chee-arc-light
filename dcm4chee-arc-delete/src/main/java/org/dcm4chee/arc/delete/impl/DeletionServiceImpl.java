@@ -122,16 +122,18 @@ public class DeletionServiceImpl implements DeletionService {
     }
 
     @Override
-    public StudyDeleteContext createStudyDeleteContext(Long pk, HttpServletRequestInfo httpServletRequestInfo) {
+    public StudyDeleteContext createStudyDeleteContext(Long pk, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE) {
         StudyDeleteContext ctx = new StudyDeleteContextImpl(pk);
         ctx.setHttpServletRequestInfo(httpServletRequestInfo);
+        ctx.setArchiveAEExtension(arcAE);
         return ctx;
     }
 
     @Override
-    public StudyDeleteContext createStudyDeleteContext(Study study, HttpServletRequestInfo httpServletRequestInfo) {
+    public StudyDeleteContext createStudyDeleteContext(Study study, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE) {
         StudyDeleteContext ctx = new StudyDeleteContextImpl(study.getPk());
         ctx.setHttpServletRequestInfo(httpServletRequestInfo);
+        ctx.setArchiveAEExtension(arcAE);
         ctx.setStudy(study);
         return ctx;
     }
@@ -140,7 +142,7 @@ public class DeletionServiceImpl implements DeletionService {
     public void deleteStudy(
             String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE, boolean retainObj)
             throws Exception {
-        deleteStudy(createStudyDeleteContext(findStudy(studyUID), httpServletRequestInfo), arcAE, retainObj, false);
+        deleteStudy(createStudyDeleteContext(findStudy(studyUID), httpServletRequestInfo, arcAE), arcAE, retainObj, false);
     }
 
     private Study findStudy(String studyUID) throws StudyNotFoundException {
@@ -157,7 +159,7 @@ public class DeletionServiceImpl implements DeletionService {
     public List<Location> reimportStudy(String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE)
             throws Exception {
         return deleteStudy(
-                createStudyDeleteContext(findStudy(studyUID), httpServletRequestInfo), arcAE, false, true);
+                createStudyDeleteContext(findStudy(studyUID), httpServletRequestInfo, arcAE), arcAE, false, true);
     }
 
     private List<Location> deleteStudy(
@@ -187,7 +189,7 @@ public class DeletionServiceImpl implements DeletionService {
                 .setParameter(1, ctx.getPatient())
                 .getResultList();
         for (Study study : resultList) {
-            StudyDeleteContext studyDeleteCtx = createStudyDeleteContext(study, ctx.getHttpServletRequestInfo());
+            StudyDeleteContext studyDeleteCtx = createStudyDeleteContext(study, ctx.getHttpServletRequestInfo(), arcAE);
             studyDeleteCtx.setPatientDeletionTriggered(true);
             deleteStudy(studyDeleteCtx, arcAE, false, false);
         }

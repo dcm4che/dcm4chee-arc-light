@@ -601,7 +601,8 @@ public class DeletionServiceEJB {
 
                 em.remove(study);
                 if (ctx != null && allowDeletePatient(ctx)) {
-                    PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(ctx.getHttpServletRequestInfo());
+                    PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(
+                            ctx.getHttpServletRequestInfo(), ctx.getArchiveAEExtension());
                     patMgtCtx.setPatient(study.getPatient());
                     patMgtCtx.setEventActionCode(AuditMessages.EventActionCode.Delete);
                     patMgtCtx.setAttributes(study.getPatient().getAttributes());

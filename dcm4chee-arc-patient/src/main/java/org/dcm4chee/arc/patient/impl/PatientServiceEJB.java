@@ -507,8 +507,10 @@ public class PatientServiceEJB {
 
         if (list.size() > 1) {
             LOG.info("{}: Found {} Patients with IDs: {}", ctx, list.size(), patientIDs);
-            AcceptNonUniquePatientIDs acceptNonUniquePatientIDs =
-                    ctx.getArchiveAEExtension().getAcceptNonUniquePatientIDs();
+            ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
+            AcceptNonUniquePatientIDs acceptNonUniquePatientIDs = arcAE != null
+                    ? arcAE.acceptNonUniquePatientIDs()
+                    : arcdev.getAcceptNonUniquePatientIDs();
             if (acceptNonUniquePatientIDs == AcceptNonUniquePatientIDs.NEVER)
                 throw new NonUniquePatientException("Multiple Patients with ID " + patientIDs);
             removeNonMatching(ctx, list);

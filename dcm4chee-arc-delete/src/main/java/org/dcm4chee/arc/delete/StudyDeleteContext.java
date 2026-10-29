@@ -40,6 +40,7 @@
 
 package org.dcm4chee.arc.delete;
 
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.entity.Instance;
 import org.dcm4chee.arc.entity.Study;
 import org.dcm4chee.arc.keycloak.HttpServletRequestInfo;
@@ -73,4 +74,8 @@ public interface StudyDeleteContext {
     boolean isPatientDeletionTriggered();
 
     void setPatientDeletionTriggered(boolean patientDeletionTriggered);
+
+    ArchiveAEExtension getArchiveAEExtension();
+
+    void setArchiveAEExtension(ArchiveAEExtension arcAE);
 }

@@ -153,7 +153,7 @@ public class RestoreFromMetadataEJB implements RestoreFromMetadata {
     }
 
     private Patient findOrCreatePatient(Attributes attrs, HttpServletRequestInfo httpRequest) {
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(httpRequest);
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(httpRequest, null);
         ctx.setAttributes(attrs);
         Patient pat = patientService.findPatient(ctx);
         return pat != null ? pat : patientService.createPatient(ctx);

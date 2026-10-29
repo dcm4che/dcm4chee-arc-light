@@ -140,7 +140,7 @@ public class UpdatePatientDemographics {
 
             PDQServiceDescriptor descriptor = device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                                                 .getPDQServiceDescriptorNotNull(pdqServiceID);
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request), arcAE);
             ctx.setArchiveAEExtension(arcAE);
             ctx.setPatientIDs(trustedPatientIDs);
             ctx.setPDQServiceURI(descriptor.getPDQServiceURI().toString());

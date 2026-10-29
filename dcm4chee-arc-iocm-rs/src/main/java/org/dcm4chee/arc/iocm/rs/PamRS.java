@@ -262,7 +262,7 @@ public class PamRS {
             return errResponse(patDeleteForbiddenMsg, Response.Status.FORBIDDEN);
 
         try {
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request), arcAE);
             ctx.setArchiveAEExtension(arcAE);
             ctx.setPatientIDs(IDWithIssuer.pidsOf(patient.getAttributes()));
             ctx.setAttributes(patient.getAttributes());
@@ -347,9 +347,8 @@ public class PamRS {
     }
 
     private PatientMgtContext patientMgtCtx(InputStream in, ArchiveAEExtension arcAE, boolean update) {
-        PatientMgtContext ctx = patientMgtCtx();
+        PatientMgtContext ctx = patientMgtCtx(arcAE);
         ctx.setAttributes(toAttributes(in));
-        ctx.setArchiveAEExtension(arcAE);
         if (update) {
             ctx.setReasonForModification(reasonForModification);
             ctx.setSourceOfPreviousValues(sourceOfPreviousValues);
@@ -357,8 +356,8 @@ public class PamRS {
         return ctx;
     }
 
-    private PatientMgtContext patientMgtCtx() {
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+    private PatientMgtContext patientMgtCtx(ArchiveAEExtension arcAE) {
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request), arcAE);
         ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
         return ctx;
     }
@@ -625,7 +624,7 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request), arcAE);
             ctx.setArchiveAEExtension(arcAE);
             ctx.setPatPk(Long.parseLong(patientPk));
             ctx.setPrevPatPk(Long.parseLong(priorPatientPk));
@@ -668,7 +667,7 @@ public class PamRS {
                     Response.Status.BAD_REQUEST);
 
         try {
-            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request), arcAE);
             patMgtCtx.setArchiveAEExtension(arcAE);
             patMgtCtx.setPatientIDs(trustedPriorPatientIDs);
             if (!patientService.unmergePatient(patMgtCtx))
@@ -697,7 +696,7 @@ public class PamRS {
             validateWebAppServiceClass();
 
         try {
-            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request), arcAE);
             patMgtCtx.setArchiveAEExtension(arcAE);
             if (!patientService.unmergePatient(patMgtCtx, pk))
                 return errResponse(
@@ -786,7 +785,7 @@ public class PamRS {
                                     PatientID pid = pids.get(0);
                                     try {
                                         if (patientService.supplementIssuer(
-                                                patientMgtCtx(), pid, idWithIssuer, ambiguous)) {
+                                                patientMgtCtx(arcAE), pid, idWithIssuer, ambiguous)) {
                                             success.add(idWithIssuer);
                                         } else {
                                             failedPks.add(pid.getPk());
@@ -931,7 +930,7 @@ public class PamRS {
     private boolean mergePatient(
             Collection<IDWithIssuer> trustedPatientIDs, Collection<IDWithIssuer> trustedPriorPatientIDs,
             ArchiveAEExtension arcAE) {
-        PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+        PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request), arcAE);
         patMgtCtx.setArchiveAEExtension(arcAE);
         patMgtCtx.setAttributes(exportPatientIDsWithIssuer(new Attributes(), trustedPatientIDs));
         patMgtCtx.setPatientIDs(trustedPatientIDs);
@@ -969,7 +968,7 @@ public class PamRS {
                         Response.Status.BAD_REQUEST);
 
             Patient prevPatient = patientService.findPatient(trustedPriorPatientIDs);
-            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+            PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request), arcAE);
             ctx.setArchiveAEExtension(arcAE);
             ctx.setAttributeUpdatePolicy(Attributes.UpdatePolicy.REPLACE);
             ctx.setPreviousAttributes(prevPatient.getAttributes());

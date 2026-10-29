@@ -63,7 +63,9 @@ import org.dcm4che3.net.Device;
 import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.HL7DeviceExtension;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
+import org.dcm4chee.arc.conf.ArchiveHL7ApplicationExtension;
 import org.dcm4chee.arc.hl7.ArchiveHL7Message;
 import org.dcm4chee.arc.hl7.HL7Sender;
 import org.dcm4chee.arc.hl7.HL7SenderUtils;
@@ -188,11 +190,23 @@ public class HL7RS {
     }
 
     private PatientMgtContext toPatientMgtContext(Attributes attrs) {
-        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request));
+        PatientMgtContext ctx = patientService.createPatientMgtContextWEB(HttpServletRequestInfo.valueOf(request), arcAE());
         ctx.setAttributes(attrs);
         ctx.setPatientIDs(device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class)
                             .retainTrustedPatientIDs(ctx.getPatientIDs()));
         return ctx;
+    }
+
+    private ArchiveAEExtension arcAE() {
+        HL7Application hl7App = device.getDeviceExtensionNotNull(HL7DeviceExtension.class)
+                .getHL7Application(appName, true);
+        if (hl7App != null) {
+            ArchiveHL7ApplicationExtension arcHL7app = hl7App.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+            if (arcHL7app != null) {
+                return arcHL7app.getArchiveAEExtension();
+            }
+        }
+        return null;
     }
 
     private Attributes toAttributes(InputStream in) {

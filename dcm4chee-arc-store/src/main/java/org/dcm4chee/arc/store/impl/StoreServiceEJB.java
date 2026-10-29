@@ -875,7 +875,7 @@ public class StoreServiceEJB {
         PatientMgtContext patMgtCtx = as != null
                 ? patientService.createPatientMgtContextDIMSE(as)
                 : httpRequest != null
-                ? patientService.createPatientMgtContextWEB(httpRequest)
+                ? patientService.createPatientMgtContextWEB(httpRequest, session.getArchiveAEExtension())
                 : patientService.createPatientMgtContextHL7(
                         session.getLocalHL7Application(),
                         session.getConnection(),

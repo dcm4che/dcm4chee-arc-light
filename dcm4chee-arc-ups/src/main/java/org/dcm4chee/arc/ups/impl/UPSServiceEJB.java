@@ -136,7 +136,7 @@ public class UPSServiceEJB {
         if (pat == null) {
             PatientMgtContext patMgtCtx = ctx.getAssociation() != null
                     ? patientService.createPatientMgtContextDIMSE(ctx.getAssociation())
-                    : patientService.createPatientMgtContextWEB(ctx.getHttpRequestInfo());
+                    : patientService.createPatientMgtContextWEB(ctx.getHttpRequestInfo(), ctx.getArchiveAEExtension());
             patMgtCtx.setAttributes(ctx.getAttributes());
             pat = patientService.findPatient(patMgtCtx);
             if (pat == null) {

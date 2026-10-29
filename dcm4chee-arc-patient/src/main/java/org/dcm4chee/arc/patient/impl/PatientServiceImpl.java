@@ -55,6 +55,7 @@ import org.dcm4che3.net.hl7.HL7Application;
 import org.dcm4che3.net.hl7.UnparsedHL7Message;
 import org.dcm4che3.net.service.DicomServiceException;
 import org.dcm4che3.util.AttributesFormat;
+import org.dcm4chee.arc.conf.ArchiveAEExtension;
 import org.dcm4chee.arc.conf.ArchiveDeviceExtension;
 import org.dcm4chee.arc.conf.AttributeFilter;
 import org.dcm4chee.arc.entity.Patient;
@@ -97,9 +98,10 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public PatientMgtContext createPatientMgtContextWEB(HttpServletRequestInfo httpRequest) {
+    public PatientMgtContext createPatientMgtContextWEB(HttpServletRequestInfo httpRequest, ArchiveAEExtension arcAE) {
         PatientMgtContextImpl ctx = new PatientMgtContextImpl(device);
         ctx.setHttpServletRequestInfo(httpRequest);
+        ctx.setArchiveAEExtension(arcAE);
         return ctx;
     }
 

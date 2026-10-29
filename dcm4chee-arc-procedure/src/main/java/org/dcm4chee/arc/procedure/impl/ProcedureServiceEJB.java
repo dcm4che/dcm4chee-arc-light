@@ -514,7 +514,7 @@ public class ProcedureServiceEJB {
 
     public void createOrUpdateMWLItem(ProcedureContext ctx, boolean simulate) {
         Attributes attrs = ctx.getAttributes();
-        PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(ctx.getHttpRequest());
+        PatientMgtContext patMgtCtx = patientService.createPatientMgtContextWEB(ctx.getHttpRequest(), ctx.getArchiveAEExtension());
         patMgtCtx.setAttributes(attrs);
         patMgtCtx.setPatientIDs(IDWithIssuer.pidsOf(attrs));
         patMgtCtx.setLocalAET(ctx.getLocalAET());

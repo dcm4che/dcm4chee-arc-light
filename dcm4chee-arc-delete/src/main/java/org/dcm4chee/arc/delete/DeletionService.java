@@ -61,9 +61,9 @@ public interface DeletionService {
 
     int deleteRejectionNotesBefore(Code rjCode, Date before, int fetchSize);
 
-    StudyDeleteContext createStudyDeleteContext(Long pk, HttpServletRequestInfo httpServletRequestInfo);
+    StudyDeleteContext createStudyDeleteContext(Long pk, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE);
 
-    StudyDeleteContext createStudyDeleteContext(Study study, HttpServletRequestInfo httpServletRequestInfo);
+    StudyDeleteContext createStudyDeleteContext(Study study, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE);
 
     void deleteStudy(
             String studyUID, HttpServletRequestInfo httpServletRequestInfo, ArchiveAEExtension arcAE, boolean retainObj)

@@ -105,6 +105,11 @@ public class PatientMgtContextImpl implements PatientMgtContext {
 
     void setHL7Application(HL7Application hl7app) {
         this.hl7app = hl7app;
+        ArchiveHL7ApplicationExtension arcHL7App =
+                hl7app.getHL7ApplicationExtension(ArchiveHL7ApplicationExtension.class);
+        if (arcHL7App != null) {
+            this.arcAE = arcHL7App.getArchiveAEExtension();
+        }
     }
 
     void setSocket(Socket socket) {
