@@ -70,7 +70,7 @@
                     <td>{{ae['dicomAssociationInitiator']}}</td>
                     <td>{{ae['dicomAssociationAcceptor']}}</td>
                     <td>
-                        @for (cluster of ae['dicomApplicationEntityTitle']; track cluster){
+                        @for (cluster of ae['dicomApplicationCluster']; track cluster){
                             <span>{{cluster}}<br></span>
                         }
                     </td>
