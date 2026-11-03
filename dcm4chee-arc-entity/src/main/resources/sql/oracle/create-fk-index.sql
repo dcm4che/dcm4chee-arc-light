@@ -49,6 +49,8 @@ create index FKluah7q5kdwqidu6uwlrsndd7k on study_access_control_id (study_fk) ;
 create index FKmu32jq25y6qkimi7hn7d4s2hp on study_query_attrs (study_fk) ;
 create index FKh9mdhriyx32gr91pfdgnl48f0 on subscription (ups_fk) ;
 create index FKhy3cd5se2avt08upapu19y1g6 on ups (perf_name_fk) ;
+create index FKjox6k6jwo072bp7isqa8nr99v on ups (inst_code_fk) ;
+create index FKrkiwdhphbhbfk2lmyp55axis on ups (dept_code_fk) ;
 create index FKjcmu4x6x02r0tc1d28xb3nf17 on ups (patient_fk) ;
 create index FKr3t1gbo2e42oleaqeastvv5ej on ups (ups_code_fk) ;
 create index FK1b5veu90oftv8o95nxx2xndpb on ups_req (req_phys_name_fk) ;

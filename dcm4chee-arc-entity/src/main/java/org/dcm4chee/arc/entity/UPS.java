@@ -96,7 +96,9 @@ import java.util.Date;
                 @Index(columnList = "input_readiness_state"),
                 @Index(columnList = "admission_id"),
                 @Index(columnList = "replaced_iuid"),
-                @Index(columnList = "ups_state")
+                @Index(columnList = "ups_state"),
+                @Index(columnList = "institution"),
+                @Index(columnList = "department")
         })
 public class UPS {
 
@@ -183,6 +185,22 @@ public class UPS {
 
     @Column(name = "performer_aet")
     private String performerAET;
+
+    @Basic(optional = false)
+    @Column(name = "department")
+    private String institutionalDepartmentName;
+
+    @Basic(optional = false)
+    @Column(name = "institution")
+    private String institutionName;
+
+    @ManyToOne
+    @JoinColumn(name = "inst_code_fk")
+    private CodeEntity institutionCode;
+
+    @ManyToOne
+    @JoinColumn(name = "dept_code_fk")
+    private CodeEntity institutionalDepartmentTypeCode;
 
     @ManyToOne
     @JoinColumn(name = "ups_code_fk")
@@ -292,6 +310,22 @@ public class UPS {
         this.performerAET = performerAET;
     }
 
+    public CodeEntity getInstitutionCode() {
+        return institutionCode;
+    }
+
+    public void setInstitutionCode(CodeEntity institutionCode) {
+        this.institutionCode = institutionCode;
+    }
+
+    public CodeEntity getInstitutionalDepartmentTypeCode() {
+        return institutionalDepartmentTypeCode;
+    }
+
+    public void setInstitutionalDepartmentTypeCode(CodeEntity institutionalDepartmentTypeCode) {
+        this.institutionalDepartmentTypeCode = institutionalDepartmentTypeCode;
+    }
+
     public AttributesBlob getAttributesBlob() {
         return attributesBlob;
     }
@@ -337,6 +371,8 @@ public class UPS {
         humanPerformerName = PersonName.valueOf(
                 getString(attrs.getNestedDataset(Tag.ScheduledHumanPerformersSequence), Tag.HumanPerformerName, null),
                 fuzzyStr, humanPerformerName);
+        institutionName = attrs.getString(Tag.InstitutionName, "*");
+        institutionalDepartmentName = attrs.getString(Tag.InstitutionalDepartmentName, "*");
         if (attributesBlob == null)
             attributesBlob = new AttributesBlob(new Attributes(attrs, filter.getSelection()));
         else

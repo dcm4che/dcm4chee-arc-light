@@ -1169,6 +1169,14 @@ public class QueryBuilder {
         }
         anyOf(predicates, ups.get(UPS_.procedureStepState), UPSState::fromString,
                 toUpperCase(keys.getStrings(Tag.ProcedureStepState)));
+        anyOf(predicates, ups.get(UPS_.institutionalDepartmentName),
+                keys.getStrings(Tag.InstitutionalDepartmentName), true);
+        anyOf(predicates, ups.get(UPS_.institutionName),
+                keys.getStrings(Tag.InstitutionName), true);
+        code(predicates, ups.get(UPS_.institutionCode), keys.getNestedDataset(Tag.InstitutionCodeSequence));
+        code(predicates,
+                ups.get(UPS_.institutionalDepartmentTypeCode),
+                keys.getNestedDataset(Tag.InstitutionalDepartmentTypeCodeSequence));
         notSubscribedBy(predicates, criteria, ups, queryParam.getNotSubscribedByAET());
     }
 

@@ -114,6 +114,8 @@ public class UPSServiceEJB {
                 attrs.getSequence(Tag.ReferencedRequestSequence),
                 arcDev.getFuzzyStr());
         ups.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS), arcDev.getFuzzyStr());
+        ups.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
+        ups.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
         em.persist(ups);
         LOG.info("{}: Create {}", ctx, ups);
         if (!isTemplate(ups)) {
@@ -147,9 +149,14 @@ public class UPSServiceEJB {
     }
 
     public UPS updateUPS(UPSContext ctx) throws DicomServiceException {
+        UPS ups = findUPS(ctx);
+        updateUPS(ctx, ups);
+        return ups;
+    }
+
+    private void updateUPS(UPSContext ctx, UPS ups) throws DicomServiceException {
         ArchiveAEExtension arcAE = ctx.getArchiveAEExtension();
         ArchiveDeviceExtension arcDev = arcAE.getArchiveDeviceExtension();
-        UPS ups = findUPS(ctx);
         ctx.setTemplate(isTemplateUpdate(ctx, ups));
         String transactionUID = ctx.getAttributes().getString(Tag.TransactionUID);
         switch (ups.getProcedureStepState()) {
@@ -183,9 +190,11 @@ public class UPSServiceEJB {
         boolean prevPerformers = attrs.containsValue(Tag.ScheduledHumanPerformersSequence);
         boolean prevRequest = attrs.containsValue(Tag.ReferencedRequestSequence);
         boolean prevProgressInformation = attrs.containsValue(Tag.ProcedureStepProgressInformationSequence);
+        boolean prevInstitutionCode = attrs.containsValue(Tag.InstitutionCodeSequence);
+        boolean prevInstitutionalDepartmentTypeCode = attrs.containsValue(Tag.InstitutionalDepartmentTypeCodeSequence);
         if (!attrs.updateSelected(Attributes.UpdatePolicy.OVERWRITE, ctx.getAttributes(), modified,
                 filter.getSelection())) {
-            return ups;
+            return;
         }
         boolean workitemCodeUpdated = (prevWorkitemCode ? modified : attrs)
                 .containsValue(Tag.ScheduledWorkitemCodeSequence);
@@ -222,14 +231,26 @@ public class UPSServiceEJB {
                     attrs.getSequence(Tag.ReferencedRequestSequence),
                     arcDev.getFuzzyStr());
         }
+        boolean institutionCodeUpdated = (prevInstitutionCode ? modified : attrs)
+                .containsValue(Tag.InstitutionCodeSequence);
+        if (institutionCodeUpdated) {
+            ups.setInstitutionCode(
+                    findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
+        }
+        boolean departmentTypeCodeUpdated = (prevInstitutionalDepartmentTypeCode ? modified : attrs)
+                .containsValue(Tag.InstitutionalDepartmentTypeCodeSequence);
+        if (departmentTypeCodeUpdated) {
+            ups.setInstitutionalDepartmentTypeCode(
+                    findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
+        }
         ups.setAttributes(attrs, filter, arcDev.getFuzzyStr());
         LOG.info("{}: Update {}", ctx, ups);
-        if (isTemplate(ups))
-            return ups;
+        if (ctx.isTemplate())
+            return;
 
         List<String> subscribers = subscribersOf(ups);
         if (subscribers.isEmpty()) {
-            return ups;
+            return;
         }
         if (modified.contains(Tag.InputReadinessState)) {
             ctx.addUPSEvent(UPSEvent.Type.StateReport, ups.getUPSInstanceUID(), stateReportOf(attrs), subscribers);
@@ -242,7 +263,6 @@ public class UPSServiceEJB {
         assigned(attrs)
             .forEach(eventInformation
                 -> ctx.addUPSEvent(UPSEvent.Type.Assigned, ups.getUPSInstanceUID(), eventInformation, subscribers));
-        return ups;
     }
 
     private boolean isTemplate(UPS ups) {
@@ -757,15 +777,13 @@ public class UPSServiceEJB {
                     }
             }
             LOG.info("{}: update existing {}", ctx.getStoreSession(), ups);
-            Attributes attrs = ups.getAttributes();
+            Attributes attrs = new Attributes(ups.getAttributes());
             attrs.setDate(Tag.ScheduledProcedureStepStartDateTime, VR.DT, UPSUtils.add(now, rule.getStartDateTimeDelay()));
             if (!attrs.contains(Tag.InputInformationSequence))
                 attrs.setNull(Tag.InputInformationSequence, VR.SQ);
             updateIncludeInputInformation(attrs.getSequence(Tag.InputInformationSequence), ctx);
-            ArchiveDeviceExtension arcDev = ctx.getStoreSession().getArchiveDeviceExtension();
-            ups.setAttributes(attrs, arcDev.getAttributeFilter(Entity.UPS), arcDev.getFuzzyStr());
-            upsCtx.setAttributes(ups.getAttributes());
-            updateUPS(upsCtx);
+            upsCtx.setAttributes(attrs);
+            updateUPS(upsCtx, ups);
         } catch (NoResultException e) {
             upsCtx.setAttributes(createOnStore(ctx, now, rule));
             createUPS(upsCtx);

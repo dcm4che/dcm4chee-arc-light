@@ -36,7 +36,7 @@ create table study_query_attrs (pk bigint not null auto_increment, availability 
 create table subscription (pk bigint not null auto_increment, deletion_lock bit not null, subscriber_aet varchar(255) not null, ups_fk bigint not null, primary key (pk)) engine=InnoDB;
 create table task (pk bigint not null auto_increment, batch_id varchar(255), check_different bit, check_missing bit, compare_fields varchar(255), completed integer, created_time datetime(6) not null, destination_aet varchar(255), device_name varchar(255) not null, different integer not null, error_comment varchar(255), error_msg varchar(255), exporter_id varchar(255), failed integer, local_aet varchar(255), matches integer not null, missing integer not null, modalities varchar(255), num_failures integer not null, num_instances integer, outcome_msg varchar(255), payload longblob, proc_end_time datetime(6), proc_start_time datetime(6), query_str varchar(255), queue_name varchar(255) not null, remaining integer, remote_aet varchar(255), rq_uri varchar(4000), rq_host varchar(255), rq_user_id varchar(255), scheduled_time datetime(6) not null, series_iuid varchar(255), sop_iuid varchar(255), task_status tinyint not null, status_code integer, storage_ids varchar(255), stgcmt_policy tinyint, study_iuid varchar(255), task_type tinyint not null, update_location_status bit, updated_time datetime(6) not null, version bigint, warning integer not null, primary key (pk)) engine=InnoDB;
 create table uidmap (pk bigint not null auto_increment, uidmap longblob not null, primary key (pk)) engine=InnoDB;
-create table ups (pk bigint not null auto_increment, admission_id varchar(255) not null, admid_entity_id varchar(255), admid_entity_uid varchar(255), admid_entity_uid_type varchar(255), created_time datetime(6) not null, expected_end_date_time varchar(255) not null, input_readiness_state tinyint not null, performer_aet varchar(255), ups_state tinyint not null, replaced_iuid varchar(255) not null, expiration_date_time varchar(255) not null, start_date_time varchar(255) not null, transaction_iuid varchar(255), updated_time datetime(6) not null, ups_iuid varchar(255) not null, ups_label varchar(255) not null, ups_priority tinyint not null, version bigint, worklist_label varchar(255) not null, dicomattrs_fk bigint not null, perf_name_fk bigint, patient_fk bigint not null, ups_code_fk bigint, primary key (pk)) engine=InnoDB;
+create table ups (pk bigint not null auto_increment, admission_id varchar(255) not null, admid_entity_id varchar(255), admid_entity_uid varchar(255), admid_entity_uid_type varchar(255), created_time datetime(6) not null, expected_end_date_time varchar(255) not null, input_readiness_state tinyint not null, institution varchar(255) not null, department varchar(255) not null, performer_aet varchar(255), ups_state tinyint not null, replaced_iuid varchar(255) not null, expiration_date_time varchar(255) not null, start_date_time varchar(255) not null, transaction_iuid varchar(255), updated_time datetime(6) not null, ups_iuid varchar(255) not null, ups_label varchar(255) not null, ups_priority tinyint not null, version bigint, worklist_label varchar(255) not null, dicomattrs_fk bigint not null, perf_name_fk bigint, inst_code_fk bigint, dept_code_fk bigint, patient_fk bigint not null, ups_code_fk bigint, primary key (pk)) engine=InnoDB;
 create table ups_req (pk bigint not null auto_increment, accession_no varchar(255) not null, accno_entity_id varchar(255), accno_entity_uid varchar(255), accno_entity_uid_type varchar(255), req_proc_id varchar(255) not null, req_service varchar(255) not null, study_iuid varchar(255) not null, req_phys_name_fk bigint, ups_fk bigint, primary key (pk)) engine=InnoDB;
 create table verify_observer (pk bigint not null auto_increment, verify_datetime varchar(255) not null, observer_name_fk bigint, instance_fk bigint, primary key (pk)) engine=InnoDB;
 alter table code add constraint UKsb4oc9lkns36wswku831c33w6 unique (code_value, code_designator, code_version);
@@ -107,7 +107,7 @@ alter table patient add constraint UK56r2g5ggptqgcvb3hl11adke2 unique (resp_pers
 create index IDXtkyjkkxxhnr0fem7m0h3844jk on patient_id (pat_id);
 create index IDXd1sdyupb0vwvx23jownjnyy72 on patient_id (entity_id);
 create index IDXm2jq6xe87vegohf6g10t5ptew on patient_id (entity_uid, entity_uid_type);
-alter table patient_id add constraint UKq9cv3b9n0uv93ugud52uiw9k1 unique (pat_id(128), entity_id(128), entity_uid(128), entity_uid_type(128), pat_name(128));
+alter table patient_id add constraint UKq9cv3b9n0uv93ugud52uiw9k1 unique (pat_id, entity_id, entity_uid, entity_uid_type, pat_name);
 create index IDXgs2yshbwu0gkd33yxyv13keoh on person_name (alphabetic_name);
 create index IDXala4l4egord8i2tjvjidoqd1s on person_name (ideographic_name);
 create index IDX9nr8ddkp8enufvbn72esyw3n1 on person_name (phonetic_name);
@@ -227,6 +227,8 @@ create index IDXbrtgc3vpnoaq1xm80m568r16y on ups (input_readiness_state);
 create index IDXsqoo5rr8pu2qe4gtdne3xh031 on ups (admission_id);
 create index IDXcrl67piqoxiccp3i6ckktphdd on ups (replaced_iuid);
 create index IDXc8obxmqpdcy37r3pjga2pukac on ups (ups_state);
+create index IDXi74frwq9xkdswyg0cbw0vd3hy on ups (institution);
+create index IDXrirxs9tt1bpxqe9o5v27jb64i on ups (department);
 alter table ups add constraint UKqck03rlxht9myv77sc79a480t unique (ups_iuid);
 alter table ups add constraint UK3frtpy5cstsoxk5jxw9cutr33 unique (dicomattrs_fk);
 alter table ups add constraint UKhmvl80qis2pab8xtd9qyqea5b unique (perf_name_fk);
@@ -296,6 +298,8 @@ alter table study_query_attrs add constraint FKmu32jq25y6qkimi7hn7d4s2hp foreign
 alter table subscription add constraint FKh9mdhriyx32gr91pfdgnl48f0 foreign key (ups_fk) references ups (pk);
 alter table ups add constraint FKaddby69vtwxpssgaa12ct6pn3 foreign key (dicomattrs_fk) references dicomattrs (pk);
 alter table ups add constraint FKhy3cd5se2avt08upapu19y1g6 foreign key (perf_name_fk) references person_name (pk);
+alter table ups add constraint FKjox6k6jwo072bp7isqa8nr99v foreign key (inst_code_fk) references code (pk);
+alter table ups add constraint FKrkiwdhphbhbfk2lmyp55axis foreign key (dept_code_fk) references code (pk);
 alter table ups add constraint FKjcmu4x6x02r0tc1d28xb3nf17 foreign key (patient_fk) references patient (pk);
 alter table ups add constraint FKr3t1gbo2e42oleaqeastvv5ej foreign key (ups_code_fk) references code (pk);
 alter table ups_req add constraint FK1b5veu90oftv8o95nxx2xndpb foreign key (req_phys_name_fk) references person_name (pk);
