@@ -45,6 +45,8 @@ import org.dcm4che3.data.IDWithIssuer;
 import org.dcm4che3.data.Issuer;
 import org.dcm4che3.util.StringUtils;
 
+import java.util.Date;
+
 /**
  * @author Gunter Zeilinger <gunterze@gmail.com>
  *
@@ -81,7 +83,12 @@ public class PatientID {
     
     @Version
     @Column(name = "version")
-    private long version;    
+    private long version;
+
+    @Basic(optional = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_time", updatable = false)
+    private Date createdTime;
 
     @Basic(optional=false)
     @Column(name = "pat_id", updatable = false)
@@ -109,6 +116,11 @@ public class PatientID {
     @ManyToOne(optional = false)
     @JoinColumn(name = "patient_fk")
     private Patient patient;
+
+    @PrePersist
+    public void onPrePersist() {
+        createdTime = new Date();
+    }
 
     public long getPk() {
         return pk;
