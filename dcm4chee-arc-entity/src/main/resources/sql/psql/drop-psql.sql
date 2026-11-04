@@ -58,6 +58,8 @@ alter table if exists study_query_attrs drop constraint if exists FKmu32jq25y6qk
 alter table if exists subscription drop constraint if exists FKh9mdhriyx32gr91pfdgnl48f0;
 alter table if exists ups drop constraint if exists FKaddby69vtwxpssgaa12ct6pn3;
 alter table if exists ups drop constraint if exists FKhy3cd5se2avt08upapu19y1g6;
+alter table if exists ups drop constraint if exists FKjox6k6jwo072bp7isqa8nr99v;
+alter table if exists ups drop constraint if exists FKrkiwdhphbhbfk2lmyp55axis;
 alter table if exists ups drop constraint if exists FKjcmu4x6x02r0tc1d28xb3nf17;
 alter table if exists ups drop constraint if exists FKr3t1gbo2e42oleaqeastvv5ej;
 alter table if exists ups_req drop constraint if exists FK1b5veu90oftv8o95nxx2xndpb;
