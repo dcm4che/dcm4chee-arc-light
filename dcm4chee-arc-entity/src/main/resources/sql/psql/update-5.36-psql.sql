@@ -18,7 +18,7 @@ alter table patient_id
 update patient_id set created_time=(
     select patient.created_time
         from patient
-        where patient.pk = patient_id.patient_fk)
+        where patient.pk = patient_id.patient_fk);
 
 alter table metadata
     add num_instances integer;
