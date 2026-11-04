@@ -19,6 +19,13 @@ alter table patient_id
 update patient_id set created_time=(
     select patient.created_time where patient.pk = patient_id.patient_fk)
 
+alter table metadata
+    add num_instances integer;
+
+update metadata set num_instances=(
+    select count(instance.pk)
+        from instance join series on series_fk=instance.series_fk
+        where series.metadata_fk = metadata.pk);
 
 -- part 2: shall be applied on stopped archive before starting 5.36
 update ups set institution='*' where institution is null;
@@ -28,8 +35,16 @@ update patient_id set created_time=(
     select patient.created_time where patient.pk = patient_id.patient_fk)
     where created_time is null;
 
+update metadata set num_instances=(
+    select count(instance.pk)
+        from instance join series on series_fk=instance.series_fk
+        where series.metadata_fk = metadata.pk)
+    where num_instances is null;
+
 -- part 3: can be applied on already running archive 5.36
 alter table ups alter institution set not null;
 alter table ups alter department set not null;
 
 alter table patient_id alter created_time set not null;
+
+alter table metadata alter num_instances set not null;

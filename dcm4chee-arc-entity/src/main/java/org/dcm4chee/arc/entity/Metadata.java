@@ -119,6 +119,10 @@ public class Metadata {
     @Column(name = "status", updatable = true)
     private Status status = Status.OK;
 
+    @Basic(optional = false)
+    @Column(name = "num_instances")
+    private int numberOfInstances;
+
     public long getPk() {
         return pk;
     }
@@ -161,6 +165,14 @@ public class Metadata {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public int getNumberOfInstances() {
+        return numberOfInstances;
+    }
+
+    public void setNumberOfInstances(int numberOfInstances) {
+        this.numberOfInstances = numberOfInstances;
     }
 
     @Override

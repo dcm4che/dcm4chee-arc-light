@@ -239,7 +239,7 @@ public class UpdateMetadataScheduler extends Scheduler {
                         out.finish();
                     }
                     storage.commitStorage(writeCtx);
-                    ejb.commit(metadataUpdate.seriesPk, createMetadata(writeCtx));
+                    ejb.commit(metadataUpdate.seriesPk, createMetadata(writeCtx, ctx.getMatches().size()));
                 } catch (Exception e) {
                     LOG.warn("Failed to Create/Update Metadata for Series[pk={}] on {}:\n",
                             metadataUpdate.seriesPk,
@@ -315,12 +315,13 @@ public class UpdateMetadataScheduler extends Scheduler {
                 : coerceSeriesMetadata(ctx, match, retrieveService.loadMetadata(ctx, match));
     }
 
-    private Metadata createMetadata(WriteContext writeContext) {
+    private Metadata createMetadata(WriteContext writeContext, int numberOfInstances) {
         Metadata metadata = new Metadata();
         metadata.setStorageID(writeContext.getStorage().getStorageDescriptor().getStorageID());
         metadata.setStoragePath(writeContext.getStoragePath());
         metadata.setSize(writeContext.getSize());
         metadata.setDigest(writeContext.getDigest());
+        metadata.setNumberOfInstances(numberOfInstances);
         return metadata;
     }
 

@@ -98,7 +98,7 @@ public class RestoreFromMetadataEJB implements RestoreFromMetadata {
                 attrs,
                 calculateSeriesSize(seriesMetadata),
                 findOrCreateStudy(arcDev, attrs, httpRequest),
-                createMetadata(readContext));
+                createMetadata(readContext, seriesMetadata.size()));
         for (QueryRetrieveView qrView : arcDev.getQueryRetrieveViews()) {
             createSeriesQueryAttributes(qrView, seriesMetadata, series);
         }
@@ -132,12 +132,13 @@ public class RestoreFromMetadataEJB implements RestoreFromMetadata {
         return device.getDeviceExtensionNotNull(ArchiveDeviceExtension.class);
     }
 
-    private Metadata createMetadata(ReadContext readContext) {
+    private Metadata createMetadata(ReadContext readContext, int numberOfInstances) {
         Metadata metadata = new Metadata();
         metadata.setStorageID(readContext.getStorage().getStorageDescriptor().getStorageID());
         metadata.setStoragePath(readContext.getStoragePath());
         metadata.setSize(readContext.getSize());
         metadata.setDigest(readContext.getDigest());
+        metadata.setNumberOfInstances(numberOfInstances);
         em.persist(metadata);
         return metadata;
     }
