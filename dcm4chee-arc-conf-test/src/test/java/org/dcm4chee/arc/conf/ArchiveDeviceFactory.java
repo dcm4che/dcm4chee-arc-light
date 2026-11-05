@@ -57,6 +57,8 @@ import org.dcm4che3.net.imageio.ImageWriterExtension;
 import org.dcm4che3.util.Property;
 
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -1403,7 +1405,11 @@ class ArchiveDeviceFactory {
 
     static {
         System.setProperty("jboss.home.url", "file:///opt/wildfly");
+        System.setProperty("jboss.home.dir", "/opt/wildfly");
         System.setProperty("jboss.server.temp.url", "file:///opt/wildfly/standalone/tmp");
+        System.setProperty("jboss.server.temp.dir", "/opt/wildfly/standalone/tmp");
+        System.setProperty("jboss.server.storage.url", "file:///opt/wildfly/standalone/storage");
+        System.setProperty("jboss.server.storage.dir", "/opt/wildfly/standalone/storage");
     }
 
     public static Device createARRDevice(ConfigType configType) {
