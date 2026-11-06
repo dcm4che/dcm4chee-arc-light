@@ -4198,6 +4198,7 @@ DCM4CHE.elementName = (function (dictionary) {
 "30040070":"DVH Minimum Dose",
 "30040072":"DVH Maximum Dose",
 "30040074":"DVH Mean Dose",
+"3004007F":"Dose Calculation Model Name",
 "30040080":"Dose Calculation Model Sequence",
 "30040081":"Dose Calculation Algorithm Sequence",
 "30040082":"Commissioning Status",
