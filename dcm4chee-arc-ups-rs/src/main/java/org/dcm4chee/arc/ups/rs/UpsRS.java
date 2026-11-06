@@ -319,7 +319,7 @@ public class UpsRS {
         } catch (DicomServiceException e) {
             return errResponse(UpsRS::subscriptionFailed, e);
         }
-        return Response.created(websocketOf(ctx)).build();
+        return Response.status(Response.Status.CREATED).contentLocation(websocketOf(ctx)).build();
     }
 
     @DELETE
