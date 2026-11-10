@@ -1054,7 +1054,7 @@ class QueryServiceImpl implements QueryService {
                         cb.and(cb.equal(patientID.get(PatientID_.universalEntityID),
                                         queryParam.patientIDWithIssuer.getIssuer().getUniversalEntityID()),
                                 cb.equal(patientID.get(PatientID_.universalEntityIDType),
-                                        queryParam.patientIDWithIssuer.getIssuer().getUniversalEntityID()))));
+                                        queryParam.patientIDWithIssuer.getIssuer().getUniversalEntityIDType()))));
             }
             predicates.add(cb.and(idPredicate.toArray(new Predicate[0])));
         }
