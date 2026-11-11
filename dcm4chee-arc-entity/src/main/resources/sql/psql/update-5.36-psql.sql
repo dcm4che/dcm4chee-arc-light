@@ -12,6 +12,9 @@ create index IDXrirxs9tt1bpxqe9o5v27jb64i on ups (department);
 create index FKjox6k6jwo072bp7isqa8nr99v on ups (inst_code_fk);
 create index FKrkiwdhphbhbfk2lmyp55axis on ups (dept_code_fk);
 
+alter table if exists ups add constraint FKjox6k6jwo072bp7isqa8nr99v foreign key (inst_code_fk) references code;
+alter table if exists ups add constraint FKrkiwdhphbhbfk2lmyp55axis foreign key (dept_code_fk) references code;
+
 alter table patient_id
     add created_time timestamp(6);
 
@@ -25,7 +28,7 @@ alter table metadata
 
 update metadata set num_instances=(
     select count(instance.pk)
-        from instance join series on series_fk=instance.series_fk
+        from instance join series on series_fk=series.pk
         where series.metadata_fk = metadata.pk);
 
 -- part 2: shall be applied on stopped archive before starting 5.36
@@ -40,7 +43,7 @@ update patient_id set created_time=(
 
 update metadata set num_instances=(
     select count(instance.pk)
-        from instance join series on series_fk=instance.series_fk
+        from instance join series on series_fk=series.pk
         where series.metadata_fk = metadata.pk)
     where num_instances is null;
 
