@@ -106,9 +106,6 @@ public class PatientID {
     @Column(name = "entity_uid_type")
     private String universalEntityIDType;
 
-    @Column(name = "pat_id_type_code")
-    private String identifierTypeCode;
-
     @Basic(optional=false)
     @Column(name = "pat_name", updatable = false)
     private String patientName;
@@ -173,14 +170,6 @@ public class PatientID {
             universalEntityID = "*";
             universalEntityIDType = "*";
         }
-    }
-
-    public String getIdentifierTypeCode() {
-        return identifierTypeCode;
-    }
-
-    public void setIdentifierTypeCode(String identifierTypeCode) {
-        this.identifierTypeCode = identifierTypeCode;
     }
 
     public IDWithIssuer getIDWithIssuer() {
