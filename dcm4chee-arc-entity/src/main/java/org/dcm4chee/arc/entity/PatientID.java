@@ -90,6 +90,11 @@ public class PatientID {
     @Column(name = "created_time", updatable = false)
     private Date createdTime;
 
+    @Basic(optional = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "updated_time")
+    private Date updatedTime;
+
     @Basic(optional=false)
     @Column(name = "pat_id", updatable = false)
     private String id;
@@ -116,7 +121,14 @@ public class PatientID {
 
     @PrePersist
     public void onPrePersist() {
-        createdTime = new Date();
+        Date now = new Date();
+        createdTime = now;
+        updatedTime = now;
+    }
+
+    @PreUpdate
+    public void onPreUpdate() {
+        updatedTime = new Date();
     }
 
     public long getPk() {
