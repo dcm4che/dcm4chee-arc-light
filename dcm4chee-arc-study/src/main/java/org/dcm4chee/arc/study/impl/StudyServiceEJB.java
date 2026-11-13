@@ -496,6 +496,11 @@ public class StudyServiceEJB {
         ctx.setAttributes(study.getAttributes());
         ctx.setPatient(study.getPatient());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        if ("*".equals(ctx.getAccessControlID())) {
+           study.setAccessControlIDs();
+           LOG.info("All Access Control IDs successfully removed from Study[UID={}]", ctx.getStudyInstanceUID());
+           return;
+        }
         study.setAccessControlIDs(ctx.getAccessControlID());
         LOG.info("Access Control ID : {} successfully applied to Study[UID={}]",
                 ctx.getAccessControlID(), ctx.getStudyInstanceUID());
@@ -508,6 +513,12 @@ public class StudyServiceEJB {
         ctx.setAttributes(study.getAttributes());
         ctx.setPatient(study.getPatient());
         ctx.setEventActionCode(AuditMessages.EventActionCode.Update);
+        if ("*".equals(ctx.getAccessControlID())) {
+            series.setAccessControlIDs();
+            LOG.info("All Access Control IDs successfully removed from Series[UID={}] of Study[UID={}]",
+                    ctx.getSeriesInstanceUID(), ctx.getStudyInstanceUID());
+            return;
+        }
         series.setAccessControlIDs(ctx.getAccessControlID());
         LOG.info("Access Control ID : {} successfully applied to Series[UID={}] of Study[UID={}]",
                 ctx.getAccessControlID(), ctx.getSeriesInstanceUID(), ctx.getStudyInstanceUID());
