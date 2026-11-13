@@ -417,8 +417,7 @@ public class MWLItem {
         }
         scheduledPerformingPhysicianName = PersonName.valueOf(
                 spsItem.getString(Tag.ScheduledPerformingPhysicianName), fuzzyStr, scheduledPerformingPhysicianName);
-        String cs = spsItem.getString(Tag.ScheduledProcedureStepStatus);
-        status = cs != null ? SPSStatus.valueOf(cs) : SPSStatus.SCHEDULED;
+        status = SPSStatus.valueOf(spsItem.getString(Tag.ScheduledProcedureStepStatus));
         requestedProcedureID = attrs.getString(Tag.RequestedProcedureID);
         studyInstanceUID = attrs.getString(Tag.StudyInstanceUID);
         accessionNumber = attrs.getString(Tag.AccessionNumber, "*");

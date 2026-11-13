@@ -204,6 +204,8 @@ public class ProcedureServiceEJB {
             spsItem.setNull(Tag.ScheduledStationName, VR.SH);
         if (!spsItem.contains(Tag.ScheduledProcedureStepLocation))
             spsItem.setNull(Tag.ScheduledProcedureStepLocation, VR.SH);
+        if (spsItem.getString(Tag.ScheduledProcedureStepStatus) == null)
+            spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.name());
         mwlItem.setAttributes(attrs, arcDev.getAttributeFilter(Entity.MWL), arcDev.getFuzzyStr());
         mwlItem.setInstitutionCode(findOrCreateCode(attrs, Tag.InstitutionCodeSequence));
         mwlItem.setInstitutionalDepartmentTypeCode(findOrCreateCode(attrs, Tag.InstitutionalDepartmentTypeCodeSequence));
@@ -532,6 +534,9 @@ public class ProcedureServiceEJB {
             if (!prevMWLAttrs.equals(new Attributes(attrs, mwlTags))) {
                 if (!simulate) {
                     patientService.updatePatient(patMgtCtx);
+                    Attributes spsItem = mwlItem.getAttributes().getNestedDataset(Tag.ScheduledProcedureStepSequence);
+                    if (spsItem.getString(Tag.ScheduledProcedureStepStatus) == null)
+                        spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.name());
                     updateMWL(ctx, mwlItem);
                     updateStudySeriesAttributesFromMWL(ctx);
                 }
