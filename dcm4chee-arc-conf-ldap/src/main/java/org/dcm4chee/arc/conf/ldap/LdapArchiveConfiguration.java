@@ -6370,7 +6370,7 @@ public class LdapArchiveConfiguration extends LdapDicomConfigurationExtension {
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmChangeAccessControlIDDelay",
                 prev.getDelay(), rule.getDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmChangeAccessControlIDMaxDelay",
-                prev.getDelay(), rule.getDelay(), null);
+                prev.getMaxDelay(), rule.getMaxDelay(), null);
         LdapUtils.storeDiffObject(ldapObj, mods, "dcmStoreAccessControlID",
                 prev.getStoreAccessControlID(), rule.getStoreAccessControlID(), null);
         LdapUtils.storeDiff(ldapObj, mods, "dcmAccessControlID",
