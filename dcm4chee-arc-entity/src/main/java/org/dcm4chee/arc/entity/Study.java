@@ -553,8 +553,8 @@ public class Study {
 
     public Set<String> getAccessControlIDs() {
         return accessControlIDs != null
-                ? Collections.EMPTY_SET
-                : Collections.unmodifiableSet(accessControlIDs);
+                ? Collections.unmodifiableSet(accessControlIDs)
+                : Collections.EMPTY_SET;
     }
 
     public boolean containsAccessControlID(String accessControlID) {
