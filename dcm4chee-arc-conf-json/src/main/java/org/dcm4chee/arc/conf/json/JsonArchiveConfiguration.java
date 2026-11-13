@@ -1464,6 +1464,7 @@ public class JsonArchiveConfiguration extends JsonConfigurationExtension {
                 arcAE.getStorePermissionServiceErrorCommentPattern(), null);
         writer.writeNotNullOrDef("dcmStorePermissionServiceErrorCodePattern",
                 arcAE.getStorePermissionServiceErrorCodePattern(), null);
+        writer.writeNotEmpty("dcmRetrieveAET", arcAE.getRetrieveAETitles());
         writer.writeNotEmpty("dcmReturnRetrieveAET", arcAE.getReturnRetrieveAETitles());
         writer.writeNotEmpty("dcmMultipleStoreAssociations", arcAE.getMultipleStoreAssociations());
         writer.writeNotNullOrDef("dcmExternalRetrieveAEDestination",
