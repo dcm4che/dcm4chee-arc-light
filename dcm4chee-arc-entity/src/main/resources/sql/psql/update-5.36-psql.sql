@@ -1,11 +1,9 @@
 -- part 1: can be applied on archive running archive 5.35
 alter table ups
-    add institution varchar(255),
-    add department varchar(255),
+    add institution varchar(255) not null default '*',
+    add department varchar(255) not null default '*',
     add inst_code_fk bigint,
     add dept_code_fk bigint;
-
-update ups set institution='*', department='*';
 
 create index IDXi74frwq9xkdswyg0cbw0vd3hy on ups (institution);
 create index IDXrirxs9tt1bpxqe9o5v27jb64i on ups (department);
@@ -27,17 +25,15 @@ update patient_id set created_time=(
 update patient_id set updated_time = created_time;
 
 alter table metadata
-    add num_instances integer;
+    add num_instances integer not null default 0;
 
-update metadata set num_instances=(
+update metadata set num_instances = (
     select count(instance.pk)
         from instance join series on series_fk=series.pk
-        where series.metadata_fk = metadata.pk);
+        where series.metadata_fk = metadata.pk)
+    where pk in (select series.metadata_fk from series where inst_purge_state <> 1);
 
 -- part 2: shall be applied on stopped archive before starting 5.36
-update ups set institution='*' where institution is null;
-update ups set department='*' where department is null;
-
 update patient_id set created_time=(
     select patient.created_time
         from patient
@@ -46,18 +42,19 @@ update patient_id set created_time=(
 
 update patient_id set updated_time = created_time where updated_time is null;
 
-update metadata set num_instances=(
+update metadata set num_instances = (
     select count(instance.pk)
         from instance join series on series_fk=series.pk
         where series.metadata_fk = metadata.pk)
-    where num_instances is null;
+    where num_instances = 0
+        and pk in (select series.metadata_fk from series where inst_purge_state <> 1);
 
 -- part 3: can be applied on already running archive 5.36
-alter table ups alter institution set not null;
-alter table ups alter department set not null;
+alter table ups alter institution drop default;
+alter table ups alter department drop default;
 
 alter table patient_id alter created_time set not null;
 alter table patient_id alter updated_time set not null;
 alter table patient_id drop pat_id_type_code;
 
-alter table metadata alter num_instances set not null;
+alter table metadata alter num_instances drop default;
