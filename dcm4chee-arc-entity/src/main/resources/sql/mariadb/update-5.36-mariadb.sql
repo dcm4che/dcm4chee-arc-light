@@ -16,11 +16,14 @@ alter table ups add constraint FKrkiwdhphbhbfk2lmyp55axis foreign key (dept_code
 
 alter table patient_id
     add created_time datetime(6);
+alter table patient_id
+    add updated_time datetime(6);
 
 update patient_id set created_time=(
     select patient.created_time
         from patient
         where patient.pk = patient_id.patient_fk);
+update patient_id set updated_time = created_time;
 
 alter table metadata
     add num_instances integer;
@@ -39,6 +42,7 @@ update patient_id set created_time=(
         from patient
         where patient.pk = patient_id.patient_fk)
     where created_time is null;
+update patient_id set updated_time = created_time where updated_time is null;
 
 update metadata set num_instances=(
     select count(instance.pk)
@@ -52,5 +56,7 @@ alter table ups
     modify department varchar(255) not null;
 
 alter table patient_id modify created_time datetime(6) not null;
+alter table patient_id modify updated_time datetime(6) not null;
+alter table patient_id drop pat_id_type_code;
 
 alter table metadata modify num_instances integer not null;

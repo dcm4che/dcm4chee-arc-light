@@ -16,11 +16,13 @@ create index FKjox6k6jwo072bp7isqa8nr99v on ups (inst_code_fk) ;
 create index FKrkiwdhphbhbfk2lmyp55axis on ups (dept_code_fk) ;
 
 alter table patient_id add created_time timestamp(6);
+alter table patient_id add updated_time timestamp(6);
 
 update patient_id set created_time=(
     select patient.created_time
         from patient
         where patient.pk = patient_id.patient_fk);
+update patient_id set updated_time = created_time;
 
 alter table metadata add num_instances integer;
 
@@ -38,6 +40,7 @@ update patient_id set created_time=(
         from patient
         where patient.pk = patient_id.patient_fk)
     where created_time is null;
+update patient_id set updated_time = created_time where updated_time is null;
 
 update metadata set num_instances=(
     select count(instance.pk)
@@ -50,5 +53,7 @@ alter table ups alter column institution set not null;
 alter table ups alter column department set not null;
 
 alter table patient_id alter column created_time set not null;
+alter table patient_id alter column updated_time set not null;
+alter table patient_id drop column pat_id_type_code;
 
 alter table metadata alter column num_instances set not null;
