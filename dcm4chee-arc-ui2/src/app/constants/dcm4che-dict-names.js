@@ -1926,6 +1926,7 @@ DCM4CHE.elementName = (function (dictionary) {
 "00209164":"Dimension Organization UID",
 "00209165":"Dimension Index Pointer",
 "00209167":"Functional Group Pointer",
+"00209168":"Total Number of Frames in Concatenation",
 "00209170":"Unassigned Shared Converted Attributes Sequence",
 "00209171":"Unassigned Per-Frame Converted Attributes Sequence",
 "00209172":"Conversion Source Attributes Sequence",
