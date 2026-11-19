@@ -7590,6 +7590,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.confirm({
             content: dialogText,
             doNotSave:true,
+            cssClass:'small_dialog',
             form_schema:[
                 [
                     [
@@ -7664,6 +7665,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.confirm({
             content: dialogText,
             doNotSave:true,
+            cssClass:'small_dialog',
             form_schema:[
                 [
                     [
@@ -7815,6 +7817,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.confirm({
             content: dialogText,
             doNotSave:true,
+            cssClass:'small_dialog',
             form_schema:[
                 [
                     [
@@ -8605,6 +8608,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
         this.confirm({
             content: $localize `:@@select_rejection_note_type:Select Rejection Note type`,
             doNotSave:true,
+            cssClass: "small_dialog",
             form_schema:[
                 [
                     [
@@ -8732,6 +8736,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             //content: $localize `:@@study.export_all_matching_series:Export all matching series`,
             content: title,
             doNotSave:true,
+            cssClass: "small_dialog",
             form_schema:this.service.exportMatchingDialogSchema(this.exporters),
             result: {
                 schema_model: {}
@@ -9566,6 +9571,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.confirm({
                 content: $localize`:@@scheduled_storage_verification_of_matching_series:Schedule Storage Verification of matching Series`,
                 doNotSave: true,
+                cssClass:'small_dialog',
                 form_schema: [
                     [
                         [
@@ -9692,7 +9698,7 @@ export class StudyComponent implements OnInit, OnDestroy, AfterContentChecked{
             this.confirm({
                 content: $localize`:@@scheduled_storage_verification_of_matching_studies:Schedule Storage Verification of matching Studies`,
                 doNotSave: true,
-                cssClass:'has_date_picker',
+                cssClass:'has_date_picker small_dialog',
                 form_schema: [
                     [
                         [
