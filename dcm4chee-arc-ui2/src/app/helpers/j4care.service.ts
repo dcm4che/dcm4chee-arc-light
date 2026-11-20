@@ -1100,7 +1100,7 @@ export class j4care {
                     let filterMapped = Object.keys(filter).map((key) => {
                         if (filter[key] || filter[key] === false || filter[key] === 0){
                             console.log('trimmed',filter[key]);
-                            return key + '=' + (typeof filter[key] === 'string' ? filter[key].trim() : filter[key]);
+                            return key + '=' + (typeof filter[key] === 'string' ? encodeURIComponent(filter[key].trim()) : filter[key]);
                         }
                     });
                     let filterCleared = _.compact(filterMapped);

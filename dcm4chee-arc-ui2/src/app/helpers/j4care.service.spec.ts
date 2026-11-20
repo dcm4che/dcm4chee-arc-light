@@ -243,6 +243,14 @@ describe('j4care', () => {
         expect(j4care.isSet(undefined)).toBeFalsy();
     });
 
+    it("Should encode the values of the query parameters: objToUrlParams()",()=>{
+        expect(j4care.objToUrlParams({
+            PatientName: "Wang^XiaoDong=王^小東",
+            limit: 21
+        })).toEqual("PatientName=Wang%5EXiaoDong%3D%E7%8E%8B%5E%E5%B0%8F%E6%9D%B1&limit=21");
+        expect(j4care.objToUrlParams({StudyDescription: " A&B "}, true)).toEqual("?StudyDescription=A%26B");
+    });
+
     it("Converts two dates in to range",()=>{
         expect(j4care.convertToDatePareString("2018.01.01","2018.01.04")).toEqual("20180101-20180104");
         expect(j4care.convertToDatePareString("2018.01.01","2018.01.01")).toEqual("20180101");
