@@ -377,13 +377,13 @@ public class StgCmtEJB {
 
         ListStgVerBatches(TaskQueryParam queryParam) {
             this.queryParam = queryParam;
-            this.completed = statusSubquery(Task.Status.COMPLETED).getSelection();
-            this.failed = statusSubquery(Task.Status.FAILED).getSelection();
-            this.warning = statusSubquery(Task.Status.WARNING).getSelection();
-            this.canceled = statusSubquery(Task.Status.CANCELED).getSelection();
-            this.scheduled = statusSubquery(Task.Status.SCHEDULED).getSelection();
-            this.scheduledForRetry = statusSubquery(Task.Status.SCHEDULED_FOR_RETRY).getSelection();
-            this.inprocess = statusSubquery(Task.Status.IN_PROCESS).getSelection();
+            this.completed = statusSubquery(Task.Status.COMPLETED);
+            this.failed = statusSubquery(Task.Status.FAILED);
+            this.warning = statusSubquery(Task.Status.WARNING);
+            this.canceled = statusSubquery(Task.Status.CANCELED);
+            this.scheduled = statusSubquery(Task.Status.SCHEDULED);
+            this.scheduledForRetry = statusSubquery(Task.Status.SCHEDULED_FOR_RETRY);
+            this.inprocess = statusSubquery(Task.Status.IN_PROCESS);
             query.multiselect(batchIDPath,
                     minProcessingStartTime, maxProcessingStartTime,
                     minProcessingEndTime, maxProcessingEndTime,
@@ -408,7 +408,6 @@ public class StgCmtEJB {
         }
 
         private Subquery<Long> statusSubquery(Task.Status status) {
-            CriteriaQuery<Task> query = cb.createQuery(Task.class);
             Subquery<Long> sq = query.subquery(Long.class);
             Root<Task> sqtask = sq.from(Task.class);
             List<Predicate> predicates = new ArrayList<>();
