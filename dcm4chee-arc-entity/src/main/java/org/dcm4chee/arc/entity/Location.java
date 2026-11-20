@@ -122,10 +122,9 @@ import java.util.Date;
                 query = "update Location l set l.status = ?2 where l.multiReference = ?1"),
         @NamedQuery(name = Location.MARK_FOR_DELETION_BY_STUDY,
                 query = "update Location l set l.status = ?2, l.instance = null " +
-                        "where l in (" +
-                        "select l2 from Location l2 where l2.instance.series.study = ?1 " +
-                        "and l2.status != ?2 and l2.objectType = ?3 " +
-                        "and l2.multiReference is null and l2.uidMap.pk is null)"),
+                        "where l.instance in (select i from Instance i where i.series.study = ?1) " +
+                        "and l.status != ?2 and l.objectType = ?3 " +
+                        "and l.multiReference is null and l.uidMap is null"),
         @NamedQuery(name = Location.UPDATE_STATUS_FROM,
                 query = "update Location l set l.status = ?3 where l.pk = ?1 and l.status = ?2"),
         @NamedQuery(name = Location.UPDATE_STATUS_BY_STORAGE_ID_FROM,
