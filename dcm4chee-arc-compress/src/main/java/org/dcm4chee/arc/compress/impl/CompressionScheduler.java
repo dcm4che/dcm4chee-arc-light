@@ -43,7 +43,7 @@ package org.dcm4chee.arc.compress.impl;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.dcm4che3.data.UID;
+import org.dcm4che3.imageio.codec.TransferSyntaxType;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4chee.arc.Scheduler;
 import org.dcm4chee.arc.conf.*;
@@ -177,9 +177,10 @@ public class CompressionScheduler extends Scheduler {
             compressionRule.setTransferSyntax(compr.transferSyntaxUID);
             compressionRule.setImageWriteParams(compr.imageWriteParams());
             for (InstanceLocations inst : retrCtx.getMatches()) {
-                if (alreadyCompressed(inst.getLocations(), compr.transferSyntaxUID)) {
-                    LOG.info("{} of Series[iuid={}] of Study[iuid={}] already compressed with {} - skipped",
-                            inst, compr.seriesInstanceUID, compr.studyInstanceUID, UID.nameOf(compr.transferSyntaxUID));
+                // Compression replaces the instance's existing locations.
+                if (hasNonNativeDicomLocation(inst.getLocations())) {
+                    LOG.info("{} of Series[iuid={}] of Study[iuid={}] has a non-native or unknown stored transfer syntax - skipped",
+                            inst, compr.seriesInstanceUID, compr.studyInstanceUID);
                     skipped++;
                     continue;
                 }
@@ -204,7 +205,10 @@ public class CompressionScheduler extends Scheduler {
         }
     }
 
-    private boolean alreadyCompressed(List<Location> locations, String tsuid) {
-        return locations.stream().anyMatch(l -> Location.isDicomFile(l) && l.getTransferSyntaxUID().equals(tsuid));
+    static boolean hasNonNativeDicomLocation(List<Location> locations) {
+        return locations.stream()
+                .filter(Location::isDicomFile)
+                .map(Location::getTransferSyntaxUID)
+                .anyMatch(tsuid -> tsuid == null || TransferSyntaxType.forUID(tsuid) != TransferSyntaxType.NATIVE);
     }
 }
