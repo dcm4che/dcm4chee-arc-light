@@ -162,6 +162,8 @@ public class MwlRS {
                 spsItem.setString(Tag.ScheduledProcedureStepStatus, VR.CS, SPSStatus.SCHEDULED.toString());
             if (!spsItem.containsValue(Tag.ScheduledStationAETitle))
                 adjustScheduledStations(spsItem);
+            if (!attrs.containsValue(Tag.WorklistLabel) && arcAE.getMWLWorklistLabel() != null)
+                attrs.setString(Tag.WorklistLabel, VR.LO, arcAE.getMWLWorklistLabel());
             ProcedureContext ctx = procedureService.createProcedureContext()
                     .setHttpServletRequest(HttpServletRequestInfo.valueOf(request));
             ctx.setLocalAET(aet);
