@@ -230,6 +230,12 @@ class StgCmtImpl extends AbstractDicomService implements StgCmtSCP, StgCmtSCU {
 
     private void scheduleNAction(String localAET, String remoteAET, Attributes actionInfo,
                                  ExportContext ctx, String exporterID, Date scheduledTime) {
+        if (actionInfo == null) {
+            LOG.warn("No matching instances of Study[uid={}], Series[uid={}], Instance[uid={}]" +
+                            " - no Storage Commitment request to {} scheduled",
+                    ctx.getStudyInstanceUID(), ctx.getSeriesInstanceUID(), ctx.getSopInstanceUID(), remoteAET);
+            return;
+        }
         Task task = new Task();
         task.setDeviceName(device.getDeviceName());
         task.setQueueName(StgCmtSCU.QUEUE_NAME);

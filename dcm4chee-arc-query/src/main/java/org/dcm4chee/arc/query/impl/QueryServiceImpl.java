@@ -544,8 +544,12 @@ class QueryServiceImpl implements QueryService {
     @Override
     public Attributes createActionInfo(String studyIUID, String seriesIUID, String sopIUID, ApplicationEntity ae) {
         QueryRetrieveView qrView = ae.getAEExtensionNotNull(ArchiveAEExtension.class).getQueryRetrieveView();
-        return ejb.getSOPInstanceRefs(QueryServiceEJB.SOPInstanceRefsType.STGCMT, studyIUID, sopIUID, qrView,
-                null, null, null, null, seriesIUID);
+        Attributes refStudy = new Attributes(2);
+        Sequence refSeriesSeq = refStudy.newSequence(Tag.ReferencedSeriesSequence, 10);
+        refStudy.setString(Tag.StudyInstanceUID, VR.UI, studyIUID);
+        addPurgedSOPInstanceRefs(refSeriesSeq, studyIUID, new String[]{ seriesIUID }, sopIUID);
+        return ejb.getSOPInstanceRefs(refStudy, QueryServiceEJB.SOPInstanceRefsType.STGCMT, studyIUID, sopIUID,
+                qrView, null, null, null, null, seriesIUID);
     }
 
     @Override
