@@ -486,7 +486,7 @@ public class PurgeStorageScheduler extends Scheduler {
             if (prevStorageIDs == null) {
                 return false;
             }
-            if (ejb.deleteObjectsOfStudy(studyPkUID, desc, storageIDs)) {
+            if (ejb.deleteObjectsOfStudy(studyPkUID, desc, storageIDs, prevStorageIDs)) {
                 LOG.info("Successfully marked objects of {} at {} for deletion", studyPkUID, desc);
                 return true;
             }

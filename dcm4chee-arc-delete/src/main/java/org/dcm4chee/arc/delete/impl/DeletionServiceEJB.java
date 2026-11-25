@@ -353,7 +353,7 @@ public class DeletionServiceEJB {
                 .anyMatch(storageID -> storageID.equals(desc.getStorageID()));
     }
 
-    public boolean deleteObjectsOfStudy(Study.PKUID studyPkUID, StorageDescriptor desc, List<String> storageIDs) {
+    public boolean deleteObjectsOfStudy(Study.PKUID studyPkUID, StorageDescriptor desc, List<String> storageIDs, String[] prevStorageIDs) {
         LOG.debug("Query for objects of {} at Storage{}", studyPkUID, storageIDs);
         List<Location> locations = em.createNamedQuery(Location.FIND_BY_STUDY_PK_AND_STORAGE_IDS, Location.class)
                 .setParameter(1, studyPkUID.pk)
@@ -362,6 +362,21 @@ public class DeletionServiceEJB {
         if (locations.isEmpty()) {
             LOG.warn("{} does not contain objects at Storage{}", studyPkUID, storageIDs);
             return false;
+        }
+        if (desc.getExportStorageID().length != 0) {
+            Long notExportedInstances = em.createNamedQuery(
+                    Instance.COUNT_INSTANCES_OF_STUDY_ON_STORAGE_AND_NOT_ON_STORAGE, Long.class)
+                    .setParameter(1, studyPkUID.pk)
+                    .setParameter(2, storageIDs)
+                    .setParameter(3, Arrays.asList(desc.getExportStorageID()))
+                    .setParameter(4, LocationStatus.OK)
+                    .getSingleResult();
+            if (notExportedInstances != null && notExportedInstances > 0) {
+                LOG.warn("{} objects of {} at Storage{} not yet exported to Storage{} - defer deletion of objects of Study",
+                        notExportedInstances, studyPkUID, storageIDs, desc.getExportStorageID());
+                setStorageIDsAndUpdateAccessTime(studyPkUID.pk, StringUtils.concat(prevStorageIDs, '\\'));
+                return false;
+            }
         }
         LOG.debug("Start marking {} objects of {} for deletion at Storage{}", locations.size(), studyPkUID, storageIDs);
         Collection<Instance> insts = removeOrMarkLocationAs(locations, Integer.MAX_VALUE, false);
@@ -467,6 +482,13 @@ public class DeletionServiceEJB {
 
     public void setStorageIDs(Long studyPk, String storageIDs) {
         em.createNamedQuery(Study.SET_STORAGE_IDS)
+                .setParameter(1, studyPk)
+                .setParameter(2, storageIDs)
+                .executeUpdate();
+    }
+
+    public void setStorageIDsAndUpdateAccessTime(Long studyPk, String storageIDs) {
+        em.createNamedQuery(Study.SET_STORAGE_IDS_AND_UPDATE_ACCESS_TIME)
                 .setParameter(1, studyPk)
                 .setParameter(2, storageIDs)
                 .executeUpdate();

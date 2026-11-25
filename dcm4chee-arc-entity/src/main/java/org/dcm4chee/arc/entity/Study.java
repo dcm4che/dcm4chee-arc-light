@@ -146,6 +146,10 @@ import java.util.stream.Collectors;
                 query = "update Study st set st.storageIDs = null " +
                         "where st.pk = ?1 and st.storageIDs is not null"),
         @NamedQuery(
+                name = Study.SET_STORAGE_IDS_AND_UPDATE_ACCESS_TIME,
+                query = "update Study st set st.storageIDs = ?2, st.accessTime = CURRENT_TIMESTAMP " +
+                        "where st.pk = ?1"),
+        @NamedQuery(
                 name = Study.FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE,
                 query = "select st from Study st " +
                         "join fetch st.patient p " +
@@ -210,6 +214,7 @@ public class Study {
     public static final String FIND_BY_UPDATE_TIME_AND_UNKNOWN_SIZE = "Study.findByUpdateTimeAndUnknownSize";
     public static final String CLAIM_UNKNOWN_SIZE_STUDY = "Study.claimUnknownSizeStudy";
     public static final String SET_STUDY_SIZE_IF_CLAIMED = "Study.setStudySizeIfClaimed";
+    public static final String SET_STORAGE_IDS_AND_UPDATE_ACCESS_TIME = "Study.setStorageIDsAndUpdateAccessTime";
 
     public static class PKUID {
         public final Long pk;
