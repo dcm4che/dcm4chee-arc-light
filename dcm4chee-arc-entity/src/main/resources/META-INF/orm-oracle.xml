@@ -91,7 +91,7 @@
         <generated-value strategy="SEQUENCE" generator="content_item_pk_seq"/>
         <sequence-generator name="content_item_pk_seq" sequence-name="content_item_pk_seq" allocation-size="1"/>
       </id>
-      <basic name="textValue" optional="false">
+      <basic name="textValue">
         <column name="text_value" column-definition="nvarchar2(255)" />
       </basic>
     </attributes>
@@ -114,7 +114,7 @@
         <generated-value strategy="SEQUENCE" generator="hl7psu_task_pk_seq"/>
         <sequence-generator name="hl7psu_task_pk_seq" sequence-name="hl7psu_task_pk_seq" allocation-size="1"/>
       </id>
-      <basic name="accessionNumber" optional="false">
+      <basic name="accessionNumber">
         <column name="accession_no" column-definition="nvarchar2(255)" />
       </basic>
     </attributes>
