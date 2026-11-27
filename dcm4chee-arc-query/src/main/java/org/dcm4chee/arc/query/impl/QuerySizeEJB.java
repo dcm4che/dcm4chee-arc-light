@@ -66,10 +66,10 @@ public class QuerySizeEJB {
     EntityManager em;
 
     public long calculateStudySize(Long studyPk, String updateStudySize, boolean updateDB) {
-        Object result = em.createNamedQuery(Series.SIZE_OF_STUDY, Long.class)
+        Long result = em.createNamedQuery(Series.SIZE_OF_STUDY, Long.class)
                         .setParameter(1, studyPk)
                         .getSingleResult();
-        long size = result instanceof Number ? ((Number) result).longValue() : 0L;
+        long size = result != null ? result : 0L;
         for (Long seriesPk : em.createNamedQuery(Series.SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE, Long.class)
                 .setParameter(1, studyPk)
                 .getResultList()) {
@@ -85,11 +85,11 @@ public class QuerySizeEJB {
     }
 
     public long calculateSeriesSize(Long seriesPk, boolean updateDB) {
-        Object result = em.createNamedQuery(Location.SIZE_OF_SERIES)
+        Long result = em.createNamedQuery(Location.SIZE_OF_SERIES, Long.class)
                 .setParameter(1, seriesPk)
                 .setParameter(2, Location.ObjectType.DICOM_FILE.ordinal())
                 .getSingleResult();
-        long size = result instanceof Number ? ((Number) result).longValue() : 0L;
+        long size = result != null ? result : 0L;
         if (updateDB) {
             em.createNamedQuery(Series.SET_SERIES_SIZE)
                     .setParameter(1, seriesPk)

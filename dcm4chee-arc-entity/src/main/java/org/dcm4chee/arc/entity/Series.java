@@ -109,7 +109,8 @@ import java.util.stream.Stream;
 @NamedQuery(
     name = Series.SERIES_PKS_OF_STUDY_WITH_UNKNOWN_SIZE,
     query = "select se.pk from Series se " +
-            "where se.study.pk = ?1 and se.size = -1"),
+            "where se.study.pk = ?1 and se.size = -1 " +
+            "order by se.pk"),
 @NamedQuery(
     name = Series.SERIES_PKS_OF_STUDY_BY_STUDY_IUID,
     query = "select se.pk from Series se " +
