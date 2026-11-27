@@ -1,6 +1,8 @@
 #!/usr/bin/awk -f
 BEGIN { FS = "[ )]" }
 {
+    # Hibernate 7 SQLServerDialect generates datetime2(7) by default; keep datetime2(6) as in existing DBs
+    gsub(/ datetime2\(7\)/, " datetime2(6)")
     if ($1 == "create") {
         if ($3 == "dicomattrs") {
             print "create table dicomattrs (pk bigint identity not null, attrs varbinary(MAX) not null, primary key (pk));"
