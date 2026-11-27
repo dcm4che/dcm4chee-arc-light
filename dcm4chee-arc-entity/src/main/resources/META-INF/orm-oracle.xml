@@ -225,13 +225,13 @@
         <generated-value strategy="SEQUENCE" generator="person_name_pk_seq"/>
         <sequence-generator name="person_name_pk_seq" sequence-name="person_name_pk_seq" allocation-size="1"/>
       </id>
-      <basic name="alphabeticName">
+      <basic name="alphabeticName" optional="true">
         <column name="alphabetic_name" column-definition="nvarchar2(255)"/>
       </basic>
-      <basic name="ideographicName">
+      <basic name="ideographicName" optional="true">
         <column name="ideographic_name" column-definition="nvarchar2(255)"/>
       </basic>
-      <basic name="phoneticName">
+      <basic name="phoneticName" optional="true">
         <column name="phonetic_name" column-definition="nvarchar2(255)"/>
       </basic>
     </attributes>
