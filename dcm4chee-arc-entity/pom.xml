@@ -163,6 +163,11 @@
             <version>${hibernate.orm.version}</version>
           </dependency>
           <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-scan-jandex</artifactId>
+            <version>${hibernate.orm.version}</version>
+          </dependency>
+          <dependency>
             <groupId>jakarta.json</groupId>
             <artifactId>jakarta.json-api</artifactId>
             <version>${jakarta.json.version}</version>
