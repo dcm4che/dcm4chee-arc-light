@@ -378,6 +378,20 @@ public class DeletionServiceEJB {
                 return false;
             }
         }
+        if (desc.getExternalRetrieveAETitles().length != 0) {
+            Long notExternalRetrieveableInstances = em.createNamedQuery(
+                            Instance.COUNT_INSTANCES_OF_STUDY_ON_STORAGE_AND_NOT_EXTERNAL_RETRIEVEABLE, Long.class)
+                    .setParameter(1, studyPkUID.pk)
+                    .setParameter(2, storageIDs)
+                    .setParameter(3, Arrays.asList(desc.getExternalRetrieveAETitles()))
+                    .getSingleResult();
+            if (notExternalRetrieveableInstances != null && notExternalRetrieveableInstances > 0) {
+                LOG.warn("{} objects of {} at Storage{} not yet external retrievable from AE{} - defer deletion of objects of Study",
+                        notExternalRetrieveableInstances, studyPkUID, storageIDs, desc.getExportStorageID());
+                setStorageIDsAndUpdateAccessTime(studyPkUID.pk, StringUtils.concat(prevStorageIDs, '\\'));
+                return false;
+            }
+        }
         LOG.debug("Start marking {} objects of {} for deletion at Storage{}", locations.size(), studyPkUID, storageIDs);
         Collection<Instance> insts = removeOrMarkLocationAs(locations, Integer.MAX_VALUE, false);
         LOG.debug("Finish marking {}/{} objects/instances of {} for deletion at Storage{}",

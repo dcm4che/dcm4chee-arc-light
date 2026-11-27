@@ -222,7 +222,12 @@ import java.util.*;
         name = Instance.COUNT_INSTANCES_OF_STUDY_ON_STORAGE_AND_NOT_ON_STORAGE,
         query = "select count(i) from Instance i where i.series.study.pk = ?1 " +
                 "and exists (select 1 from Location l1 where l1.instance = i and l1.storageID in ?2) " +
-                "and not exists (select 1 from Location l2 where l2.instance = i and l2.storageID in ?3 and l2.status = ?4)")
+                "and not exists (select 1 from Location l2 where l2.instance = i and l2.storageID in ?3 and l2.status = ?4)"),
+@NamedQuery(
+        name = Instance.COUNT_INSTANCES_OF_STUDY_ON_STORAGE_AND_NOT_EXTERNAL_RETRIEVEABLE,
+        query = "select count(i) from Instance i where i.series.study.pk = ?1 " +
+                "and exists (select 1 from Location l1 where l1.instance = i and l1.storageID in ?2) " +
+                "and i.externalRetrieveAET not in ?3")
 })
 @Entity
 @Table(name = "instance",
@@ -267,6 +272,7 @@ public class Instance {
     public static final String DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_PK = "Instance.distinctExternalRetrieveAETsBySeriesPk";
     public static final String DISTINCT_EXTERNAL_RETRIEVE_AET_BY_SERIES_IUID = "Instance.distinctExternalRetrieveAETsBySeriesIUID";
     public static final String COUNT_INSTANCES_OF_STUDY_ON_STORAGE_AND_NOT_ON_STORAGE = "Instance.countInstancesOfStudyOnStorageAndNotOnStorage";
+    public static final String COUNT_INSTANCES_OF_STUDY_ON_STORAGE_AND_NOT_EXTERNAL_RETRIEVEABLE = "Instance.countInstancesOfStudyOnStorageAndNotExternalRetrieveable";
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
