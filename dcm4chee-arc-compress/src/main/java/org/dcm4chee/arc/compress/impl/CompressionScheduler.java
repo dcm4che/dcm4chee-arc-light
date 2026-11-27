@@ -120,10 +120,20 @@ public class CompressionScheduler extends Scheduler {
             for (Series.Compression compression : compressions) {
                 if (ejb.claimForCompression(compression)) {
                     acquire(semaphore, 1);
-                    device.execute(() -> {
-                        process(ae, compression);
-                        semaphore.release();
-                    });
+                    try {
+                        device.execute(() -> {
+                            try {
+                                process(ae, compression);
+                            } catch (Throwable e) {
+                                LOG.warn("Unexpected failure of compression of Series[iuid={}] of Study[iuid={}]:\n",
+                                        compression.seriesInstanceUID, compression.studyInstanceUID, e);
+                            } finally {
+                                semaphore.release();
+                            }
+                        });
+                    } catch (RuntimeException e) {
+                        throw e;
+                    }
                 }
             }
             int acquire = permits - (permits = arcDev.getCompressionThreads());
