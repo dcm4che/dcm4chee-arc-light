@@ -102,13 +102,13 @@
 
   <entity class="org.dcm4chee.arc.entity.PersonName">
     <attributes>
-      <basic name="alphabeticName">
+      <basic name="alphabeticName" optional="false">
         <column name="alphabetic_name" column-definition="nvarchar(255)"/>
       </basic>
-      <basic name="ideographicName">
+      <basic name="ideographicName" optional="false">
         <column name="ideographic_name" column-definition="nvarchar(255)"/>
       </basic>
-      <basic name="phoneticName">
+      <basic name="phoneticName" optional="false">
         <column name="phonetic_name" column-definition="nvarchar(255)"/>
       </basic>
     </attributes>
