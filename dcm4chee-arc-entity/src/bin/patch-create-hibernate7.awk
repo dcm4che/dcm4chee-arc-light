@@ -10,11 +10,16 @@
 #   - inline in create table (h2, oracle, psql)
 #   - alter table ... add constraint UK... unique (firebird, mariadb, mysql)
 #   - create unique [nonclustered] index UK... (db2, sqlserver)
+#
+# Hibernate 7.3 (HHH-20076) generates the @Version columns as not null. Existing DBs have them nullable
+# (Hibernate always sets the value, so no functional difference): keep them nullable.
 /^alter table (if exists )?(study_access_control_id|series_access_control_id|sps_station_aet) add constraint UK[a-z0-9]+ unique / { next }
 /^create unique (nonclustered )?index UK[a-z0-9]+ on (study_access_control_id|series_access_control_id|sps_station_aet) / { next }
 {
     gsub(/, unique \(study_fk, access_control_id\)/, "")
     gsub(/, unique \(series_fk, access_control_id\)/, "")
     gsub(/, unique \(mwl_item_fk, station_aet\)/, "")
+    gsub(/, version bigint not null/, ", version bigint")
+    gsub(/, version number\(19,0\) not null/, ", version number(19,0)")
     print
 }
