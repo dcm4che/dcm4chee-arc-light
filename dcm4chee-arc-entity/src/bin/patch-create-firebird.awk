@@ -1,6 +1,9 @@
 #!/usr/bin/awk -f
 BEGIN { FS = "[ )]" }
 {
+    # Hibernate 7 FirebirdDialect generates sequences for Firebird 4+ with start with 1 increment by 1:
+    # keep create sequence without options as in existing scripts (on Firebird 3, start with 1 would make 2 the first value)
+    sub(/ start with 1 increment by 1;$/, ";")
     if ($1 == "create") {
         if ($3 == "code") {
             print "create table code (pk bigint not null, code_meaning varchar(255) not null, code_value varchar(16) not null, code_designator varchar(16) not null, code_version varchar(16) not null, primary key (pk));"
